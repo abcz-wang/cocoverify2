@@ -63,3 +63,28 @@ class TestCategory(str, Enum):
     NEGATIVE = "negative"
     REGRESSION = "regression"
     METAMORPHIC = "metamorphic"
+
+
+class OracleCheckType(str, Enum):
+    """Structured oracle check categories."""
+
+    PROTOCOL = "protocol"
+    FUNCTIONAL = "functional"
+    PROPERTY = "property"
+
+
+class TemporalWindowMode(str, Enum):
+    """Supported temporal window styles for oracle checks."""
+
+    EXACT_CYCLE = "exact_cycle"
+    BOUNDED_RANGE = "bounded_range"
+    EVENT_BASED = "event_based"
+    UNBOUNDED_SAFE = "unbounded_safe"
+
+
+class OracleStrictness(str, Enum):
+    """Strictness tags for conservative oracle generation."""
+
+    STRICT = "strict"
+    CONSERVATIVE = "conservative"
+    GUARDED = "guarded"

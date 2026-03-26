@@ -36,3 +36,4 @@ def test_stage_help_mentions_contract_inputs() -> None:
     assert "--rtl" in result.stdout
     assert "--golden-interface" in result.stdout
     assert "--contract" in result.stdout
+    assert "--plan" in result.stdout

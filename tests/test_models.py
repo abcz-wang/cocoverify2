@@ -6,17 +6,28 @@ from cocoverify2.core.models import (
     ClockSpec,
     DUTContract,
     FinalVerdict,
+    OracleCase,
+    OracleCheck,
+    OracleConfidenceSummary,
     OracleSpec,
     PortSpec,
     ResetSpec,
     SimulationConfig,
     SimulationResult,
+    TemporalWindow,
     TestCasePlan as CasePlanModel,
     TestPlan as PlanModel,
     TriageResult,
     VerificationReport,
 )
-from cocoverify2.core.types import PortDirection, TestCategory as PlanCategory, VerdictKind
+from cocoverify2.core.types import (
+    OracleCheckType,
+    OracleStrictness,
+    PortDirection,
+    TemporalWindowMode,
+    TestCategory as PlanCategory,
+    VerdictKind,
+)
 
 
 def test_core_models_can_be_instantiated_and_serialized() -> None:
@@ -47,7 +58,34 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
         ],
         assumptions=["plan assumption"],
     )
-    oracle = OracleSpec(protocol_oracle={"mode": "placeholder"})
+    oracle = OracleSpec(
+        module_name="demo",
+        based_on_contract="artifacts/contract/contract.json",
+        based_on_plan="artifacts/plan/test_plan.json",
+        oracle_strategy="rule_based_demo",
+        property_oracles=[
+            OracleCase(
+                case_id="property_reset_001",
+                linked_plan_case_id="reset_001",
+                category=PlanCategory.RESET,
+                checks=[
+                    OracleCheck(
+                        check_id="reset_001_property_001",
+                        check_type=OracleCheckType.PROPERTY,
+                        description="guardrail reset check",
+                        observed_signals=["done"],
+                        trigger_condition="during reset",
+                        pass_condition="no premature completion",
+                        temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="reset_release"),
+                        strictness=OracleStrictness.GUARDED,
+                        source="rule_based",
+                    )
+                ],
+                source="rule_based",
+            )
+        ],
+        oracle_confidence=OracleConfidenceSummary(overall_confidence=0.5, property_confidence=0.5),
+    )
     sim_cfg = SimulationConfig(rtl_sources=[Path("dut.v")], toplevel="demo")
     sim_result = SimulationResult(executed_cases=["reset_001"])
     triage = TriageResult(primary_category="unclassified")
@@ -66,5 +104,6 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
     assert payload["contract"]["rtl_sources"] == ["dut.v"]
     assert payload["test_plan_summary"]["cases"][0]["category"] == "reset"
     assert payload["test_plan_summary"]["based_on_contract"] == "artifacts/contract/contract.json"
+    assert payload["oracle_summary"]["property_oracles"][0]["checks"][0]["check_type"] == "property"
     assert payload["final_verdict"]["verdict"] == "inconclusive"
     assert sim_cfg.model_dump(mode="json")["toplevel"] == "demo"

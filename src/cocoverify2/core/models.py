@@ -7,7 +7,16 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from cocoverify2.core.types import LatencyModel, PortDirection, SequentialKind, TestCategory, VerdictKind
+from cocoverify2.core.types import (
+    LatencyModel,
+    OracleCheckType,
+    OracleStrictness,
+    PortDirection,
+    SequentialKind,
+    TemporalWindowMode,
+    TestCategory,
+    VerdictKind,
+)
 
 
 class ModelBase(BaseModel):
@@ -128,14 +137,67 @@ class TestPlan(ModelBase):
     plan_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
 
 
+class TemporalWindow(ModelBase):
+    """Explicit temporal window metadata for an oracle check."""
+
+    mode: TemporalWindowMode = TemporalWindowMode.EVENT_BASED
+    min_cycles: int | None = Field(default=None, ge=0)
+    max_cycles: int | None = Field(default=None, ge=0)
+    anchor: str = ""
+
+
+class OracleCheck(ModelBase):
+    """Single structured oracle check ready for later render-stage translation."""
+
+    check_id: str
+    check_type: OracleCheckType = OracleCheckType.PROPERTY
+    description: str
+    observed_signals: list[str] = Field(default_factory=list)
+    trigger_condition: str = ""
+    pass_condition: str = ""
+    temporal_window: TemporalWindow = Field(default_factory=TemporalWindow)
+    strictness: OracleStrictness = OracleStrictness.CONSERVATIVE
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    source: str = "unknown"
+    notes: list[str] = Field(default_factory=list)
+
+
+class OracleCase(ModelBase):
+    """Structured oracle bundle linked to a single test-plan case."""
+
+    case_id: str
+    linked_plan_case_id: str
+    category: TestCategory = TestCategory.BASIC
+    checks: list[OracleCheck] = Field(default_factory=list)
+    assumptions: list[str] = Field(default_factory=list)
+    unresolved_items: list[str] = Field(default_factory=list)
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    source: str = "unknown"
+    notes: list[str] = Field(default_factory=list)
+
+
+class OracleConfidenceSummary(ModelBase):
+    """Confidence breakdown across oracle categories."""
+
+    overall_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    protocol_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    functional_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    property_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
 class OracleSpec(ModelBase):
     """Structured oracle artifact produced independently from the test plan."""
 
-    protocol_oracle: dict[str, Any] = Field(default_factory=dict)
-    functional_oracle: dict[str, Any] = Field(default_factory=dict)
-    property_oracle: dict[str, Any] = Field(default_factory=dict)
+    module_name: str = ""
+    based_on_contract: str = ""
+    based_on_plan: str = ""
+    oracle_strategy: str = ""
+    protocol_oracles: list[OracleCase] = Field(default_factory=list)
+    functional_oracles: list[OracleCase] = Field(default_factory=list)
+    property_oracles: list[OracleCase] = Field(default_factory=list)
     unresolved_items: list[str] = Field(default_factory=list)
-    oracle_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    assumptions: list[str] = Field(default_factory=list)
+    oracle_confidence: OracleConfidenceSummary = Field(default_factory=OracleConfidenceSummary)
 
 
 class SimulationConfig(ModelBase):

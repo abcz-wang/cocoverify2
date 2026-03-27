@@ -200,6 +200,31 @@ class OracleSpec(ModelBase):
     oracle_confidence: OracleConfidenceSummary = Field(default_factory=OracleConfidenceSummary)
 
 
+class RenderedFile(ModelBase):
+    """Single generated render artifact and its role in the package."""
+
+    relative_path: str
+    role: str
+    description: str
+
+
+class RenderMetadata(ModelBase):
+    """Structured metadata emitted by the render stage."""
+
+    module_name: str = ""
+    based_on_contract: str = ""
+    based_on_plan: str = ""
+    based_on_oracle: str = ""
+    generated_files: list[RenderedFile] = Field(default_factory=list)
+    test_modules: list[str] = Field(default_factory=list)
+    interface_summary: dict[str, Any] = Field(default_factory=dict)
+    env_summary: dict[str, Any] = Field(default_factory=dict)
+    oracle_summary: dict[str, Any] = Field(default_factory=dict)
+    coverage_summary: dict[str, Any] = Field(default_factory=dict)
+    render_warnings: list[str] = Field(default_factory=list)
+    render_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
 class SimulationConfig(ModelBase):
     """Execution configuration for simulator invocation."""
 

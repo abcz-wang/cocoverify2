@@ -11,6 +11,8 @@ from cocoverify2.core.models import (
     OracleConfidenceSummary,
     OracleSpec,
     PortSpec,
+    RenderMetadata,
+    RenderedFile,
     ResetSpec,
     SimulationConfig,
     SimulationResult,
@@ -86,6 +88,24 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
         ],
         oracle_confidence=OracleConfidenceSummary(overall_confidence=0.5, property_confidence=0.5),
     )
+    render = RenderMetadata(
+        module_name="demo",
+        based_on_contract="artifacts/contract/contract.json",
+        based_on_plan="artifacts/plan/test_plan.json",
+        based_on_oracle="artifacts/oracle/oracle.json",
+        generated_files=[
+            RenderedFile(
+                relative_path="cocotb_tests/test_demo_basic.py",
+                role="test_module",
+                description="basic smoke",
+            )
+        ],
+        test_modules=["test_demo_basic"],
+        interface_summary={"business_inputs": ["a"]},
+        env_summary={"wait_helpers": ["wait_event_based"]},
+        oracle_summary={"temporal_modes": ["event_based"]},
+        coverage_summary={"coverage_tags": ["basic"]},
+    )
     sim_cfg = SimulationConfig(rtl_sources=[Path("dut.v")], toplevel="demo")
     sim_result = SimulationResult(executed_cases=["reset_001"])
     triage = TriageResult(primary_category="unclassified")
@@ -106,4 +126,5 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
     assert payload["test_plan_summary"]["based_on_contract"] == "artifacts/contract/contract.json"
     assert payload["oracle_summary"]["property_oracles"][0]["checks"][0]["check_type"] == "property"
     assert payload["final_verdict"]["verdict"] == "inconclusive"
+    assert render.model_dump(mode="json")["generated_files"][0]["role"] == "test_module"
     assert sim_cfg.model_dump(mode="json")["toplevel"] == "demo"

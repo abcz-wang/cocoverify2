@@ -10,6 +10,7 @@ from cocoverify2 import __version__
 from cocoverify2.core.errors import CocoverifyError, ConfigurationError, PhaseNotImplementedError
 from cocoverify2.stages.contract_extractor import ContractExtractor, load_optional_text
 from cocoverify2.stages.oracle_generator import OracleGenerator
+from cocoverify2.stages.tb_renderer import TBRenderer
 from cocoverify2.stages.test_plan_generator import TestPlanGenerator
 
 
@@ -58,8 +59,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     stage_parser.add_argument("--in-dir", type=Path, help="Input artifact or source directory.")
     stage_parser.add_argument("--out-dir", type=Path, help="Output artifact directory.")
-    stage_parser.add_argument("--contract", type=Path, help="Contract artifact path for the plan/oracle stages.")
-    stage_parser.add_argument("--plan", type=Path, help="Test plan artifact path for the oracle stage.")
+    stage_parser.add_argument("--contract", type=Path, help="Contract artifact path for the plan/oracle/render stages.")
+    stage_parser.add_argument("--plan", type=Path, help="Test plan artifact path for the oracle/render stages.")
+    stage_parser.add_argument("--oracle", type=Path, help="Oracle artifact path for the render stage.")
     stage_parser.add_argument("--rtl", action="append", default=[], help="RTL source path. May be passed multiple times.")
     stage_parser.add_argument("--task-description", default="", help="Optional task description text.")
     stage_parser.add_argument("--spec", type=Path, help="Optional specification file path.")
@@ -81,7 +83,9 @@ def build_parser() -> argparse.ArgumentParser:
 def _handle_verify(args: argparse.Namespace) -> int:
     """Handle the placeholder verify command."""
     _ = args
-    raise PhaseNotImplementedError("Phase 3 only implements the contract, plan, and oracle stages; verify is not implemented yet.")
+    raise PhaseNotImplementedError(
+        "Phase 4 implements the contract, plan, oracle, and render stages only; verify is not implemented yet."
+    )
 
 
 def _handle_stage(args: argparse.Namespace) -> int:
@@ -141,15 +145,41 @@ def _handle_stage(args: argparse.Namespace) -> int:
         print(f"Oracle generated for module '{oracle.module_name}' -> {out_dir / 'oracle' / 'oracle.json'}")
         return 0
 
+    if args.stage_name == "render":
+        contract_path = args.contract or _resolve_contract_path(args.in_dir)
+        if contract_path is None:
+            raise ConfigurationError("The render stage requires --contract or an --in-dir containing contract/contract.json.")
+        plan_path = args.plan or _resolve_plan_path(args.in_dir)
+        if plan_path is None:
+            raise ConfigurationError("The render stage requires --plan or an --in-dir containing plan/test_plan.json.")
+        oracle_path = args.oracle or _resolve_oracle_path(args.in_dir)
+        if oracle_path is None:
+            raise ConfigurationError("The render stage requires --oracle or an --in-dir containing oracle/oracle.json.")
+        out_dir = args.out_dir or Path("out")
+        spec_path = args.spec or _resolve_optional_input(args.in_dir, "spec.txt")
+        renderer = TBRenderer()
+        metadata = renderer.run_from_artifacts(
+            contract_path=contract_path,
+            plan_path=plan_path,
+            oracle_path=oracle_path,
+            task_description=args.task_description or None,
+            spec_text=load_optional_text(spec_path),
+            out_dir=out_dir,
+        )
+        print(f"Render package generated for module '{metadata.module_name}' -> {out_dir / 'render' / 'metadata.json'}")
+        return 0
+
     raise PhaseNotImplementedError(
-        "Phase 3 implements the contract, plan, and oracle stages only; other stage commands are not implemented yet."
+        "Phase 4 implements the contract, plan, oracle, and render stages only; other stage commands are not implemented yet."
     )
 
 
 def _handle_repair(args: argparse.Namespace) -> int:
     """Handle the placeholder repair command."""
     _ = args
-    raise PhaseNotImplementedError("Phase 3 only implements the contract, plan, and oracle stages; repair is not implemented yet.")
+    raise PhaseNotImplementedError(
+        "Phase 4 implements the contract, plan, oracle, and render stages only; repair is not implemented yet."
+    )
 
 
 def _discover_rtl_paths(in_dir: Path | None) -> list[Path]:
@@ -188,6 +218,19 @@ def _resolve_plan_path(in_dir: Path | None) -> Path | None:
     if direct_candidate.exists():
         return direct_candidate
     nested_candidate = in_dir / "plan" / "test_plan.json"
+    if nested_candidate.exists():
+        return nested_candidate
+    return None
+
+
+def _resolve_oracle_path(in_dir: Path | None) -> Path | None:
+    """Resolve a default oracle artifact path from an input directory."""
+    if in_dir is None:
+        return None
+    direct_candidate = in_dir / "oracle.json"
+    if direct_candidate.exists():
+        return direct_candidate
+    nested_candidate = in_dir / "oracle" / "oracle.json"
     if nested_candidate.exists():
         return nested_candidate
     return None

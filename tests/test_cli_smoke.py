@@ -38,3 +38,5 @@ def test_stage_help_mentions_contract_inputs() -> None:
     assert "--contract" in result.stdout
     assert "--plan" in result.stdout
     assert "--oracle" in result.stdout
+    assert "--render" in result.stdout
+    assert "--mode" in result.stdout

@@ -88,3 +88,24 @@ class OracleStrictness(str, Enum):
     STRICT = "strict"
     CONSERVATIVE = "conservative"
     GUARDED = "guarded"
+
+
+class SimulationMode(str, Enum):
+    """Supported execution modes for the simulation stage."""
+
+    AUTO = "auto"
+    COCOTB_TOOLS = "cocotb_tools"
+    MAKE = "make"
+    FILELIST = "filelist"
+
+
+class ExecutionStatus(str, Enum):
+    """Coarse execution-layer status values for simulation results."""
+
+    SUCCESS = "success"
+    COMPILE_ERROR = "compile_error"
+    ELABORATION_ERROR = "elaboration_error"
+    RUNTIME_ERROR = "runtime_error"
+    TIMEOUT = "timeout"
+    ENVIRONMENT_ERROR = "environment_error"
+    UNKNOWN_FAILURE = "unknown_failure"

@@ -14,6 +14,7 @@ from cocoverify2.core.models import (
     RenderMetadata,
     RenderedFile,
     ResetSpec,
+    RunnerSelection,
     SimulationConfig,
     SimulationResult,
     TemporalWindow,
@@ -23,9 +24,11 @@ from cocoverify2.core.models import (
     VerificationReport,
 )
 from cocoverify2.core.types import (
+    ExecutionStatus,
     OracleCheckType,
     OracleStrictness,
     PortDirection,
+    SimulationMode,
     TemporalWindowMode,
     TestCategory as PlanCategory,
     VerdictKind,
@@ -106,8 +109,33 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
         oracle_summary={"temporal_modes": ["event_based"]},
         coverage_summary={"coverage_tags": ["basic"]},
     )
-    sim_cfg = SimulationConfig(rtl_sources=[Path("dut.v")], toplevel="demo")
-    sim_result = SimulationResult(executed_cases=["reset_001"])
+    selection = RunnerSelection(
+        requested_mode=SimulationMode.AUTO,
+        selected_mode=SimulationMode.COCOTB_TOOLS,
+        backend="cocotb_tools",
+        render_metadata_path="artifacts/render/metadata.json",
+        package_dir="artifacts/render/cocotb_tests",
+        reasons=["auto fallback demo"],
+        resolved_rtl_sources=["dut.v"],
+    )
+    sim_cfg = SimulationConfig(
+        rtl_sources=[Path("dut.v")],
+        top_module="demo",
+        test_module="test_demo_basic",
+        mode=SimulationMode.COCOTB_TOOLS,
+        junit_enabled=True,
+    )
+    sim_result = SimulationResult(
+        module_name="demo",
+        based_on_render_metadata="artifacts/render/metadata.json",
+        selected_mode=SimulationMode.COCOTB_TOOLS,
+        selected_simulator="icarus",
+        command=["python", "-m", "demo"],
+        status=ExecutionStatus.SUCCESS,
+        executed_tests=["reset_001"],
+        passed_tests=["reset_001"],
+        log_paths={"stdout": "run/logs/stdout.txt"},
+    )
     triage = TriageResult(primary_category="unclassified")
     verdict = FinalVerdict(verdict=VerdictKind.INCONCLUSIVE, rationale=["phase smoke"])
     report = VerificationReport(
@@ -127,4 +155,6 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
     assert payload["oracle_summary"]["property_oracles"][0]["checks"][0]["check_type"] == "property"
     assert payload["final_verdict"]["verdict"] == "inconclusive"
     assert render.model_dump(mode="json")["generated_files"][0]["role"] == "test_module"
-    assert sim_cfg.model_dump(mode="json")["toplevel"] == "demo"
+    assert selection.model_dump(mode="json")["selected_mode"] == "cocotb_tools"
+    assert sim_cfg.model_dump(mode="json")["top_module"] == "demo"
+    assert sim_result.model_dump(mode="json")["status"] == "success"

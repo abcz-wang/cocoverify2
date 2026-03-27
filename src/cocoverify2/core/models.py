@@ -8,11 +8,13 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from cocoverify2.core.types import (
+    ExecutionStatus,
     LatencyModel,
     OracleCheckType,
     OracleStrictness,
     PortDirection,
     SequentialKind,
+    SimulationMode,
     TemporalWindowMode,
     TestCategory,
     VerdictKind,
@@ -225,35 +227,74 @@ class RenderMetadata(ModelBase):
     render_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
 
 
+class RunnerSelection(ModelBase):
+    """Structured record of execution-mode selection and fallback behavior."""
+
+    requested_mode: SimulationMode = SimulationMode.AUTO
+    selected_mode: SimulationMode = SimulationMode.AUTO
+    backend: str = ""
+    render_metadata_path: str = ""
+    package_dir: str = ""
+    makefile_path: str | None = None
+    filelist_path: str | None = None
+    resolved_rtl_sources: list[str] = Field(default_factory=list)
+    reasons: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    fallbacks: list[str] = Field(default_factory=list)
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
 class SimulationConfig(ModelBase):
     """Execution configuration for simulator invocation."""
 
-    runner_mode: str = "cocotb_tools"
     simulator: str = "icarus"
+    mode: SimulationMode = SimulationMode.AUTO
     rtl_sources: list[Path] = Field(default_factory=list)
-    filelist: Path | None = None
+    filelist_path: Path | None = None
     include_dirs: list[Path] = Field(default_factory=list)
-    defines: dict[str, str] = Field(default_factory=dict)
+    top_module: str = ""
+    test_module: str = ""
+    extra_env: dict[str, str] = Field(default_factory=dict)
     parameters: dict[str, Any] = Field(default_factory=dict)
+    timescale: str | None = None
+    waves_enabled: bool = False
+    junit_enabled: bool = True
+    timeout_seconds: int = Field(default=60, ge=1)
+    working_dir: Path | None = None
+    clean_build: bool = False
+    plusargs: list[str] = Field(default_factory=list)
+    make_targets: list[str] = Field(default_factory=list)
+
+    # Phase 0-4 compatibility aliases / legacy fields kept optional for now.
+    defines: dict[str, str] = Field(default_factory=dict)
     toplevel: str = ""
     test_dir: Path = Path("generated_tb")
-    timeout_seconds: int = Field(default=60, ge=1)
     waves: bool = False
 
 
 class SimulationResult(ModelBase):
     """Structured result from the simulation execution layer."""
 
-    build_passed: bool = False
-    tests_passed: bool = False
-    executed_cases: list[str] = Field(default_factory=list)
-    passed_cases: list[str] = Field(default_factory=list)
-    failed_cases: list[str] = Field(default_factory=list)
-    build_log_path: Path | None = None
-    test_log_path: Path | None = None
-    junit_xml_path: Path | None = None
-    waveform_path: Path | None = None
-    runner_metadata: dict[str, Any] = Field(default_factory=dict)
+    module_name: str = ""
+    based_on_render_metadata: str = ""
+    selected_mode: SimulationMode = SimulationMode.AUTO
+    selected_simulator: str = ""
+    command: list[str] = Field(default_factory=list)
+    return_code: int | None = None
+    status: ExecutionStatus = ExecutionStatus.UNKNOWN_FAILURE
+    start_time: str = ""
+    end_time: str = ""
+    duration_seconds: float = 0.0
+    discovered_tests: list[str] = Field(default_factory=list)
+    executed_tests: list[str] = Field(default_factory=list)
+    passed_tests: list[str] = Field(default_factory=list)
+    failed_tests: list[str] = Field(default_factory=list)
+    skipped_tests: list[str] = Field(default_factory=list)
+    log_paths: dict[str, str] = Field(default_factory=dict)
+    junit_path: str | None = None
+    waveform_paths: list[str] = Field(default_factory=list)
+    runner_warnings: list[str] = Field(default_factory=list)
+    execution_notes: list[str] = Field(default_factory=list)
 
 
 class TriageResult(ModelBase):

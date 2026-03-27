@@ -8,8 +8,11 @@ from typing import Sequence
 
 from cocoverify2 import __version__
 from cocoverify2.core.errors import CocoverifyError, ConfigurationError, PhaseNotImplementedError
+from cocoverify2.core.models import SimulationConfig
+from cocoverify2.core.types import SimulationMode
 from cocoverify2.stages.contract_extractor import ContractExtractor, load_optional_text
 from cocoverify2.stages.oracle_generator import OracleGenerator
+from cocoverify2.stages.simulator_runner import SimulatorRunnerStage
 from cocoverify2.stages.tb_renderer import TBRenderer
 from cocoverify2.stages.test_plan_generator import TestPlanGenerator
 
@@ -62,7 +65,28 @@ def build_parser() -> argparse.ArgumentParser:
     stage_parser.add_argument("--contract", type=Path, help="Contract artifact path for the plan/oracle/render stages.")
     stage_parser.add_argument("--plan", type=Path, help="Test plan artifact path for the oracle/render stages.")
     stage_parser.add_argument("--oracle", type=Path, help="Oracle artifact path for the render stage.")
+    stage_parser.add_argument("--render", type=Path, help="Render metadata path for the run stage.")
     stage_parser.add_argument("--rtl", action="append", default=[], help="RTL source path. May be passed multiple times.")
+    stage_parser.add_argument("--filelist", type=Path, help="Optional RTL filelist path for the run stage.")
+    stage_parser.add_argument("--include-dir", action="append", default=[], help="Include directory. May be passed multiple times.")
+    stage_parser.add_argument("--simulator", default="icarus", help="Simulator backend name for the run stage.")
+    stage_parser.add_argument(
+        "--mode",
+        choices=[mode.value for mode in SimulationMode],
+        default=SimulationMode.AUTO.value,
+        help="Execution mode for the run stage.",
+    )
+    stage_parser.add_argument("--top-module", default="", help="Optional HDL toplevel override for the run stage.")
+    stage_parser.add_argument("--test-module", default="", help="Optional Python test module override for the run stage.")
+    stage_parser.add_argument("--timeout-seconds", type=int, default=60, help="Execution timeout for the run stage.")
+    stage_parser.add_argument("--waves", action="store_true", help="Enable waveform collection when supported.")
+    stage_parser.add_argument("--junit", action="store_true", help="Request JUnit output when supported.")
+    stage_parser.add_argument("--parameter", action="append", default=[], help="Parameter override in KEY=VALUE form.")
+    stage_parser.add_argument("--env", action="append", default=[], help="Extra environment entry in KEY=VALUE form.")
+    stage_parser.add_argument("--plusarg", action="append", default=[], help="Plusarg passed through to the runner.")
+    stage_parser.add_argument("--make-target", action="append", default=[], help="Optional make target override.")
+    stage_parser.add_argument("--working-dir", type=Path, help="Optional working directory override for runner execution.")
+    stage_parser.add_argument("--clean-build", action="store_true", help="Request a clean build when the backend supports it.")
     stage_parser.add_argument("--task-description", default="", help="Optional task description text.")
     stage_parser.add_argument("--spec", type=Path, help="Optional specification file path.")
     stage_parser.add_argument("--golden-interface", type=Path, help="Optional golden interface text file.")
@@ -84,7 +108,7 @@ def _handle_verify(args: argparse.Namespace) -> int:
     """Handle the placeholder verify command."""
     _ = args
     raise PhaseNotImplementedError(
-        "Phase 4 implements the contract, plan, oracle, and render stages only; verify is not implemented yet."
+        "Phase 5 implements the contract, plan, oracle, render, and run stages only; verify is not implemented yet."
     )
 
 
@@ -169,8 +193,25 @@ def _handle_stage(args: argparse.Namespace) -> int:
         print(f"Render package generated for module '{metadata.module_name}' -> {out_dir / 'render' / 'metadata.json'}")
         return 0
 
+    if args.stage_name == "run":
+        render_path = args.render or _resolve_render_path(args.in_dir)
+        if render_path is None:
+            raise ConfigurationError("The run stage requires --render or an --in-dir containing render/metadata.json.")
+        out_dir = args.out_dir or Path("out")
+        stage = SimulatorRunnerStage()
+        result = stage.run_from_artifact(
+            render_metadata_path=render_path,
+            config=_build_simulation_config(args),
+            out_dir=out_dir,
+        )
+        print(
+            "Simulation execution finished for module "
+            f"'{result.module_name or '<unknown>'}' with status '{result.status}' -> {out_dir / 'run' / 'simulation_result.json'}"
+        )
+        return 0
+
     raise PhaseNotImplementedError(
-        "Phase 4 implements the contract, plan, oracle, and render stages only; other stage commands are not implemented yet."
+        "Phase 5 implements the contract, plan, oracle, render, and run stages only; other stage commands are not implemented yet."
     )
 
 
@@ -178,7 +219,7 @@ def _handle_repair(args: argparse.Namespace) -> int:
     """Handle the placeholder repair command."""
     _ = args
     raise PhaseNotImplementedError(
-        "Phase 4 implements the contract, plan, oracle, and render stages only; repair is not implemented yet."
+        "Phase 5 implements the contract, plan, oracle, render, and run stages only; repair is not implemented yet."
     )
 
 
@@ -234,6 +275,55 @@ def _resolve_oracle_path(in_dir: Path | None) -> Path | None:
     if nested_candidate.exists():
         return nested_candidate
     return None
+
+
+def _resolve_render_path(in_dir: Path | None) -> Path | None:
+    """Resolve a default render metadata path from an input directory."""
+    if in_dir is None:
+        return None
+    direct_candidate = in_dir / "metadata.json"
+    if direct_candidate.exists():
+        return direct_candidate
+    nested_candidate = in_dir / "render" / "metadata.json"
+    if nested_candidate.exists():
+        return nested_candidate
+    return None
+
+
+def _build_simulation_config(args: argparse.Namespace) -> SimulationConfig:
+    """Build a structured ``SimulationConfig`` from CLI arguments."""
+    return SimulationConfig(
+        simulator=args.simulator,
+        mode=SimulationMode(args.mode),
+        rtl_sources=[Path(path) for path in args.rtl],
+        filelist_path=args.filelist,
+        include_dirs=[Path(path) for path in args.include_dir],
+        top_module=args.top_module,
+        test_module=args.test_module,
+        extra_env=_parse_key_value_pairs(args.env),
+        parameters=_parse_key_value_pairs(args.parameter),
+        waves_enabled=bool(args.waves),
+        junit_enabled=bool(args.junit),
+        timeout_seconds=args.timeout_seconds,
+        working_dir=args.working_dir,
+        clean_build=bool(args.clean_build),
+        plusargs=list(args.plusarg),
+        make_targets=list(args.make_target),
+    )
+
+
+def _parse_key_value_pairs(items: Sequence[str]) -> dict[str, str]:
+    """Parse repeated ``KEY=VALUE`` arguments into a dictionary."""
+    parsed: dict[str, str] = {}
+    for item in items:
+        if "=" not in item:
+            raise ConfigurationError(f"Expected KEY=VALUE format, got: {item}")
+        key, value = item.split("=", 1)
+        key = key.strip()
+        if not key:
+            raise ConfigurationError(f"Expected non-empty KEY in KEY=VALUE item: {item}")
+        parsed[key] = value
+    return parsed
 
 
 def main(argv: Sequence[str] | None = None) -> int:

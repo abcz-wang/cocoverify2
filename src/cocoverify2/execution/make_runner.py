@@ -49,7 +49,7 @@ class MakeRunner(RunnerBase):
             env["COCOTB_RESULTS_FILE"] = str(context.junit_dir / "results.xml")
         if config.waves_enabled or config.waves:
             env["WAVES"] = "1"
-        targets = list(config.make_targets) or ["all"]
+        targets = list(config.make_targets) or []
         command = ["make", *targets]
         return execute_command(
             command,

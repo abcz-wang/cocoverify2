@@ -155,12 +155,24 @@ def test_make_runner_injects_include_dirs_parameters_defines_and_existing_contro
     captured: dict[str, object] = {}
 
     def fake_execute_command(command, *, cwd, extra_env, timeout_seconds):
+        if command[:2] == ["cocotb-config", "--makefiles"]:
+            return CommandExecutionResult(
+                command=list(command),
+                cwd=str(cwd),
+                return_code=0,
+                stdout=str(tmp_path / "fake_makefiles"),
+                stderr="",
+                start_time=datetime.now(timezone.utc),
+                end_time=datetime.now(timezone.utc),
+                duration_seconds=0.01,
+            )
         captured["command"] = command
         captured["cwd"] = cwd
         captured["env"] = dict(extra_env or {})
         captured["timeout_seconds"] = timeout_seconds
         return _fake_command_result(cwd=Path(cwd))
 
+    (tmp_path / "fake_makefiles").mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr("cocoverify2.execution.make_runner.execute_command", fake_execute_command)
     runner = MakeRunner()
     result = runner.execute(
@@ -181,6 +193,7 @@ def test_make_runner_injects_include_dirs_parameters_defines_and_existing_contro
     assert result.return_code == 0
     assert captured["command"] == ["make"]
     env = captured["env"]
+    assert env["COCOTB_MAKEFILES_DIR"] == str(tmp_path / "fake_makefiles")
     assert env["INCLUDE_DIRS"] == str(_RTL)
     assert env["PARAMETER_OVERRIDES"] == "WIDTH=16"
     assert env["DEFINE_OVERRIDES"] == "ENABLE_TRACE=1 FLAG_ONLY"
@@ -236,6 +249,45 @@ def test_makefile_structure_failure_regression_is_blocked_before_make_execution(
     assert result.selected_mode == "cocotb_tools"
     assert result.status == "environment_error"
     assert "No targets. Stop." not in Path(result.log_paths["build_log"]).read_text(encoding="utf-8")
+
+
+def test_missing_cocotb_config_returns_clean_environment_failure_before_make(tmp_path: Path, monkeypatch) -> None:
+    render_path = _build_render_metadata(tmp_path, "simple_comb.v")
+    stage = SimulatorRunnerStage()
+    calls: list[list[str]] = []
+
+    def fake_execute_command(command, *, cwd, extra_env, timeout_seconds):
+        calls.append(list(command))
+        if command[:2] == ["cocotb-config", "--makefiles"]:
+            return CommandExecutionResult(
+                command=list(command),
+                cwd=str(cwd),
+                return_code=None,
+                stdout="",
+                stderr="cocotb-config missing",
+                error_type="missing_tool",
+                error_message="cocotb-config missing",
+                start_time=datetime.now(timezone.utc),
+                end_time=datetime.now(timezone.utc),
+                duration_seconds=0.01,
+            )
+        raise AssertionError("real make must not execute when cocotb-config preflight fails")
+
+    monkeypatch.setattr("cocoverify2.execution.make_runner.execute_command", fake_execute_command)
+    result = stage.run_from_artifact(
+        render_metadata_path=render_path,
+        config=SimulationConfig(mode="auto", rtl_sources=[_RTL / "simple_comb.v"]),
+        out_dir=tmp_path / "run_missing_cocotb_config",
+    )
+
+    build_log = Path(result.log_paths["build_log"]).read_text(encoding="utf-8")
+    assert calls == [["cocotb-config", "--makefiles"]]
+    assert result.selected_mode == "make"
+    assert result.status == "environment_error"
+    assert "cocotb-config" in build_log
+    assert "/Makefile.sim" not in build_log
+    assert "No rule to make target '/Makefile.sim'" not in build_log
+    assert "/Makefile.sim: No such file or directory" not in build_log
 
 
 def test_missing_render_artifact_returns_structured_error_result(tmp_path: Path) -> None:

@@ -17,7 +17,8 @@ SIM ?= icarus
 TOPLEVEL ?= {module_name}
 MODULE ?= {default_test_module}
 
-# Phase 5 must inject RTL sources and may inject include dirs / defines / parameters.
+# Phase 5 must inject RTL sources and resolve the cocotb makefiles directory.
+COCOTB_MAKEFILES_DIR ?=
 VERILOG_SOURCES ?=
 INCLUDE_DIRS ?=
 DEFINE_OVERRIDES ?=
@@ -31,6 +32,9 @@ EXTRA_SIM_ARGS ?=
 ifeq ($(strip $(VERILOG_SOURCES)),)
 $(error VERILOG_SOURCES must be provided by Phase 5 before running make)
 endif
+ifeq ($(strip $(COCOTB_MAKEFILES_DIR)),)
+$(error COCOTB_MAKEFILES_DIR must be provided by Phase 5 preflight before running make)
+endif
 
 COMPILE_ARGS += $(foreach item,$(INCLUDE_DIRS),-I$(item))
 COMPILE_ARGS += $(foreach item,$(DEFINE_OVERRIDES),-D$(item))
@@ -41,7 +45,7 @@ SIM_ARGS += $(EXTRA_SIM_ARGS)
 
 .DEFAULT_GOAL := sim
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include $(COCOTB_MAKEFILES_DIR)/Makefile.sim
 """
     summary = {
         "default_toplevel": module_name,
@@ -52,6 +56,7 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
             "SIM",
             "TOPLEVEL",
             "MODULE",
+            "COCOTB_MAKEFILES_DIR",
             "VERILOG_SOURCES",
             "INCLUDE_DIRS",
             "DEFINE_OVERRIDES",

@@ -142,7 +142,15 @@ def test_render_stage_writes_metadata_and_makefile(tmp_path: Path) -> None:
     assert (package_dir / "Makefile").exists()
     makefile_text = (package_dir / "Makefile").read_text(encoding="utf-8")
     assert "TOPLEVEL ?= simple_seq" in makefile_text
-    assert "Phase 5" in makefile_text
+    assert "static scaffold only" not in makefile_text
+    assert "CV2_MAKEFILE_CONTRACT := executable-shell-v1" in makefile_text
+    assert ".DEFAULT_GOAL := sim" in makefile_text
+    assert "include $(shell cocotb-config --makefiles)/Makefile.sim" in makefile_text
+    assert "VERILOG_SOURCES ?=" in makefile_text
+    assert "INCLUDE_DIRS ?=" in makefile_text
+    assert "DEFINE_OVERRIDES ?=" in makefile_text
+    assert "PARAMETER_OVERRIDES ?=" in makefile_text
+    assert "VERILOG_SOURCES must be provided by Phase 5" in makefile_text
 
 
 def test_stage_render_cli_smoke(tmp_path: Path) -> None:

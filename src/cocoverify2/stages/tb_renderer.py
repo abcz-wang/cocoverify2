@@ -78,7 +78,7 @@ class TBRenderer:
             oracle_module=oracle_module,
         )
         default_test_module = f"test_{contract.module_name}_basic"
-        makefile_content, _ = render_makefile(contract.module_name, default_test_module=default_test_module)
+        makefile_content, _makefile_summary = render_makefile(contract.module_name, default_test_module=default_test_module)
 
         generated_files: list[RenderedFile] = []
         self._write_generated_file(
@@ -129,7 +129,7 @@ class TBRenderer:
             makefile_content,
             generated_files,
             role="makefile",
-            description="Phase 4 static Makefile scaffold; Phase 5 will coordinate actual execution wiring.",
+            description="Phase 4 executable Makefile shell; Phase 5 injects run-time variables and executes it.",
         )
 
         render_warnings = _render_warnings(contract=contract, plan=plan, oracle=oracle, test_modules=test_modules)

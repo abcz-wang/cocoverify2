@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cocoverify2.core.models import SimulationConfig
+from cocoverify2.execution.make_runner import MakeRunner
+from cocoverify2.execution.runner_base import RunnerContext
 from cocoverify2.stages.contract_extractor import ContractExtractor
 from cocoverify2.stages.oracle_generator import OracleGenerator
 from cocoverify2.stages.simulator_runner import SimulatorRunnerStage, load_render_metadata_artifact
@@ -90,6 +92,25 @@ def test_runner_selection_auto_prefers_make_and_records_reason(tmp_path: Path, m
     assert any("Makefile" in item for item in selection_payload["reasons"])
 
 
+def test_runner_selection_ignores_non_executable_makefile_contract(tmp_path: Path) -> None:
+    render_path = _build_render_metadata(tmp_path, "simple_comb.v")
+    metadata = load_render_metadata_artifact(render_path)
+    makefile_path = render_path.parent / "cocotb_tests" / "Makefile"
+    makefile_path.write_text(
+        "# legacy scaffold\nTOPLEVEL ?= simple_comb\nMODULE ?= test_simple_comb_basic\nSIM ?= icarus\n",
+        encoding="utf-8",
+    )
+    stage = SimulatorRunnerStage()
+    selection, _ = stage._select_runner(
+        metadata=metadata,
+        render_metadata_path=render_path,
+        config=SimulationConfig(mode="auto", rtl_sources=[_RTL / "simple_comb.v"]),
+    )
+
+    assert selection.selected_mode == "cocotb_tools"
+    assert any("does not satisfy the executable-shell contract" in item for item in selection.warnings)
+
+
 def test_filelist_mode_resolves_sources_and_partial_support_warnings(tmp_path: Path) -> None:
     render_path = _build_render_metadata(tmp_path, "simple_comb.v")
     metadata = load_render_metadata_artifact(render_path)
@@ -113,6 +134,61 @@ def test_filelist_mode_resolves_sources_and_partial_support_warnings(tmp_path: P
     assert any("Nested filelist" in item for item in selection.warnings)
 
 
+def test_make_runner_injects_include_dirs_parameters_defines_and_existing_controls(tmp_path: Path, monkeypatch) -> None:
+    render_path = _build_render_metadata(tmp_path, "simple_seq.v")
+    metadata = load_render_metadata_artifact(render_path)
+    config = SimulationConfig(
+        mode="make",
+        rtl_sources=[_RTL / "simple_seq.v"],
+        include_dirs=[_RTL],
+        parameters={"WIDTH": "16"},
+        defines={"ENABLE_TRACE": "1", "FLAG_ONLY": ""},
+        plusargs=["+trace=1"],
+        junit_enabled=True,
+        waves_enabled=True,
+    )
+    selection, _ = SimulatorRunnerStage()._select_runner(
+        metadata=metadata,
+        render_metadata_path=render_path,
+        config=config,
+    )
+    captured: dict[str, object] = {}
+
+    def fake_execute_command(command, *, cwd, extra_env, timeout_seconds):
+        captured["command"] = command
+        captured["cwd"] = cwd
+        captured["env"] = dict(extra_env or {})
+        captured["timeout_seconds"] = timeout_seconds
+        return _fake_command_result(cwd=Path(cwd))
+
+    monkeypatch.setattr("cocoverify2.execution.make_runner.execute_command", fake_execute_command)
+    runner = MakeRunner()
+    result = runner.execute(
+        metadata=metadata,
+        config=config,
+        selection=selection,
+        context=RunnerContext(
+            render_metadata_path=render_path,
+            render_dir=render_path.parent,
+            package_dir=render_path.parent / "cocotb_tests",
+            run_dir=tmp_path / "run",
+            logs_dir=tmp_path / "logs",
+            junit_dir=tmp_path / "junit",
+            waves_dir=tmp_path / "waves",
+        ),
+    )
+
+    assert result.return_code == 0
+    assert captured["command"] == ["make"]
+    env = captured["env"]
+    assert env["INCLUDE_DIRS"] == str(_RTL)
+    assert env["PARAMETER_OVERRIDES"] == "WIDTH=16"
+    assert env["DEFINE_OVERRIDES"] == "ENABLE_TRACE=1 FLAG_ONLY"
+    assert env["PLUSARGS"] == "+trace=1"
+    assert env["WAVES"] == "1"
+    assert env["COCOTB_RESULTS_FILE"].endswith("results.xml")
+
+
 def test_missing_tool_is_reported_as_environment_error(tmp_path: Path, monkeypatch) -> None:
     render_path = _build_render_metadata(tmp_path, "simple_comb.v")
     stage = SimulatorRunnerStage()
@@ -129,6 +205,37 @@ def test_missing_tool_is_reported_as_environment_error(tmp_path: Path, monkeypat
 
     assert result.status == "environment_error"
     assert (tmp_path / "run_env_error" / "run" / "simulation_result.json").exists()
+
+
+def test_makefile_structure_failure_regression_is_blocked_before_make_execution(tmp_path: Path, monkeypatch) -> None:
+    render_path = _build_render_metadata(tmp_path, "simple_comb.v")
+    makefile_path = render_path.parent / "cocotb_tests" / "Makefile"
+    makefile_path.write_text(
+        "# broken makefile that exists but has no executable contract\n",
+        encoding="utf-8",
+    )
+    stage = SimulatorRunnerStage()
+    make_called = {"value": False}
+
+    def fake_make_execute(*, metadata, config, selection, context):
+        make_called["value"] = True
+        return _fake_command_result(cwd=context.package_dir, return_code=2, stderr="No targets. Stop.")
+
+    def fake_cocotb_execute(*, metadata, config, selection, context):
+        return _fake_command_result(cwd=context.render_dir, error_type="missing_tool", stderr="python: No module named cocotb_tools")
+
+    monkeypatch.setattr(stage._runners["make"], "execute", fake_make_execute)
+    monkeypatch.setattr(stage._runners["cocotb_tools"], "execute", fake_cocotb_execute)
+    result = stage.run_from_artifact(
+        render_metadata_path=render_path,
+        config=SimulationConfig(mode="auto", rtl_sources=[_RTL / "simple_comb.v"]),
+        out_dir=tmp_path / "run_broken_makefile",
+    )
+
+    assert make_called["value"] is False
+    assert result.selected_mode == "cocotb_tools"
+    assert result.status == "environment_error"
+    assert "No targets. Stop." not in Path(result.log_paths["build_log"]).read_text(encoding="utf-8")
 
 
 def test_missing_render_artifact_returns_structured_error_result(tmp_path: Path) -> None:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cocoverify2.cocotbgen.makefile import MAKEFILE_CONTRACT_MARKER
 from cocoverify2.core.models import RenderMetadata, RunnerSelection, SimulationConfig, SimulationResult
 from cocoverify2.core.types import SimulationMode
 from cocoverify2.execution.cocotb_runner import CocotbRunner
@@ -156,6 +157,7 @@ class SimulatorRunnerStage:
         requested_mode = config.mode
         package_dir = render_metadata_path.parent / "cocotb_tests"
         makefile_path = package_dir / "Makefile"
+        makefile_is_executable = makefile_path.exists() and _makefile_supports_execution_contract(makefile_path)
         resolved_rtl_sources = [str(path) for path in config.rtl_sources]
         include_dirs = list(config.include_dirs)
         warnings: list[str] = []
@@ -172,27 +174,27 @@ class SimulatorRunnerStage:
             include_dirs.extend(path for path in parsed_include_dirs if path not in include_dirs)
 
         if requested_mode == SimulationMode.AUTO:
-            if makefile_path.exists():
+            if makefile_is_executable:
                 selected_mode = SimulationMode.MAKE
                 backend = "make"
-                reasons.append("Auto mode prefers Makefile execution when a rendered Makefile exists.")
+                reasons.append("Auto mode prefers Makefile execution when a rendered Makefile satisfies the executable-shell contract.")
             elif config.filelist_path is not None:
                 selected_mode = SimulationMode.FILELIST
                 backend = "cocotb_tools"
-                reasons.append("Auto mode selected filelist execution because a filelist was provided and no rendered Makefile was available.")
+                reasons.append("Auto mode selected filelist execution because a filelist was provided and no executable-shell Makefile was available.")
             else:
                 selected_mode = SimulationMode.COCOTB_TOOLS
                 backend = "cocotb_tools"
-                reasons.append("Auto mode selected cocotb-tools execution because no higher-priority mode prerequisites were available.")
+                reasons.append("Auto mode selected cocotb-tools execution because no higher-priority executable Makefile or filelist prerequisites were available.")
         elif requested_mode == SimulationMode.MAKE:
-            if makefile_path.exists():
+            if makefile_is_executable:
                 selected_mode = SimulationMode.MAKE
                 backend = "make"
-                reasons.append("Make mode was explicitly requested and a rendered Makefile is available.")
+                reasons.append("Make mode was explicitly requested and the rendered Makefile satisfies the executable-shell contract.")
             else:
                 selected_mode = SimulationMode.COCOTB_TOOLS
                 backend = "cocotb_tools"
-                reasons.append("Make mode was requested, but the rendered Makefile is missing.")
+                reasons.append("Make mode was requested, but the rendered Makefile is missing or does not satisfy the executable-shell contract.")
                 warnings.append("Requested make mode could not be satisfied; falling back to cocotb-tools execution.")
                 fallbacks.append("make -> cocotb_tools")
         elif requested_mode == SimulationMode.FILELIST:
@@ -200,11 +202,11 @@ class SimulatorRunnerStage:
                 selected_mode = SimulationMode.FILELIST
                 backend = "cocotb_tools"
                 reasons.append("Filelist mode was explicitly requested and a filelist path is available.")
-            elif makefile_path.exists():
+            elif makefile_is_executable:
                 selected_mode = SimulationMode.MAKE
                 backend = "make"
                 reasons.append("Filelist mode was requested, but no filelist path was provided.")
-                warnings.append("Requested filelist mode could not be satisfied; falling back to make mode because a rendered Makefile exists.")
+                warnings.append("Requested filelist mode could not be satisfied; falling back to make mode because a rendered Makefile satisfies the executable-shell contract.")
                 fallbacks.append("filelist -> make")
             else:
                 selected_mode = SimulationMode.COCOTB_TOOLS
@@ -223,8 +225,10 @@ class SimulatorRunnerStage:
             warnings.append("Render metadata does not list any test modules; execution will rely on the default basic test module name.")
         if config.timescale:
             warnings.append("Timescale overrides are recorded in the config but are not yet propagated into backend-specific build flags.")
-        if selected_mode == SimulationMode.MAKE and not makefile_path.exists():
-            warnings.append("Selected make mode without a render Makefile; execution is unlikely to succeed.")
+        if makefile_path.exists() and not makefile_is_executable:
+            warnings.append("Rendered Makefile exists but does not satisfy the executable-shell contract; make mode will not be preferred.")
+        if selected_mode == SimulationMode.MAKE and not makefile_is_executable:
+            warnings.append("Selected make mode without an executable-shell Makefile contract; execution is unlikely to succeed.")
 
         resolved_config = config.model_copy(
             update={
@@ -303,6 +307,11 @@ def _parse_filelist(path: Path) -> tuple[list[str], list[Path], list[str]]:
             source_path = (path.parent / source_path).resolve()
         sources.append(str(source_path))
     return _deduped(sources), _deduped_paths(include_dirs), warnings
+
+
+def _makefile_supports_execution_contract(path: Path) -> bool:
+    text = path.read_text(encoding="utf-8")
+    return MAKEFILE_CONTRACT_MARKER in text and ".DEFAULT_GOAL := sim" in text and "Makefile.sim" in text
 
 
 

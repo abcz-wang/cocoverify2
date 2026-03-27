@@ -11,41 +11,136 @@ Requires-Dist: pytest>=8.2; extra == "dev"
 
 # cocoverify2
 
-`cocoverify2` is a stage-based LLM-assisted cocotb verification framework.
+`cocoverify2` is a stage-based, artifact-oriented, LLM-assisted cocotb verification framework.
 
-Phase 0 in this repository provides:
+It exists to replace monolithic "generate one testbench and hope it passes" flows with a staged pipeline that is easier to inspect, debug, and evolve.
 
-- project documentation
-- installable Python package skeleton
-- typed core models
-- CLI command skeleton
-- orchestrator shell
-- smoke tests for package health
+## Why this project exists
 
-It intentionally does **not** implement verification business logic yet.
+The short version:
 
-## Installation
+- decouple stimulus / plan from oracle generation to reduce false positives
+- preserve ambiguity / assumptions explicitly to reduce false negatives
+- keep stage-local artifacts and structured failures to improve diagnosability
+- enforce clear phase boundaries so the codebase stays maintainable as the pipeline grows
+
+## Verification Pipeline
+
+The full 8-stage pipeline is:
+
+1. Contract Extraction
+2. Test Plan Generation
+3. Oracle Generation
+4. Testbench Rendering
+5. Simulation Execution
+6. Failure Classification / Triage
+7. Targeted Repair
+8. Report / Verdict
+
+## Current Status
+
+README is the project status overview. Detailed design lives in `docs/`, detailed phase history lives in `docs/progress.md`, and generated sample artifacts usually live under `tmp/`. This file should be updated at the end of each phase.
+
+| Phase | Status | Deliverables | Key decisions | Known limitations |
+| --- | --- | --- | --- | --- |
+| Phase 0 | done | project skeleton, typed models, CLI shell, docs, smoke tests | start artifact-first and keep orchestrator thin | no stage business logic yet |
+| Phase 1 | done | `contract.json`, `contract_summary.yaml`, RTL/header parsing, contract CLI stage | fixed the contract artifact first so later stages consume one stable schema | parsing is still heuristic and header-focused |
+| Phase 1.1 | done | contract quality patch | timing inference became more conservative, `handshake_groups` was added, weak contracts now degrade `contract_confidence` more clearly | handshake semantics are still heuristic, not proven |
+| Phase 2 | done | `test_plan.json`, `test_plan_summary.yaml`, plan CLI stage | plan generation consumes only `contract.json`; it does not re-parse RTL | still rule-based and intentionally conservative |
+| Phase 3 | done | `oracle.json`, `oracle_summary.yaml`, oracle CLI stage | oracle is split into protocol / functional / property layers and avoids exact-cycle checks under unknown timing | no render/runtime code yet; functional oracle remains descriptive |
+| Phase 4 | planned | structured cocotb package rendering | render should translate artifacts, not invent new semantics | not started |
+| Phase 5 | planned | simulation execution and result artifacts | runner must stay artifact-driven and multi-mode | not started |
+| Phase 6 | planned | structured failure classification | triage should classify failures by layer with evidence | not started |
+| Phase 7 | planned | targeted repair recommendations | repair must be stage-local, not monolithic regeneration | not started |
+| Phase 8 | planned | final report and verdict | verdict must combine evidence, ambiguity, and risk | not started |
+
+## Completed Phases in Brief
+
+### Phase 0
+
+- Artifacts: package skeleton, typed core models, CLI shell, orchestrator shell, smoke tests
+- Why: establish stable project boundaries before stage logic exists
+- Limits: no real verification logic yet
+- Feeds next phase with: package layout, models, CLI, docs
+
+### Phase 1
+
+- Artifacts: `contract.json`, `contract_summary.yaml`
+- Why: fix the contract artifact before any planning/oracle work depends on it
+- Limits: RTL parsing is intentionally lightweight and conservative
+- Feeds next phase with: `module_name`, `ports`, `parameters`, `timing`, `handshake_groups`, `assumptions`, `ambiguities`
+
+### Phase 1.1
+
+- Patch summary: conservative timing inference, structured `handshake_groups`, stronger `contract_confidence` downgrade for weak contracts
+- Why: make the contract more usable for planning without pretending certainty
+- Limits: handshake grouping is still name-based
+- Feeds next phase with: safer timing classification and structured protocol hints
+
+### Phase 2
+
+- Artifacts: `test_plan.json`, `test_plan_summary.yaml`
+- Why: lock a stable plan artifact before any oracle or render logic exists
+- Limits: plan generation is rule-based and avoids strong timing claims under `timing=unknown`
+- Feeds next phase with: case categories, timing assumptions, observed signals, unresolved items, coverage tags
+
+### Phase 3
+
+- Artifacts: `oracle.json`, `oracle_summary.yaml`
+- Why: separate plan/stimulus intent from oracle intent to lower false positives
+- Limits: oracle generation is still conservative and avoids exact-cycle checks when timing is weak or unknown
+- Feeds next phase with: `protocol_oracles`, `functional_oracles`, `property_oracles`, `TemporalWindow`, `OracleConfidenceSummary`
+
+## Docs Guide / Where to Look Next
+
+If you are re-entering this repo later, start here:
+
+- architecture and rationale: `docs/architecture.md`
+- phase breakdown and MVP scope: `docs/mvp_plan.md`
+- per-phase log / current progress journal: `docs/progress.md`
+- stage entry points: `src/cocoverify2/stages/`
+- shared schemas: `src/cocoverify2/core/models.py`
+- CLI glue: `src/cocoverify2/cli.py`
+- generated sample artifacts: `tmp/`
+- small runnable fixtures: `tests/fixtures/`
+
+## Minimal Run Commands
+
+Install:
 
 ```bash
 pip install -e .
-```
-
-For development and tests:
-
-```bash
 pip install -e .[dev]
 ```
 
-## CLI
+Run tests:
+
+```bash
+pytest -q
+```
+
+CLI help:
 
 ```bash
 cocoverify2 --help
-cocoverify2 verify --help
 cocoverify2 stage --help
-cocoverify2 repair --help
 ```
 
-## Documentation
+Typical stage commands supported today:
 
-- `docs/architecture.md`
-- `docs/mvp_plan.md`
+```bash
+cocoverify2 stage contract --rtl path/to/dut.v --out-dir out
+cocoverify2 stage plan --contract out/contract/contract.json --out-dir out
+cocoverify2 stage oracle --contract out/contract/contract.json --plan out/plan/test_plan.json --out-dir out
+```
+
+## Project Status Note
+
+This README is intentionally a status overview and phase checkpoint page, not the full design spec.
+
+- use `docs/architecture.md` for the big-picture design
+- use `docs/mvp_plan.md` for the intended phase roadmap
+- use `docs/progress.md` for the per-phase log
+- use `tmp/` and test fixtures for concrete artifact examples
+
+When a new phase lands, update this README and the progress log together.

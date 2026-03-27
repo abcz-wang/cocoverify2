@@ -26,6 +26,13 @@ class CommandExecutionResult:
     end_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     duration_seconds: float = 0.0
 
+    def __post_init__(self) -> None:
+        """Normalize subprocess output payloads to text across all call paths."""
+        self.stdout = _coerce_stream_text(self.stdout)
+        self.stderr = _coerce_stream_text(self.stderr)
+        if isinstance(self.error_message, bytes):
+            self.error_message = _coerce_stream_text(self.error_message)
+
 
 def execute_command(
     command: list[str],
@@ -68,8 +75,8 @@ def execute_command(
             cwd=str(cwd),
             env=dict(extra_env or {}),
             return_code=None,
-            stdout=exc.stdout or "",
-            stderr=exc.stderr or "",
+            stdout=_coerce_stream_text(exc.stdout),
+            stderr=_coerce_stream_text(exc.stderr),
             timed_out=True,
             error_type="timeout",
             error_message=str(exc),
@@ -92,3 +99,12 @@ def execute_command(
             end_time=end_time,
             duration_seconds=(end_time - start_time).total_seconds(),
         )
+
+
+def _coerce_stream_text(value: str | bytes | None) -> str:
+    """Convert subprocess output payloads to ``str`` consistently."""
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value

@@ -13,6 +13,7 @@ from cocoverify2.eval.rtllm_batch import (
     resolve_rtllm_task_inputs,
     run_rtllm_batch,
 )
+from cocoverify2.utils.spec_hints import extract_interface_hint_text
 
 
 def test_discover_rtllm_tasks_lists_immediate_directories(tmp_path: Path) -> None:
@@ -43,6 +44,50 @@ def test_resolve_rtllm_task_inputs_ignores_golden_files(tmp_path: Path) -> None:
     assert str(task_dir / "testbench.v") in resolved.ignored_generation_inputs
     assert str(task_dir / "reference.dat") in resolved.ignored_generation_inputs
     assert resolved.makefile_source_discovery_used is False
+
+
+def test_extract_interface_hint_text_keeps_only_structured_interface_lines() -> None:
+    spec_text = """
+Please act as a professional verilog designer.
+
+Implement an ALU for a 32-bit MIPS-ISA CPU.
+
+Module name:
+    alu
+
+Input ports:
+    a: a 32-bit input operand
+    b: a 32-bit input operand
+    aluc: a 6-bit control signal for selecting the operation
+
+Output ports:
+    r: a 32-bit output representing the result
+    zero: a 1-bit output indicating whether the result is zero
+
+Implementation:
+The module uses a case statement to implement opcode semantics.
+The zero output is set when the result is all zeros.
+""".strip()
+
+    extracted = extract_interface_hint_text(spec_text)
+
+    assert extracted == "\n".join(
+        [
+            "a: a 32-bit input operand",
+            "b: a 32-bit input operand",
+            "aluc: a 6-bit control signal for selecting the operation",
+            "r: a 32-bit output representing the result",
+            "zero: a 1-bit output indicating whether the result is zero",
+        ]
+    )
+    assert "Implementation" not in extracted
+    assert "case statement" not in extracted
+
+
+def test_extract_interface_hint_text_returns_none_without_structured_sections() -> None:
+    extracted = extract_interface_hint_text("This is free-form behavior text without explicit interface sections.")
+
+    assert extracted is None
 
 
 def test_build_batch_summary_aggregates_histograms() -> None:

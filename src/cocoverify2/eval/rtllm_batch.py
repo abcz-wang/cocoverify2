@@ -22,6 +22,7 @@ from cocoverify2.stages.test_plan_generator import TestPlanGenerator
 from cocoverify2.stages.triage import TriageStage
 from cocoverify2.utils.files import ensure_dir, write_json, write_text
 from cocoverify2.utils.logging import get_logger
+from cocoverify2.utils.spec_hints import extract_interface_hint_text
 
 
 LOGGER = get_logger(__name__)
@@ -230,6 +231,7 @@ def run_rtllm_batch(
 def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, task_out_dir: Path) -> RTLLMTaskSummary:
     ensure_dir(task_out_dir)
     spec_text = task_input.spec_path.read_text(encoding="utf-8", errors="replace") if task_input.spec_path else None
+    interface_hint_text = extract_interface_hint_text(spec_text)
     task_description = _derive_task_description(task_input.task_name, spec_text)
     summary = RTLLMTaskSummary(
         task_name=task_input.task_name,
@@ -252,7 +254,7 @@ def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, ta
             rtl_paths=task_input.rtl_sources,
             task_description=task_description,
             spec_text=spec_text,
-            golden_interface_text=spec_text,
+            golden_interface_text=interface_hint_text,
             out_dir=task_out_dir,
         )
         summary.contract_success = True

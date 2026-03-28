@@ -31,11 +31,14 @@ def render_env_module(
             "category": case.category,
             "stimulus_intent": case.stimulus_intent,
             "stimulus_signals": case.stimulus_signals,
+            "execution_policy": case.execution_policy,
+            "defer_reason": case.defer_reason,
             "timing_assumptions": case.timing_assumptions,
             "dependencies": case.dependencies,
             "notes": case.notes,
             "coverage_tags": case.coverage_tags,
             "semantic_tags": case.semantic_tags,
+            "deterministic_stimulus_steps": _build_deterministic_stimulus_steps(contract=contract, case=case),
         }
         for case in plan.cases
     }
@@ -73,6 +76,14 @@ def render_env_module(
         port.name: port.width if isinstance(port.width, int) else None
         for port in contract.ports
     }
+    clock_specs = [
+        {
+            "name": clock.name,
+            "confidence": clock.confidence,
+            "period_ns_guess": float(clock.period_ns_guess) if clock.period_ns_guess else None,
+        }
+        for clock in contract.clocks
+    ]
     stimulus_dispatch_lines: list[str] = []
     stimulus_helper_blocks: list[str] = []
     llm_todo_blocks: list[dict[str, object]] = []
@@ -111,12 +122,16 @@ def render_env_module(
             case_id=case.case_id,
         )
         llm_todo_blocks.append(todo_metadata)
+        deterministic_call_lines = [f"        await self._apply_deterministic_case({case.case_id!r})"]
         stimulus_helper_blocks.append(
             "\n".join(
                 [
                     f"    async def {method_name}(self) -> None:",
                     f'        """LLM-fill stimulus hook for plan case `{case.case_id}`."""',
                     todo_block,
+                    f"        if self.get_case_inputs({case.case_id!r}) or self._last_driven_inputs:",
+                    "            return",
+                    *deterministic_call_lines,
                 ]
             )
         )
@@ -136,6 +151,7 @@ def render_env_module(
         plan_cases_literal=pformat(plan_cases, sort_dicts=True),
         unresolved_items_literal=pformat(unresolved_items),
         signal_widths_literal=pformat(signal_widths, sort_dicts=True),
+        clock_specs_literal=pformat(clock_specs, sort_dicts=True),
         business_outputs_literal=pformat(business_outputs),
         class_name=class_name,
         exact_cycle_block=exact_cycle_block,
@@ -180,6 +196,153 @@ def _stimulus_comment_lines(*, case, business_inputs: list[str]) -> list[str]:
         f"Goal: {case.goal}",
         "Guidance: Drive concrete legal values onto business inputs here.",
     ]
+
+
+def _build_deterministic_stimulus_steps(*, contract: DUTContract, case) -> list[dict[str, object]]:
+    if getattr(case, "execution_policy", "deterministic") != "deterministic":
+        return []
+
+    widths = {
+        port.name: port.width if isinstance(port.width, int) else None
+        for port in contract.ports
+    }
+    case_category = str(case.category)
+    signal_names = list(getattr(case, "stimulus_signals", []) or [])
+
+    if case_category == "reset":
+        return [{"action": "record_inputs", "signals": {"__reset_only__": True}}]
+
+    memory_steps = _memory_style_steps(signal_names=signal_names, widths=widths)
+    if memory_steps:
+        return memory_steps
+
+    if case_category == "protocol":
+        protocol_steps = _protocol_style_steps(signal_names=signal_names, widths=widths, case=case)
+        if protocol_steps:
+            return protocol_steps
+
+    if case_category == "back_to_back" and signal_names:
+        first = _deterministic_drive_pattern(signal_names=signal_names, widths=widths, profile="basic")
+        second = _deterministic_drive_pattern(signal_names=signal_names, widths=widths, profile="edge")
+        return [
+            {"action": "drive", "signals": first},
+            {"action": "wait_cycles", "cycles": 1},
+            {"action": "drive", "signals": second},
+            {"action": "wait_cycles", "cycles": 1},
+        ]
+
+    if signal_names:
+        profile = "edge" if case_category == "edge" else "basic"
+        return [
+            {"action": "drive", "signals": _deterministic_drive_pattern(signal_names=signal_names, widths=widths, profile=profile)},
+            {"action": "wait_cycles" if contract.timing.sequential_kind == "seq" and contract.clocks else "wait_for_settle"},
+        ]
+
+    if contract.timing.sequential_kind == "seq" and contract.clocks:
+        return [
+            {
+                "action": "record_note",
+                "text": "Deterministic mainline case relies on clock-driven observation because no non-control inputs were resolved.",
+            },
+            {"action": "wait_cycles", "cycles": 2},
+            {"action": "record_inputs", "signals": {"__clock_progress__": 2}},
+        ]
+
+    return []
+
+
+def _memory_style_steps(*, signal_names: list[str], widths: dict[str, int | None]) -> list[dict[str, object]]:
+    lowered = {name.lower(): name for name in signal_names}
+    required = {"write_en", "read_en", "write_addr", "write_data", "read_addr"}
+    if not required.issubset(lowered):
+        return []
+    write_en = lowered["write_en"]
+    read_en = lowered["read_en"]
+    write_addr = lowered["write_addr"]
+    write_data = lowered["write_data"]
+    read_addr = lowered["read_addr"]
+    return [
+        {
+            "action": "drive",
+            "signals": {
+                write_en: 1,
+                read_en: 0,
+                write_addr: 3 & _mask_from_width(widths.get(write_addr)),
+                write_data: 0x15 & _mask_from_width(widths.get(write_data)),
+                read_addr: 3 & _mask_from_width(widths.get(read_addr)),
+            },
+        },
+        {"action": "wait_cycles", "cycles": 1},
+        {
+            "action": "drive",
+            "signals": {
+                write_en: 0,
+                read_en: 1,
+                write_addr: 3 & _mask_from_width(widths.get(write_addr)),
+                write_data: 0x15 & _mask_from_width(widths.get(write_data)),
+                read_addr: 3 & _mask_from_width(widths.get(read_addr)),
+            },
+        },
+        {"action": "wait_cycles", "cycles": 1},
+    ]
+
+
+def _protocol_style_steps(*, signal_names: list[str], widths: dict[str, int | None], case) -> list[dict[str, object]]:
+    signals = {name.lower(): name for name in signal_names}
+    if not signals:
+        return []
+    drive = _deterministic_drive_pattern(signal_names=signal_names, widths=widths, profile="basic")
+    coverage_tags = {str(tag).lower() for tag in getattr(case, "coverage_tags", [])}
+    if "backpressure" in coverage_tags:
+        for lower_name, original_name in signals.items():
+            if "ready" in lower_name:
+                drive[original_name] = 0
+            elif any(token in lower_name for token in ("valid", "start", "req")):
+                drive[original_name] = 1
+        return [{"action": "drive", "signals": drive}, {"action": "wait_cycles", "cycles": 1}]
+    if "persistence" in coverage_tags:
+        initial = dict(drive)
+        follow_up = dict(drive)
+        for lower_name, original_name in signals.items():
+            if "ready" in lower_name:
+                initial[original_name] = 0
+                follow_up[original_name] = 1
+            elif any(token in lower_name for token in ("valid", "start", "req")):
+                initial[original_name] = 1
+                follow_up[original_name] = 1
+        return [
+            {"action": "drive", "signals": initial},
+            {"action": "wait_cycles", "cycles": 1},
+            {"action": "drive", "signals": follow_up},
+            {"action": "wait_cycles", "cycles": 1},
+        ]
+    for lower_name, original_name in signals.items():
+        if any(token in lower_name for token in ("valid", "ready", "start", "req", "ack", "done")):
+            drive[original_name] = 1
+    return [{"action": "drive", "signals": drive}, {"action": "wait_cycles", "cycles": 1}]
+
+
+def _deterministic_drive_pattern(*, signal_names: list[str], widths: dict[str, int | None], profile: str) -> dict[str, int]:
+    values: dict[str, int] = {}
+    for index, signal_name in enumerate(signal_names):
+        width = widths.get(signal_name)
+        mask = _mask_from_width(width)
+        lower = signal_name.lower()
+        if any(token in lower for token in ("enable", "_en", "valid", "ready", "start", "write", "read", "req", "ack", "load")):
+            value = 1
+        elif profile == "edge":
+            value = mask
+        elif width is not None and width > 1:
+            value = (index + 1) & mask
+        else:
+            value = index % 2
+        values[signal_name] = value & mask
+    return values
+
+
+def _mask_from_width(width: int | None) -> int:
+    width_int = max(1, int(width or 1))
+    return (1 << width_int) - 1
 
 
 def _camel(name: str) -> str:

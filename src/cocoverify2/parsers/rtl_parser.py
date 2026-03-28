@@ -9,7 +9,7 @@ from pathlib import Path
 from cocoverify2.core.errors import ParserError
 from cocoverify2.core.models import PortSpec
 from cocoverify2.parsers.parameter_parser import parse_parameter_block
-from cocoverify2.parsers.port_parser import parse_port_block
+from cocoverify2.parsers.port_parser import parse_port_block, recover_port_declarations_from_body
 from cocoverify2.utils.files import read_text
 
 _MODULE_HEADER_RE = re.compile(
@@ -63,6 +63,9 @@ def parse_rtl_text(text: str, *, source_path: Path) -> ParsedRTLModule:
     warnings.extend(port_warnings)
 
     body_text = _extract_module_body(cleaned, match.end())
+    recovered_ports, recovery_warnings = recover_port_declarations_from_body(ports, body_text)
+    ports = recovered_ports
+    warnings.extend(recovery_warnings)
     if not body_text.strip():
         warnings.append(f"Module '{match.group('name')}' body could not be isolated cleanly.")
     if not ports:

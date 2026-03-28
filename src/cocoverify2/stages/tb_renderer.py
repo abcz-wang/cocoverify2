@@ -351,6 +351,12 @@ def _render_warnings(
         warnings.append("Plan confidence is limited; testcase grouping avoids inventing stronger sequencing semantics.")
     if oracle.oracle_confidence.overall_confidence < 0.6:
         warnings.append("Oracle confidence is limited; rendered checks preserve unresolved items and avoid stronger value-level assertions.")
+    deferred_case_ids = [case.case_id for case in plan.cases if getattr(case, "execution_policy", "deterministic") != "deterministic"]
+    if deferred_case_ids:
+        warnings.append(
+            "Some rendered cases were downgraded to deferred execution because deterministic stimulus was not available: "
+            + ", ".join(deferred_case_ids[:5])
+        )
     if any(not case.checks for case in oracle.functional_oracles):
         warnings.append("Some functional oracle cases are intentionally empty; render output preserves them as conservative protocol/property-driven tests.")
     if "test_{}_protocol.py".format(contract.module_name) not in test_modules and contract.handshake_groups:

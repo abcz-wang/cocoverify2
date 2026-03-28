@@ -124,6 +124,8 @@ class TestCasePlan(ModelBase):
     dependencies: list[str] = Field(default_factory=list)
     coverage_tags: list[str] = Field(default_factory=list)
     semantic_tags: list[str] = Field(default_factory=list)
+    execution_policy: str = "deterministic"
+    defer_reason: str = ""
     priority: int = Field(default=5, ge=1, le=10)
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     source: str = "unknown"

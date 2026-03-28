@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from cocoverify2.stages.contract_extractor import ContractExtractor
+from cocoverify2.utils.spec_hints import extract_interface_hint_text
 
 _FIXTURES = Path(__file__).parent / "fixtures"
 _RTL = _FIXTURES / "rtl"
@@ -90,7 +91,7 @@ def test_partial_parse_still_generates_contract_with_ambiguities(tmp_path: Path)
     assert payload["extraction_warnings"]
 
 
-def test_legacy_non_ansi_confidence_is_downgraded(tmp_path: Path) -> None:
+def test_legacy_non_ansi_recovers_body_port_declarations(tmp_path: Path) -> None:
     contract = ContractExtractor().run(
         rtl_paths=[_RTL / "legacy_non_ansi.v"],
         task_description=None,
@@ -99,9 +100,125 @@ def test_legacy_non_ansi_confidence_is_downgraded(tmp_path: Path) -> None:
         out_dir=tmp_path,
     )
 
-    assert contract.contract_confidence <= 0.35
+    directions = {port.name: port.direction for port in contract.ports}
+    assert directions == {"clk": "input", "rst_n": "input", "data": "input", "done": "output"}
+    assert contract.observable_outputs == ["done"]
+    assert any(port.source == "rtl_body_declaration" for port in contract.ports if port.name == "done")
+    assert contract.contract_confidence >= 0.3
     assert contract.timing.sequential_kind == "unknown"
-    assert contract.observable_outputs == []
+
+
+def test_mixed_clock_reset_line_does_not_cross_classify_clk_as_reset(tmp_path: Path) -> None:
+    spec_text = "Signals clk and rst_n provide the clock and active-low reset respectively."
+    contract = ContractExtractor().run(
+        rtl_paths=[_RTL / "simple_seq.v"],
+        task_description="Sequential register with clk and rst_n.",
+        spec_text=spec_text,
+        golden_interface_text=None,
+        out_dir=tmp_path,
+    )
+
+    assert [clock.name for clock in contract.clocks] == ["clk"]
+    assert [reset.name for reset in contract.resets] == ["rst_n"]
+
+
+def test_spec_text_does_not_promote_outputs_into_clock_or_reset_roles(tmp_path: Path) -> None:
+    rtl_path = tmp_path / "calendar_like.v"
+    rtl_path.write_text(
+        "\n".join(
+            [
+                "module verified_calendar(CLK, RST, Hours, Mins, Secs);",
+                "input CLK;",
+                "input RST;",
+                "output [5:0] Hours;",
+                "output [5:0] Mins;",
+                "output [5:0] Secs;",
+                "endmodule",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    spec_text = """
+Module name:
+    calendar
+
+Input ports:
+    CLK: Clock input
+    RST: Active high reset signal
+
+Output ports:
+    Hours: 6-bit output representing the current hours
+    Mins: 6-bit output representing the current minutes
+    Secs: 6-bit output representing the current seconds
+
+Implementation:
+The third always block triggers on the positive edge of the clock signal or the positive edge of the reset signal.
+It handles the hours value (Hours) and keeps the minutes value (Mins) unchanged otherwise.
+""".strip()
+
+    contract = ContractExtractor().run(
+        rtl_paths=[rtl_path],
+        task_description=None,
+        spec_text=spec_text,
+        golden_interface_text=extract_interface_hint_text(spec_text),
+        out_dir=tmp_path / "out",
+    )
+
+    assert [clock.name for clock in contract.clocks] == ["CLK"]
+    assert [reset.name for reset in contract.resets] == ["RST"]
+    assert "Hours" not in {clock.name for clock in contract.clocks}
+    assert "Hours" not in {reset.name for reset in contract.resets}
+    assert "Mins" not in {clock.name for clock in contract.clocks}
+    assert "Mins" not in {reset.name for reset in contract.resets}
+
+
+def test_interface_hint_extraction_feeds_contract_without_reusing_full_spec(tmp_path: Path) -> None:
+    spec_text = """
+Module name:
+    simple_seq
+
+Input ports:
+    clk: clock signal
+    rst_n: active low reset signal
+    d: data input
+
+Output ports:
+    q: registered output
+
+Implementation:
+The register captures d on the rising edge of clk.
+""".strip()
+    interface_hint_text = extract_interface_hint_text(spec_text)
+    contract = ContractExtractor().run(
+        rtl_paths=[_RTL / "simple_seq.v"],
+        task_description=None,
+        spec_text=spec_text,
+        golden_interface_text=interface_hint_text,
+        out_dir=tmp_path,
+    )
+
+    assert interface_hint_text is not None
+    assert "Implementation" not in interface_hint_text
+    assert "golden_interface" in contract.source_map["ports.clk"]
+    assert "spec_hint" in contract.source_map["resets.rst_n"]
+
+
+def test_ansi_ports_with_tabs_parse_without_placeholder_names(tmp_path: Path) -> None:
+    rtl_path = tmp_path / "tabbed_ports.v"
+    rtl_path.write_text(
+        "module demo(\n\tinput\tclk,\n\tinput\t\t[3:0]\tdata_in,\n\toutput reg [3:0]\tdata_out\n);\nendmodule\n",
+        encoding="utf-8",
+    )
+
+    contract = ContractExtractor().run(
+        rtl_paths=[rtl_path],
+        task_description=None,
+        spec_text=None,
+        golden_interface_text=None,
+        out_dir=tmp_path / "out",
+    )
+
+    assert [port.name for port in contract.ports] == ["clk", "data_in", "data_out"]
 
 
 def test_stage_contract_cli_smoke(tmp_path: Path) -> None:

@@ -1,0 +1,170 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM hybrid fallback activated for plan stage: LLM request failed after 3 attempt(s): Connection error.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints.",
+    "LLM hybrid fallback activated for oracle stage: LLM request failed after 3 attempt(s): Connection error."
+  ],
+  "based_on_contract": "sequence_detector",
+  "based_on_plan": "sequence_detector",
+  "functional_oracles": [],
+  "module_name": "sequence_detector",
+  "oracle_confidence": {
+    "functional_confidence": 0.0,
+    "overall_confidence": 0.49000000000000016,
+    "property_confidence": 0.7750000000000001,
+    "protocol_confidence": 0.7650000000000001
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7750000000000001,
+          "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+          "notes": [
+            "Clock/reset remain anchors and are not emitted as business outputs."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'reset_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_protocol_001",
+          "check_type": "protocol",
+          "confidence": 0.7650000000000001,
+          "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+          "notes": [
+            "Reset is used as an anchor only; it is not treated as a business output."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+        }
+      ],
+      "confidence": 0.7650000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Reset oracle focuses on control-safe behavior instead of value-specific output claims.",
+        "Protocol oracle strictness is downgraded because the contract or plan is weak."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "unresolved_items": [
+    "Golden interface mentioned port 'S4', but it was not found in the RTL header.",
+    "Spec/reset hint could not be mapped to a known reset port: -Reset Behavior: When reset is high, the state machine returns to the IDLE state, resetting the detection process.",
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+    "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks."
+  ]
+}

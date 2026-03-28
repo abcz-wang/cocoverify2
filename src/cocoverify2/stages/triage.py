@@ -71,6 +71,12 @@ _ORACLE_TRACE_KEYWORDS = (
     "oracle helper",
 )
 
+_INSUFFICIENT_STIMULUS_KEYWORDS = (
+    "insufficient_stimulus",
+    "simulator shut down prematurely",
+    "no more events",
+)
+
 _WEAK_RENDER_HINTS = (
     "conservative",
     "limited",
@@ -254,9 +260,24 @@ def _classify(
     timeout_matches = _find_matches(all_fragments, _TIMEOUT_KEYWORDS)
     pass_matches = _find_matches(build_and_test_lines, (" passed", " PASS "))
     oracle_matches = _find_matches(all_fragments, _ORACLE_TRACE_KEYWORDS)
+    insufficient_matches = _find_matches(all_fragments, _INSUFFICIENT_STIMULUS_KEYWORDS)
 
     secondary_categories: list[str] = []
-    if status == ExecutionStatus.SUCCESS.value:
+    if (
+        status == ExecutionStatus.SUCCESS.value
+        and simulation_result.skipped_tests
+        and not simulation_result.passed_tests
+        and not simulation_result.failed_tests
+    ):
+        primary_category = "insufficient_stimulus"
+        suspected_layer = "plan_render_gap"
+        confidence = 0.82
+        matched_log_fragments = insufficient_matches or ["all rendered tests were skipped by deterministic mainline policy"]
+        if _render_looks_weak(render_metadata):
+            secondary_categories.append("weak_testbench")
+        if _render_looks_unresolved(render_metadata):
+            secondary_categories.append("unresolved_ambiguity")
+    elif status == ExecutionStatus.SUCCESS.value:
         primary_category = "no_failure"
         suspected_layer = "none"
         confidence = 0.92
@@ -294,6 +315,15 @@ def _classify(
         confidence = 0.82 if environment_matches else 0.68
         secondary_categories = ["execution_infrastructure_error"]
         matched_log_fragments = environment_matches
+    elif status == ExecutionStatus.RUNTIME_ERROR.value and insufficient_matches:
+        primary_category = "insufficient_stimulus"
+        suspected_layer = "plan_render_gap"
+        confidence = 0.76
+        if _render_looks_weak(render_metadata):
+            secondary_categories.append("weak_testbench")
+        if _render_looks_unresolved(render_metadata):
+            secondary_categories.append("unresolved_ambiguity")
+        matched_log_fragments = insufficient_matches
     elif status == ExecutionStatus.RUNTIME_ERROR.value and simulation_result.failed_tests:
         primary_category = "runtime_test_failure"
         suspected_layer = "dut_or_testbench"

@@ -25,6 +25,7 @@ def _write_run_fixture(
     stderr: str = "",
     failed_tests: list[str] | None = None,
     passed_tests: list[str] | None = None,
+    skipped_tests: list[str] | None = None,
     discovered_tests: list[str] | None = None,
     execution_notes: list[str] | None = None,
     runner_warnings: list[str] | None = None,
@@ -84,11 +85,11 @@ def _write_run_fixture(
         command=["make"],
         return_code=return_code,
         status=status,
-        discovered_tests=discovered_tests or list(failed_tests or []) + list(passed_tests or []),
-        executed_tests=list(failed_tests or []) + list(passed_tests or []),
+        discovered_tests=discovered_tests or list(failed_tests or []) + list(passed_tests or []) + list(skipped_tests or []),
+        executed_tests=list(failed_tests or []) + list(passed_tests or []) + list(skipped_tests or []),
         passed_tests=passed_tests or [],
         failed_tests=failed_tests or [],
-        skipped_tests=[],
+        skipped_tests=skipped_tests or [],
         log_paths={
             "build_log": str(build_log_path),
             "test_log": str(test_log_path),
@@ -210,6 +211,25 @@ def test_runtime_failure_with_weak_render_stays_conservative(tmp_path: Path) -> 
     assert "unresolved_ambiguity" in result.secondary_categories
     assert "likely_dut_bug" not in result.secondary_categories
     assert any(item.startswith("failed_tests_count=1") for item in result.evidence)
+
+
+def test_success_with_only_skipped_tests_triages_as_insufficient_stimulus(tmp_path: Path) -> None:
+    root = _write_run_fixture(
+        tmp_path / "skipped_case",
+        status=ExecutionStatus.SUCCESS,
+        build_log="SKIPPED cocotb_tests.test_demo_basic.test_basic_001\n",
+        skipped_tests=["cocotb_tests.test_demo_basic.test_basic_001"],
+        render_warnings=[
+            "Contract confidence is low; interface and testcase rendering remain conservative.",
+            "Some rendered cases were downgraded to deferred execution because deterministic stimulus was not available.",
+        ],
+        render_confidence=0.4,
+    )
+
+    result = TriageStage().run_from_dir(in_dir=root, out_dir=tmp_path / "triage_skipped")
+
+    assert result.primary_category == "insufficient_stimulus"
+    assert result.suspected_layer == "plan_render_gap"
 
 
 def test_stage_triage_cli_smoke(tmp_path: Path) -> None:

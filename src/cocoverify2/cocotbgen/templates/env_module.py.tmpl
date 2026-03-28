@@ -12,6 +12,7 @@ from __future__ import annotations
 from pprint import pformat
 
 import cocotb
+from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, ReadWrite, RisingEdge, Timer
 
 from .${coverage_module} import ${coverage_class}
@@ -21,6 +22,7 @@ from .${runtime_module} import normalize_driven_value, normalize_sampled_value
 PLAN_CASES = ${plan_cases_literal}
 UNRESOLVED_ITEMS = ${unresolved_items_literal}
 SIGNAL_WIDTHS = ${signal_widths_literal}
+CLOCK_SPECS = ${clock_specs_literal}
 BUSINESS_OUTPUTS = ${business_outputs_literal}
 
 
@@ -35,31 +37,60 @@ class ${class_name}:
         self.case_inputs: dict[str, dict[str, object]] = {}
         self.case_notes: dict[str, list[str]] = {}
         self._last_driven_inputs: dict[str, object] = {}
+        self._clock_tasks: list[object] = []
 
     async def initialize(self) -> None:
         """Bind interface signals before any case is exercised."""
         self.interface.bind_signals()
+        await self._start_background_clocks()
 
-    async def apply_reset_if_available(self) -> None:
-        """Use the inferred reset conservatively when one exists."""
-        reset_name = self.interface.reset_name()
-        if reset_name is None or not self.interface.signal_exists(reset_name):
+    async def _start_background_clocks(self) -> None:
+        """Start deterministic background clocks for resolved input clocks."""
+        if self._clock_tasks:
             return
-        reset_signal = self.interface.get_signal(reset_name)
-        if reset_signal is None:
-            return
-        active_level = 0 if reset_name.endswith("n") or reset_name.endswith("_n") else 1
-        reset_signal.value = active_level
+        for index, clock_spec in enumerate(CLOCK_SPECS):
+            signal_name = str(clock_spec.get("name", ""))
+            if not signal_name or not self.interface.signal_exists(signal_name):
+                continue
+            signal = self.interface.get_signal(signal_name)
+            if signal is None:
+                continue
+            period_guess = clock_spec.get("period_ns_guess")
+            period_ns = float(period_guess) if period_guess else float(10 + 2 * index)
+            self._clock_tasks.append(cocotb.start_soon(Clock(signal, period_ns, unit="ns").start(start_high=False)))
+
+    async def apply_reset_if_available(self) -> str | None:
+        """Use all inferred resets conservatively when they exist."""
+        reset_names = [
+            signal_name
+            for signal_name in self.interface.reset_names()
+            if self.interface.signal_exists(signal_name) and self.interface.get_signal(signal_name) is not None
+        ]
+        if not reset_names:
+            return None
+        assert_values: dict[str, object] = {}
+        release_values: dict[str, object] = {}
+        for reset_name in reset_names:
+            active_level = 0 if reset_name.endswith("n") or reset_name.endswith("_n") else 1
+            assert_values[reset_name] = active_level
+            release_values[reset_name] = 1 - active_level
+        await self.drive_inputs(**assert_values)
         await self.wait_event_based(label="reset_assert")
-        reset_signal.value = 1 - active_level
+        await self.drive_inputs(**release_values)
         await self.wait_event_based(label="reset_release")
+        return ",".join(reset_names)
 
 ${exact_cycle_block}    async def wait_event_based(self, label: str = "event_based") -> None:
         """Use event-based waiting as the default conservative observation path."""
-        clock_name = self.interface.clock_name()
-        if clock_name and self.interface.signal_exists(clock_name):
-            clock_signal = self.interface.get_signal(clock_name)
-            await RisingEdge(clock_signal)
+        clock_names = [
+            signal_name
+            for signal_name in self.interface.clock_names()
+            if self.interface.signal_exists(signal_name) and self.interface.get_signal(signal_name) is not None
+        ]
+        if clock_names:
+            for clock_name in clock_names:
+                clock_signal = self.interface.get_signal(clock_name)
+                await RisingEdge(clock_signal)
         else:
             await Timer(1, unit="ns")
         await ReadOnly()
@@ -153,13 +184,18 @@ ${exact_cycle_dispatch}        await self.wait_event_based(label=label)
         """Record the rendered stimulus intent without inventing new semantics."""
         case = PLAN_CASES[case_id]
         if case.get("category") == "reset" or "reset_001" in case.get("dependencies", []):
-            await self.apply_reset_if_available()
+            reset_name = await self.apply_reset_if_available()
+            if case.get("category") == "reset":
+                self.record_case_inputs(case_id, {"__reset_signal__": reset_name or "none"})
         for intent in case.get("stimulus_intent", []):
             self.observation_log.append({
                 "kind": "stimulus_intent",
                 "case_id": case_id,
                 "intent": intent,
             })
+        if case.get("execution_policy") != "deterministic":
+            self.record_case_note(case_id, case.get("defer_reason", "Case was rendered as non-executable in the deterministic mainline path."))
+            return
         self._last_driven_inputs = {}
         await self._apply_stimulus_todo(case_id)
         if case_id not in self.case_inputs and self._last_driven_inputs:
@@ -173,3 +209,23 @@ ${stimulus_dispatch_block}
 ${stimulus_helper_blocks}    def note_oracle_result(self, result: dict[str, object]) -> None:
         """Keep rendered oracle observations for later phases."""
         self.observation_log.append({"kind": "oracle_result", **result})
+
+    async def _apply_deterministic_case(self, case_id: str) -> None:
+        """Apply deterministic rule-based stimulus steps rendered for one case."""
+        case = PLAN_CASES[case_id]
+        for step in case.get("deterministic_stimulus_steps", []):
+            action = step.get("action", "")
+            if action == "drive":
+                await self.drive_inputs(**dict(step.get("signals", {})))
+                continue
+            if action == "wait_for_settle":
+                await self.wait_for_settle()
+                continue
+            if action == "wait_cycles":
+                await self.wait_bounded_safe(int(step.get("cycles") or 1), label=f"{case_id}_stimulus")
+                continue
+            if action == "record_inputs":
+                self.record_case_inputs(case_id, dict(step.get("signals", {})))
+                continue
+            if action == "record_note":
+                self.record_case_note(case_id, str(step.get("text", "")))

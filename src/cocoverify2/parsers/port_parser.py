@@ -10,6 +10,8 @@ from cocoverify2.core.types import PortDirection
 
 _DIRECTION_KEYWORDS = {"input", "output", "inout"}
 _TYPE_KEYWORDS = {"wire", "reg", "logic", "bit", "tri", "signed", "unsigned"}
+_DIRECTION_RE = re.compile(r"^(input|output|inout)\b", flags=re.IGNORECASE)
+_BODY_DECLARATION_RE = re.compile(r"^\s*(input|output|inout)\b(?P<body>[^;]*);", flags=re.IGNORECASE | re.MULTILINE)
 
 
 @dataclass(slots=True)
@@ -44,14 +46,14 @@ def _parse_port_segment(segment: str, context: _PortContext | None) -> tuple[Por
     lower = working.lower()
     new_context = context
 
-    if any(lower.startswith(f"{keyword} ") or lower == keyword for keyword in _DIRECTION_KEYWORDS):
-        direction_token, remainder = working.split(maxsplit=1) if " " in working else (working, "")
-        direction = PortDirection(direction_token.lower())
+    direction_match = _DIRECTION_RE.match(working)
+    if direction_match is not None:
+        direction = PortDirection(direction_match.group(1).lower())
         width: int | str | None = 1
         raw_range: str | None = None
         signed = False
         data_type_tokens: list[str] = []
-        working = remainder.strip()
+        working = working[direction_match.end() :].strip()
 
         while True:
             token_match = re.match(r"^(wire|reg|logic|bit|tri|signed|unsigned)\b", working)
@@ -106,6 +108,82 @@ def _parse_port_segment(segment: str, context: _PortContext | None) -> tuple[Por
         confidence=confidence,
     )
     return port, new_context, warnings
+
+
+def recover_port_declarations_from_body(ports: list[PortSpec], body_text: str) -> tuple[list[PortSpec], list[str]]:
+    """Recover conservative direction/type hints from legacy non-ANSI body declarations."""
+    if not ports or not body_text.strip():
+        return list(ports), []
+
+    recovered_ports = [port.model_copy(deep=True) for port in ports]
+    by_name = {port.name: port for port in recovered_ports}
+    warnings: list[str] = []
+
+    for match in _BODY_DECLARATION_RE.finditer(body_text):
+        direction = PortDirection(match.group(1).lower())
+        declaration_body = match.group("body").strip()
+        context, remainder, context_warnings = _parse_declaration_context(direction, declaration_body)
+        warnings.extend(context_warnings)
+        for raw_name in _split_top_level_commas(remainder):
+            port_name = _normalize_port_name(raw_name)
+            if port_name is None or port_name not in by_name:
+                continue
+            port = by_name[port_name]
+            if port.direction == PortDirection.UNKNOWN:
+                port.direction = context.direction
+                port.source = "rtl_body_declaration"
+                port.confidence = max(port.confidence, 0.85)
+            if port.raw_range is None and context.raw_range is not None:
+                port.raw_range = context.raw_range
+                port.width = context.width
+            if port.data_type is None and context.data_type is not None:
+                port.data_type = context.data_type
+            if not port.signed and context.signed:
+                port.signed = True
+    return recovered_ports, warnings
+
+
+def _parse_declaration_context(
+    direction: PortDirection,
+    declaration_body: str,
+) -> tuple[_PortContext, str, list[str]]:
+    warnings: list[str] = []
+    working = declaration_body.strip()
+    width: int | str | None = 1
+    raw_range: str | None = None
+    signed = False
+    data_type_tokens: list[str] = []
+
+    while True:
+        token_match = re.match(r"^(wire|reg|logic|bit|tri|signed|unsigned)\b", working)
+        if token_match is None:
+            break
+        token = token_match.group(1).lower()
+        if token == "signed":
+            signed = True
+        elif token != "unsigned":
+            data_type_tokens.append(token)
+        working = working[token_match.end() :].strip()
+
+    if working.startswith("["):
+        raw_range = _extract_leading_range(working)
+        if raw_range is not None:
+            width = _decode_range_width(raw_range)
+            working = working[len(raw_range) :].strip()
+        else:
+            warnings.append(f"Could not parse declaration range in body fragment: {declaration_body}")
+
+    return (
+        _PortContext(
+            direction=direction,
+            width=width,
+            raw_range=raw_range,
+            signed=signed,
+            data_type=" ".join(data_type_tokens) or None,
+        ),
+        working,
+        warnings,
+    )
 
 
 def _normalize_port_name(raw_name: str) -> str | None:

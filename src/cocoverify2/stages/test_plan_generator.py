@@ -98,6 +98,12 @@ class TestPlanGenerator:
         unresolved_items = list(contract.ambiguities)
         weak_contract = _is_weak_contract(contract)
         observed_signals = _default_observed_signals(contract)
+        drivable_inputs = _drivable_input_names(contract)
+        minimal_plan_only = _should_minimize_plan(
+            contract=contract,
+            observed_signals=observed_signals,
+            drivable_inputs=drivable_inputs,
+        )
         counters: dict[str, int] = defaultdict(int)
         cases: list[TestCasePlan] = []
 
@@ -136,17 +142,22 @@ class TestPlanGenerator:
 
         cases.append(self._build_basic_case(contract=contract, counters=counters, observed_signals=observed_signals))
 
-        if _should_add_edge_case(contract):
+        if not minimal_plan_only and _should_add_edge_case(contract):
             cases.append(self._build_edge_case(contract=contract, counters=counters, observed_signals=observed_signals))
 
-        for group in contract.handshake_groups:
-            cases.extend(self._build_handshake_cases(contract=contract, group=group, counters=counters, observed_signals=observed_signals))
+        if not minimal_plan_only:
+            for group in contract.handshake_groups:
+                cases.extend(self._build_handshake_cases(contract=contract, group=group, counters=counters, observed_signals=observed_signals))
 
-        if _should_add_back_to_back_case(contract):
+        if not minimal_plan_only and _should_add_back_to_back_case(contract):
             cases.append(self._build_back_to_back_case(contract=contract, counters=counters, observed_signals=observed_signals))
 
-        if contract.illegal_input_constraints:
+        if not minimal_plan_only and contract.illegal_input_constraints:
             cases.append(self._build_negative_case(contract=contract, counters=counters, observed_signals=observed_signals))
+        elif contract.illegal_input_constraints:
+            unresolved_items.append(
+                "Negative or illegal-input behavior is documented, but the current contract does not support deterministic mainline stimulus for those constraints."
+            )
         elif weak_contract and contract.timing.sequential_kind == SequentialKind.UNKNOWN:
             unresolved_items.append("Negative or illegal-input behavior is not planned because the contract does not provide reliable constraints.")
 
@@ -155,6 +166,7 @@ class TestPlanGenerator:
         if spec_text:
             assumptions.append("Spec text was provided and only used where it did not contradict the contract.")
 
+        cases = [_calibrate_case_execution_policy(contract=contract, case=case) for case in cases]
         _dedupe_in_place(unresolved_items)
         _dedupe_in_place(assumptions)
         return TestPlan(
@@ -340,6 +352,8 @@ class TestPlanGenerator:
                 unresolved_items + ["Hybrid LLM planning produced no accepted enrichments beyond the baseline rule-based cases."]
             )
 
+        working_cases = [_calibrate_case_execution_policy(contract=contract, case=case) for case in working_cases]
+
         merged_plan = TestPlan(
             module_name=baseline_plan.module_name,
             based_on_contract=baseline_plan.based_on_contract,
@@ -370,31 +384,41 @@ class TestPlanGenerator:
         counters: dict[str, int],
         observed_signals: list[str],
     ) -> TestCasePlan:
-        input_names = [port.name for port in contract.ports if port.direction == PortDirection.INPUT]
-        if contract.timing.sequential_kind == SequentialKind.COMB:
+        input_names = _drivable_input_names(contract)
+        if contract.timing.sequential_kind == SequentialKind.COMB and input_names:
             goal = "Exercise representative legal input combinations and observe output mapping."
             expected_properties = [
                 "Observable outputs respond to legal input changes without assuming internal state.",
                 "Checks focus on input/output consistency rather than cycle-accurate timing.",
             ]
-        elif contract.timing.sequential_kind == SequentialKind.SEQ:
+            stimulus_intent = [f"Drive a representative legal input pattern across known non-control inputs: {input_names}"]
+        elif contract.timing.sequential_kind == SequentialKind.SEQ and input_names:
             goal = "Apply one legal operation and observe stable post-operation behavior."
             expected_properties = [
                 "A legal operation causes an observable state or output change after conservative observation.",
                 "The plan does not assume a completion event before it is externally visible.",
             ]
+            stimulus_intent = [f"Drive a representative legal input pattern across known non-control inputs: {input_names}"]
+        elif contract.timing.sequential_kind == SequentialKind.SEQ and contract.clocks and observed_signals:
+            goal = "Observe clock-driven state progress after reset or conservative initialization."
+            expected_properties = [
+                "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+                "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access.",
+            ]
+            stimulus_intent = ["Release reset if present and observe a small number of conservative clock edges for externally visible progress."]
         else:
-            goal = "Apply one legal operation or transaction and observe any externally visible progress."
+            goal = "Observe any externally visible progress without inventing unresolved stimulus semantics."
             expected_properties = [
                 "Checks are limited to reset-safe, protocol-safe, or output-visible behavior.",
                 "No fixed latency or exact cycle count is assumed.",
             ]
+            stimulus_intent = ["Only deterministic, contract-supported stimulus is used; otherwise the case is downgraded."]
         return self._make_case(
             counters=counters,
             category=TestCategory.BASIC,
             goal=goal,
             preconditions=["Use only ports and observable signals present in the contract."],
-            stimulus_intent=[f"Drive a representative legal input pattern across known inputs: {input_names or ['<no resolved inputs>']}"],
+            stimulus_intent=stimulus_intent,
             stimulus_signals=input_names,
             expected_properties=expected_properties,
             observed_signals=observed_signals,
@@ -414,7 +438,14 @@ class TestPlanGenerator:
         counters: dict[str, int],
         observed_signals: list[str],
     ) -> TestCasePlan:
-        vector_inputs = [port.name for port in contract.ports if port.direction == PortDirection.INPUT and port.width not in (None, 1)]
+        vector_inputs = [
+            port.name
+            for port in contract.ports
+            if port.direction == PortDirection.INPUT and port.name in _drivable_input_names(contract) and port.width not in (None, 1)
+        ]
+        fallback_inputs = _drivable_input_names(contract)
+        control_inputs = [name for name in fallback_inputs if name in _control_like_input_names(contract)]
+        stimulus_signals = _deduped(vector_inputs + control_inputs) or fallback_inputs
         expected = [
             "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
             "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
@@ -424,8 +455,8 @@ class TestPlanGenerator:
             category=TestCategory.EDGE,
             goal="Exercise boundary-value and width-sensitive input patterns.",
             preconditions=["At least one input or symbolic-width input is available."],
-            stimulus_intent=[f"Use zero-like, one-like, and boundary patterns on {vector_inputs or ['known inputs']}"],
-            stimulus_signals=vector_inputs or [port.name for port in contract.ports if port.direction == PortDirection.INPUT],
+            stimulus_intent=[f"Use zero-like, one-like, and boundary patterns on {stimulus_signals or ['resolved non-control inputs']}"],
+            stimulus_signals=stimulus_signals,
             expected_properties=expected,
             observed_signals=observed_signals,
             timing_assumptions=_safe_timing_assumptions(contract),
@@ -576,7 +607,7 @@ class TestPlanGenerator:
             goal="Observe repeated or back-to-back legal operations under conservative timing assumptions.",
             preconditions=["At least one legal operation is already defined by the basic case."],
             stimulus_intent=["Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."],
-            stimulus_signals=[port.name for port in contract.ports if port.direction == PortDirection.INPUT][:3],
+            stimulus_signals=_drivable_input_names(contract)[:3],
             expected_properties=[
                 "Repeated operations do not rely on hidden fixed-latency assumptions.",
                 "The second operation is observed only through externally visible acceptance, completion, or output change.",
@@ -604,7 +635,7 @@ class TestPlanGenerator:
             goal="Exercise documented illegal or constrained input behavior conservatively.",
             preconditions=["Contract provides illegal input constraints."],
             stimulus_intent=[f"Probe one or more documented constrained inputs: {contract.illegal_input_constraints}"],
-            stimulus_signals=[port.name for port in contract.ports if port.direction == PortDirection.INPUT][:3],
+            stimulus_signals=_drivable_input_names(contract)[:3],
             expected_properties=[
                 "Observe safe handling, rejection, or non-progress for documented illegal input conditions.",
                 "Do not assume undocumented error signaling semantics.",
@@ -677,10 +708,11 @@ def load_contract_artifact(path: Path) -> DUTContract:
 def _default_observed_signals(contract: DUTContract) -> list[str]:
     if contract.observable_outputs:
         return list(contract.observable_outputs)
+    output_like_ports = [port.name for port in contract.ports if port.direction in {PortDirection.OUTPUT, PortDirection.INOUT}]
+    if output_like_ports:
+        return output_like_ports
     if contract.handshake_signals:
         return list(contract.handshake_signals)
-    if contract.ports:
-        return [port.name for port in contract.ports[: min(3, len(contract.ports))]]
     return []
 
 
@@ -699,11 +731,13 @@ def _protocol_safe_timing_assumptions(contract: DUTContract) -> list[str]:
 
 
 def _should_add_edge_case(contract: DUTContract) -> bool:
-    return any(port.direction == PortDirection.INPUT for port in contract.ports)
+    return bool(_drivable_input_names(contract)) and contract.contract_confidence >= 0.5
 
 
 def _should_add_back_to_back_case(contract: DUTContract) -> bool:
-    return bool(contract.handshake_groups) or contract.timing.sequential_kind == SequentialKind.SEQ
+    return bool(contract.handshake_groups) or (
+        contract.timing.sequential_kind == SequentialKind.SEQ and bool(_drivable_input_names(contract))
+    )
 
 
 def _is_weak_contract(contract: DUTContract) -> bool:
@@ -716,6 +750,89 @@ def _is_weak_contract(contract: DUTContract) -> bool:
         or contract.timing.sequential_kind == SequentialKind.UNKNOWN
         or not contract.observable_outputs
     )
+
+
+def _drivable_input_names(contract: DUTContract) -> list[str]:
+    excluded = {clock.name for clock in contract.clocks} | {reset.name for reset in contract.resets}
+    return [
+        port.name
+        for port in contract.ports
+        if port.direction == PortDirection.INPUT and port.name not in excluded
+    ]
+
+
+def _control_like_input_names(contract: DUTContract) -> list[str]:
+    control_tokens = ("en", "enable", "valid", "ready", "start", "done", "read", "write", "req", "ack", "load")
+    result: list[str] = []
+    for signal_name in _drivable_input_names(contract):
+        lowered = signal_name.lower()
+        if any(token in lowered for token in control_tokens):
+            result.append(signal_name)
+    return result
+
+
+def _should_minimize_plan(
+    *,
+    contract: DUTContract,
+    observed_signals: list[str],
+    drivable_inputs: list[str],
+) -> bool:
+    if contract.contract_confidence < 0.3:
+        return True
+    if not observed_signals:
+        return True
+    if not drivable_inputs and contract.timing.sequential_kind == SequentialKind.UNKNOWN:
+        return True
+    return False
+
+
+def _calibrate_case_execution_policy(*, contract: DUTContract, case: TestCasePlan) -> TestCasePlan:
+    calibrated = case.model_copy(deep=True)
+    allowed_inputs = set(_drivable_input_names(contract))
+    if calibrated.category != TestCategory.RESET:
+        calibrated.stimulus_signals = [signal for signal in calibrated.stimulus_signals if signal in allowed_inputs]
+
+    if not calibrated.observed_signals:
+        calibrated.execution_policy = "deferred"
+        calibrated.defer_reason = "No resolved observable outputs were available for deterministic mainline execution."
+        calibrated.notes = _append_unique(calibrated.notes, [calibrated.defer_reason])
+        return calibrated
+
+    if calibrated.category == TestCategory.RESET:
+        calibrated.execution_policy = "deterministic" if contract.resets else "deferred"
+        calibrated.defer_reason = "" if contract.resets else "No resolved reset signal was available."
+        if calibrated.defer_reason:
+            calibrated.notes = _append_unique(calibrated.notes, [calibrated.defer_reason])
+        return calibrated
+
+    if calibrated.category == TestCategory.NEGATIVE:
+        calibrated.execution_policy = "deferred"
+        calibrated.defer_reason = "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+        calibrated.notes = _append_unique(calibrated.notes, [calibrated.defer_reason])
+        return calibrated
+
+    if calibrated.category in {TestCategory.METAMORPHIC, TestCategory.REGRESSION} and contract.contract_confidence < 0.8:
+        calibrated.execution_policy = "deferred"
+        calibrated.defer_reason = "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+        calibrated.notes = _append_unique(calibrated.notes, [calibrated.defer_reason])
+        return calibrated
+
+    if calibrated.stimulus_signals:
+        calibrated.execution_policy = "deterministic"
+        return calibrated
+
+    if contract.timing.sequential_kind == SequentialKind.SEQ and contract.clocks:
+        calibrated.execution_policy = "deterministic"
+        calibrated.notes = _append_unique(
+            calibrated.notes,
+            ["Case relies on deterministic clock-driven observation because no non-control inputs were resolved."],
+        )
+        return calibrated
+
+    calibrated.execution_policy = "deferred"
+    calibrated.defer_reason = "No deterministic non-control stimulus could be derived from the current contract."
+    calibrated.notes = _append_unique(calibrated.notes, [calibrated.defer_reason])
+    return calibrated
 
 
 def _case_confidence(contract: DUTContract, *, bonus: float = 0.0, penalty: float = 0.0) -> float:

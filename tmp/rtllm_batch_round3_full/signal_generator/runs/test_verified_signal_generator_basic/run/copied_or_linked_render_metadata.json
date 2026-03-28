@@ -1,0 +1,899 @@
+{
+  "artifact_stage": "render",
+  "based_on_contract": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round3_full/signal_generator/contract/contract.json",
+  "based_on_oracle": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round3_full/signal_generator/oracle/oracle.json",
+  "based_on_plan": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round3_full/signal_generator/plan/test_plan.json",
+  "based_on_render_metadata": "",
+  "coverage_summary": {
+    "case_categories": [
+      "basic",
+      "reset"
+    ],
+    "class_name": "VerifiedSignalGeneratorCoverage",
+    "coverage_tags": [
+      "basic",
+      "initialization",
+      "reset",
+      "sanity",
+      "seq",
+      "stability"
+    ]
+  },
+  "env_summary": {
+    "case_count": 2,
+    "class_name": "VerifiedSignalGeneratorEnv",
+    "driver_helpers": [
+      "exercise_case",
+      "drive_inputs",
+      "wait_for_settle",
+      "record_case_inputs"
+    ],
+    "has_reset_helper": true,
+    "llm_todo_blocks": [
+      {
+        "block_id": "stimulus_reset_001",
+        "case_id": "reset_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [],
+          "business_outputs": [
+            "wave"
+          ],
+          "case_id": "reset_001",
+          "category": "reset",
+          "goal": "Establish a stable post-reset baseline before functional checking.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "rst_n": 1,
+            "wave": 5
+          },
+          "stimulus_intent": [
+            "Assert the detected reset using the inferred polarity.",
+            "Release reset conservatively and observe interface stabilization."
+          ],
+          "stimulus_signals": [
+            "rst_n"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_reset_001 case_id=reset_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_reset_001 case_id=reset_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_basic_001",
+        "case_id": "basic_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [],
+          "business_outputs": [
+            "wave"
+          ],
+          "case_id": "basic_001",
+          "category": "basic",
+          "goal": "Observe clock-driven state progress after reset or conservative initialization.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "rst_n": 1,
+            "wave": 5
+          },
+          "stimulus_intent": [
+            "Release reset if present and observe a small number of conservative clock edges for externally visible progress."
+          ],
+          "stimulus_signals": [],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+        "template_name": "env_module.py.tmpl"
+      }
+    ],
+    "monitor_helpers": [
+      "safe_observe",
+      "note_oracle_result",
+      "sample_outputs"
+    ],
+    "oracle_helper_module": "verified_signal_generator_oracle",
+    "template_name": "env_module.py.tmpl",
+    "unresolved_items": [
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage."
+    ],
+    "wait_helpers": [
+      "wait_event_based",
+      "wait_bounded_safe",
+      "wait_unbounded_safe"
+    ]
+  },
+  "fill_status": "experimental_available",
+  "fill_warnings": [
+    "Experimental TODO fill metadata is present, but the default mainline pipeline remains render -> run -> triage."
+  ],
+  "filled_todo_block_ids": [],
+  "generated_files": [
+    {
+      "description": "Marks the rendered cocotb test directory as a Python package.",
+      "relative_path": "cocotb_tests/__init__.py",
+      "role": "package_init",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Conservative DUT interface helpers derived from the contract artifact.",
+      "relative_path": "cocotb_tests/verified_signal_generator_interface.py",
+      "role": "interface",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Thin environment wrapper that composes interface, timing-safe waits, and coverage helpers.",
+      "relative_path": "cocotb_tests/verified_signal_generator_env.py",
+      "role": "env",
+      "template_name": "env_module.py.tmpl",
+      "todo_block_ids": [
+        "stimulus_reset_001",
+        "stimulus_basic_001"
+      ]
+    },
+    {
+      "description": "Structured oracle helper functions rendered from the oracle artifact.",
+      "relative_path": "cocotb_tests/verified_signal_generator_oracle.py",
+      "role": "oracle",
+      "template_name": "oracle_module.py.tmpl",
+      "todo_block_ids": [
+        "oracle_reset_001_protocol_001",
+        "oracle_reset_001_functional_001",
+        "oracle_basic_001_functional_001",
+        "oracle_reset_001_property_001",
+        "oracle_basic_001_property_001"
+      ]
+    },
+    {
+      "description": "Stable runtime helpers exposed to LLM-filled stimulus and oracle TODO blocks.",
+      "relative_path": "cocotb_tests/verified_signal_generator_runtime.py",
+      "role": "runtime",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Coverage scaffold rendered from plan coverage tags for later execution stages.",
+      "relative_path": "cocotb_tests/verified_signal_generator_coverage.py",
+      "role": "coverage",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Rendered basic cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_verified_signal_generator_basic.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_reset_001",
+        "testcase_setup_basic_001"
+      ]
+    },
+    {
+      "description": "Phase 4 executable Makefile shell; Phase 5 injects run-time variables and executes it.",
+      "relative_path": "cocotb_tests/Makefile",
+      "role": "makefile",
+      "template_name": "",
+      "todo_block_ids": []
+    }
+  ],
+  "interface_summary": {
+    "business_inputs": [],
+    "business_outputs": [
+      "wave"
+    ],
+    "class_name": "VerifiedSignalGeneratorInterface",
+    "clock_signals": [
+      "clk"
+    ],
+    "optional_signals": [],
+    "protocol_signal_names": [],
+    "reset_signals": [
+      "rst_n"
+    ],
+    "unknown_direction_signals": [],
+    "unresolved_items": []
+  },
+  "llm_todo_blocks": [
+    {
+      "block_id": "stimulus_reset_001",
+      "case_id": "reset_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [],
+        "business_outputs": [
+          "wave"
+        ],
+        "case_id": "reset_001",
+        "category": "reset",
+        "goal": "Establish a stable post-reset baseline before functional checking.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "rst_n": 1,
+          "wave": 5
+        },
+        "stimulus_intent": [
+          "Assert the detected reset using the inferred polarity.",
+          "Release reset conservatively and observe interface stabilization."
+        ],
+        "stimulus_signals": [
+          "rst_n"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_reset_001 case_id=reset_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_signal_generator_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_reset_001 case_id=reset_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [],
+        "business_outputs": [
+          "wave"
+        ],
+        "case_id": "basic_001",
+        "category": "basic",
+        "goal": "Observe clock-driven state progress after reset or conservative initialization.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "rst_n": 1,
+          "wave": 5
+        },
+        "stimulus_intent": [
+          "Release reset if present and observe a small number of conservative clock edges for externally visible progress."
+        ],
+        "stimulus_signals": [],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_signal_generator_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_protocol_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_protocol_001",
+      "context": {
+        "observed_signals": [
+          "wave"
+        ],
+        "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "wave": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "rst_n": 1,
+          "wave": 5
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "protocol_reset_001",
+      "relative_path": "cocotb_tests/verified_signal_generator_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_functional_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "wave"
+        ],
+        "pass_condition": "Observable outputs settle to a stable, externally usable state without relying on undocumented exact-cycle convergence.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "wave": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "rst_n": 1,
+          "wave": 5
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When reset is released after a valid assertion interval."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_functional_001 case_id=reset_001 oracle_case_id=functional_reset_001 check_id=reset_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_reset_001",
+      "relative_path": "cocotb_tests/verified_signal_generator_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_functional_001 case_id=reset_001 oracle_case_id=functional_reset_001 check_id=reset_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_functional_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "wave"
+        ],
+        "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "wave": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "rst_n": 1,
+          "wave": 5
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_basic_001",
+      "relative_path": "cocotb_tests/verified_signal_generator_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_property_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_property_001",
+      "context": {
+        "observed_signals": [
+          "wave"
+        ],
+        "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "wave": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "rst_n": 1,
+          "wave": 5
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "While reset is asserted or being released."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_reset_001",
+      "relative_path": "cocotb_tests/verified_signal_generator_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_property_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_property_001",
+      "context": {
+        "observed_signals": [
+          "wave"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "wave": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "rst_n": 1,
+          "wave": 5
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_basic_001",
+      "relative_path": "cocotb_tests/verified_signal_generator_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_reset_001",
+      "case_id": "reset_001",
+      "check_id": "",
+      "context": {
+        "case_id": "reset_001",
+        "category": "reset",
+        "coverage_tags": [
+          "reset",
+          "initialization",
+          "stability"
+        ],
+        "dependencies": [],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": [
+          "rst_n"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_reset_001 case_id=reset_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_signal_generator_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_reset_001 case_id=reset_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "case_id": "basic_001",
+        "category": "basic",
+        "coverage_tags": [
+          "basic",
+          "sanity",
+          "seq"
+        ],
+        "dependencies": [
+          "reset_001"
+        ],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": []
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_basic_001 case_id=basic_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_signal_generator_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_basic_001 case_id=basic_001",
+      "template_name": "test_case.py.tmpl"
+    }
+  ],
+  "module_name": "verified_signal_generator",
+  "oracle_summary": {
+    "empty_functional_cases": [],
+    "functional_case_count": 2,
+    "llm_todo_blocks": [
+      {
+        "block_id": "oracle_reset_001_protocol_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_protocol_001",
+        "context": {
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "wave": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "rst_n": 1,
+            "wave": 5
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "protocol_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_reset_001_functional_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "Observable outputs settle to a stable, externally usable state without relying on undocumented exact-cycle convergence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "wave": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "rst_n": 1,
+            "wave": 5
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is released after a valid assertion interval."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_functional_001 case_id=reset_001 oracle_case_id=functional_reset_001 check_id=reset_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_functional_001 case_id=reset_001 oracle_case_id=functional_reset_001 check_id=reset_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_basic_001_functional_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "wave": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "rst_n": 1,
+            "wave": 5
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_reset_001_property_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_property_001",
+        "context": {
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "wave": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "rst_n": 1,
+            "wave": 5
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_basic_001_property_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_property_001",
+        "context": {
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "wave": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "rst_n": 1,
+            "wave": 5
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      }
+    ],
+    "preserves_temporal_modes": [
+      "event_based"
+    ],
+    "property_case_count": 2,
+    "protocol_case_count": 1,
+    "runtime_helper_module": "verified_signal_generator_runtime",
+    "template_name": "oracle_module.py.tmpl",
+    "temporal_modes": [
+      "event_based"
+    ],
+    "unresolved_items": [
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+      "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks."
+    ]
+  },
+  "render_confidence": 0.7622222222222224,
+  "render_warnings": [
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+    "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks.",
+    "Rendered Makefile is an executable Phase 4 shell; Phase 5 injects execution variables and selects the backend.",
+    "Task description was provided to the render stage but not used to invent new testbench semantics.",
+    "Spec text was provided to the render stage but only upstream artifacts were trusted for code generation.",
+    "Deterministic render remains the default mainline; post-render TODO fill is experimental and not required by the benchmark path."
+  ],
+  "template_inventory": [
+    "env_module.py.tmpl",
+    "oracle_module.py.tmpl",
+    "test_case.py.tmpl",
+    "test_module.py.tmpl"
+  ],
+  "test_modules": [
+    "test_verified_signal_generator_basic"
+  ],
+  "unfilled_todo_block_ids": []
+}

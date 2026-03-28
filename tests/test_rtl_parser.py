@@ -31,10 +31,10 @@ def test_parameterized_widths_are_preserved() -> None:
     assert done_port.width == 1
 
 
-def test_non_ansi_header_keeps_partial_port_information() -> None:
+def test_non_ansi_header_recovers_body_port_information_conservatively() -> None:
     parsed = parse_rtl_file(_FIXTURES / "legacy_non_ansi.v")
 
     assert parsed.module_name == "legacy_non_ansi"
     assert [port.name for port in parsed.ports] == ["clk", "rst_n", "data", "done"]
-    assert all(port.direction == "unknown" for port in parsed.ports)
+    assert [port.direction for port in parsed.ports] == ["input", "input", "input", "output"]
     assert parsed.warnings

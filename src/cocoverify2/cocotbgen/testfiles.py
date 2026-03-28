@@ -118,8 +118,11 @@ def _render_single_test_case(
     docstring = " ".join(doc_lines)
     comment_lines = [
         f"# Plan category: {case.category}",
+        f"# Execution policy: {case.execution_policy}",
         f"# Coverage tags: {', '.join(case.coverage_tags) if case.coverage_tags else 'none'}",
     ]
+    if case.defer_reason:
+        comment_lines.append(f"# Deferred reason: {case.defer_reason}")
     if case.timing_assumptions:
         comment_lines.extend(f"# Timing assumption: {item}" for item in case.timing_assumptions[:3])
     unresolved = []
@@ -162,6 +165,7 @@ def _render_single_test_case(
         comments="\n    ".join(comment_lines),
         env_class=env_class,
         setup_todo_block=setup_todo_block,
+        test_decorator="@cocotb.test(skip=True)" if case.execution_policy != "deterministic" else "@cocotb.test()",
     )
     return content, [setup_todo_metadata]
 

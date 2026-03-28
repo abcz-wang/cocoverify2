@@ -96,6 +96,7 @@ def test_simple_comb_renders_basic_and_edge_without_protocol_file(tmp_path: Path
     assert any("experimental" in item.lower() for item in payload["fill_warnings"])
     assert set(payload["test_modules"]) == {"test_simple_comb_basic", "test_simple_comb_edge"}
     assert "# TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001" in env_text
+    assert "_apply_deterministic_case" in env_text
     assert "# TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001" in oracle_text
     assert "# TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_basic_001 case_id=basic_001" in basic_text
     assert "_apply_structured_signal_policy" in oracle_text
@@ -139,9 +140,26 @@ def test_simple_seq_renders_reset_helpers_without_exact_cycle_default(tmp_path: 
     oracle_text = (package_dir / "simple_seq_oracle.py").read_text(encoding="utf-8")
     assert (package_dir / "test_simple_seq_basic.py").exists()
     assert "apply_reset_if_available" in env_text
+    assert "_start_background_clocks" in env_text
+    assert "Clock(" in env_text
     assert metadata.env_summary["has_reset_helper"] is True
     assert "wait_exact_cycle" not in env_text
     assert '"exact_cycle"' not in oracle_text
+    _compile_generated_python(package_dir)
+
+
+def test_multi_clock_render_uses_all_resets_and_all_clocks(tmp_path: Path) -> None:
+    metadata, _, package_dir = _render_fixture(tmp_path, "multi_clock_bridge.v")
+
+    env_text = (package_dir / "multi_clock_bridge_env.py").read_text(encoding="utf-8")
+    interface_text = (package_dir / "multi_clock_bridge_interface.py").read_text(encoding="utf-8")
+
+    assert metadata.interface_summary["clock_signals"] == ["clk_a", "clk_b"]
+    assert metadata.interface_summary["reset_signals"] == ["arstn", "brstn"]
+    assert "def clock_names(self) -> list[str]:" in interface_text
+    assert "def reset_names(self) -> list[str]:" in interface_text
+    assert "for signal_name in self.interface.reset_names()" in env_text
+    assert "for signal_name in self.interface.clock_names()" in env_text
     _compile_generated_python(package_dir)
 
 
@@ -175,10 +193,11 @@ def test_legacy_non_ansi_renders_conservatively_and_keeps_unresolved_notes(tmp_p
     assert metadata.render_warnings
     assert any("confidence is low" in item.lower() or "conservative" in item.lower() for item in metadata.render_warnings)
     assert metadata.oracle_summary["empty_functional_cases"]
-    assert metadata.interface_summary["unknown_direction_signals"]
+    assert metadata.interface_summary["unknown_direction_signals"] == []
     assert "UNKNOWN_DIRECTION_SIGNALS" in interface_text
     assert "Conservative rendering" in basic_text
-    assert metadata.render_confidence <= 0.35
+    assert "# Execution policy:" in basic_text
+    assert metadata.render_confidence <= 0.5
     _compile_generated_python(package_dir)
 
 

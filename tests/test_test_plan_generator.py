@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 from cocoverify2.core.config import LLMConfig
-from cocoverify2.core.types import GenerationMode
+from cocoverify2.core.models import DUTContract, PortSpec, TimingSpec
+from cocoverify2.core.types import GenerationMode, PortDirection, SequentialKind
 from cocoverify2.stages.contract_extractor import ContractExtractor
 from cocoverify2.stages.test_plan_generator import TestPlanGenerator
 
@@ -112,11 +113,42 @@ def test_legacy_non_ansi_contract_generates_conservative_plan_with_unresolved_it
     )
 
     assert plan.unresolved_items
-    assert plan.plan_confidence <= 0.35
+    assert plan.plan_confidence <= 0.65
     assert plan.plan_strategy == "rule_based_conservative"
     assert {case.category for case in plan.cases} <= {"reset", "basic"}
     assert "basic" in {case.category for case in plan.cases}
     assert any("unresolved" in item.lower() or "incomplete" in item.lower() for item in plan.unresolved_items)
+    basic_case = next(case for case in plan.cases if case.category == "basic")
+    assert basic_case.stimulus_signals == ["data"]
+    assert basic_case.execution_policy in {"deterministic", "deferred"}
+
+
+def test_low_confidence_no_input_contract_avoids_executable_placeholder_cases(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="weak_demo",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.UNKNOWN, width=1),
+            PortSpec(name="rst", direction=PortDirection.UNKNOWN, width=1),
+            PortSpec(name="out", direction=PortDirection.UNKNOWN, width=4),
+        ],
+        timing=TimingSpec(sequential_kind=SequentialKind.UNKNOWN, latency_model="unknown", confidence=0.0),
+        observable_outputs=[],
+        ambiguities=["all directions unresolved", "timing unresolved", "no observable outputs"],
+        contract_confidence=0.1,
+    )
+
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+    )
+
+    assert {case.category for case in plan.cases} == {"basic"}
+    basic_case = plan.cases[0]
+    assert basic_case.execution_policy == "deferred"
+    assert basic_case.stimulus_signals == []
+    assert not any("<no resolved inputs>" in item for item in basic_case.stimulus_intent)
 
 
 def test_hybrid_plan_merges_llm_enrichment_and_additional_cases(tmp_path: Path) -> None:
@@ -198,6 +230,32 @@ def test_hybrid_plan_falls_back_cleanly_on_invalid_llm_response(tmp_path: Path) 
     assert any("fallback" in item.lower() for item in plan.assumptions)
     payload = json.loads((tmp_path / "plan" / "llm_merge_report.json").read_text(encoding="utf-8"))
     assert payload["status"] == "fallback"
+
+
+def test_seq_without_business_inputs_keeps_clock_driven_basic_case_deterministic(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="counter_like",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="q", direction=PortDirection.OUTPUT, width=8),
+        ],
+        observable_outputs=["q"],
+        contract_confidence=0.75,
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        clocks=[{"name": "clk", "source": "rtl_heuristic", "confidence": 0.9}],
+        resets=[{"name": "rst_n", "active_level": 0, "source": "rtl_heuristic", "confidence": 0.9}],
+    )
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "clock_only_plan",
+    )
+
+    basic_case = next(case for case in plan.cases if case.category == "basic")
+    assert basic_case.execution_policy == "deterministic"
+    assert basic_case.stimulus_signals == []
 
 
 def test_stage_plan_cli_smoke(tmp_path: Path) -> None:

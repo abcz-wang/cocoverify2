@@ -1,0 +1,51 @@
+#! /workspace/I/qimeng6/miniconda3/bin/vvp
+:ivl_version "10.2 (stable)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "system";
+:vpi_module "vhdl_sys";
+:vpi_module "v2005_math";
+:vpi_module "va_math";
+:vpi_module "v2009";
+S_0x5626c0d314a0 .scope module, "comparator_4bit" "comparator_4bit" 2 1;
+ .timescale -9 -12;
+    .port_info 0 /INPUT 4 "A"
+    .port_info 1 /INPUT 4 "B"
+    .port_info 2 /OUTPUT 1 "A_greater"
+    .port_info 3 /OUTPUT 1 "A_equal"
+    .port_info 4 /OUTPUT 1 "A_less"
+L_0x5626c0d7bb80 .functor NOT 1, L_0x5626c0d7b6d0, C4<0>, C4<0>, C4<0>;
+L_0x5626c0d7be60 .functor AND 1, L_0x5626c0d7bb80, L_0x5626c0d7bce0, C4<1>, C4<1>;
+L_0x5626c0d7c0b0 .functor BUFZ 1, L_0x5626c0d7b6d0, C4<0>, C4<0>, C4<0>;
+o0x7fd80c9a3018 .functor BUFZ 4, C4<zzzz>; HiZ drive
+v0x5626c0d316a0_0 .net "A", 3 0, o0x7fd80c9a3018;  0 drivers
+v0x5626c0d7a9d0_0 .net "A_equal", 0 0, L_0x5626c0d7bf70;  1 drivers
+v0x5626c0d7aa90_0 .net "A_greater", 0 0, L_0x5626c0d7be60;  1 drivers
+v0x5626c0d7ab30_0 .net "A_less", 0 0, L_0x5626c0d7c0b0;  1 drivers
+o0x7fd80c9a30d8 .functor BUFZ 4, C4<zzzz>; HiZ drive
+v0x5626c0d7abf0_0 .net "B", 3 0, o0x7fd80c9a30d8;  0 drivers
+L_0x7fd80c95a060 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0x5626c0d7ad20_0 .net *"_s10", 0 0, L_0x7fd80c95a060;  1 drivers
+v0x5626c0d7ae00_0 .net *"_s11", 4 0, L_0x5626c0d7bae0;  1 drivers
+v0x5626c0d7aee0_0 .net *"_s13", 0 0, L_0x5626c0d7bb80;  1 drivers
+L_0x7fd80c95a0a8 .functor BUFT 1, C4<0000>, C4<0>, C4<0>, C4<0>;
+v0x5626c0d7afc0_0 .net/2u *"_s15", 3 0, L_0x7fd80c95a0a8;  1 drivers
+v0x5626c0d7b130_0 .net *"_s17", 0 0, L_0x5626c0d7bce0;  1 drivers
+v0x5626c0d7b1f0_0 .net *"_s3", 4 0, L_0x5626c0d7b810;  1 drivers
+L_0x7fd80c95a018 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0x5626c0d7b2d0_0 .net *"_s6", 0 0, L_0x7fd80c95a018;  1 drivers
+v0x5626c0d7b3b0_0 .net *"_s7", 4 0, L_0x5626c0d7b960;  1 drivers
+v0x5626c0d7b490_0 .net "cout", 0 0, L_0x5626c0d7b6d0;  1 drivers
+v0x5626c0d7b550_0 .net "diff", 3 0, L_0x5626c0d7b770;  1 drivers
+L_0x5626c0d7b6d0 .part L_0x5626c0d7bae0, 4, 1;
+L_0x5626c0d7b770 .part L_0x5626c0d7bae0, 0, 4;
+L_0x5626c0d7b810 .concat [ 4 1 0 0], o0x7fd80c9a3018, L_0x7fd80c95a018;
+L_0x5626c0d7b960 .concat [ 4 1 0 0], o0x7fd80c9a30d8, L_0x7fd80c95a060;
+L_0x5626c0d7bae0 .arith/sub 5, L_0x5626c0d7b810, L_0x5626c0d7b960;
+L_0x5626c0d7bce0 .cmp/ne 4, L_0x5626c0d7b770, L_0x7fd80c95a0a8;
+L_0x5626c0d7bf70 .cmp/eq 4, o0x7fd80c9a3018, o0x7fd80c9a30d8;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/comparator_4bit/verified_comparator_4bit.v";

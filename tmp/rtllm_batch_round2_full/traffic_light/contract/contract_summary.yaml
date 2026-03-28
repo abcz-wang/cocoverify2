@@ -1,0 +1,93 @@
+module_name: verified_traffic_light
+rtl_sources:
+- /workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/traffic_light/verified_traffic_light.v
+parameters: {}
+port_count: 7
+ports:
+- name: rst_n
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: clk
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: pass_request
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: clock
+  direction: output
+  width: 8
+  raw_range: '[7:0]'
+  signed: false
+  data_type: wire
+  source: rtl_header
+  confidence: 1.0
+- name: red
+  direction: output
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: reg
+  source: rtl_header
+  confidence: 1.0
+- name: yellow
+  direction: output
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: reg
+  source: rtl_header
+  confidence: 1.0
+- name: green
+  direction: output
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: reg
+  source: rtl_header
+  confidence: 1.0
+clock_names:
+- clk
+- clock
+reset_names:
+- rst_n
+handshake_groups: []
+handshake_signals: []
+timing:
+  sequential_kind: seq
+  latency_model: unknown
+  fixed_latency_cycles: null
+  variable_latency_range: null
+  sampling_window_cycles: null
+  source: rtl_heuristic
+  confidence: 0.9
+observable_outputs:
+- clock
+- red
+- yellow
+- green
+ambiguities:
+- 'Spec/reset hint could not be mapped to a known reset port: The second always block
+  handles the counting logic of the internal counter (cnt). The counter is decremented
+  by 1 on every positive edge of the clock or negative edge of the reset signal. The
+  counter values are adjusted based on various conditions:'
+- 'Spec/reset hint could not be mapped to a known reset port: The final always block
+  handles the output signals. It assigns the previous values (p_red, p_yellow, p_green)
+  to the output signals (red, yellow, green) on the positive edge of the clock or
+  negative edge of the reset signal.'
+extraction_warnings: []
+contract_confidence: 0.7850000000000001

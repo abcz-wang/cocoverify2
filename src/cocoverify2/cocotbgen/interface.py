@@ -108,9 +108,17 @@ class {class_name}:
         """Return the preferred clock signal name if one was inferred."""
         return CLOCK_SIGNALS[0] if CLOCK_SIGNALS else None
 
+    def clock_names(self) -> list[str]:
+        """Return all inferred clock signal names in deterministic order."""
+        return list(CLOCK_SIGNALS)
+
     def reset_name(self) -> str | None:
         """Return the preferred reset signal name if one was inferred."""
         return RESET_SIGNALS[0] if RESET_SIGNALS else None
+
+    def reset_names(self) -> list[str]:
+        """Return all inferred reset signal names in deterministic order."""
+        return list(RESET_SIGNALS)
 
     def protocol_signal_names(self) -> list[str]:
         """Return control/protocol signals derived from handshake hints."""

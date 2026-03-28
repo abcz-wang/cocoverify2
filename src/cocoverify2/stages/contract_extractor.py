@@ -120,7 +120,7 @@ class ContractExtractor:
         ambiguities.extend(golden_hints.ambiguities)
 
         illegal_constraints, spec_assumptions, spec_ambiguities = self._extract_text_hints(
-            port_names=[port.name for port in primary.ports],
+            ports=primary.ports,
             task_description=task_description,
             spec_text=spec_text,
             clocks=clocks,
@@ -182,13 +182,18 @@ class ContractExtractor:
         edge_signals = re.findall(r"(posedge|negedge)\s+([A-Za-z_][A-Za-z0-9_$]*)", module.body_text)
         posedge_names = {name for edge, name in edge_signals if edge == "posedge"}
         for port in module.ports:
-            confidence = _clock_name_confidence(port.name)
-            if confidence > 0.0:
-                clocks[port.name] = ClockSpec(name=port.name, source="rtl_heuristic", confidence=confidence)
-            elif port.name in posedge_names and _reset_name_confidence(port.name) == 0.0:
+            clock_confidence = _clock_name_confidence(port.name)
+            reset_confidence = _reset_name_confidence(port.name)
+            if clock_confidence > reset_confidence and port.direction in {PortDirection.INPUT, PortDirection.UNKNOWN}:
+                clocks[port.name] = ClockSpec(name=port.name, source="rtl_heuristic", confidence=clock_confidence)
+            elif port.name in posedge_names and reset_confidence == 0.0:
                 clocks[port.name] = ClockSpec(name=port.name, source="rtl_heuristic", confidence=0.8)
         for signal_name in posedge_names:
-            if signal_name not in clocks and any(port.name == signal_name for port in module.ports):
+            if (
+                signal_name not in clocks
+                and _reset_name_confidence(signal_name) == 0.0
+                and any(port.name == signal_name and port.direction in {PortDirection.INPUT, PortDirection.UNKNOWN} for port in module.ports)
+            ):
                 clocks[signal_name] = ClockSpec(name=signal_name, source="rtl_heuristic", confidence=0.8)
         return list(clocks.values())
 
@@ -198,15 +203,19 @@ class ContractExtractor:
         sensitivity = [name for _, name in edge_signals]
         negative_edge_names = {name for edge, name in edge_signals if edge == "negedge"}
         for port in module.ports:
-            confidence = _reset_name_confidence(port.name)
-            if confidence <= 0.0 and port.name not in negative_edge_names:
+            reset_confidence = _reset_name_confidence(port.name)
+            clock_confidence = _clock_name_confidence(port.name)
+            if (
+                (reset_confidence <= clock_confidence and port.name not in negative_edge_names)
+                or port.direction not in {PortDirection.INPUT, PortDirection.UNKNOWN}
+            ):
                 continue
             active_level, level_confidence = _guess_reset_polarity(port.name)
             resets[port.name] = ResetSpec(
                 name=port.name,
                 active_level=active_level,
                 source="rtl_heuristic",
-                confidence=max(confidence, level_confidence),
+                confidence=max(reset_confidence, level_confidence),
             )
         for signal_name in sensitivity:
             if signal_name in resets:
@@ -377,7 +386,7 @@ class ContractExtractor:
     def _extract_text_hints(
         self,
         *,
-        port_names: list[str],
+        ports: list[PortSpec],
         task_description: str | None,
         spec_text: str | None,
         clocks: list[ClockSpec],
@@ -393,7 +402,12 @@ class ContractExtractor:
         if spec_text:
             combined_lines.extend(spec_text.splitlines())
 
-        port_lookup = {name.lower(): name for name in port_names}
+        port_lookup = {port.name.lower(): port.name for port in ports}
+        control_hint_candidates = {
+            port.name
+            for port in ports
+            if port.direction in {PortDirection.INPUT, PortDirection.UNKNOWN}
+        }
         for raw_line in combined_lines:
             line = raw_line.strip()
             if not line:
@@ -403,8 +417,16 @@ class ContractExtractor:
                 illegal_constraints.append(line)
                 _append_source(source_map, "illegal_input_constraints", "spec_hint")
             if "clock" in line_lower:
-                matched_name = _match_port_name_in_text(line_lower, port_lookup)
-                if matched_name is not None:
+                for matched_name in _collect_port_names_in_text(line_lower, port_lookup):
+                    if matched_name not in control_hint_candidates:
+                        continue
+                    if not _supports_clock_hint(line_lower, matched_name, port_lookup):
+                        continue
+                    if _has_strong_role(resets, matched_name):
+                        ambiguities.append(
+                            f"Spec/clock hint mentioned '{matched_name}', but the signal is already strongly classified as a reset; preserving the existing role."
+                        )
+                        continue
                     existing_clock = _find_by_name(clocks, matched_name)
                     if existing_clock is None:
                         clocks.append(ClockSpec(name=matched_name, source="spec_hint", confidence=0.6))
@@ -413,29 +435,40 @@ class ContractExtractor:
                         existing_clock.source = "spec_hint"
                     _append_source(source_map, f"clocks.{matched_name}", "spec_hint")
             if "reset" in line_lower:
-                matched_name = _match_port_name_in_text(line_lower, port_lookup)
-                if matched_name is not None:
+                matched_reset_names = [
+                    name
+                    for name in _collect_port_names_in_text(line_lower, port_lookup)
+                    if name in control_hint_candidates
+                    if _supports_reset_hint(line_lower, name, port_lookup)
+                ]
+                if matched_reset_names:
                     active_level: int | None = None
                     if "active low" in line_lower or "active-low" in line_lower:
                         active_level = 0
                     elif "active high" in line_lower or "active-high" in line_lower:
                         active_level = 1
-                    existing_reset = _find_by_name(resets, matched_name)
-                    if existing_reset is None:
-                        resets.append(
-                            ResetSpec(
-                                name=matched_name,
-                                active_level=active_level,
-                                source="spec_hint",
-                                confidence=0.65,
+                    for matched_name in matched_reset_names:
+                        if _has_strong_role(clocks, matched_name):
+                            ambiguities.append(
+                                f"Spec/reset hint mentioned '{matched_name}', but the signal is already strongly classified as a clock; preserving the existing role."
                             )
-                        )
-                    else:
-                        if active_level is not None:
-                            existing_reset.active_level = active_level
-                        existing_reset.confidence = max(existing_reset.confidence, 0.65)
-                        existing_reset.source = "spec_hint"
-                    _append_source(source_map, f"resets.{matched_name}", "spec_hint")
+                            continue
+                        existing_reset = _find_by_name(resets, matched_name)
+                        if existing_reset is None:
+                            resets.append(
+                                ResetSpec(
+                                    name=matched_name,
+                                    active_level=active_level,
+                                    source="spec_hint",
+                                    confidence=0.65,
+                                )
+                            )
+                        else:
+                            if active_level is not None:
+                                existing_reset.active_level = active_level
+                            existing_reset.confidence = max(existing_reset.confidence, 0.65)
+                            existing_reset.source = "spec_hint"
+                        _append_source(source_map, f"resets.{matched_name}", "spec_hint")
                 else:
                     ambiguities.append(f"Spec/reset hint could not be mapped to a known reset port: {line}")
             if any(token in line_lower for token in ("fixed latency", "variable latency", "latency")):
@@ -640,11 +673,35 @@ def _extract_handshake_base(name: str, role: str) -> str | None:
     return None
 
 
-def _match_port_name_in_text(line_lower: str, port_lookup: dict[str, str]) -> str | None:
+def _collect_port_names_in_text(line_lower: str, port_lookup: dict[str, str]) -> list[str]:
+    matches: list[str] = []
     for lower_name, original_name in port_lookup.items():
-        if re.search(rf"\b{re.escape(lower_name)}\b", line_lower):
-            return original_name
-    return None
+        if re.search(rf"(?<![A-Za-z0-9_$]){re.escape(lower_name)}(?![A-Za-z0-9_$])", line_lower):
+            matches.append(original_name)
+    return matches
+
+
+def _supports_clock_hint(line_lower: str, port_name: str, port_lookup: dict[str, str]) -> bool:
+    clock_confidence = _clock_name_confidence(port_name)
+    reset_confidence = _reset_name_confidence(port_name)
+    if clock_confidence > reset_confidence:
+        return True
+    mentioned_names = _collect_port_names_in_text(line_lower, port_lookup)
+    return len(mentioned_names) == 1 and reset_confidence == 0.0
+
+
+def _supports_reset_hint(line_lower: str, port_name: str, port_lookup: dict[str, str]) -> bool:
+    reset_confidence = _reset_name_confidence(port_name)
+    clock_confidence = _clock_name_confidence(port_name)
+    if reset_confidence > clock_confidence:
+        return True
+    mentioned_names = _collect_port_names_in_text(line_lower, port_lookup)
+    return len(mentioned_names) == 1 and clock_confidence == 0.0
+
+
+def _has_strong_role(items: Iterable[ClockSpec | ResetSpec], name: str, threshold: float = 0.75) -> bool:
+    item = _find_by_name(items, name)
+    return bool(item and item.confidence >= threshold)
 
 
 def load_optional_text(path: Path | None) -> str | None:

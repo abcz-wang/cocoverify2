@@ -159,6 +159,8 @@ def infer_execution_status(
         return ExecutionStatus.ENVIRONMENT_ERROR
 
     haystack = "\n".join([command_result.stdout, command_result.stderr]).lower()
+    if any(keyword in haystack for keyword in _INTERNAL_PACKAGE_IMPORT_KEYWORDS):
+        return ExecutionStatus.RUNTIME_ERROR
     if any(keyword in haystack for keyword in _ENVIRONMENT_KEYWORDS):
         return ExecutionStatus.ENVIRONMENT_ERROR
     if any(keyword in haystack for keyword in _COMPILE_KEYWORDS):
@@ -180,6 +182,13 @@ _ENVIRONMENT_KEYWORDS = (
     "command not found",
     "no such file or directory",
     "permission denied",
+)
+
+_INTERNAL_PACKAGE_IMPORT_KEYWORDS = (
+    "no module named 'cocotb_tests'",
+    'no module named "cocotb_tests"',
+    "modulenotfounderror: no module named 'cocotb_tests'",
+    'modulenotfounderror: no module named "cocotb_tests"',
 )
 
 _COMPILE_KEYWORDS = (

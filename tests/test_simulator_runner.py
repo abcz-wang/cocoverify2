@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -193,6 +194,8 @@ def test_make_runner_injects_include_dirs_parameters_defines_and_existing_contro
     assert result.return_code == 0
     assert captured["command"] == ["make"]
     env = captured["env"]
+    assert env["MODULE"] == "cocotb_tests.test_simple_seq_basic"
+    assert str(render_path.parent.resolve()) in env["PYTHONPATH"].split(os.pathsep)
     assert env["COCOTB_MAKEFILES_DIR"] == str(tmp_path / "fake_makefiles")
     assert env["INCLUDE_DIRS"] == str(_RTL)
     assert env["PARAMETER_OVERRIDES"] == "WIDTH=16"

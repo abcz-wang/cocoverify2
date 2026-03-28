@@ -53,6 +53,17 @@ def test_infer_execution_status_prefers_timeout_and_environment_errors() -> None
     assert infer_execution_status(command_result=compile_result, failed_tests=[]) == "compile_error"
 
 
+def test_infer_execution_status_treats_internal_cocotb_tests_import_error_as_runtime() -> None:
+    import_result = CommandExecutionResult(
+        command=["fake"],
+        cwd=".",
+        return_code=1,
+        stderr="ModuleNotFoundError: No module named 'cocotb_tests'",
+    )
+
+    assert infer_execution_status(command_result=import_result, failed_tests=[]) == "runtime_error"
+
+
 def test_build_simulation_result_prefers_junit_counts_when_available(tmp_path: Path) -> None:
     junit_path = tmp_path / "results.xml"
     junit_path.write_text(

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import py_compile
 import subprocess
 import sys
@@ -15,6 +16,7 @@ from cocoverify2.stages.test_plan_generator import TestPlanGenerator
 
 _FIXTURES = Path(__file__).parent / "fixtures"
 _RTL = _FIXTURES / "rtl"
+_SRC = Path(__file__).resolve().parents[1] / "src"
 
 
 def _build_phase4_inputs(tmp_path: Path, rtl_name: str) -> tuple[Path, Path, Path]:
@@ -70,6 +72,9 @@ def _compile_generated_python(package_dir: Path) -> None:
 
 def test_simple_comb_renders_basic_and_edge_without_protocol_file(tmp_path: Path) -> None:
     metadata, render_root, package_dir = _render_fixture(tmp_path, "simple_comb.v")
+    env_text = (package_dir / "simple_comb_env.py").read_text(encoding="utf-8")
+    oracle_text = (package_dir / "simple_comb_oracle.py").read_text(encoding="utf-8")
+    basic_text = (package_dir / "test_simple_comb_basic.py").read_text(encoding="utf-8")
 
     assert (package_dir / "test_simple_comb_basic.py").exists()
     assert (package_dir / "test_simple_comb_edge.py").exists()
@@ -80,7 +85,45 @@ def test_simple_comb_renders_basic_and_edge_without_protocol_file(tmp_path: Path
     assert "clk" not in metadata.interface_summary["business_inputs"]
     assert "rst" not in metadata.interface_summary["business_inputs"]
     payload = json.loads((render_root / "render" / "metadata.json").read_text(encoding="utf-8"))
+    assert set(payload["template_inventory"]) == {
+        "env_module.py.tmpl",
+        "oracle_module.py.tmpl",
+        "test_case.py.tmpl",
+        "test_module.py.tmpl",
+    }
     assert set(payload["test_modules"]) == {"test_simple_comb_basic", "test_simple_comb_edge"}
+    assert "# TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001" in env_text
+    assert "# TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001" in oracle_text
+    assert "# TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_basic_001 case_id=basic_001" in basic_text
+    _compile_generated_python(package_dir)
+
+
+def test_render_metadata_tracks_llm_todo_blocks_and_template_names(tmp_path: Path) -> None:
+    metadata, render_root, package_dir = _render_fixture(tmp_path, "simple_comb.v")
+
+    payload = json.loads((render_root / "render" / "metadata.json").read_text(encoding="utf-8"))
+    todo_blocks = payload["llm_todo_blocks"]
+    stimulus_blocks = [block for block in todo_blocks if block["fill_kind"] == "stimulus"]
+    oracle_blocks = [block for block in todo_blocks if block["fill_kind"] == "oracle_check"]
+    setup_blocks = [block for block in todo_blocks if block["fill_kind"] == "testcase_setup"]
+    generated_files = {item["relative_path"]: item for item in payload["generated_files"]}
+
+    assert len(stimulus_blocks) == 2
+    assert {block["case_id"] for block in stimulus_blocks} == {"basic_001", "edge_001"}
+    assert all("stimulus_signals" in block["context"] for block in stimulus_blocks)
+    assert all("semantic_tags" in block["context"] for block in stimulus_blocks)
+    assert len(setup_blocks) == 2
+    assert {block["block_id"] for block in setup_blocks} == {"testcase_setup_basic_001", "testcase_setup_edge_001"}
+    assert all("semantic_tags" in block["context"] for block in setup_blocks)
+    assert oracle_blocks
+    assert all(block["check_id"] for block in oracle_blocks)
+    assert all("semantic_tags" in block["context"] for block in oracle_blocks)
+    assert all(block["relative_path"].startswith("cocotb_tests/") for block in todo_blocks)
+    assert generated_files["cocotb_tests/simple_comb_env.py"]["template_name"] == "env_module.py.tmpl"
+    assert generated_files["cocotb_tests/simple_comb_oracle.py"]["template_name"] == "oracle_module.py.tmpl"
+    assert generated_files["cocotb_tests/test_simple_comb_basic.py"]["template_name"] == "test_module.py.tmpl"
+    assert generated_files["cocotb_tests/simple_comb_env.py"]["todo_block_ids"] == ["stimulus_basic_001", "stimulus_edge_001"]
+    assert generated_files["cocotb_tests/test_simple_comb_basic.py"]["todo_block_ids"] == ["testcase_setup_basic_001"]
     _compile_generated_python(package_dir)
 
 
@@ -179,6 +222,10 @@ def test_stage_render_cli_smoke(tmp_path: Path) -> None:
         capture_output=True,
         text=True,
         check=False,
+        env={
+            **os.environ,
+            "PYTHONPATH": str(_SRC) if not os.environ.get("PYTHONPATH") else f"{_SRC}{os.pathsep}{os.environ['PYTHONPATH']}",
+        },
     )
 
     assert result.returncode == 0, result.stderr

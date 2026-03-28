@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -14,10 +15,15 @@ class LLMConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    provider: str = Field(default="openai")
-    model: str = Field(default="oss")
-    base_url: str | None = Field(default=None)
-    temperature: float = Field(default=0.0)
+    provider: str = Field(default_factory=lambda: os.getenv("COCOVERIFY_LLM_PROVIDER", "openai"))
+    model: str = Field(default_factory=lambda: os.getenv("COCOVERIFY_LLM_MODEL", "oss"))
+    base_url: str | None = Field(
+        default_factory=lambda: os.getenv("COCOVERIFY_LLM_BASE_URL", "http://10.200.108.4:8001/v1")
+    )
+    api_key: str = Field(default_factory=lambda: os.getenv("COCOVERIFY_LLM_API_KEY", "token-abc123"))
+    temperature: float = Field(default_factory=lambda: float(os.getenv("COCOVERIFY_LLM_TEMPERATURE", "0.0")))
+    timeout_seconds: int = Field(default_factory=lambda: int(os.getenv("COCOVERIFY_LLM_TIMEOUT_SECONDS", "60")), ge=1)
+    max_retries: int = Field(default_factory=lambda: int(os.getenv("COCOVERIFY_LLM_MAX_RETRIES", "2")), ge=0)
 
 
 class ArtifactConfig(BaseModel):

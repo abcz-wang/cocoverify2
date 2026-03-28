@@ -4,11 +4,16 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
+from statistics import fmean
 
+from cocoverify2.core.config import LLMConfig
 from cocoverify2.core.errors import ArtifactError, ConfigurationError
 from cocoverify2.core.models import DUTContract, HandshakeGroup, TestCasePlan, TestPlan
-from cocoverify2.core.types import PortDirection, SequentialKind, TestCategory
-from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_yaml
+from cocoverify2.core.types import GenerationMode, PortDirection, SequentialKind, TestCategory
+from cocoverify2.llm.client import LLMClient
+from cocoverify2.llm.prompts import build_plan_system_prompt, build_plan_user_prompt
+from cocoverify2.llm.validators import parse_plan_augmentation, validate_plan_augmentation
+from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_text, write_yaml
 from cocoverify2.utils.logging import get_logger
 
 
@@ -17,9 +22,10 @@ class TestPlanGenerator:
 
     __test__ = False
 
-    def __init__(self) -> None:
+    def __init__(self, llm_client: LLMClient | None = None) -> None:
         """Initialize the generator with a stage-scoped logger."""
         self.logger = get_logger(__name__)
+        self.llm_client = llm_client
 
     def run(
         self,
@@ -29,8 +35,55 @@ class TestPlanGenerator:
         spec_text: str | None,
         out_dir: Path,
         based_on_contract: str = "",
+        generation_mode: GenerationMode | str = GenerationMode.RULE_BASED,
+        llm_config: LLMConfig | None = None,
     ) -> TestPlan:
         """Generate and persist a ``TestPlan`` from a validated contract."""
+        generation_mode = GenerationMode(generation_mode)
+        baseline_plan = self._generate_rule_based_plan(
+            contract=contract,
+            task_description=task_description,
+            spec_text=spec_text,
+            based_on_contract=based_on_contract,
+        )
+        if generation_mode == GenerationMode.RULE_BASED:
+            baseline_plan.plan_strategy = "rule_based_conservative"
+            self._dump_plan_artifacts(baseline_plan, out_dir)
+            self.logger.info(
+                "Generated %d rule-based plan cases for module '%s' with plan_confidence=%.2f",
+                len(baseline_plan.cases),
+                baseline_plan.module_name,
+                baseline_plan.plan_confidence,
+            )
+            return baseline_plan
+
+        llm_config = llm_config or LLMConfig()
+        hybrid_plan = self._apply_hybrid_augmentation(
+            contract=contract,
+            baseline_plan=baseline_plan,
+            task_description=task_description,
+            spec_text=spec_text,
+            out_dir=out_dir,
+            llm_config=llm_config,
+        )
+        self._dump_plan_artifacts(hybrid_plan, out_dir)
+        self.logger.info(
+            "Generated %d hybrid plan cases for module '%s' with plan_confidence=%.2f",
+            len(hybrid_plan.cases),
+            hybrid_plan.module_name,
+            hybrid_plan.plan_confidence,
+        )
+        return hybrid_plan
+
+    def _generate_rule_based_plan(
+        self,
+        *,
+        contract: DUTContract,
+        task_description: str | None,
+        spec_text: str | None,
+        based_on_contract: str = "",
+    ) -> TestPlan:
+        """Generate the baseline conservative rule-based plan without persisting it."""
         if not contract.module_name:
             raise ConfigurationError("Test plan generation requires a contract with a module_name.")
 
@@ -65,6 +118,7 @@ class TestPlanGenerator:
                     goal="Establish a stable post-reset baseline before functional checking.",
                     preconditions=["Reset signal is available in the contract."],
                     stimulus_intent=["Assert the detected reset using the inferred polarity.", "Release reset conservatively and observe interface stabilization."],
+                    stimulus_signals=[reset.name for reset in contract.resets[:1]],
                     expected_properties=[
                         "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
                         "No fixed-cycle completion is assumed during reset recovery.",
@@ -73,6 +127,7 @@ class TestPlanGenerator:
                     timing_assumptions=_safe_timing_assumptions(contract),
                     dependencies=[],
                     coverage_tags=["reset", "initialization", "stability"],
+                    semantic_tags=["ambiguity_preserving"],
                     priority=1,
                     confidence=_case_confidence(contract, bonus=0.05),
                     notes=["Reset polarity may still be heuristic if the contract marks it ambiguous."],
@@ -102,23 +157,15 @@ class TestPlanGenerator:
 
         _dedupe_in_place(unresolved_items)
         _dedupe_in_place(assumptions)
-        plan = TestPlan(
+        return TestPlan(
             module_name=contract.module_name,
             based_on_contract=based_on_contract or contract.module_name,
-            plan_strategy=_plan_strategy(contract, weak_contract),
+            plan_strategy="rule_based_conservative",
             cases=cases,
             unresolved_items=unresolved_items,
             assumptions=assumptions,
             plan_confidence=_estimate_plan_confidence(contract=contract, cases=cases, unresolved_items=unresolved_items, weak_contract=weak_contract),
         )
-        self._dump_plan_artifacts(plan, out_dir)
-        self.logger.info(
-            "Generated %d conservative plan cases for module '%s' with plan_confidence=%.2f",
-            len(plan.cases),
-            plan.module_name,
-            plan.plan_confidence,
-        )
-        return plan
 
     def run_from_artifact(
         self,
@@ -127,6 +174,8 @@ class TestPlanGenerator:
         task_description: str | None,
         spec_text: str | None,
         out_dir: Path,
+        generation_mode: GenerationMode | str = GenerationMode.RULE_BASED,
+        llm_config: LLMConfig | None = None,
     ) -> TestPlan:
         """Load a contract artifact and generate a plan from it."""
         contract = load_contract_artifact(contract_path)
@@ -136,7 +185,183 @@ class TestPlanGenerator:
             spec_text=spec_text,
             out_dir=out_dir,
             based_on_contract=str(contract_path),
+            generation_mode=generation_mode,
+            llm_config=llm_config,
         )
+
+    def _apply_hybrid_augmentation(
+        self,
+        *,
+        contract: DUTContract,
+        baseline_plan: TestPlan,
+        task_description: str | None,
+        spec_text: str | None,
+        out_dir: Path,
+        llm_config: LLMConfig,
+    ) -> TestPlan:
+        plan_dir = ensure_dir(out_dir / "plan")
+        system_prompt = build_plan_system_prompt()
+        user_prompt = build_plan_user_prompt(
+            contract=contract,
+            baseline_plan=baseline_plan,
+            task_description=task_description,
+            spec_text=spec_text,
+        )
+        request_payload = {
+            "generation_mode": GenerationMode.HYBRID.value,
+            "provider": llm_config.provider,
+            "model": llm_config.model,
+            "base_url": llm_config.base_url,
+            "temperature": llm_config.temperature,
+            "timeout_seconds": llm_config.timeout_seconds,
+            "max_retries": llm_config.max_retries,
+            "system_prompt": system_prompt,
+            "user_prompt": user_prompt,
+        }
+        write_json(plan_dir / "llm_request.json", request_payload)
+
+        raw_response = ""
+        parsed_payload: dict[str, object] = {}
+        merge_report: dict[str, object] = {}
+        try:
+            client = self.llm_client or LLMClient(llm_config)
+            raw_response = client.complete(system_prompt=system_prompt, user_prompt=user_prompt)
+            parsed = parse_plan_augmentation(raw_response)
+            validated, validation_report = validate_plan_augmentation(
+                parsed,
+                contract=contract,
+                baseline_plan=baseline_plan,
+            )
+            parsed_payload = validated.model_dump(mode="json")
+            merged_plan, merge_report = self._merge_plan_augmentation(
+                contract=contract,
+                baseline_plan=baseline_plan,
+                augmentation=validated,
+                validation_report=validation_report,
+            )
+            write_text(plan_dir / "llm_response_raw.txt", raw_response)
+            write_json(plan_dir / "llm_response_parsed.json", parsed_payload)
+            write_json(plan_dir / "llm_merge_report.json", merge_report)
+            return merged_plan
+        except Exception as exc:
+            fallback = baseline_plan.model_copy(deep=True)
+            fallback.plan_strategy = "hybrid_rule_based_plus_llm"
+            fallback.assumptions = _deduped(
+                baseline_plan.assumptions
+                + [f"LLM hybrid fallback activated for plan stage: {_single_line(str(exc))}"]
+            )
+            fallback.unresolved_items = _deduped(
+                baseline_plan.unresolved_items
+                + ["Hybrid LLM plan augmentation failed; retained baseline rule-based coverage."]
+            )
+            merge_report = {
+                "status": "fallback",
+                "reason": _single_line(str(exc)),
+                "baseline_case_count": len(baseline_plan.cases),
+                "final_case_count": len(fallback.cases),
+            }
+            write_text(plan_dir / "llm_response_raw.txt", raw_response)
+            write_json(plan_dir / "llm_response_parsed.json", parsed_payload or {"error": _single_line(str(exc))})
+            write_json(plan_dir / "llm_merge_report.json", merge_report)
+            return fallback
+
+    def _merge_plan_augmentation(
+        self,
+        *,
+        contract: DUTContract,
+        baseline_plan: TestPlan,
+        augmentation,
+        validation_report: dict[str, object],
+    ) -> tuple[TestPlan, dict[str, object]]:
+        working_cases = [case.model_copy(deep=True) for case in baseline_plan.cases]
+        by_case_id = {case.case_id: case for case in working_cases}
+        applied_enrichments: list[str] = []
+        for enrichment in augmentation.baseline_case_enrichments:
+            case = by_case_id[enrichment.case_id]
+            if enrichment.goal:
+                case.goal = enrichment.goal.strip()
+            case.stimulus_intent = _append_unique(case.stimulus_intent, enrichment.stimulus_intent)
+            case.timing_assumptions = _append_unique(case.timing_assumptions, enrichment.timing_assumptions)
+            case.observed_signals = _append_unique(case.observed_signals, enrichment.observed_signals)
+            case.stimulus_signals = _append_unique(case.stimulus_signals, enrichment.stimulus_signals)
+            case.expected_properties = _append_unique(case.expected_properties, enrichment.expected_properties)
+            case.coverage_tags = _append_unique(case.coverage_tags, enrichment.coverage_tags)
+            case.semantic_tags = _append_unique(case.semantic_tags, enrichment.semantic_tags)
+            case.notes = _append_unique(case.notes, enrichment.notes)
+            if enrichment.priority is not None:
+                case.priority = enrichment.priority
+            case.source = "hybrid_llm_enriched"
+            applied_enrichments.append(case.case_id)
+
+        counters = _case_counters(working_cases)
+        draft_to_case_id: dict[str, str] = {}
+        for additional_case in augmentation.additional_cases:
+            counters[additional_case.category] += 1
+            draft_to_case_id[additional_case.draft_id] = f"{additional_case.category}_{counters[additional_case.category]:03d}"
+
+        added_case_ids: list[str] = []
+        for additional_case in augmentation.additional_cases:
+            final_case_id = draft_to_case_id[additional_case.draft_id]
+            mapped_dependencies = [
+                draft_to_case_id.get(dependency, dependency)
+                for dependency in additional_case.dependencies
+                if dependency in by_case_id or dependency in draft_to_case_id
+            ]
+            new_case = TestCasePlan(
+                case_id=final_case_id,
+                goal=additional_case.goal,
+                category=additional_case.category,
+                preconditions=list(additional_case.preconditions),
+                stimulus_intent=list(additional_case.stimulus_intent),
+                stimulus_signals=list(additional_case.stimulus_signals),
+                expected_properties=list(additional_case.expected_properties),
+                observed_signals=list(additional_case.observed_signals),
+                timing_assumptions=list(additional_case.timing_assumptions),
+                dependencies=mapped_dependencies,
+                coverage_tags=list(additional_case.coverage_tags),
+                semantic_tags=list(additional_case.semantic_tags),
+                priority=additional_case.priority,
+                confidence=_hybrid_case_confidence(contract=contract, baseline_plan=baseline_plan),
+                source="hybrid_llm_generated",
+                notes=list(additional_case.notes),
+            )
+            working_cases.append(new_case)
+            by_case_id[new_case.case_id] = new_case
+            added_case_ids.append(new_case.case_id)
+
+        assumptions = _deduped(
+            baseline_plan.assumptions
+            + augmentation.assumptions
+            + [f"LLM planning note: {note}" for note in augmentation.planning_notes]
+        )
+        unresolved_items = _deduped(baseline_plan.unresolved_items + augmentation.unresolved_items)
+        if not applied_enrichments and not added_case_ids:
+            unresolved_items = _deduped(
+                unresolved_items + ["Hybrid LLM planning produced no accepted enrichments beyond the baseline rule-based cases."]
+            )
+
+        merged_plan = TestPlan(
+            module_name=baseline_plan.module_name,
+            based_on_contract=baseline_plan.based_on_contract,
+            plan_strategy="hybrid_rule_based_plus_llm",
+            cases=working_cases,
+            unresolved_items=unresolved_items,
+            assumptions=assumptions,
+            plan_confidence=_hybrid_plan_confidence(
+                baseline_plan=baseline_plan,
+                added_case_count=len(added_case_ids),
+                enriched_case_count=len(applied_enrichments),
+            ),
+        )
+        merge_report = {
+            "status": "merged",
+            "baseline_case_count": len(baseline_plan.cases),
+            "final_case_count": len(merged_plan.cases),
+            "applied_baseline_case_enrichments": applied_enrichments,
+            "accepted_additional_case_ids": added_case_ids,
+            "validation_report": validation_report,
+        }
+        return merged_plan, merge_report
 
     def _build_basic_case(
         self,
@@ -170,11 +395,13 @@ class TestPlanGenerator:
             goal=goal,
             preconditions=["Use only ports and observable signals present in the contract."],
             stimulus_intent=[f"Drive a representative legal input pattern across known inputs: {input_names or ['<no resolved inputs>']}"],
+            stimulus_signals=input_names,
             expected_properties=expected_properties,
             observed_signals=observed_signals,
             timing_assumptions=_safe_timing_assumptions(contract),
             dependencies=["reset_001"] if contract.resets else [],
             coverage_tags=["basic", "sanity", contract.timing.sequential_kind],
+            semantic_tags=["ambiguity_preserving"],
             priority=1,
             confidence=_case_confidence(contract),
             notes=["Case intent is conservative when the contract is weak or timing is unresolved."],
@@ -198,11 +425,13 @@ class TestPlanGenerator:
             goal="Exercise boundary-value and width-sensitive input patterns.",
             preconditions=["At least one input or symbolic-width input is available."],
             stimulus_intent=[f"Use zero-like, one-like, and boundary patterns on {vector_inputs or ['known inputs']}"],
+            stimulus_signals=vector_inputs or [port.name for port in contract.ports if port.direction == PortDirection.INPUT],
             expected_properties=expected,
             observed_signals=observed_signals,
             timing_assumptions=_safe_timing_assumptions(contract),
             dependencies=["basic_001"],
             coverage_tags=["edge", "boundary"],
+            semantic_tags=["width_sensitive"],
             priority=2,
             confidence=_case_confidence(contract, penalty=0.05),
             notes=["Edge coverage remains value-oriented and avoids fixed-latency assumptions."],
@@ -227,6 +456,7 @@ class TestPlanGenerator:
                     goal=f"Observe basic {group.group_name} valid/ready handshake acceptance.",
                     preconditions=["Both valid and ready signals are present in the contract."],
                     stimulus_intent=[f"Drive {group.signals['valid']} with a legal transaction while allowing {group.signals['ready']} to indicate acceptance."],
+                    stimulus_signals=[group.signals["valid"], group.signals["ready"]],
                     expected_properties=[
                         "When valid and ready overlap, observe externally visible acceptance or progress.",
                         "Do not assume a fixed completion cycle after acceptance.",
@@ -235,6 +465,7 @@ class TestPlanGenerator:
                     timing_assumptions=_protocol_safe_timing_assumptions(contract),
                     dependencies=["reset_001"] if contract.resets else [],
                     coverage_tags=["protocol", "valid_ready", "acceptance", group.group_name],
+                    semantic_tags=["operation_specific"],
                     priority=1,
                     confidence=_case_confidence(contract, bonus=0.05),
                     notes=["Protocol case is intentionally acceptance-oriented, not latency-committing."],
@@ -247,6 +478,7 @@ class TestPlanGenerator:
                     goal=f"Observe {group.group_name} backpressure behavior when ready is low.",
                     preconditions=[f"{group.signals['ready']} can be held low or observed low."],
                     stimulus_intent=[f"Attempt a transaction while {group.signals['ready']} remains low or unavailable for acceptance."],
+                    stimulus_signals=[group.signals["valid"], group.signals["ready"]],
                     expected_properties=[
                         "Progress is deferred, stalled, or otherwise safely withheld while ready is low.",
                         "The plan does not assume a single exact stall policy beyond safe non-acceptance observation.",
@@ -255,6 +487,7 @@ class TestPlanGenerator:
                     timing_assumptions=_protocol_safe_timing_assumptions(contract),
                     dependencies=["basic_001"],
                     coverage_tags=["protocol", "valid_ready", "backpressure", group.group_name],
+                    semantic_tags=["ambiguity_preserving"],
                     priority=2,
                     confidence=_case_confidence(contract, penalty=0.05),
                     notes=["Backpressure case is protocol-safe and avoids precise throughput claims."],
@@ -267,6 +500,7 @@ class TestPlanGenerator:
                     goal=f"Observe safe valid persistence or safe-source behavior for {group.group_name} traffic.",
                     preconditions=[f"{group.signals['valid']} is visible in the contract."],
                     stimulus_intent=[f"Maintain or re-assert {group.signals['valid']} across conservative observation windows until acceptance is visible."],
+                    stimulus_signals=[group.signals["valid"], group.signals["ready"]],
                     expected_properties=[
                         "Source-side behavior remains safe and externally consistent until acceptance is observed.",
                         "No exact persistence policy is assumed beyond safe observation.",
@@ -275,6 +509,7 @@ class TestPlanGenerator:
                     timing_assumptions=_protocol_safe_timing_assumptions(contract),
                     dependencies=["protocol_001"],
                     coverage_tags=["protocol", "valid_ready", "persistence", group.group_name],
+                    semantic_tags=["ambiguity_preserving"],
                     priority=3,
                     confidence=_case_confidence(contract, penalty=0.08),
                     notes=["This case is intentionally unresolved-safe when the contract does not define source obligations exactly."],
@@ -288,6 +523,7 @@ class TestPlanGenerator:
                     goal="Observe whether start eventually leads to externally visible completion.",
                     preconditions=["Start and done signals are both present."],
                     stimulus_intent=[f"Pulse or assert {group.signals['start']} conservatively and watch for {group.signals['done']} or related output progress."],
+                    stimulus_signals=[group.signals["start"]],
                     expected_properties=[
                         "A legal start request eventually results in a visible completion or completion-related observation.",
                         "No exact completion latency is assumed.",
@@ -296,6 +532,7 @@ class TestPlanGenerator:
                     timing_assumptions=_protocol_safe_timing_assumptions(contract),
                     dependencies=["basic_001"],
                     coverage_tags=["protocol", "start_done", "completion"],
+                    semantic_tags=["operation_specific"],
                     priority=2,
                     confidence=_case_confidence(contract, penalty=0.05),
                     notes=["Completion is checked conservatively because the contract does not guarantee exact latency."],
@@ -309,6 +546,7 @@ class TestPlanGenerator:
                     goal="Observe a basic req/ack exchange without assuming exact timing.",
                     preconditions=["Request and acknowledge signals are both present."],
                     stimulus_intent=[f"Issue {group.signals['req']} and observe whether {group.signals['ack']} indicates acceptance or completion."],
+                    stimulus_signals=[group.signals["req"]],
                     expected_properties=[
                         "A legal request eventually receives an externally visible acknowledge or progress indicator.",
                         "No fixed-latency acknowledge timing is assumed.",
@@ -317,6 +555,7 @@ class TestPlanGenerator:
                     timing_assumptions=_protocol_safe_timing_assumptions(contract),
                     dependencies=["basic_001"],
                     coverage_tags=["protocol", "req_ack", "acceptance"],
+                    semantic_tags=["operation_specific"],
                     priority=2,
                     confidence=_case_confidence(contract, penalty=0.05),
                     notes=["Req/ack planning remains conservative unless the contract later states stronger semantics."],
@@ -337,6 +576,7 @@ class TestPlanGenerator:
             goal="Observe repeated or back-to-back legal operations under conservative timing assumptions.",
             preconditions=["At least one legal operation is already defined by the basic case."],
             stimulus_intent=["Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."],
+            stimulus_signals=[port.name for port in contract.ports if port.direction == PortDirection.INPUT][:3],
             expected_properties=[
                 "Repeated operations do not rely on hidden fixed-latency assumptions.",
                 "The second operation is observed only through externally visible acceptance, completion, or output change.",
@@ -345,6 +585,7 @@ class TestPlanGenerator:
             timing_assumptions=_safe_timing_assumptions(contract),
             dependencies=["basic_001"],
             coverage_tags=["back_to_back", "repeated_operation"],
+            semantic_tags=["operation_specific"],
             priority=3,
             confidence=_case_confidence(contract, penalty=0.08),
             notes=["When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."],
@@ -363,6 +604,7 @@ class TestPlanGenerator:
             goal="Exercise documented illegal or constrained input behavior conservatively.",
             preconditions=["Contract provides illegal input constraints."],
             stimulus_intent=[f"Probe one or more documented constrained inputs: {contract.illegal_input_constraints}"],
+            stimulus_signals=[port.name for port in contract.ports if port.direction == PortDirection.INPUT][:3],
             expected_properties=[
                 "Observe safe handling, rejection, or non-progress for documented illegal input conditions.",
                 "Do not assume undocumented error signaling semantics.",
@@ -371,6 +613,7 @@ class TestPlanGenerator:
             timing_assumptions=_safe_timing_assumptions(contract),
             dependencies=["basic_001"],
             coverage_tags=["negative", "illegal_input"],
+            semantic_tags=["invalid_illegal_input", "ambiguity_preserving"],
             priority=3,
             confidence=_case_confidence(contract, penalty=0.1),
             notes=["Negative planning is limited to constraints explicitly present in the contract or spec hints."],
@@ -392,6 +635,8 @@ class TestPlanGenerator:
         priority: int,
         confidence: float,
         notes: list[str],
+        stimulus_signals: list[str] | None = None,
+        semantic_tags: list[str] | None = None,
     ) -> TestCasePlan:
         counters[category.value] += 1
         case_id = f"{category.value}_{counters[category.value]:03d}"
@@ -401,11 +646,13 @@ class TestPlanGenerator:
             category=category,
             preconditions=preconditions,
             stimulus_intent=stimulus_intent,
+            stimulus_signals=list(stimulus_signals or []),
             expected_properties=expected_properties,
             observed_signals=observed_signals,
             timing_assumptions=timing_assumptions,
             dependencies=dependencies,
             coverage_tags=coverage_tags,
+            semantic_tags=list(semantic_tags or []),
             priority=priority,
             confidence=confidence,
             source="rule_based",
@@ -527,3 +774,38 @@ def _dedupe_in_place(items: list[str]) -> None:
         seen.add(item)
         unique_items.append(item)
     items[:] = unique_items
+
+
+def _deduped(items: list[str]) -> list[str]:
+    unique_items = list(items)
+    _dedupe_in_place(unique_items)
+    return [item for item in unique_items if item]
+
+
+def _append_unique(existing: list[str], additions: list[str]) -> list[str]:
+    return _deduped(list(existing) + list(additions))
+
+
+def _case_counters(cases: list[TestCasePlan]) -> dict[str, int]:
+    counters: dict[str, int] = defaultdict(int)
+    for case in cases:
+        counters[str(case.category)] += 1
+    return counters
+
+
+def _hybrid_case_confidence(*, contract: DUTContract, baseline_plan: TestPlan) -> float:
+    return max(0.2, min(fmean([contract.contract_confidence, baseline_plan.plan_confidence]), 0.9))
+
+
+def _hybrid_plan_confidence(
+    *,
+    baseline_plan: TestPlan,
+    added_case_count: int,
+    enriched_case_count: int,
+) -> float:
+    score = baseline_plan.plan_confidence + min(0.12, 0.03 * added_case_count + 0.02 * enriched_case_count)
+    return max(0.1, min(score, 0.95))
+
+
+def _single_line(text: str) -> str:
+    return " ".join(str(text or "").split())

@@ -1,0 +1,21 @@
+async def _testcase_setup_${case_identifier}(env) -> None:
+    """Optional LLM-fill setup hook for plan case `${case_id}`."""
+${setup_todo_block}
+
+
+@cocotb.test()
+async def ${func_name}(dut):
+    """${docstring}"""
+    ${comments}
+    env = ${env_class}(dut)
+    await env.initialize()
+    env.coverage.record_case_execution(
+        ${case_id_literal},
+        PLAN_CASES[${case_id_literal}]["category"],
+        list(PLAN_CASES[${case_id_literal}].get("coverage_tags", [])),
+    )
+    await _testcase_setup_${case_identifier}(env)
+    await env.exercise_case(${case_id_literal})
+    results = await run_linked_plan_case(env, ${case_id_literal})
+    assert isinstance(results, list)
+    assert linked_oracle_case_ids_for_plan_case(${case_id_literal}) == [result["case_id"] for result in results]

@@ -3,15 +3,29 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
+from cocoverify2.core.config import LLMConfig
+from cocoverify2.core.types import GenerationMode
 from cocoverify2.stages.contract_extractor import ContractExtractor
 from cocoverify2.stages.test_plan_generator import TestPlanGenerator
 
 _FIXTURES = Path(__file__).parent / "fixtures"
 _RTL = _FIXTURES / "rtl"
+_SRC = Path(__file__).resolve().parents[1] / "src"
+
+
+class _StaticLLMClient:
+    def __init__(self, response: str) -> None:
+        self.response = response
+
+    def complete(self, *, system_prompt: str, user_prompt: str) -> str:
+        assert system_prompt
+        assert user_prompt
+        return self.response
 
 
 def _extract_contract(tmp_path: Path, rtl_name: str):
@@ -60,7 +74,7 @@ def test_simple_seq_contract_generates_reset_and_basic_cases(tmp_path: Path) -> 
     categories = [case.category for case in plan.cases]
     assert "reset" in categories
     assert "basic" in categories
-    assert plan.plan_strategy == "rule_based_seq_contract_first"
+    assert plan.plan_strategy == "rule_based_conservative"
     assert any("Task description was provided" in item for item in plan.assumptions)
     assert any("Spec text was provided" in item for item in plan.assumptions)
 
@@ -99,10 +113,91 @@ def test_legacy_non_ansi_contract_generates_conservative_plan_with_unresolved_it
 
     assert plan.unresolved_items
     assert plan.plan_confidence <= 0.35
-    assert plan.plan_strategy == "conservative_rule_based_from_contract_with_unresolved_safe_bias"
+    assert plan.plan_strategy == "rule_based_conservative"
     assert {case.category for case in plan.cases} <= {"reset", "basic"}
     assert "basic" in {case.category for case in plan.cases}
     assert any("unresolved" in item.lower() or "incomplete" in item.lower() for item in plan.unresolved_items)
+
+
+def test_hybrid_plan_merges_llm_enrichment_and_additional_cases(tmp_path: Path) -> None:
+    _, contract_path = _extract_contract(tmp_path, "simple_comb.v")
+    llm_response = json.dumps(
+        {
+            "baseline_case_enrichments": [
+                {
+                    "case_id": "basic_001",
+                    "stimulus_signals": ["a", "b"],
+                    "semantic_tags": ["operation_specific"],
+                    "notes": ["Exercise add/sub partitions conservatively."],
+                }
+            ],
+            "additional_cases": [
+                {
+                    "draft_id": "op_case_001",
+                    "category": "basic",
+                    "goal": "Exercise operation-specific combinations for arithmetic controls.",
+                    "preconditions": [],
+                    "stimulus_intent": ["Drive arithmetic opcode partitions while varying inputs."],
+                    "stimulus_signals": ["a", "b", "unknown_signal"],
+                    "expected_properties": ["Observe externally visible output partition changes."],
+                    "observed_signals": ["y"],
+                    "timing_assumptions": ["Observe after input stabilization."],
+                    "dependencies": ["basic_001"],
+                    "coverage_tags": ["basic", "operation_partition"],
+                    "semantic_tags": ["operation_specific"],
+                    "notes": ["Stay conservative when opcode semantics are partial."],
+                    "priority": 2,
+                }
+            ],
+            "assumptions": ["LLM added one operation-specific case."],
+            "unresolved_items": ["Opcode naming remains partially heuristic."],
+            "planning_notes": ["Do not overcommit to exact opcode semantics."],
+        }
+    )
+    generator = TestPlanGenerator(llm_client=_StaticLLMClient(llm_response))
+    plan = generator.run_from_artifact(
+        contract_path=contract_path,
+        task_description="simple comb demo",
+        spec_text="Arithmetic behavior with representative controls.",
+        out_dir=tmp_path,
+        generation_mode=GenerationMode.HYBRID,
+        llm_config=LLMConfig(),
+    )
+
+    categories = [case.category for case in plan.cases]
+    assert plan.plan_strategy == "hybrid_rule_based_plus_llm"
+    assert "basic" in categories
+    assert "edge" in categories
+    assert any(case.case_id == "basic_002" for case in plan.cases)
+    basic_case = next(case for case in plan.cases if case.case_id == "basic_001")
+    added_case = next(case for case in plan.cases if case.case_id == "basic_002")
+    assert "operation_specific" in basic_case.semantic_tags
+    assert basic_case.stimulus_signals == ["a", "b"]
+    assert added_case.stimulus_signals == ["a", "b"]
+    assert "LLM planning note: Do not overcommit to exact opcode semantics." in plan.assumptions
+    assert (tmp_path / "plan" / "llm_request.json").exists()
+    assert (tmp_path / "plan" / "llm_response_raw.txt").exists()
+    assert (tmp_path / "plan" / "llm_response_parsed.json").exists()
+    assert (tmp_path / "plan" / "llm_merge_report.json").exists()
+
+
+def test_hybrid_plan_falls_back_cleanly_on_invalid_llm_response(tmp_path: Path) -> None:
+    _, contract_path = _extract_contract(tmp_path, "simple_comb.v")
+    generator = TestPlanGenerator(llm_client=_StaticLLMClient("not json"))
+    plan = generator.run_from_artifact(
+        contract_path=contract_path,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        generation_mode=GenerationMode.HYBRID,
+        llm_config=LLMConfig(),
+    )
+
+    assert plan.plan_strategy == "hybrid_rule_based_plus_llm"
+    assert {case.category for case in plan.cases} >= {"basic", "edge"}
+    assert any("fallback" in item.lower() for item in plan.assumptions)
+    payload = json.loads((tmp_path / "plan" / "llm_merge_report.json").read_text(encoding="utf-8"))
+    assert payload["status"] == "fallback"
 
 
 def test_stage_plan_cli_smoke(tmp_path: Path) -> None:
@@ -123,6 +218,10 @@ def test_stage_plan_cli_smoke(tmp_path: Path) -> None:
         capture_output=True,
         text=True,
         check=False,
+        env={
+            **os.environ,
+            "PYTHONPATH": str(_SRC) if not os.environ.get("PYTHONPATH") else f"{_SRC}{os.pathsep}{os.environ['PYTHONPATH']}",
+        },
     )
 
     assert result.returncode == 0, result.stderr

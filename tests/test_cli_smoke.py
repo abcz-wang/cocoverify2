@@ -4,6 +4,11 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from pathlib import Path
+import os
+
+
+_SRC = Path(__file__).resolve().parents[1] / "src"
 
 
 def _run_cli(*args: str) -> subprocess.CompletedProcess[str]:
@@ -12,6 +17,10 @@ def _run_cli(*args: str) -> subprocess.CompletedProcess[str]:
         capture_output=True,
         text=True,
         check=False,
+        env={
+            **os.environ,
+            "PYTHONPATH": str(_SRC) if not os.environ.get("PYTHONPATH") else f"{_SRC}{os.pathsep}{os.environ['PYTHONPATH']}",
+        },
     )
 
 
@@ -35,6 +44,7 @@ def test_stage_help_mentions_contract_inputs() -> None:
     assert result.returncode == 0
     assert "--rtl" in result.stdout
     assert "--golden-interface" in result.stdout
+    assert "--generation-mode" in result.stdout
     assert "--contract" in result.stdout
     assert "--plan" in result.stdout
     assert "--oracle" in result.stdout

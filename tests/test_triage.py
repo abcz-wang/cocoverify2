@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -10,6 +11,8 @@ from cocoverify2.core.models import RenderMetadata, RenderedFile, RunnerSelectio
 from cocoverify2.core.types import ExecutionStatus, SimulationMode
 from cocoverify2.stages.triage import TriageStage
 from cocoverify2.utils.files import ensure_dir, write_json, write_text
+
+_SRC = Path(__file__).resolve().parents[1] / "src"
 
 
 def _write_run_fixture(
@@ -233,6 +236,10 @@ def test_stage_triage_cli_smoke(tmp_path: Path) -> None:
         capture_output=True,
         text=True,
         check=False,
+        env={
+            **os.environ,
+            "PYTHONPATH": str(_SRC) if not os.environ.get("PYTHONPATH") else f"{_SRC}{os.pathsep}{os.environ['PYTHONPATH']}",
+        },
     )
 
     assert result.returncode == 0, result.stderr

@@ -6,7 +6,11 @@ import json
 from collections import defaultdict
 from pprint import pformat
 
+from cocoverify2.cocotbgen.template_loader import render_template
+from cocoverify2.cocotbgen.todo_blocks import build_todo_block
 from cocoverify2.core.models import DUTContract, OracleCase, OracleSpec
+
+_ORACLE_TEMPLATE = "oracle_module.py.tmpl"
 
 
 def render_oracle_module(contract: DUTContract, oracle: OracleSpec) -> tuple[str, dict[str, object]]:
@@ -19,6 +23,9 @@ def render_oracle_module(contract: DUTContract, oracle: OracleSpec) -> tuple[str
     by_plan_case: dict[str, list[dict[str, object]]] = defaultdict(list)
     temporal_modes: set[str] = set()
     empty_functional_cases: list[str] = []
+    llm_todo_blocks: list[dict[str, object]] = []
+    oracle_dispatch_lines: list[str] = []
+    oracle_helper_blocks: list[str] = []
 
     for group_name, cases in (
         ("protocol", protocol_payload),
@@ -31,80 +38,69 @@ def render_oracle_module(contract: DUTContract, oracle: OracleSpec) -> tuple[str
             by_plan_case[case["linked_plan_case_id"]].append(case_copy)
             for check in case["checks"]:
                 temporal_modes.add(check["temporal_window"]["mode"])
+                function_name = f"_todo_oracle_{_sanitize_identifier(check['check_id'])}"
+                oracle_dispatch_lines.extend(
+                    [
+                        f"    if check.get(\"check_id\") == {check['check_id']!r}:",
+                        f"        await {function_name}(env, oracle_case_id, check, observed_signals)",
+                        "        return",
+                    ]
+                )
+                todo_block, todo_metadata = build_todo_block(
+                    fill_kind="oracle_check",
+                    block_id=f"oracle_{check['check_id']}",
+                    template_name=_ORACLE_TEMPLATE,
+                    comment_lines=[
+                        f"Observed signals: {', '.join(check['observed_signals']) if check['observed_signals'] else 'none'}",
+                        f"Pass condition: {check.get('pass_condition', '')}",
+                        "Guidance: Read DUT outputs and add concrete assertions here.",
+                    ],
+                    instructions=[
+                        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+                        "Keep edits inside this TODO block so regeneration stays stable.",
+                        "Respect the rendered temporal window and strictness metadata.",
+                    ],
+                    context={
+                        "observed_signals": list(check["observed_signals"]),
+                        "trigger_condition": check.get("trigger_condition", ""),
+                        "pass_condition": check.get("pass_condition", ""),
+                        "strictness": check.get("strictness", ""),
+                        "temporal_window": dict(check.get("temporal_window", {})),
+                        "semantic_tags": list(check.get("semantic_tags", [])),
+                    },
+                    indent="    ",
+                    case_id=case["linked_plan_case_id"],
+                    oracle_case_id=case["case_id"],
+                    check_id=check["check_id"],
+                )
+                llm_todo_blocks.append(todo_metadata)
+                oracle_helper_blocks.append(
+                    "\n".join(
+                        [
+                            f"async def {function_name}(env, oracle_case_id: str, check: dict[str, Any], observed_signals: list[str]) -> None:",
+                            f'    """LLM-fill oracle hook for check `{check["check_id"]}`."""',
+                            todo_block,
+                        ]
+                    )
+                )
             if group_name == "functional" and not case["checks"]:
                 empty_functional_cases.append(case["linked_plan_case_id"])
 
     unresolved_items = _deduped(oracle.unresolved_items)
-    content = f'''"""Oracle helpers for `{module_name}`.
+    if not oracle_dispatch_lines:
+        oracle_dispatch_lines.append("    return")
 
-This file is rendered from the structured oracle artifact. It intentionally keeps
-checks conservative: timing windows are preserved, unresolved items stay visible,
-and control signals are never reintroduced as business outputs.
-"""
-
-from __future__ import annotations
-
-import json
-from typing import Any
-
-CONTROL_SIGNALS = {pformat(sorted(control_signals))}
-ORACLE_SPEC = json.loads({json.dumps(json.dumps(_build_oracle_payload(protocol_payload, functional_payload, property_payload), indent=2, sort_keys=True))})
-ORACLE_CASES_BY_PLAN = json.loads({json.dumps(json.dumps(dict(by_plan_case), indent=2, sort_keys=True))})
-TEMPORAL_MODES = {pformat(sorted(temporal_modes))}
-UNRESOLVED_ITEMS = {pformat(unresolved_items)}
-
-
-def linked_oracle_case_ids_for_plan_case(plan_case_id: str) -> list[str]:
-    """Return rendered oracle-case ids linked to a plan case."""
-    return [case["case_id"] for case in ORACLE_CASES_BY_PLAN.get(plan_case_id, [])]
-
-
-async def run_linked_plan_case(env, plan_case_id: str) -> list[dict[str, Any]]:
-    """Invoke all oracle helpers associated with a rendered test-plan case."""
-    results: list[dict[str, Any]] = []
-    for oracle_case in ORACLE_CASES_BY_PLAN.get(plan_case_id, []):
-        results.append(await _run_oracle_case(env, oracle_case))
-    return results
-
-
-async def _run_oracle_case(env, oracle_case: dict[str, Any]) -> dict[str, Any]:
-    """Run the rendered checks for one oracle case."""
-    case_results: list[dict[str, Any]] = []
-    for check in oracle_case.get("checks", []):
-        case_results.append(await _evaluate_check(env, oracle_case["case_id"], check))
-    return {{
-        "case_id": oracle_case["case_id"],
-        "linked_plan_case_id": oracle_case["linked_plan_case_id"],
-        "oracle_group": oracle_case.get("oracle_group", "unknown"),
-        "check_count": len(case_results),
-        "results": case_results,
-        "unresolved_items": list(oracle_case.get("unresolved_items", [])),
-        "notes": list(oracle_case.get("notes", [])),
-    }}
-
-
-async def _evaluate_check(env, oracle_case_id: str, check: dict[str, Any]) -> dict[str, Any]:
-    """Apply the rendered wait/observation helper that matches one oracle check."""
-    temporal_window = dict(check.get("temporal_window", {{}}))
-    await env.wait_for_window(temporal_window, label=check["check_id"])
-    observed_signals = [signal for signal in check.get("observed_signals", []) if signal not in CONTROL_SIGNALS]
-    env.coverage.record_oracle_check(check["check_id"], check["check_type"], check["strictness"])
-    result = {{
-        "oracle_case_id": oracle_case_id,
-        "check_id": check["check_id"],
-        "check_type": check["check_type"],
-        "strictness": check["strictness"],
-        "description": check["description"],
-        "trigger_condition": check.get("trigger_condition", ""),
-        "pass_condition": check.get("pass_condition", ""),
-        "observed_signals": observed_signals,
-        "temporal_window": temporal_window,
-        "status": "rendered_check_invoked",
-        "notes": list(check.get("notes", [])),
-    }}
-    env.note_oracle_result(result)
-    return result
-'''
+    content = render_template(
+        _ORACLE_TEMPLATE,
+        module_name=module_name,
+        control_signals_literal=pformat(sorted(control_signals)),
+        oracle_spec_literal=json.dumps(json.dumps(_build_oracle_payload(protocol_payload, functional_payload, property_payload), indent=2, sort_keys=True)),
+        oracle_cases_by_plan_literal=json.dumps(json.dumps(dict(by_plan_case), indent=2, sort_keys=True)),
+        temporal_modes_literal=pformat(sorted(temporal_modes)),
+        unresolved_items_literal=pformat(unresolved_items),
+        oracle_dispatch_block="\n".join(oracle_dispatch_lines),
+        oracle_helper_blocks="\n\n".join(oracle_helper_blocks),
+    )
     summary = {
         "protocol_case_count": len(protocol_payload),
         "functional_case_count": len(functional_payload),
@@ -112,6 +108,8 @@ async def _evaluate_check(env, oracle_case_id: str, check: dict[str, Any]) -> di
         "temporal_modes": sorted(temporal_modes),
         "empty_functional_cases": empty_functional_cases,
         "unresolved_items": unresolved_items,
+        "template_name": _ORACLE_TEMPLATE,
+        "llm_todo_blocks": llm_todo_blocks,
     }
     return content, summary
 
@@ -144,3 +142,10 @@ def _deduped(items: list[str]) -> list[str]:
         seen.add(item)
         unique_items.append(item)
     return unique_items
+
+
+def _sanitize_identifier(name: str) -> str:
+    sanitized = "".join(char if char.isalnum() or char == "_" else "_" for char in name)
+    if sanitized and sanitized[0].isdigit():
+        return f"case_{sanitized}"
+    return sanitized or "rendered_case"

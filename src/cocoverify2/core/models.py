@@ -116,11 +116,13 @@ class TestCasePlan(ModelBase):
     category: TestCategory = TestCategory.BASIC
     preconditions: list[str] = Field(default_factory=list)
     stimulus_intent: list[str] = Field(default_factory=list)
+    stimulus_signals: list[str] = Field(default_factory=list)
     expected_properties: list[str] = Field(default_factory=list)
     observed_signals: list[str] = Field(default_factory=list)
     timing_assumptions: list[str] = Field(default_factory=list)
     dependencies: list[str] = Field(default_factory=list)
     coverage_tags: list[str] = Field(default_factory=list)
+    semantic_tags: list[str] = Field(default_factory=list)
     priority: int = Field(default=5, ge=1, le=10)
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     source: str = "unknown"
@@ -159,6 +161,7 @@ class OracleCheck(ModelBase):
     pass_condition: str = ""
     temporal_window: TemporalWindow = Field(default_factory=TemporalWindow)
     strictness: OracleStrictness = OracleStrictness.CONSERVATIVE
+    semantic_tags: list[str] = Field(default_factory=list)
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     source: str = "unknown"
     notes: list[str] = Field(default_factory=list)
@@ -202,12 +205,31 @@ class OracleSpec(ModelBase):
     oracle_confidence: OracleConfidenceSummary = Field(default_factory=OracleConfidenceSummary)
 
 
+class LLMTodoBlock(ModelBase):
+    """Structured metadata for one LLM-fillable TODO block in rendered code."""
+
+    block_id: str
+    fill_kind: str
+    relative_path: str = ""
+    file_role: str = ""
+    template_name: str = ""
+    case_id: str = ""
+    oracle_case_id: str = ""
+    check_id: str = ""
+    start_marker: str = ""
+    end_marker: str = ""
+    instructions: list[str] = Field(default_factory=list)
+    context: dict[str, Any] = Field(default_factory=dict)
+
+
 class RenderedFile(ModelBase):
     """Single generated render artifact and its role in the package."""
 
     relative_path: str
     role: str
     description: str
+    template_name: str = ""
+    todo_block_ids: list[str] = Field(default_factory=list)
 
 
 class RenderMetadata(ModelBase):
@@ -223,6 +245,8 @@ class RenderMetadata(ModelBase):
     env_summary: dict[str, Any] = Field(default_factory=dict)
     oracle_summary: dict[str, Any] = Field(default_factory=dict)
     coverage_summary: dict[str, Any] = Field(default_factory=dict)
+    template_inventory: list[str] = Field(default_factory=list)
+    llm_todo_blocks: list[LLMTodoBlock] = Field(default_factory=list)
     render_warnings: list[str] = Field(default_factory=list)
     render_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
 

@@ -90,6 +90,13 @@ class OracleStrictness(str, Enum):
     GUARDED = "guarded"
 
 
+class GenerationMode(str, Enum):
+    """Supported generation modes for plan/oracle stages."""
+
+    RULE_BASED = "rule_based"
+    HYBRID = "hybrid"
+
+
 class SimulationMode(str, Enum):
     """Supported execution modes for the simulation stage."""
 

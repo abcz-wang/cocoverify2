@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from pprint import pformat
 
+from cocoverify2.cocotbgen.template_loader import render_template
+from cocoverify2.cocotbgen.todo_blocks import build_todo_block
 from cocoverify2.core.models import DUTContract, TestPlan
+from cocoverify2.core.types import PortDirection
+
+_ENV_TEMPLATE = "env_module.py.tmpl"
 
 
 def render_env_module(
@@ -24,10 +29,12 @@ def render_env_module(
             "goal": case.goal,
             "category": case.category,
             "stimulus_intent": case.stimulus_intent,
+            "stimulus_signals": case.stimulus_signals,
             "timing_assumptions": case.timing_assumptions,
             "dependencies": case.dependencies,
             "notes": case.notes,
             "coverage_tags": case.coverage_tags,
+            "semantic_tags": case.semantic_tags,
         }
         for case in plan.cases
     }
@@ -35,6 +42,7 @@ def render_env_module(
     helper_comment = "\n".join(f"# - {item}" for item in unresolved_items[:8]) or "# - none"
     wait_methods = ["wait_event_based", "wait_bounded_safe", "wait_unbounded_safe"]
     exact_cycle_block = ""
+    exact_cycle_dispatch = ""
     if "exact_cycle" in temporal_modes_used:
         wait_methods.insert(0, "wait_exact_cycle")
         exact_cycle_block = '''
@@ -49,128 +57,109 @@ def render_env_module(
             await Timer(max(1, cycles), unit="ns")
         await ReadOnly()
 '''
-    content = f'''"""Environment helpers for `{contract.module_name}`.
+        exact_cycle_dispatch = (
+            '        if mode == "exact_cycle":\n'
+            '            await self.wait_exact_cycle(\n'
+            '                int(temporal_window.get("max_cycles") or temporal_window.get("min_cycles") or 1),\n'
+            '                label=label,\n'
+            '            )\n'
+            '            return\n'
+        )
 
-This file is rendered from contract, plan, and oracle artifacts. It stays thin on
-purpose: the environment only coordinates helpers and preserves unresolved items.
+    business_inputs = _business_inputs(contract)
+    stimulus_dispatch_lines: list[str] = []
+    stimulus_helper_blocks: list[str] = []
+    llm_todo_blocks: list[dict[str, object]] = []
+    for case in plan.cases:
+        method_name = f"_todo_stimulus_{_sanitize_identifier(case.case_id)}"
+        stimulus_dispatch_lines.extend(
+            [
+                f"        if case_id == {case.case_id!r}:",
+                f"            await self.{method_name}()",
+                "            return",
+            ]
+        )
+        todo_block, todo_metadata = build_todo_block(
+            fill_kind="stimulus",
+            block_id=f"stimulus_{case.case_id}",
+            template_name=_ENV_TEMPLATE,
+            comment_lines=_stimulus_comment_lines(case=case, business_inputs=business_inputs),
+            instructions=[
+                "Drive concrete legal values onto business inputs for this plan case.",
+                "Keep edits inside this TODO block so regeneration stays stable.",
+                "Preserve conservative timing assumptions when exact behavior is unclear.",
+            ],
+            context={
+                "business_inputs": list(business_inputs),
+                "case_id": case.case_id,
+                "category": case.category,
+                "goal": case.goal,
+                "stimulus_intent": list(case.stimulus_intent),
+                "stimulus_signals": list(case.stimulus_signals),
+                "timing_assumptions": list(case.timing_assumptions),
+                "semantic_tags": list(case.semantic_tags),
+            },
+            indent="        ",
+            case_id=case.case_id,
+        )
+        llm_todo_blocks.append(todo_metadata)
+        stimulus_helper_blocks.append(
+            "\n".join(
+                [
+                    f"    async def {method_name}(self) -> None:",
+                    f'        """LLM-fill stimulus hook for plan case `{case.case_id}`."""',
+                    todo_block,
+                ]
+            )
+        )
 
-Environment notes:
-{helper_comment}
-"""
+    if not stimulus_dispatch_lines:
+        stimulus_dispatch_lines.append("        return")
 
-from __future__ import annotations
-
-from pprint import pformat
-
-import cocotb
-from cocotb.triggers import ReadOnly, RisingEdge, Timer
-
-from .{coverage_module} import {coverage_class}
-from .{interface_module} import {interface_class}
-
-PLAN_CASES = {pformat(plan_cases, sort_dicts=True)}
-UNRESOLVED_ITEMS = {pformat(unresolved_items)}
-
-
-class {class_name}:
-    """Thin environment container rendered from structured artifacts."""
-
-    def __init__(self, dut) -> None:
-        self.dut = dut
-        self.interface = {interface_class}(dut)
-        self.coverage = {coverage_class}()
-        self.observation_log: list[dict[str, object]] = []
-
-    async def initialize(self) -> None:
-        """Bind interface signals before any case is exercised."""
-        self.interface.bind_signals()
-
-    async def apply_reset_if_available(self) -> None:
-        """Use the inferred reset conservatively when one exists."""
-        reset_name = self.interface.reset_name()
-        if reset_name is None or not self.interface.signal_exists(reset_name):
-            return
-        reset_signal = self.interface.get_signal(reset_name)
-        if reset_signal is None:
-            return
-        active_level = 0 if reset_name.endswith("n") or reset_name.endswith("_n") else 1
-        reset_signal.value = active_level
-        await self.wait_event_based(label="reset_assert")
-        reset_signal.value = 1 - active_level
-        await self.wait_event_based(label="reset_release")
-
-{exact_cycle_block}    async def wait_event_based(self, label: str = "event_based") -> None:
-        """Use event-based waiting as the default conservative observation path."""
-        clock_name = self.interface.clock_name()
-        if clock_name and self.interface.signal_exists(clock_name):
-            clock_signal = self.interface.get_signal(clock_name)
-            await RisingEdge(clock_signal)
-        else:
-            await Timer(1, unit="ns")
-        await ReadOnly()
-
-    async def wait_bounded_safe(self, max_cycles: int | None, label: str = "bounded_safe") -> None:
-        """Advance through a bounded-safe observation window without assuming exact semantics."""
-        steps = max(1, int(max_cycles or 1))
-        for _ in range(steps):
-            await self.wait_event_based(label=label)
-
-    async def wait_unbounded_safe(self, label: str = "unbounded_safe") -> None:
-        """Use one conservative observation step for a safety-style wait."""
-        await self.wait_event_based(label=label)
-
-    async def wait_for_window(self, temporal_window: dict[str, object], label: str = "window") -> None:
-        """Dispatch to the rendered wait helper that matches the oracle temporal mode."""
-        mode = temporal_window.get("mode", "event_based")
-        if mode == "bounded_range":
-            await self.wait_bounded_safe(temporal_window.get("max_cycles"), label=label)
-            return
-        if mode == "unbounded_safe":
-            await self.wait_unbounded_safe(label=label)
-            return
-'''
-    if "exact_cycle" in temporal_modes_used:
-        content += '''        if mode == "exact_cycle":
-            await self.wait_exact_cycle(int(temporal_window.get("max_cycles") or temporal_window.get("min_cycles") or 1), label=label)
-            return
-'''
-    content += '''        await self.wait_event_based(label=label)
-
-    async def safe_observe(self, case_id: str) -> None:
-        """Record timing assumptions and take one conservative observation step."""
-        case = PLAN_CASES[case_id]
-        self.observation_log.append({
-            "kind": "timing_assumptions",
-            "case_id": case_id,
-            "timing_assumptions": list(case.get("timing_assumptions", [])),
-        })
-        await self.wait_event_based(label=case_id)
-
-    async def exercise_case(self, case_id: str) -> None:
-        """Record the rendered stimulus intent without inventing new semantics."""
-        case = PLAN_CASES[case_id]
-        if case.get("category") == "reset" or "reset_001" in case.get("dependencies", []):
-            await self.apply_reset_if_available()
-        for intent in case.get("stimulus_intent", []):
-            self.observation_log.append({
-                "kind": "stimulus_intent",
-                "case_id": case_id,
-                "intent": intent,
-            })
-        await self.safe_observe(case_id)
-
-    def note_oracle_result(self, result: dict[str, object]) -> None:
-        """Keep rendered oracle observations for later phases."""
-        self.observation_log.append({"kind": "oracle_result", **result})
-'''
+    content = render_template(
+        _ENV_TEMPLATE,
+        module_name=contract.module_name,
+        helper_comment=helper_comment,
+        coverage_module=coverage_module,
+        coverage_class=coverage_class,
+        interface_module=interface_module,
+        interface_class=interface_class,
+        plan_cases_literal=pformat(plan_cases, sort_dicts=True),
+        unresolved_items_literal=pformat(unresolved_items),
+        class_name=class_name,
+        exact_cycle_block=exact_cycle_block,
+        exact_cycle_dispatch=exact_cycle_dispatch,
+        stimulus_dispatch_block="\n".join(stimulus_dispatch_lines),
+        stimulus_helper_blocks=("\n\n".join(stimulus_helper_blocks) + "\n\n") if stimulus_helper_blocks else "",
+    )
     summary = {
         "class_name": class_name,
         "wait_helpers": wait_methods,
         "has_reset_helper": bool(contract.resets),
         "case_count": len(plan.cases),
         "unresolved_items": unresolved_items,
+        "template_name": _ENV_TEMPLATE,
+        "llm_todo_blocks": llm_todo_blocks,
     }
     return content, summary
+
+
+def _business_inputs(contract: DUTContract) -> list[str]:
+    control_signals = set(contract.handshake_signals) | {clock.name for clock in contract.clocks} | {reset.name for reset in contract.resets}
+    return [
+        port.name
+        for port in contract.ports
+        if port.direction == PortDirection.INPUT and port.name not in control_signals
+    ]
+
+
+def _stimulus_comment_lines(*, case, business_inputs: list[str]) -> list[str]:
+    return [
+        f"Inputs: {', '.join(business_inputs) if business_inputs else 'none'}",
+        f"Stimulus signals: {', '.join(case.stimulus_signals) if getattr(case, 'stimulus_signals', None) else 'none'}",
+        f"Goal: {case.goal}",
+        "Guidance: Drive concrete legal values onto business inputs here.",
+    ]
 
 
 def _camel(name: str) -> str:
@@ -186,3 +175,10 @@ def _deduped(items: list[str]) -> list[str]:
         seen.add(item)
         unique_items.append(item)
     return unique_items
+
+
+def _sanitize_identifier(name: str) -> str:
+    sanitized = "".join(char if char.isalnum() or char == "_" else "_" for char in name)
+    if sanitized and sanitized[0].isdigit():
+        return f"case_{sanitized}"
+    return sanitized or "rendered_case"

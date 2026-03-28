@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from statistics import fmean
 
+from cocoverify2.core.config import LLMConfig
 from cocoverify2.core.errors import ArtifactError, ConfigurationError
 from cocoverify2.core.models import (
     DUTContract,
@@ -16,8 +17,11 @@ from cocoverify2.core.models import (
     TestCasePlan,
     TestPlan,
 )
-from cocoverify2.core.types import OracleCheckType, OracleStrictness, SequentialKind, TemporalWindowMode
-from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_yaml
+from cocoverify2.core.types import GenerationMode, OracleCheckType, OracleStrictness, SequentialKind, TemporalWindowMode
+from cocoverify2.llm.client import LLMClient
+from cocoverify2.llm.prompts import build_oracle_system_prompt, build_oracle_user_prompt
+from cocoverify2.llm.validators import parse_oracle_augmentation, validate_oracle_augmentation
+from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_text, write_yaml
 from cocoverify2.utils.logging import get_logger
 
 
@@ -26,9 +30,10 @@ class OracleGenerator:
 
     __test__ = False
 
-    def __init__(self) -> None:
+    def __init__(self, llm_client: LLMClient | None = None) -> None:
         """Initialize the generator with a stage-scoped logger."""
         self.logger = get_logger(__name__)
+        self.llm_client = llm_client
 
     def run(
         self,
@@ -40,8 +45,61 @@ class OracleGenerator:
         out_dir: Path,
         based_on_contract: str = "",
         based_on_plan: str = "",
+        generation_mode: GenerationMode | str = GenerationMode.RULE_BASED,
+        llm_config: LLMConfig | None = None,
     ) -> OracleSpec:
         """Generate and persist a structured oracle artifact."""
+        generation_mode = GenerationMode(generation_mode)
+        baseline_oracle = self._generate_rule_based_oracle(
+            contract=contract,
+            plan=plan,
+            task_description=task_description,
+            spec_text=spec_text,
+            based_on_contract=based_on_contract,
+            based_on_plan=based_on_plan,
+        )
+        if generation_mode == GenerationMode.RULE_BASED:
+            baseline_oracle.oracle_strategy = "rule_based_conservative"
+            self._dump_oracle_artifacts(baseline_oracle, out_dir)
+            self.logger.info(
+                "Generated oracle artifact for '%s' with %d protocol, %d functional, %d property cases.",
+                baseline_oracle.module_name,
+                len(baseline_oracle.protocol_oracles),
+                len(baseline_oracle.functional_oracles),
+                len(baseline_oracle.property_oracles),
+            )
+            return baseline_oracle
+
+        llm_config = llm_config or LLMConfig()
+        hybrid_oracle = self._apply_hybrid_augmentation(
+            contract=contract,
+            plan=plan,
+            baseline_oracle=baseline_oracle,
+            spec_text=spec_text,
+            out_dir=out_dir,
+            llm_config=llm_config,
+        )
+        self._dump_oracle_artifacts(hybrid_oracle, out_dir)
+        self.logger.info(
+            "Generated hybrid oracle artifact for '%s' with %d protocol, %d functional, %d property cases.",
+            hybrid_oracle.module_name,
+            len(hybrid_oracle.protocol_oracles),
+            len(hybrid_oracle.functional_oracles),
+            len(hybrid_oracle.property_oracles),
+        )
+        return hybrid_oracle
+
+    def _generate_rule_based_oracle(
+        self,
+        *,
+        contract: DUTContract,
+        plan: TestPlan,
+        task_description: str | None,
+        spec_text: str | None,
+        based_on_contract: str = "",
+        based_on_plan: str = "",
+    ) -> OracleSpec:
+        """Generate the baseline conservative rule-based oracle without persisting it."""
         if not contract.module_name:
             raise ConfigurationError("Oracle generation requires a contract with a module_name.")
         if not plan.module_name:
@@ -123,21 +181,13 @@ class OracleGenerator:
             module_name=contract.module_name,
             based_on_contract=based_on_contract or plan.based_on_contract or contract.module_name,
             based_on_plan=based_on_plan or plan.module_name,
-            oracle_strategy=_oracle_strategy(contract=contract, plan=plan, weak_contract=weak_contract),
+            oracle_strategy="rule_based_conservative",
             protocol_oracles=protocol_oracles,
             functional_oracles=functional_oracles,
             property_oracles=property_oracles,
             unresolved_items=unresolved_items,
             assumptions=assumptions,
             oracle_confidence=confidence_summary,
-        )
-        self._dump_oracle_artifacts(oracle, out_dir)
-        self.logger.info(
-            "Generated oracle artifact for '%s' with %d protocol, %d functional, %d property cases.",
-            oracle.module_name,
-            len(protocol_oracles),
-            len(functional_oracles),
-            len(property_oracles),
         )
         return oracle
 
@@ -149,6 +199,8 @@ class OracleGenerator:
         task_description: str | None,
         spec_text: str | None,
         out_dir: Path,
+        generation_mode: GenerationMode | str = GenerationMode.RULE_BASED,
+        llm_config: LLMConfig | None = None,
     ) -> OracleSpec:
         """Load contract/plan artifacts and generate an oracle artifact."""
         contract = load_contract_artifact(contract_path)
@@ -161,7 +213,233 @@ class OracleGenerator:
             out_dir=out_dir,
             based_on_contract=str(contract_path),
             based_on_plan=str(plan_path),
+            generation_mode=generation_mode,
+            llm_config=llm_config,
         )
+
+    def _apply_hybrid_augmentation(
+        self,
+        *,
+        contract: DUTContract,
+        plan: TestPlan,
+        baseline_oracle: OracleSpec,
+        spec_text: str | None,
+        out_dir: Path,
+        llm_config: LLMConfig,
+    ) -> OracleSpec:
+        oracle_dir = ensure_dir(out_dir / "oracle")
+        system_prompt = build_oracle_system_prompt()
+        user_prompt = build_oracle_user_prompt(
+            contract=contract,
+            final_plan=plan,
+            baseline_oracle=baseline_oracle,
+            spec_text=spec_text,
+        )
+        request_payload = {
+            "generation_mode": GenerationMode.HYBRID.value,
+            "provider": llm_config.provider,
+            "model": llm_config.model,
+            "base_url": llm_config.base_url,
+            "temperature": llm_config.temperature,
+            "timeout_seconds": llm_config.timeout_seconds,
+            "max_retries": llm_config.max_retries,
+            "system_prompt": system_prompt,
+            "user_prompt": user_prompt,
+        }
+        write_json(oracle_dir / "llm_request.json", request_payload)
+
+        raw_response = ""
+        parsed_payload: dict[str, object] = {}
+        merge_report: dict[str, object] = {}
+        try:
+            client = self.llm_client or LLMClient(llm_config)
+            raw_response = client.complete(system_prompt=system_prompt, user_prompt=user_prompt)
+            parsed = parse_oracle_augmentation(raw_response)
+            validated, validation_report = validate_oracle_augmentation(
+                parsed,
+                contract=contract,
+                plan=plan,
+                baseline_oracle=baseline_oracle,
+            )
+            parsed_payload = validated.model_dump(mode="json")
+            merged_oracle, merge_report = self._merge_oracle_augmentation(
+                contract=contract,
+                plan=plan,
+                baseline_oracle=baseline_oracle,
+                augmentation=validated,
+                validation_report=validation_report,
+            )
+            write_text(oracle_dir / "llm_response_raw.txt", raw_response)
+            write_json(oracle_dir / "llm_response_parsed.json", parsed_payload)
+            write_json(oracle_dir / "llm_merge_report.json", merge_report)
+            return merged_oracle
+        except Exception as exc:
+            fallback = baseline_oracle.model_copy(deep=True)
+            fallback.oracle_strategy = "hybrid_rule_based_plus_llm"
+            fallback.assumptions = _deduped(
+                baseline_oracle.assumptions
+                + [f"LLM hybrid fallback activated for oracle stage: {_single_line(str(exc))}"]
+            )
+            fallback.unresolved_items = _deduped(
+                baseline_oracle.unresolved_items
+                + ["Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks."]
+            )
+            merge_report = {
+                "status": "fallback",
+                "reason": _single_line(str(exc)),
+                "baseline_protocol_cases": len(baseline_oracle.protocol_oracles),
+                "baseline_functional_cases": len(baseline_oracle.functional_oracles),
+                "baseline_property_cases": len(baseline_oracle.property_oracles),
+            }
+            write_text(oracle_dir / "llm_response_raw.txt", raw_response)
+            write_json(oracle_dir / "llm_response_parsed.json", parsed_payload or {"error": _single_line(str(exc))})
+            write_json(oracle_dir / "llm_merge_report.json", merge_report)
+            return fallback
+
+    def _merge_oracle_augmentation(
+        self,
+        *,
+        contract: DUTContract,
+        plan: TestPlan,
+        baseline_oracle: OracleSpec,
+        augmentation,
+        validation_report: dict[str, object],
+    ) -> tuple[OracleSpec, dict[str, object]]:
+        protocol_cases = [case.model_copy(deep=True) for case in baseline_oracle.protocol_oracles]
+        functional_cases = [case.model_copy(deep=True) for case in baseline_oracle.functional_oracles]
+        property_cases = [case.model_copy(deep=True) for case in baseline_oracle.property_oracles]
+        plan_cases = {case.case_id: case for case in plan.cases}
+        accepted_checks: list[str] = []
+        created_case_ids: list[str] = []
+        dropped_checks: list[dict[str, str]] = []
+
+        for enrichment in augmentation.case_enrichments:
+            target_case = _find_oracle_case(
+                protocol_cases=protocol_cases,
+                functional_cases=functional_cases,
+                property_cases=property_cases,
+                oracle_class=enrichment.oracle_class,
+                linked_plan_case_id=enrichment.linked_plan_case_id,
+            )
+            if target_case is None:
+                continue
+            target_case.assumptions = _append_unique(target_case.assumptions, enrichment.assumptions)
+            target_case.unresolved_items = _append_unique(target_case.unresolved_items, enrichment.unresolved_items)
+            target_case.notes = _append_unique(target_case.notes, enrichment.notes)
+            target_case.source = "hybrid_llm_enriched"
+            self._append_llm_checks_to_case(
+                contract=contract,
+                plan_case=plan_cases[enrichment.linked_plan_case_id],
+                target_case=target_case,
+                checks=enrichment.checks,
+                accepted_checks=accepted_checks,
+                dropped_checks=dropped_checks,
+            )
+
+        for proposed_case in augmentation.additional_oracle_cases:
+            target_case = _find_oracle_case(
+                protocol_cases=protocol_cases,
+                functional_cases=functional_cases,
+                property_cases=property_cases,
+                oracle_class=proposed_case.oracle_class,
+                linked_plan_case_id=proposed_case.linked_plan_case_id,
+            )
+            if target_case is None:
+                target_case = _make_hybrid_oracle_case(
+                    oracle_class=proposed_case.oracle_class,
+                    linked_plan_case_id=proposed_case.linked_plan_case_id,
+                    category=plan_cases[proposed_case.linked_plan_case_id].category,
+                )
+                _oracle_case_list(
+                    protocol_cases=protocol_cases,
+                    functional_cases=functional_cases,
+                    property_cases=property_cases,
+                    oracle_class=proposed_case.oracle_class,
+                ).append(target_case)
+                created_case_ids.append(target_case.case_id)
+            target_case.assumptions = _append_unique(target_case.assumptions, proposed_case.assumptions)
+            target_case.unresolved_items = _append_unique(target_case.unresolved_items, proposed_case.unresolved_items)
+            target_case.notes = _append_unique(target_case.notes, proposed_case.notes)
+            target_case.source = "hybrid_llm_generated"
+            self._append_llm_checks_to_case(
+                contract=contract,
+                plan_case=plan_cases[proposed_case.linked_plan_case_id],
+                target_case=target_case,
+                checks=proposed_case.checks,
+                accepted_checks=accepted_checks,
+                dropped_checks=dropped_checks,
+            )
+
+        for case in protocol_cases + functional_cases + property_cases:
+            case.confidence = _average_check_confidence(case.checks)
+
+        unresolved_items = _deduped(baseline_oracle.unresolved_items + augmentation.unresolved_items)
+        if not accepted_checks and not created_case_ids:
+            unresolved_items = _deduped(
+                unresolved_items + ["Hybrid LLM oracle augmentation produced no accepted checks beyond the baseline oracle."]
+            )
+        assumptions = _deduped(
+            baseline_oracle.assumptions
+            + augmentation.assumptions
+            + [f"LLM oracle note: {note}" for note in augmentation.oracle_notes]
+        )
+        weak_contract = _is_weak_contract(contract, plan)
+        merged_oracle = OracleSpec(
+            module_name=baseline_oracle.module_name,
+            based_on_contract=baseline_oracle.based_on_contract,
+            based_on_plan=baseline_oracle.based_on_plan,
+            oracle_strategy="hybrid_rule_based_plus_llm",
+            protocol_oracles=protocol_cases,
+            functional_oracles=functional_cases,
+            property_oracles=property_cases,
+            unresolved_items=unresolved_items,
+            assumptions=assumptions,
+            oracle_confidence=_estimate_oracle_confidence(
+                contract=contract,
+                plan=plan,
+                protocol_oracles=protocol_cases,
+                functional_oracles=functional_cases,
+                property_oracles=property_cases,
+                unresolved_items=unresolved_items,
+                weak_contract=weak_contract,
+            ),
+        )
+        merge_report = {
+            "status": "merged",
+            "accepted_check_ids": accepted_checks,
+            "created_case_ids": created_case_ids,
+            "dropped_checks": dropped_checks,
+            "validation_report": validation_report,
+        }
+        return merged_oracle, merge_report
+
+    def _append_llm_checks_to_case(
+        self,
+        *,
+        contract: DUTContract,
+        plan_case: TestCasePlan,
+        target_case: OracleCase,
+        checks,
+        accepted_checks: list[str],
+        dropped_checks: list[dict[str, str]],
+    ) -> None:
+        next_index = len(target_case.checks) + 1
+        for proposed_check in checks:
+            generated_check = _make_hybrid_check(
+                case_id=target_case.linked_plan_case_id,
+                ordinal=next_index,
+                proposed_check=proposed_check,
+                confidence=_oracle_case_confidence(contract=contract, plan_case=plan_case, bonus=0.02),
+            )
+            if _is_duplicate_oracle_check(generated_check, target_case.checks):
+                dropped_checks.append({"case_id": target_case.case_id, "reason": "duplicate_check", "description": generated_check.description})
+                continue
+            if _is_conflicting_oracle_check(generated_check, target_case.checks):
+                dropped_checks.append({"case_id": target_case.case_id, "reason": "conflicting_check", "description": generated_check.description})
+                continue
+            target_case.checks.append(generated_check)
+            accepted_checks.append(generated_check.check_id)
+            next_index += 1
 
     def _build_protocol_oracle_case(
         self,
@@ -847,6 +1125,7 @@ def _make_check(
     strictness: OracleStrictness,
     confidence: float,
     notes: list[str],
+    semantic_tags: list[str] | None = None,
 ) -> OracleCheck:
     return OracleCheck(
         check_id=f"{case_id}_{check_type.value}_{ordinal:03d}",
@@ -857,6 +1136,7 @@ def _make_check(
         pass_condition=pass_condition,
         temporal_window=temporal_window,
         strictness=strictness,
+        semantic_tags=list(semantic_tags or []),
         confidence=max(0.05, min(confidence, 0.95)),
         source="rule_based",
         notes=notes,
@@ -898,3 +1178,121 @@ def _deduped(items: list[str]) -> list[str]:
 
 def _dedupe_in_place(items: list[str]) -> None:
     items[:] = _deduped(items)
+
+
+def _append_unique(existing: list[str], additions: list[str]) -> list[str]:
+    return _deduped(list(existing) + list(additions))
+
+
+def _oracle_case_list(
+    *,
+    protocol_cases: list[OracleCase],
+    functional_cases: list[OracleCase],
+    property_cases: list[OracleCase],
+    oracle_class: str,
+) -> list[OracleCase]:
+    if oracle_class == "protocol":
+        return protocol_cases
+    if oracle_class == "functional":
+        return functional_cases
+    return property_cases
+
+
+def _find_oracle_case(
+    *,
+    protocol_cases: list[OracleCase],
+    functional_cases: list[OracleCase],
+    property_cases: list[OracleCase],
+    oracle_class: str,
+    linked_plan_case_id: str,
+) -> OracleCase | None:
+    for oracle_case in _oracle_case_list(
+        protocol_cases=protocol_cases,
+        functional_cases=functional_cases,
+        property_cases=property_cases,
+        oracle_class=oracle_class,
+    ):
+        if oracle_case.linked_plan_case_id == linked_plan_case_id:
+            return oracle_case
+    return None
+
+
+def _make_hybrid_oracle_case(*, oracle_class: str, linked_plan_case_id: str, category: str) -> OracleCase:
+    return OracleCase(
+        case_id=f"{oracle_class}_{linked_plan_case_id}_llm_001",
+        linked_plan_case_id=linked_plan_case_id,
+        category=category,
+        checks=[],
+        assumptions=[],
+        unresolved_items=[],
+        confidence=0.05,
+        source="hybrid_llm_generated",
+        notes=[],
+    )
+
+
+def _make_hybrid_check(
+    *,
+    case_id: str,
+    ordinal: int,
+    proposed_check,
+    confidence: float,
+) -> OracleCheck:
+    return OracleCheck(
+        check_id=f"{case_id}_{proposed_check.check_type}_{ordinal:03d}",
+        check_type=proposed_check.check_type,
+        description=proposed_check.description,
+        observed_signals=_deduped(list(proposed_check.observed_signals)),
+        trigger_condition=proposed_check.trigger_condition,
+        pass_condition=proposed_check.pass_condition,
+        temporal_window=TemporalWindow(
+            mode=proposed_check.temporal_window.mode,
+            min_cycles=proposed_check.temporal_window.min_cycles,
+            max_cycles=proposed_check.temporal_window.max_cycles,
+            anchor=proposed_check.temporal_window.anchor,
+        ),
+        strictness=proposed_check.strictness,
+        semantic_tags=_deduped(list(proposed_check.semantic_tags)),
+        confidence=max(0.05, min(confidence, 0.95)),
+        source="hybrid_llm_generated",
+        notes=_deduped(list(proposed_check.notes)),
+    )
+
+
+def _is_duplicate_oracle_check(candidate: OracleCheck, existing_checks: list[OracleCheck]) -> bool:
+    candidate_signature = (
+        candidate.check_type,
+        _single_line(candidate.description).lower(),
+        tuple(candidate.observed_signals),
+        _single_line(candidate.trigger_condition).lower(),
+        _single_line(candidate.pass_condition).lower(),
+    )
+    for existing in existing_checks:
+        existing_signature = (
+            existing.check_type,
+            _single_line(existing.description).lower(),
+            tuple(existing.observed_signals),
+            _single_line(existing.trigger_condition).lower(),
+            _single_line(existing.pass_condition).lower(),
+        )
+        if candidate_signature == existing_signature:
+            return True
+    return False
+
+
+def _is_conflicting_oracle_check(candidate: OracleCheck, existing_checks: list[OracleCheck]) -> bool:
+    for existing in existing_checks:
+        if existing.check_type != candidate.check_type:
+            continue
+        if set(existing.observed_signals) != set(candidate.observed_signals):
+            continue
+        same_trigger = _single_line(existing.trigger_condition).lower() == _single_line(candidate.trigger_condition).lower()
+        same_description = _single_line(existing.description).lower() == _single_line(candidate.description).lower()
+        different_pass = _single_line(existing.pass_condition).lower() != _single_line(candidate.pass_condition).lower()
+        if different_pass and (same_trigger or same_description):
+            return True
+    return False
+
+
+def _single_line(text: str) -> str:
+    return " ".join(str(text or "").split())

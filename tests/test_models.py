@@ -6,6 +6,7 @@ from cocoverify2.core.models import (
     ClockSpec,
     DUTContract,
     FinalVerdict,
+    LLMTodoBlock,
     OracleCase,
     OracleCheck,
     OracleConfidenceSummary,
@@ -49,15 +50,17 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
     plan = PlanModel(
         module_name="demo",
         based_on_contract="artifacts/contract/contract.json",
-        plan_strategy="rule_based_demo",
+        plan_strategy="rule_based_conservative",
         cases=[
             CasePlanModel(
                 case_id="reset_001",
                 goal="reset should initialize outputs",
                 category=PlanCategory.RESET,
+                stimulus_signals=["rst_n"],
                 expected_properties=["done == 0 after reset"],
                 observed_signals=["done"],
                 timing_assumptions=["observe after reset release"],
+                semantic_tags=["ambiguity_preserving"],
                 source="rule_based",
             )
         ],
@@ -67,7 +70,7 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
         module_name="demo",
         based_on_contract="artifacts/contract/contract.json",
         based_on_plan="artifacts/plan/test_plan.json",
-        oracle_strategy="rule_based_demo",
+        oracle_strategy="rule_based_conservative",
         property_oracles=[
             OracleCase(
                 case_id="property_reset_001",
@@ -83,6 +86,7 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
                         pass_condition="no premature completion",
                         temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="reset_release"),
                         strictness=OracleStrictness.GUARDED,
+                        semantic_tags=["ambiguity_preserving"],
                         source="rule_based",
                     )
                 ],
@@ -101,6 +105,8 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
                 relative_path="cocotb_tests/test_demo_basic.py",
                 role="test_module",
                 description="basic smoke",
+                template_name="test_module.py.tmpl",
+                todo_block_ids=["testcase_setup_reset_001"],
             )
         ],
         test_modules=["test_demo_basic"],
@@ -108,6 +114,21 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
         env_summary={"wait_helpers": ["wait_event_based"]},
         oracle_summary={"temporal_modes": ["event_based"]},
         coverage_summary={"coverage_tags": ["basic"]},
+        template_inventory=["test_case.py.tmpl", "test_module.py.tmpl"],
+        llm_todo_blocks=[
+            LLMTodoBlock(
+                block_id="testcase_setup_reset_001",
+                fill_kind="testcase_setup",
+                relative_path="cocotb_tests/test_demo_basic.py",
+                file_role="test_module",
+                template_name="test_case.py.tmpl",
+                case_id="reset_001",
+                start_marker="# TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_reset_001 case_id=reset_001",
+                end_marker="# TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_reset_001 case_id=reset_001",
+                instructions=["demo"],
+                context={"case_id": "reset_001", "category": "reset"},
+            )
+        ],
     )
     selection = RunnerSelection(
         requested_mode=SimulationMode.AUTO,
@@ -157,10 +178,15 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
     assert payload["contract"]["module_name"] == "demo"
     assert payload["contract"]["rtl_sources"] == ["dut.v"]
     assert payload["test_plan_summary"]["cases"][0]["category"] == "reset"
+    assert payload["test_plan_summary"]["cases"][0]["stimulus_signals"] == ["rst_n"]
+    assert payload["test_plan_summary"]["cases"][0]["semantic_tags"] == ["ambiguity_preserving"]
     assert payload["test_plan_summary"]["based_on_contract"] == "artifacts/contract/contract.json"
     assert payload["oracle_summary"]["property_oracles"][0]["checks"][0]["check_type"] == "property"
+    assert payload["oracle_summary"]["property_oracles"][0]["checks"][0]["semantic_tags"] == ["ambiguity_preserving"]
     assert payload["final_verdict"]["verdict"] == "inconclusive"
     assert render.model_dump(mode="json")["generated_files"][0]["role"] == "test_module"
+    assert render.model_dump(mode="json")["generated_files"][0]["template_name"] == "test_module.py.tmpl"
+    assert render.model_dump(mode="json")["llm_todo_blocks"][0]["block_id"] == "testcase_setup_reset_001"
     assert selection.model_dump(mode="json")["selected_mode"] == "cocotb_tools"
     assert sim_cfg.model_dump(mode="json")["top_module"] == "demo"
     assert sim_result.model_dump(mode="json")["status"] == "success"

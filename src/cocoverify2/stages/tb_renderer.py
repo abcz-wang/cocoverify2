@@ -12,7 +12,7 @@ from cocoverify2.cocotbgen.makefile import render_makefile
 from cocoverify2.cocotbgen.oracle import render_oracle_module
 from cocoverify2.cocotbgen.testfiles import render_test_modules
 from cocoverify2.core.errors import ArtifactError, ConfigurationError
-from cocoverify2.core.models import DUTContract, OracleCase, OracleSpec, RenderMetadata, RenderedFile, TestPlan
+from cocoverify2.core.models import DUTContract, LLMTodoBlock, OracleCase, OracleSpec, RenderMetadata, RenderedFile, TestPlan
 from cocoverify2.core.types import SequentialKind
 from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_text
 from cocoverify2.utils.logging import get_logger
@@ -81,6 +81,7 @@ class TBRenderer:
         makefile_content, _makefile_summary = render_makefile(contract.module_name, default_test_module=default_test_module)
 
         generated_files: list[RenderedFile] = []
+        llm_todo_blocks: list[LLMTodoBlock] = []
         self._write_generated_file(
             package_dir / "__init__.py",
             '"""Rendered cocotb test package for Phase 4."""\n',
@@ -101,6 +102,9 @@ class TBRenderer:
             generated_files,
             role="env",
             description="Thin environment wrapper that composes interface, timing-safe waits, and coverage helpers.",
+            template_name=str(env_summary.get("template_name", "")),
+            todo_blocks=env_summary.get("llm_todo_blocks", []),
+            llm_todo_blocks=llm_todo_blocks,
         )
         self._write_generated_file(
             package_dir / f"{oracle_module}.py",
@@ -108,6 +112,9 @@ class TBRenderer:
             generated_files,
             role="oracle",
             description="Structured oracle helper functions rendered from the oracle artifact.",
+            template_name=str(oracle_summary.get("template_name", "")),
+            todo_blocks=oracle_summary.get("llm_todo_blocks", []),
+            llm_todo_blocks=llm_todo_blocks,
         )
         self._write_generated_file(
             package_dir / f"{coverage_module}.py",
@@ -123,6 +130,9 @@ class TBRenderer:
                 generated_files,
                 role="test_module",
                 description=f"Rendered {module_summary['group_name']} cocotb tests aligned to structured plan cases.",
+                template_name=str(module_summary.get("template_name", "")),
+                todo_blocks=module_summary.get("llm_todo_blocks", []),
+                llm_todo_blocks=llm_todo_blocks,
             )
         self._write_generated_file(
             package_dir / "Makefile",
@@ -158,6 +168,8 @@ class TBRenderer:
                 "preserves_temporal_modes": temporal_modes_used,
             },
             coverage_summary=coverage_summary,
+            template_inventory=_template_inventory(generated_files=generated_files, llm_todo_blocks=llm_todo_blocks),
+            llm_todo_blocks=llm_todo_blocks,
             render_warnings=render_warnings,
             render_confidence=_estimate_render_confidence(contract=contract, plan=plan, oracle=oracle, warnings=render_warnings),
         )
@@ -205,15 +217,29 @@ class TBRenderer:
         *,
         role: str,
         description: str,
+        template_name: str = "",
+        todo_blocks: list[dict[str, object]] | None = None,
+        llm_todo_blocks: list[LLMTodoBlock] | None = None,
     ) -> None:
         write_text(path, content)
+        relative_path = str(path.relative_to(path.parents[1]))
+        finalized_todo_blocks = _finalize_todo_blocks(
+            todo_blocks=todo_blocks or [],
+            relative_path=relative_path,
+            role=role,
+            template_name=template_name,
+        )
         generated_files.append(
             RenderedFile(
-                relative_path=str(path.relative_to(path.parents[1])),
+                relative_path=relative_path,
                 role=role,
                 description=description,
+                template_name=template_name,
+                todo_block_ids=[block.block_id for block in finalized_todo_blocks],
             )
         )
+        if llm_todo_blocks is not None:
+            llm_todo_blocks.extend(finalized_todo_blocks)
 
 
 def load_contract_artifact(path: Path) -> DUTContract:
@@ -255,6 +281,34 @@ def _temporal_modes_used(oracle: OracleSpec) -> list[str]:
         for check in case.checks
     }
     return sorted(modes)
+
+
+def _finalize_todo_blocks(
+    *,
+    todo_blocks: list[dict[str, object]],
+    relative_path: str,
+    role: str,
+    template_name: str,
+) -> list[LLMTodoBlock]:
+    finalized: list[LLMTodoBlock] = []
+    for block in todo_blocks:
+        payload = dict(block)
+        payload["relative_path"] = relative_path
+        payload["file_role"] = role
+        if not payload.get("template_name"):
+            payload["template_name"] = template_name
+        finalized.append(LLMTodoBlock.model_validate(payload))
+    return finalized
+
+
+def _template_inventory(*, generated_files: list[RenderedFile], llm_todo_blocks: list[LLMTodoBlock]) -> list[str]:
+    names = {
+        item.template_name
+        for item in generated_files
+        if item.template_name
+    }
+    names.update(block.template_name for block in llm_todo_blocks if block.template_name)
+    return sorted(names)
 
 
 

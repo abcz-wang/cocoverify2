@@ -21,6 +21,7 @@ from cocoverify2.utils.subprocess import CommandExecutionResult
 
 _FIXTURES = Path(__file__).parent / "fixtures"
 _RTL = _FIXTURES / "rtl"
+_SRC = Path(__file__).resolve().parents[1] / "src"
 
 
 def _build_render_metadata(tmp_path: Path, rtl_name: str) -> Path:
@@ -479,6 +480,7 @@ def test_stage_run_cli_smoke(tmp_path: Path) -> None:
     render_path = _build_render_metadata(tmp_path, "simple_comb.v")
     env = os.environ.copy()
     env["PATH"] = ""
+    env["PYTHONPATH"] = str(_SRC) if not env.get("PYTHONPATH") else f"{_SRC}{os.pathsep}{env['PYTHONPATH']}"
 
     result = subprocess.run(
         [

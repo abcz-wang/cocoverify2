@@ -7,9 +7,10 @@ from pathlib import Path
 from typing import Sequence
 
 from cocoverify2 import __version__
+from cocoverify2.core.config import LLMConfig
 from cocoverify2.core.errors import CocoverifyError, ConfigurationError, PhaseNotImplementedError
 from cocoverify2.core.models import SimulationConfig
-from cocoverify2.core.types import SimulationMode
+from cocoverify2.core.types import GenerationMode, SimulationMode
 from cocoverify2.stages.contract_extractor import ContractExtractor, load_optional_text
 from cocoverify2.stages.oracle_generator import OracleGenerator
 from cocoverify2.stages.simulator_runner import SimulatorRunnerStage
@@ -91,6 +92,19 @@ def build_parser() -> argparse.ArgumentParser:
     stage_parser.add_argument("--task-description", default="", help="Optional task description text.")
     stage_parser.add_argument("--spec", type=Path, help="Optional specification file path.")
     stage_parser.add_argument("--golden-interface", type=Path, help="Optional golden interface text file.")
+    stage_parser.add_argument(
+        "--generation-mode",
+        choices=[mode.value for mode in GenerationMode],
+        default=GenerationMode.RULE_BASED.value,
+        help="Generation mode for the plan/oracle stages.",
+    )
+    stage_parser.add_argument("--llm-provider", default="", help="Optional LLM provider override for the plan/oracle stages.")
+    stage_parser.add_argument("--llm-model", default="", help="Optional LLM model override for the plan/oracle stages.")
+    stage_parser.add_argument("--llm-base-url", default="", help="Optional LLM base_url override for the plan/oracle stages.")
+    stage_parser.add_argument("--llm-api-key", default="", help="Optional LLM API key override for the plan/oracle stages.")
+    stage_parser.add_argument("--llm-temperature", type=float, default=None, help="Optional LLM temperature override for the plan/oracle stages.")
+    stage_parser.add_argument("--llm-timeout-seconds", type=int, default=None, help="Optional LLM timeout override for the plan/oracle stages.")
+    stage_parser.add_argument("--llm-max-retries", type=int, default=None, help="Optional LLM retry-count override for the plan/oracle stages.")
     stage_parser.set_defaults(handler=_handle_stage)
 
     repair_parser = subparsers.add_parser(
@@ -146,6 +160,8 @@ def _handle_stage(args: argparse.Namespace) -> int:
             task_description=args.task_description or None,
             spec_text=load_optional_text(spec_path),
             out_dir=out_dir,
+            generation_mode=GenerationMode(args.generation_mode),
+            llm_config=_build_llm_config(args),
         )
         print(f"Test plan generated for module '{plan.module_name}' -> {out_dir / 'plan' / 'test_plan.json'}")
         return 0
@@ -166,6 +182,8 @@ def _handle_stage(args: argparse.Namespace) -> int:
             task_description=args.task_description or None,
             spec_text=load_optional_text(spec_path),
             out_dir=out_dir,
+            generation_mode=GenerationMode(args.generation_mode),
+            llm_config=_build_llm_config(args),
         )
         print(f"Oracle generated for module '{oracle.module_name}' -> {out_dir / 'oracle' / 'oracle.json'}")
         return 0
@@ -322,6 +340,20 @@ def _build_simulation_config(args: argparse.Namespace) -> SimulationConfig:
         clean_build=bool(args.clean_build),
         plusargs=list(args.plusarg),
         make_targets=list(args.make_target),
+    )
+
+
+def _build_llm_config(args: argparse.Namespace) -> LLMConfig:
+    """Build a structured ``LLMConfig`` from CLI arguments and environment defaults."""
+    defaults = LLMConfig()
+    return LLMConfig(
+        provider=args.llm_provider or defaults.provider,
+        model=args.llm_model or defaults.model,
+        base_url=args.llm_base_url or defaults.base_url,
+        api_key=args.llm_api_key or defaults.api_key,
+        temperature=defaults.temperature if args.llm_temperature is None else args.llm_temperature,
+        timeout_seconds=defaults.timeout_seconds if args.llm_timeout_seconds is None else args.llm_timeout_seconds,
+        max_retries=defaults.max_retries if args.llm_max_retries is None else args.llm_max_retries,
     )
 
 

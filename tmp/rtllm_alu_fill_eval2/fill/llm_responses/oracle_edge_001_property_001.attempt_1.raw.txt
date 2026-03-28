@@ -1,0 +1,40 @@
+{
+  "assumptions": [],
+  "block_id": "oracle_edge_001_property_001",
+  "code_lines": [
+    "inputs = env.get_case_inputs(plan_case_id)",
+    "outputs = await env.sample_outputs(observed_signals)",
+    "a = inputs.get('a')",
+    "b = inputs.get('b')",
+    "aluc = inputs.get('aluc')",
+    "r = outputs.get('r')",
+    "zero = outputs.get('zero')",
+    "carry = outputs.get('carry')",
+    "negative = outputs.get('negative')",
+    "overflow = outputs.get('overflow')",
+    "flag = outputs.get('flag')",
+    "assert_true(not is_unknown(r), \"Result r must not be unknown\")",
+    "expected_zero = 1 if to_uint(r, 32) == 0 else 0",
+    "assert_equal('zero', zero, expected_zero)",
+    "expected_negative = (to_uint(r, 32) >> 31) & 1",
+    "assert_equal('negative', negative, expected_negative)",
+    "assert_true(not is_unknown(carry) and not is_high_impedance(carry), \"carry must be a defined 0/1 value\")",
+    "assert_true(not is_unknown(overflow) and not is_high_impedance(overflow), \"overflow must be a defined 0/1 value\")",
+    "SLT = 0b101010",
+    "SLTU = 0b101011",
+    "if aluc == SLT or aluc == SLTU:",
+    "    assert_equal('flag', flag, 1)",
+    "else:",
+    "    assert_true(is_high_impedance(flag), \"flag should be high‑impedance for non‑SLT/SLTU operations\")"
+  ],
+  "helper_calls": [
+    "env.get_case_inputs",
+    "env.sample_outputs",
+    "assert_true",
+    "assert_equal",
+    "is_unknown",
+    "is_high_impedance",
+    "to_uint"
+  ],
+  "unresolved_items": []
+}

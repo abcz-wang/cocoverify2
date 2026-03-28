@@ -1,0 +1,43 @@
+{
+  "assumptions": [],
+  "block_id": "oracle_basic_002_functional_001",
+  "code_lines": [
+    "inputs = env.get_case_inputs(plan_case_id)",
+    "a = inputs['a']",
+    "b = inputs['b']",
+    "aluc = inputs['aluc']",
+    "outputs = await env.sample_outputs(observed_signals)",
+    "r = outputs['r']",
+    "zero = outputs['zero']",
+    "carry = outputs['carry']",
+    "negative = outputs['negative']",
+    "overflow = outputs['overflow']",
+    "flag = outputs['flag']",
+    "# Verify that the stimulus uses the ADD opcode",
+    "assert_equal('aluc', aluc, 0b100000)",
+    "mask = mask_width(32)",
+    "expected_r = (a + b) & mask",
+    "expected_carry = 1 if (a + b) > mask else 0",
+    "a_s = to_sint(a, 32)",
+    "b_s = to_sint(b, 32)",
+    "sum_s = a_s + b_s",
+    "expected_overflow = 1 if ((a_s >= 0 and b_s >= 0 and sum_s < 0) or (a_s < 0 and b_s < 0 and sum_s >= 0)) else 0",
+    "expected_zero = int(expected_r == 0)",
+    "expected_negative = (expected_r >> 31) & 1",
+    "assert_equal('r', r, expected_r)",
+    "assert_equal('zero', zero, expected_zero)",
+    "assert_equal('carry', carry, expected_carry)",
+    "assert_equal('negative', negative, expected_negative)",
+    "assert_equal('overflow', overflow, expected_overflow)",
+    "assert_true(is_high_impedance(flag), 'flag should be high‑impedance for non‑SLT/SLTU operations')",
+    "env.record_case_note(plan_case_id, f'ADD functional check: a=0x{a:08x}, b=0x{b:08x}, r=0x{r:08x}')"
+  ],
+  "helper_calls": [
+    "assert_equal",
+    "assert_true",
+    "mask_width",
+    "to_sint",
+    "is_high_impedance"
+  ],
+  "unresolved_items": []
+}

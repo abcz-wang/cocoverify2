@@ -1,0 +1,41 @@
+{
+  "assumptions": [],
+  "block_id": "oracle_basic_001_property_001",
+  "code_lines": [
+    "inputs = env.get_case_inputs(plan_case_id)",
+    "a = inputs['a']",
+    "b = inputs['b']",
+    "aluc = inputs['aluc']",
+    "outputs = await env.sample_outputs(observed_signals)",
+    "r = outputs['r']",
+    "zero = outputs['zero']",
+    "carry = outputs['carry']",
+    "negative = outputs['negative']",
+    "overflow = outputs['overflow']",
+    "flag = outputs['flag']",
+    "# Verify basic combinational properties",
+    "assert_true(0 <= r < (1 << env.signal_width('r')), 'r should be a 32-bit unsigned value')",
+    "expected_zero = int(r == 0)",
+    "assert_equal('zero', zero, expected_zero)",
+    "expected_negative = (r >> 31) & 1",
+    "assert_equal('negative', negative, expected_negative)",
+    "# carry and overflow must be defined (0 or 1) for defined operations",
+    "assert_true(not is_unknown(carry), 'carry must not be unknown')",
+    "assert_true(not is_unknown(overflow), 'overflow must not be unknown')",
+    "# flag is high-impedance except for SLT/SLTU",
+    "SLT = 0b101010",
+    "SLTU = 0b101011",
+    "if aluc in (SLT, SLTU):",
+    "    assert_true(not is_high_impedance(flag), 'flag should be driven for SLT/SLTU')",
+    "else:",
+    "    assert_true(is_high_impedance(flag), 'flag should be high-impedance for non-SLT/SLTU')",
+    "env.record_case_note(plan_case_id, f'Property check passed for aluc=0x{aluc:02x}')"
+  ],
+  "helper_calls": [
+    "assert_equal",
+    "assert_true",
+    "is_unknown",
+    "is_high_impedance"
+  ],
+  "unresolved_items": []
+}

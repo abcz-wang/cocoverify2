@@ -15,6 +15,7 @@ from cocoverify2.stages.contract_extractor import ContractExtractor, load_option
 from cocoverify2.stages.oracle_generator import OracleGenerator
 from cocoverify2.stages.simulator_runner import SimulatorRunnerStage
 from cocoverify2.stages.tb_renderer import TBRenderer
+from cocoverify2.stages.todo_fill import TodoFillStage
 from cocoverify2.stages.triage import TriageStage
 from cocoverify2.stages.test_plan_generator import TestPlanGenerator
 
@@ -55,6 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
             "plan",
             "oracle",
             "render",
+            "fill",
             "run",
             "triage",
             "repair",
@@ -229,6 +231,26 @@ def _handle_stage(args: argparse.Namespace) -> int:
         )
         return 0
 
+    if args.stage_name == "fill":
+        render_path = args.render or _resolve_render_path(args.in_dir)
+        if render_path is None:
+            raise ConfigurationError("The fill stage requires --render or an --in-dir containing render/metadata.json.")
+        out_dir = args.out_dir or Path("out")
+        spec_path = args.spec or _resolve_optional_input(args.in_dir, "spec.txt")
+        stage = TodoFillStage()
+        report = stage.run_from_artifact(
+            render_metadata_path=render_path,
+            out_dir=out_dir,
+            llm_config=_build_llm_config(args),
+            task_description=args.task_description or None,
+            spec_text=load_optional_text(spec_path),
+        )
+        print(
+            "TODO fill completed for module "
+            f"'{report.module_name or '<unknown>'}' with status '{report.fill_status}' -> {out_dir / 'fill' / 'metadata.json'}"
+        )
+        return 0
+
     if args.stage_name == "triage":
         if args.in_dir is None:
             raise ConfigurationError("The triage stage requires --in-dir pointing to a run directory or a phase root containing run/.")
@@ -242,7 +264,7 @@ def _handle_stage(args: argparse.Namespace) -> int:
         return 0
 
     raise PhaseNotImplementedError(
-        "Phase 6 implements the contract, plan, oracle, render, run, and triage stages only; other stage commands are not implemented yet."
+        "cocoverify2 currently implements the contract, plan, oracle, render, fill, run, and triage stages only; other stage commands are not implemented yet."
     )
 
 

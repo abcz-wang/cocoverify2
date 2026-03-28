@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from cocoverify2.core.models import DUTContract, OracleSpec, PortSpec, TestCasePlan as CasePlanModel, TestPlan as PlanModel, TimingSpec
+from cocoverify2.core.models import DUTContract, LLMTodoBlock, OracleSpec, PortSpec, TestCasePlan as CasePlanModel, TestPlan as PlanModel, TimingSpec
 from cocoverify2.core.types import LatencyModel, PortDirection, SequentialKind, TemporalWindowMode, TestCategory as PlanCategory
 from cocoverify2.llm.validators import (
     parse_plan_augmentation,
     parse_oracle_augmentation,
+    parse_todo_fill_response,
     validate_oracle_augmentation,
     validate_plan_augmentation,
+    validate_todo_fill_response,
 )
 
 
@@ -171,3 +173,66 @@ def test_validate_oracle_augmentation_downgrades_exact_cycle_and_strict() -> Non
     assert check.strictness == "conservative"
     assert check.semantic_tags == ["ambiguity_preserving"]
     assert report["check_adjustments"]
+
+
+def test_parse_and_validate_todo_fill_response_accepts_safe_block_code() -> None:
+    response = parse_todo_fill_response(
+        """
+        {
+          "block_id": "stimulus_basic_001",
+          "code_lines": [
+            "signals = {'a': 1, 'b': 1}",
+            "await self.drive_inputs(**signals)",
+            "self.record_case_inputs('basic_001', signals)"
+          ],
+          "helper_calls": ["drive_inputs", "record_case_inputs"],
+          "assumptions": [],
+          "unresolved_items": []
+        }
+        """
+    )
+    block = LLMTodoBlock(
+        block_id="stimulus_basic_001",
+        fill_kind="stimulus",
+        case_id="basic_001",
+        start_marker="# TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+        end_marker="# TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+    )
+
+    validated, report = validate_todo_fill_response(response, block=block)
+
+    assert validated.block_id == "stimulus_basic_001"
+    assert "drive_inputs" in report["used_helper_calls"]
+
+
+def test_validate_todo_fill_response_rejects_imports() -> None:
+    response = parse_todo_fill_response(
+        """
+        {
+          "block_id": "oracle_basic_001_functional_001",
+          "code_lines": [
+            "import os",
+            "assert_true(True, 'demo')"
+          ],
+          "helper_calls": ["assert_true"],
+          "assumptions": [],
+          "unresolved_items": []
+        }
+        """
+    )
+    block = LLMTodoBlock(
+        block_id="oracle_basic_001_functional_001",
+        fill_kind="oracle_check",
+        case_id="basic_001",
+        oracle_case_id="functional_basic_001",
+        check_id="basic_001_functional_001",
+        start_marker="# TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+        end_marker="# TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+    )
+
+    try:
+        validate_todo_fill_response(response, block=block)
+    except ValueError as exc:
+        assert "Import" in str(exc)
+    else:
+        raise AssertionError("Expected fill validator to reject import statements.")

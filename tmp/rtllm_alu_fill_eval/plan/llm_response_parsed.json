@@ -1,0 +1,184 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Result r equals a + b for ADD opcode",
+        "Carry flag is set when unsigned addition overflows",
+        "Zero flag is set when sum is zero",
+        "Negative flag reflects sign of signed sum",
+        "Overflow flag is set when signed addition overflows"
+      ],
+      "goal": "Exercise ADD operation and verify all status flags",
+      "notes": [
+        "Uses known opcode ADD (6'b100000)"
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "aluc set to ADD opcode"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply representative values to a and b for addition"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle"
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "Result r is high-impedance (z) for undefined opcode",
+        "All status flags are zero or undefined"
+      ],
+      "goal": "Verify ALU behavior for illegal opcode",
+      "notes": [
+        "aluc set to 6'b111111 which is not defined in contract"
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "aluc not matching any defined operation"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive undefined opcode while providing arbitrary a and b"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle"
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_003",
+      "expected_properties": [
+        "Each opcode produces correct result independent of previous stimulus",
+        "No latch inferred; output reflects current inputs only"
+      ],
+      "goal": "Apply a rapid sequence of different opcodes to ensure combinational behavior",
+      "notes": [
+        "Stimulus changes aluc each cycle without waiting"
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "Combinational ALU, no internal state"
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Change aluc across a set of opcodes while keeping a,b constant"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input change"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "sanity",
+        "comb",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "Output signals reflect combinational function of inputs",
+        "Zero flag correctly indicates all-zero result",
+        "Flag is high only for SLT/SLTU opcodes"
+      ],
+      "goal": "Exercise representative legal input combinations and observe output mapping",
+      "notes": [
+        "Preserves original intent while adding flag verification"
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: a, b, aluc"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

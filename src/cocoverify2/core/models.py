@@ -220,6 +220,9 @@ class LLMTodoBlock(ModelBase):
     end_marker: str = ""
     instructions: list[str] = Field(default_factory=list)
     context: dict[str, Any] = Field(default_factory=dict)
+    fill_status: str = "pending"
+    fill_attempts: int = Field(default=0, ge=0)
+    fill_errors: list[str] = Field(default_factory=list)
 
 
 class RenderedFile(ModelBase):
@@ -236,9 +239,11 @@ class RenderMetadata(ModelBase):
     """Structured metadata emitted by the render stage."""
 
     module_name: str = ""
+    artifact_stage: str = "render"
     based_on_contract: str = ""
     based_on_plan: str = ""
     based_on_oracle: str = ""
+    based_on_render_metadata: str = ""
     generated_files: list[RenderedFile] = Field(default_factory=list)
     test_modules: list[str] = Field(default_factory=list)
     interface_summary: dict[str, Any] = Field(default_factory=dict)
@@ -247,8 +252,50 @@ class RenderMetadata(ModelBase):
     coverage_summary: dict[str, Any] = Field(default_factory=dict)
     template_inventory: list[str] = Field(default_factory=list)
     llm_todo_blocks: list[LLMTodoBlock] = Field(default_factory=list)
+    filled_todo_block_ids: list[str] = Field(default_factory=list)
+    unfilled_todo_block_ids: list[str] = Field(default_factory=list)
+    fill_status: str = ""
+    fill_warnings: list[str] = Field(default_factory=list)
     render_warnings: list[str] = Field(default_factory=list)
     render_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class FillBlockResult(ModelBase):
+    """Structured fill outcome for one TODO block."""
+
+    block_id: str
+    fill_kind: str
+    relative_path: str = ""
+    status: str = "pending"
+    attempts: int = Field(default=0, ge=0)
+    request_path: str = ""
+    response_raw_path: str = ""
+    response_parsed_path: str = ""
+    helper_calls: list[str] = Field(default_factory=list)
+    assumptions: list[str] = Field(default_factory=list)
+    unresolved_items: list[str] = Field(default_factory=list)
+    validation_errors: list[str] = Field(default_factory=list)
+    compile_errors: list[str] = Field(default_factory=list)
+
+
+class FillReport(ModelBase):
+    """Structured report for the TODO fill stage."""
+
+    module_name: str = ""
+    based_on_render_metadata: str = ""
+    based_on_contract: str = ""
+    based_on_plan: str = ""
+    based_on_oracle: str = ""
+    fill_status: str = "failed"
+    attempted_block_ids: list[str] = Field(default_factory=list)
+    filled_block_ids: list[str] = Field(default_factory=list)
+    repaired_block_ids: list[str] = Field(default_factory=list)
+    failed_block_ids: list[str] = Field(default_factory=list)
+    compile_ok: bool = False
+    warnings: list[str] = Field(default_factory=list)
+    block_results: list[FillBlockResult] = Field(default_factory=list)
+    package_dir: str = ""
+    metadata_path: str = ""
 
 
 class RunnerSelection(ModelBase):

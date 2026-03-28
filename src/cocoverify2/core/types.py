@@ -12,6 +12,7 @@ class StageName(str, Enum):
     PLAN = "plan"
     ORACLE = "oracle"
     RENDER = "render"
+    FILL = "fill"
     RUN = "run"
     TRIAGE = "triage"
     REPAIR = "repair"

@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
+import ipaddress
+import os
 from typing import Any
+from urllib.parse import urlparse
 
 from cocoverify2.core.config import LLMConfig
 from cocoverify2.core.errors import ConfigurationError
@@ -25,15 +29,16 @@ class LLMClient:
         attempts = max(1, int(self.config.max_retries) + 1)
         for _ in range(attempts):
             try:
-                response = self._create_openai_client().chat.completions.create(
-                    model=self.config.model,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    temperature=float(self.config.temperature),
-                    timeout=float(self.config.timeout_seconds),
-                )
+                with _proxy_environment(self.config):
+                    response = self._create_openai_client().chat.completions.create(
+                        model=self.config.model,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        temperature=float(self.config.temperature),
+                        timeout=float(self.config.timeout_seconds),
+                    )
                 return _extract_response_text(response)
             except Exception as exc:  # pragma: no cover - exercised through mocks
                 last_error = exc
@@ -66,3 +71,48 @@ def _extract_response_text(response: Any) -> str:
                 parts.append(str(getattr(item, "text", "")))
         return "\n".join(part for part in parts if part).strip()
     return str(content or "")
+
+
+@contextmanager
+def _proxy_environment(config: LLMConfig):
+    if config.trust_env or not _should_disable_proxy(config.base_url):
+        yield
+        return
+
+    proxy_names = (
+        "http_proxy",
+        "https_proxy",
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "all_proxy",
+        "ALL_PROXY",
+        "no_proxy",
+        "NO_PROXY",
+    )
+    previous = {name: os.environ.get(name) for name in proxy_names}
+    try:
+        for name in proxy_names:
+            os.environ.pop(name, None)
+        yield
+    finally:
+        for name, value in previous.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+
+
+def _should_disable_proxy(base_url: str | None) -> bool:
+    if not base_url:
+        return False
+    parsed = urlparse(str(base_url))
+    host = (parsed.hostname or "").strip()
+    if not host:
+        return False
+    if host in {"localhost", "127.0.0.1"}:
+        return True
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return "." not in host
+    return bool(address.is_private or address.is_loopback or address.is_link_local)

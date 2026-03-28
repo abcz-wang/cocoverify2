@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 from typing import Any
 
-from cocoverify2.core.models import DUTContract, OracleSpec, TestPlan
+from cocoverify2.core.models import DUTContract, LLMTodoBlock, OracleSpec, TestPlan
 from cocoverify2.core.types import OracleStrictness, SequentialKind, TemporalWindowMode
 from cocoverify2.llm.schemas import (
     AdditionalOracleCase,
@@ -16,10 +17,53 @@ from cocoverify2.llm.schemas import (
     OracleCaseEnrichment,
     PlanAugmentation,
     PlanCaseEnrichment,
+    TodoFillResponse,
 )
 
 _ORACLE_CLASSES = {"protocol", "functional", "property"}
 _STRICTNESS_THRESHOLD = 0.75
+_SAFE_BUILTIN_CALLS = {"abs", "bool", "dict", "hex", "int", "len", "list", "max", "min", "range"}
+_SAFE_DICT_METHODS = {"get", "items", "keys", "values"}
+_DANGEROUS_CALLS = {
+    "compile",
+    "delattr",
+    "dir",
+    "eval",
+    "exec",
+    "getattr",
+    "globals",
+    "input",
+    "locals",
+    "open",
+    "setattr",
+    "vars",
+    "__import__",
+}
+_FORBIDDEN_AST_NODES = (
+    ast.AsyncFunctionDef,
+    ast.ClassDef,
+    ast.Delete,
+    ast.FunctionDef,
+    ast.Global,
+    ast.Import,
+    ast.ImportFrom,
+    ast.Lambda,
+    ast.Nonlocal,
+    ast.Raise,
+    ast.Try,
+    ast.While,
+    ast.With,
+    ast.AsyncWith,
+    ast.ListComp,
+    ast.SetComp,
+    ast.DictComp,
+    ast.GeneratorExp,
+    ast.Yield,
+    ast.YieldFrom,
+)
+_STIMULUS_METHOD_CALLS = {"drive_inputs", "wait_for_settle", "record_case_inputs", "record_case_note", "sample_outputs"}
+_ORACLE_METHOD_CALLS = {"get_case_inputs", "sample_outputs", "record_case_note", "signal_width"}
+_ORACLE_HELPER_CALLS = {"assert_equal", "assert_true", "to_sint", "to_uint", "mask_width", "is_high_impedance", "is_unknown"}
 
 
 def parse_plan_augmentation(raw_text: str) -> PlanAugmentation:
@@ -32,6 +76,12 @@ def parse_oracle_augmentation(raw_text: str) -> OracleAugmentation:
     """Parse raw JSON text into a validated Phase 3 augmentation model."""
     payload = json.loads(extract_json_text(raw_text))
     return OracleAugmentation.model_validate(payload)
+
+
+def parse_todo_fill_response(raw_text: str) -> TodoFillResponse:
+    """Parse raw JSON text into a validated block-level fill response."""
+    payload = json.loads(extract_json_text(raw_text))
+    return TodoFillResponse.model_validate(payload)
 
 
 def extract_json_text(raw_text: str) -> str:
@@ -414,3 +464,96 @@ def _filter_known_signals(values: list[str], allowed: set[str]) -> tuple[list[st
         else:
             dropped.append(signal)
     return kept, dropped
+
+
+def validate_todo_fill_response(
+    response: TodoFillResponse,
+    *,
+    block: LLMTodoBlock,
+) -> tuple[TodoFillResponse, dict[str, Any]]:
+    """Validate one parsed block-level fill response."""
+    if response.block_id != block.block_id:
+        raise ValueError(f"Fill response block_id mismatch: expected {block.block_id!r}, got {response.block_id!r}.")
+
+    normalized_code = [line.rstrip() for line in response.code_lines if str(line).strip()]
+    if not normalized_code:
+        raise ValueError(f"Fill response for block {block.block_id!r} did not include any executable code lines.")
+
+    allowed_method_calls = _STIMULUS_METHOD_CALLS if block.fill_kind == "stimulus" else _ORACLE_METHOD_CALLS
+    allowed_function_calls = set(_SAFE_BUILTIN_CALLS)
+    if block.fill_kind == "oracle_check":
+        allowed_function_calls.update(_ORACLE_HELPER_CALLS)
+    used_helper_calls = _validate_fill_ast(
+        code_lines=normalized_code,
+        fill_kind=block.fill_kind,
+        allowed_method_calls=allowed_method_calls,
+        allowed_function_calls=allowed_function_calls,
+    )
+    normalized = TodoFillResponse(
+        block_id=response.block_id,
+        code_lines=normalized_code,
+        helper_calls=_normalize_text_list(response.helper_calls),
+        assumptions=_normalize_text_list(response.assumptions),
+        unresolved_items=_normalize_text_list(response.unresolved_items),
+    )
+    return normalized, {
+        "used_helper_calls": sorted(used_helper_calls),
+    }
+
+
+def _validate_fill_ast(
+    *,
+    code_lines: list[str],
+    fill_kind: str,
+    allowed_method_calls: set[str],
+    allowed_function_calls: set[str],
+) -> set[str]:
+    source = "\n".join(code_lines)
+    tree = ast.parse(source, mode="exec")
+    used_helpers: set[str] = set()
+
+    for node in ast.walk(tree):
+        if isinstance(node, _FORBIDDEN_AST_NODES):
+            raise ValueError(f"Unsupported AST node in {fill_kind} fill block: {node.__class__.__name__}.")
+        if isinstance(node, ast.Attribute) and node.attr.startswith("__"):
+            raise ValueError(f"Dunder attribute access is not allowed in {fill_kind} fill blocks: {node.attr!r}.")
+        if isinstance(node, ast.Call):
+            helper_name = _validate_call_node(
+                node,
+                fill_kind=fill_kind,
+                allowed_method_calls=allowed_method_calls,
+                allowed_function_calls=allowed_function_calls,
+            )
+            if helper_name:
+                used_helpers.add(helper_name)
+    return used_helpers
+
+
+def _validate_call_node(
+    node: ast.Call,
+    *,
+    fill_kind: str,
+    allowed_method_calls: set[str],
+    allowed_function_calls: set[str],
+) -> str | None:
+    func = node.func
+    if isinstance(func, ast.Name):
+        if func.id in _DANGEROUS_CALLS:
+            raise ValueError(f"Dangerous call is not allowed in {fill_kind} fill blocks: {func.id!r}.")
+        if func.id not in allowed_function_calls:
+            raise ValueError(f"Unsupported function call in {fill_kind} fill blocks: {func.id!r}.")
+        return func.id
+
+    if isinstance(func, ast.Attribute):
+        owner = func.value
+        if isinstance(owner, ast.Name) and owner.id in {"self", "env"}:
+            if func.attr not in allowed_method_calls:
+                raise ValueError(
+                    f"Unsupported method call in {fill_kind} fill blocks: {owner.id}.{func.attr}()."
+                )
+            return func.attr
+        if isinstance(owner, ast.Name) and func.attr in _SAFE_DICT_METHODS:
+            return func.attr
+        raise ValueError(f"Unsupported attribute call in {fill_kind} fill blocks: {ast.unparse(func)!r}.")
+
+    raise ValueError(f"Unsupported callable form in {fill_kind} fill blocks: {ast.dump(func)}.")

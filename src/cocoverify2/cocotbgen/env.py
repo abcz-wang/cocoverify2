@@ -19,6 +19,7 @@ def render_env_module(
     temporal_modes_used: list[str],
     interface_module: str,
     coverage_module: str,
+    runtime_module: str,
 ) -> tuple[str, dict[str, object]]:
     """Render the `<dut>_env.py` module content and summary."""
     class_name = f"{_camel(contract.module_name)}Env"
@@ -67,6 +68,11 @@ def render_env_module(
         )
 
     business_inputs = _business_inputs(contract)
+    business_outputs = _business_outputs(contract)
+    signal_widths = {
+        port.name: port.width if isinstance(port.width, int) else None
+        for port in contract.ports
+    }
     stimulus_dispatch_lines: list[str] = []
     stimulus_helper_blocks: list[str] = []
     llm_todo_blocks: list[dict[str, object]] = []
@@ -91,6 +97,7 @@ def render_env_module(
             ],
             context={
                 "business_inputs": list(business_inputs),
+                "business_outputs": list(business_outputs),
                 "case_id": case.case_id,
                 "category": case.category,
                 "goal": case.goal,
@@ -98,6 +105,7 @@ def render_env_module(
                 "stimulus_signals": list(case.stimulus_signals),
                 "timing_assumptions": list(case.timing_assumptions),
                 "semantic_tags": list(case.semantic_tags),
+                "signal_widths": dict(signal_widths),
             },
             indent="        ",
             case_id=case.case_id,
@@ -124,8 +132,11 @@ def render_env_module(
         coverage_class=coverage_class,
         interface_module=interface_module,
         interface_class=interface_class,
+        runtime_module=runtime_module,
         plan_cases_literal=pformat(plan_cases, sort_dicts=True),
         unresolved_items_literal=pformat(unresolved_items),
+        signal_widths_literal=pformat(signal_widths, sort_dicts=True),
+        business_outputs_literal=pformat(business_outputs),
         class_name=class_name,
         exact_cycle_block=exact_cycle_block,
         exact_cycle_dispatch=exact_cycle_dispatch,
@@ -150,6 +161,15 @@ def _business_inputs(contract: DUTContract) -> list[str]:
         port.name
         for port in contract.ports
         if port.direction == PortDirection.INPUT and port.name not in control_signals
+    ]
+
+
+def _business_outputs(contract: DUTContract) -> list[str]:
+    control_signals = set(contract.handshake_signals) | {clock.name for clock in contract.clocks} | {reset.name for reset in contract.resets}
+    return [
+        port.name
+        for port in contract.ports
+        if port.direction in {PortDirection.OUTPUT, PortDirection.INOUT} and port.name not in control_signals
     ]
 
 

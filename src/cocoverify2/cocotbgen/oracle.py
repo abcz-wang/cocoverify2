@@ -13,10 +13,19 @@ from cocoverify2.core.models import DUTContract, OracleCase, OracleSpec
 _ORACLE_TEMPLATE = "oracle_module.py.tmpl"
 
 
-def render_oracle_module(contract: DUTContract, oracle: OracleSpec) -> tuple[str, dict[str, object]]:
+def render_oracle_module(
+    contract: DUTContract,
+    oracle: OracleSpec,
+    *,
+    runtime_module: str,
+) -> tuple[str, dict[str, object]]:
     """Render the `<dut>_oracle.py` module content and summary."""
     module_name = contract.module_name
     control_signals = {clock.name for clock in contract.clocks} | {reset.name for reset in contract.resets}
+    signal_widths = {
+        port.name: port.width if isinstance(port.width, int) else None
+        for port in contract.ports
+    }
     protocol_payload = [_sanitize_oracle_case(case, control_signals) for case in oracle.protocol_oracles]
     functional_payload = [_sanitize_oracle_case(case, control_signals) for case in oracle.functional_oracles]
     property_payload = [_sanitize_oracle_case(case, control_signals) for case in oracle.property_oracles]
@@ -42,7 +51,7 @@ def render_oracle_module(contract: DUTContract, oracle: OracleSpec) -> tuple[str
                 oracle_dispatch_lines.extend(
                     [
                         f"    if check.get(\"check_id\") == {check['check_id']!r}:",
-                        f"        await {function_name}(env, oracle_case_id, check, observed_signals)",
+                        f"        await {function_name}(env, plan_case_id, oracle_case_id, check, observed_signals)",
                         "        return",
                     ]
                 )
@@ -67,6 +76,7 @@ def render_oracle_module(contract: DUTContract, oracle: OracleSpec) -> tuple[str
                         "strictness": check.get("strictness", ""),
                         "temporal_window": dict(check.get("temporal_window", {})),
                         "semantic_tags": list(check.get("semantic_tags", [])),
+                        "signal_widths": dict(signal_widths),
                     },
                     indent="    ",
                     case_id=case["linked_plan_case_id"],
@@ -77,7 +87,7 @@ def render_oracle_module(contract: DUTContract, oracle: OracleSpec) -> tuple[str
                 oracle_helper_blocks.append(
                     "\n".join(
                         [
-                            f"async def {function_name}(env, oracle_case_id: str, check: dict[str, Any], observed_signals: list[str]) -> None:",
+                            f"async def {function_name}(env, plan_case_id: str, oracle_case_id: str, check: dict[str, Any], observed_signals: list[str]) -> None:",
                             f'    """LLM-fill oracle hook for check `{check["check_id"]}`."""',
                             todo_block,
                         ]
@@ -93,7 +103,9 @@ def render_oracle_module(contract: DUTContract, oracle: OracleSpec) -> tuple[str
     content = render_template(
         _ORACLE_TEMPLATE,
         module_name=module_name,
+        runtime_module=runtime_module,
         control_signals_literal=pformat(sorted(control_signals)),
+        signal_widths_literal=pformat(signal_widths, sort_dicts=True),
         oracle_spec_literal=json.dumps(json.dumps(_build_oracle_payload(protocol_payload, functional_payload, property_payload), indent=2, sort_keys=True)),
         oracle_cases_by_plan_literal=json.dumps(json.dumps(dict(by_plan_case), indent=2, sort_keys=True)),
         temporal_modes_literal=pformat(sorted(temporal_modes)),

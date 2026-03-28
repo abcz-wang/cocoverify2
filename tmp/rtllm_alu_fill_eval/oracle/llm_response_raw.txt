@@ -1,0 +1,78 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Boundary inputs must not cause illegal state; outputs remain defined (z for r, others zero/unknown) when opcode is undefined.",
+          "notes": [],
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "When aluc is outside defined opcodes, r is high-impedance (z) and all flag signals are 0 or z, with no assertion violation.",
+          "semantic_tags": [
+            "invalid_illegal_input",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Applied when aluc = 6'b111111 (or any undefined opcode)."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "Outputs reflect combinational function of inputs a, b, aluc without dependence on hidden state.",
+          "semantic_tags": [
+            "snake_case tags"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever basic_001 stimulus is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

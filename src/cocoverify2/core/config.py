@@ -24,6 +24,7 @@ class LLMConfig(BaseModel):
     temperature: float = Field(default_factory=lambda: float(os.getenv("COCOVERIFY_LLM_TEMPERATURE", "0.0")))
     timeout_seconds: int = Field(default_factory=lambda: int(os.getenv("COCOVERIFY_LLM_TIMEOUT_SECONDS", "60")), ge=1)
     max_retries: int = Field(default_factory=lambda: int(os.getenv("COCOVERIFY_LLM_MAX_RETRIES", "2")), ge=0)
+    trust_env: bool = Field(default_factory=lambda: _env_bool("COCOVERIFY_LLM_TRUST_ENV", False))
 
 
 class ArtifactConfig(BaseModel):
@@ -49,6 +50,7 @@ class VerificationConfig(BaseModel):
             StageName.PLAN,
             StageName.ORACLE,
             StageName.RENDER,
+            StageName.FILL,
             StageName.RUN,
             StageName.TRIAGE,
             StageName.REPAIR,
@@ -56,3 +58,10 @@ class VerificationConfig(BaseModel):
         ]
     )
     log_level: str = Field(default="INFO")
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}

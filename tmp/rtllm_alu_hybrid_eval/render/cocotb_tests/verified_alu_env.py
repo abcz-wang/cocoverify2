@@ -1,0 +1,239 @@
+"""Environment helpers for `verified_alu`.
+
+This file is rendered from contract, plan, and oracle artifacts. It stays thin on
+purpose: the environment only coordinates helpers and preserves unresolved items.
+
+Environment notes:
+# - none
+"""
+
+from __future__ import annotations
+
+from pprint import pformat
+
+import cocotb
+from cocotb.triggers import ReadOnly, RisingEdge, Timer
+
+from .verified_alu_coverage import VerifiedAluCoverage
+from .verified_alu_interface import VerifiedAluInterface
+
+PLAN_CASES = {'basic_001': {'category': 'basic',
+               'coverage_tags': ['basic', 'sanity', 'comb', 'operation_mix'],
+               'dependencies': [],
+               'goal': 'Validate the basic combinational mapping of inputs to '
+                       'outputs for a random legal stimulus.',
+               'notes': ['Case intent is conservative when the contract is '
+                         'weak or timing is unresolved.',
+                         'Conservative stimulus; does not rely on exact '
+                         'latency.'],
+               'semantic_tags': ['ambiguity_preserving'],
+               'stimulus_intent': ['Drive a representative legal input pattern '
+                                   "across known inputs: ['a', 'b', 'aluc']",
+                                   'Apply random legal values to a, b and a '
+                                   'representative set of aluc opcodes.'],
+               'stimulus_signals': ['a', 'b', 'aluc'],
+               'timing_assumptions': ['Observe outputs after input '
+                                      'stabilization.',
+                                      'Do not infer internal state or '
+                                      'undocumented storage.',
+                                      'Observe outputs after a small '
+                                      'stabilization period; no fixed-cycle '
+                                      'timing assumed.']},
+ 'basic_002': {'category': 'basic',
+               'coverage_tags': ['operation_specific'],
+               'dependencies': ['basic_001'],
+               'goal': 'Exercise each supported ALU operation with '
+                       'representative operand values.',
+               'notes': ['Provides operation‑level confidence without assuming '
+                         'timing.'],
+               'semantic_tags': ['operation_specific'],
+               'stimulus_intent': ['Iterate over all defined aluc opcodes, '
+                                   'applying a set of typical operand pairs '
+                                   'for each.'],
+               'stimulus_signals': ['a', 'b', 'aluc'],
+               'timing_assumptions': ['Observe outputs after inputs settle; no '
+                                      'sequential latency assumed.']},
+ 'edge_001': {'category': 'edge',
+              'coverage_tags': ['edge',
+                                'boundary',
+                                'boundary_shift',
+                                'width_sensitive'],
+              'dependencies': ['basic_001'],
+              'goal': 'Exercise boundary values for shift amounts and operand '
+                      'extremes.',
+              'notes': ['Edge coverage remains value-oriented and avoids '
+                        'fixed-latency assumptions.',
+                        'Ensures correct handling of extreme shift counts and '
+                        'signed overflow conditions.'],
+              'semantic_tags': ['width_sensitive'],
+              'stimulus_intent': ['Use zero-like, one-like, and boundary '
+                                  "patterns on ['a', 'b', 'aluc']",
+                                  'Drive a and b with 0x00000000, 0xFFFFFFFF, '
+                                  '0x80000000, 0x7FFFFFFF and set aluc to each '
+                                  'shift opcode with shift amounts 0 and 31.'],
+              'stimulus_signals': ['a', 'b', 'aluc'],
+              'timing_assumptions': ['Observe outputs after input '
+                                     'stabilization.',
+                                     'Do not infer internal state or '
+                                     'undocumented storage.',
+                                     'Observe outputs after inputs settle; no '
+                                     'sequential timing assumed.']},
+ 'negative_001': {'category': 'negative',
+                  'coverage_tags': ['invalid_illegal_input'],
+                  'dependencies': ['basic_001'],
+                  'goal': 'Verify that undefined opcodes produce a '
+                          'high‑impedance result as specified.',
+                  'notes': ['The contract states that unmatched aluc yields '
+                            "'z' for the result; this case checks that "
+                            'behavior conservatively.'],
+                  'semantic_tags': ['invalid_illegal_input'],
+                  'stimulus_intent': ['Drive aluc with an undefined opcode '
+                                      "(e.g., 6'b111111) while providing "
+                                      'arbitrary legal a and b values.'],
+                  'stimulus_signals': ['a', 'b', 'aluc'],
+                  'timing_assumptions': ['Observe outputs after input '
+                                         'stabilization; no cycle‑accurate '
+                                         'timing assumed.']}}
+UNRESOLVED_ITEMS = []
+
+
+class VerifiedAluEnv:
+    """Thin environment container rendered from structured artifacts."""
+
+    def __init__(self, dut) -> None:
+        self.dut = dut
+        self.interface = VerifiedAluInterface(dut)
+        self.coverage = VerifiedAluCoverage()
+        self.observation_log: list[dict[str, object]] = []
+
+    async def initialize(self) -> None:
+        """Bind interface signals before any case is exercised."""
+        self.interface.bind_signals()
+
+    async def apply_reset_if_available(self) -> None:
+        """Use the inferred reset conservatively when one exists."""
+        reset_name = self.interface.reset_name()
+        if reset_name is None or not self.interface.signal_exists(reset_name):
+            return
+        reset_signal = self.interface.get_signal(reset_name)
+        if reset_signal is None:
+            return
+        active_level = 0 if reset_name.endswith("n") or reset_name.endswith("_n") else 1
+        reset_signal.value = active_level
+        await self.wait_event_based(label="reset_assert")
+        reset_signal.value = 1 - active_level
+        await self.wait_event_based(label="reset_release")
+
+    async def wait_event_based(self, label: str = "event_based") -> None:
+        """Use event-based waiting as the default conservative observation path."""
+        clock_name = self.interface.clock_name()
+        if clock_name and self.interface.signal_exists(clock_name):
+            clock_signal = self.interface.get_signal(clock_name)
+            await RisingEdge(clock_signal)
+        else:
+            await Timer(1, unit="ns")
+        await ReadOnly()
+
+    async def wait_bounded_safe(self, max_cycles: int | None, label: str = "bounded_safe") -> None:
+        """Advance through a bounded-safe observation window without assuming exact semantics."""
+        steps = max(1, int(max_cycles or 1))
+        for _ in range(steps):
+            await self.wait_event_based(label=label)
+
+    async def wait_unbounded_safe(self, label: str = "unbounded_safe") -> None:
+        """Use one conservative observation step for a safety-style wait."""
+        await self.wait_event_based(label=label)
+
+    async def wait_for_window(self, temporal_window: dict[str, object], label: str = "window") -> None:
+        """Dispatch to the rendered wait helper that matches the oracle temporal mode."""
+        mode = temporal_window.get("mode", "event_based")
+        if mode == "bounded_range":
+            await self.wait_bounded_safe(temporal_window.get("max_cycles"), label=label)
+            return
+        if mode == "unbounded_safe":
+            await self.wait_unbounded_safe(label=label)
+            return
+        await self.wait_event_based(label=label)
+
+    async def safe_observe(self, case_id: str) -> None:
+        """Record timing assumptions and take one conservative observation step."""
+        case = PLAN_CASES[case_id]
+        self.observation_log.append({
+            "kind": "timing_assumptions",
+            "case_id": case_id,
+            "timing_assumptions": list(case.get("timing_assumptions", [])),
+        })
+        await self.wait_event_based(label=case_id)
+
+    async def exercise_case(self, case_id: str) -> None:
+        """Record the rendered stimulus intent without inventing new semantics."""
+        case = PLAN_CASES[case_id]
+        if case.get("category") == "reset" or "reset_001" in case.get("dependencies", []):
+            await self.apply_reset_if_available()
+        for intent in case.get("stimulus_intent", []):
+            self.observation_log.append({
+                "kind": "stimulus_intent",
+                "case_id": case_id,
+                "intent": intent,
+            })
+        await self._apply_stimulus_todo(case_id)
+        await self.safe_observe(case_id)
+
+    async def _apply_stimulus_todo(self, case_id: str) -> None:
+        """Dispatch per-case LLM-fill stimulus hooks."""
+        if case_id == 'basic_001':
+            await self._todo_stimulus_basic_001()
+            return
+        if case_id == 'edge_001':
+            await self._todo_stimulus_edge_001()
+            return
+        if case_id == 'negative_001':
+            await self._todo_stimulus_negative_001()
+            return
+        if case_id == 'basic_002':
+            await self._todo_stimulus_basic_002()
+            return
+
+    async def _todo_stimulus_basic_001(self) -> None:
+        """LLM-fill stimulus hook for plan case `basic_001`."""
+        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001
+        # Inputs: a, b, aluc
+        # Stimulus signals: a, b, aluc
+        # Goal: Validate the basic combinational mapping of inputs to outputs for a random legal stimulus.
+        # Guidance: Drive concrete legal values onto business inputs here.
+        pass
+        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001
+
+    async def _todo_stimulus_edge_001(self) -> None:
+        """LLM-fill stimulus hook for plan case `edge_001`."""
+        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001
+        # Inputs: a, b, aluc
+        # Stimulus signals: a, b, aluc
+        # Goal: Exercise boundary values for shift amounts and operand extremes.
+        # Guidance: Drive concrete legal values onto business inputs here.
+        pass
+        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001
+
+    async def _todo_stimulus_negative_001(self) -> None:
+        """LLM-fill stimulus hook for plan case `negative_001`."""
+        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_negative_001 case_id=negative_001
+        # Inputs: a, b, aluc
+        # Stimulus signals: a, b, aluc
+        # Goal: Verify that undefined opcodes produce a high‑impedance result as specified.
+        # Guidance: Drive concrete legal values onto business inputs here.
+        pass
+        # TODO(cocoverify2:stimulus) END block_id=stimulus_negative_001 case_id=negative_001
+
+    async def _todo_stimulus_basic_002(self) -> None:
+        """LLM-fill stimulus hook for plan case `basic_002`."""
+        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_002 case_id=basic_002
+        # Inputs: a, b, aluc
+        # Stimulus signals: a, b, aluc
+        # Goal: Exercise each supported ALU operation with representative operand values.
+        # Guidance: Drive concrete legal values onto business inputs here.
+        pass
+        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_002 case_id=basic_002
+
+    def note_oracle_result(self, result: dict[str, object]) -> None:
+        """Keep rendered oracle observations for later phases."""
+        self.observation_log.append({"kind": "oracle_result", **result})

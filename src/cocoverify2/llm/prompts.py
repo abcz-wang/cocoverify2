@@ -5,10 +5,11 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from cocoverify2.core.models import DUTContract, OracleSpec, TestPlan
+from cocoverify2.core.models import DUTContract, LLMTodoBlock, OracleCase, OracleCheck, OracleSpec, TestCasePlan, TestPlan
 
 _MAX_SPEC_CHARS = 12000
 _MAX_TASK_CHARS = 4000
+_MAX_FILE_CONTEXT_CHARS = 6000
 
 
 def build_plan_system_prompt() -> str:
@@ -214,3 +215,85 @@ def _trim_text(text: str | None, limit: int) -> str:
     if len(content) <= limit:
         return content
     return f"{content[:limit].rstrip()} ...[truncated]"
+
+
+def build_todo_fill_system_prompt(fill_kind: str) -> str:
+    """Return the fixed system prompt for block-level TODO filling."""
+    if fill_kind == "stimulus":
+        role = "stimulus-generation"
+        goal = "Fill one cocotb stimulus TODO block with concrete legal drives only."
+    elif fill_kind == "oracle_check":
+        role = "oracle-generation"
+        goal = (
+            "Fill one cocotb oracle TODO block with concrete assertions derived from the spec and recorded inputs. "
+            "Be ambiguity-preserving: only assert exact 0/1 semantics for an output when the spec explicitly defines that output's behavior. "
+            "Do not infer carry, overflow, negative, or similar side-output rules from generic ALU conventions alone. "
+            "If the repair feedback shows observed 'x' or 'z' values on the candidate DUT, relax those outputs unless the spec clearly forbids unknown or high-impedance behavior."
+        )
+    else:
+        role = "todo-generation"
+        goal = "Fill one cocotb TODO block conservatively."
+    return (
+        f"You are performing {role} for a rendered cocotb testbench. {goal} "
+        "Return JSON only. Do not include markdown, code fences, or prose outside JSON. "
+        "Never edit outside the target TODO block. "
+        "Do not emit imports, function definitions, class definitions, file IO, network calls, subprocess calls, eval, exec, or shell commands. "
+        "Use only the provided helper API contract and ordinary Python control flow."
+    )
+
+
+def build_todo_fill_user_prompt(
+    *,
+    block: LLMTodoBlock,
+    contract: DUTContract,
+    task_description: str | None,
+    spec_text: str | None,
+    file_context: str,
+    helper_contract: dict[str, Any],
+    plan_case: TestCasePlan | None = None,
+    oracle_case: OracleCase | None = None,
+    oracle_check: OracleCheck | None = None,
+    repair_feedback: dict[str, Any] | None = None,
+) -> str:
+    """Build the user prompt for one block-level TODO fill request."""
+    payload = {
+        "task_description": _trim_text(task_description, _MAX_TASK_CHARS),
+        "spec_text": _trim_text(spec_text, _MAX_SPEC_CHARS),
+        "contract": _compact_contract(contract),
+        "target_block": block.model_dump(mode="json"),
+        "plan_case": plan_case.model_dump(mode="json") if plan_case is not None else None,
+        "oracle_case": oracle_case.model_dump(mode="json") if oracle_case is not None else None,
+        "oracle_check": oracle_check.model_dump(mode="json") if oracle_check is not None else None,
+        "helper_contract": helper_contract,
+        "file_context": _trim_text(file_context, _MAX_FILE_CONTEXT_CHARS),
+        "repair_feedback": repair_feedback or {},
+        "requirements": {
+            "truth_source": "spec_first",
+            "forbidden": [
+                "inventing new ports or signals",
+                "using DUT RTL as the primary functional truth source",
+                "editing outside the target TODO block",
+                "adding imports or top-level definitions",
+            ],
+            "stimulus_rules": [
+                "Drive only known business inputs or declared stimulus_signals.",
+                "Record concrete applied inputs using the helper contract.",
+            ],
+            "oracle_rules": [
+                "Read recorded case inputs from env helpers.",
+                "Assert against externally visible outputs only.",
+                "Preserve ambiguity when the spec is underspecified.",
+                "Do not invent exact semantics for secondary outputs unless the spec explicitly defines them.",
+                "If an output appears as 'x' or 'z' in repair feedback, prefer ambiguity-preserving assertions for that output.",
+                "Prefer checking primary result outputs and explicitly documented flags before asserting optional side outputs.",
+            ],
+        },
+        "output_schema": {
+            "block_id": block.block_id,
+            "code_lines": ["Python statements only, without surrounding code fences."],
+            "helper_calls": ["list helper names actually used"],
+            "assumptions": ["optional strings"],
+            "unresolved_items": ["optional strings"],
+        },
+    }
+    return json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=True)

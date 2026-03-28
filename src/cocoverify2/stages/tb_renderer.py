@@ -10,6 +10,7 @@ from cocoverify2.cocotbgen.env import render_env_module
 from cocoverify2.cocotbgen.interface import render_interface_module
 from cocoverify2.cocotbgen.makefile import render_makefile
 from cocoverify2.cocotbgen.oracle import render_oracle_module
+from cocoverify2.cocotbgen.runtime_helpers import render_runtime_helpers_module
 from cocoverify2.cocotbgen.testfiles import render_test_modules
 from cocoverify2.core.errors import ArtifactError, ConfigurationError
 from cocoverify2.core.models import DUTContract, LLMTodoBlock, OracleCase, OracleSpec, RenderMetadata, RenderedFile, TestPlan
@@ -49,6 +50,7 @@ class TBRenderer:
         env_module = f"{package_name}_env"
         oracle_module = f"{package_name}_oracle"
         coverage_module = f"{package_name}_coverage"
+        runtime_module = f"{package_name}_runtime"
 
         temporal_modes_used = _temporal_modes_used(oracle)
         oracle_cases_by_plan = _oracle_cases_by_plan(oracle)
@@ -62,14 +64,16 @@ class TBRenderer:
 
         interface_content, interface_summary = render_interface_module(contract)
         coverage_content, coverage_summary = render_coverage_module(contract.module_name, plan)
+        runtime_content, _runtime_summary = render_runtime_helpers_module(contract.module_name)
         env_content, env_summary = render_env_module(
             contract,
             plan,
             temporal_modes_used=temporal_modes_used,
             interface_module=interface_module,
             coverage_module=coverage_module,
+            runtime_module=runtime_module,
         )
-        oracle_content, oracle_summary = render_oracle_module(contract, oracle)
+        oracle_content, oracle_summary = render_oracle_module(contract, oracle, runtime_module=runtime_module)
         test_modules = render_test_modules(
             contract,
             plan,
@@ -117,6 +121,13 @@ class TBRenderer:
             llm_todo_blocks=llm_todo_blocks,
         )
         self._write_generated_file(
+            package_dir / f"{runtime_module}.py",
+            runtime_content,
+            generated_files,
+            role="runtime",
+            description="Stable runtime helpers exposed to LLM-filled stimulus and oracle TODO blocks.",
+        )
+        self._write_generated_file(
             package_dir / f"{coverage_module}.py",
             coverage_content,
             generated_files,
@@ -151,6 +162,7 @@ class TBRenderer:
 
         metadata = RenderMetadata(
             module_name=contract.module_name,
+            artifact_stage="render",
             based_on_contract=based_on_contract or contract.module_name,
             based_on_plan=based_on_plan or plan.module_name,
             based_on_oracle=based_on_oracle or oracle.module_name,
@@ -159,17 +171,22 @@ class TBRenderer:
             interface_summary=interface_summary,
             env_summary={
                 **env_summary,
-                "driver_helpers": ["exercise_case"],
-                "monitor_helpers": ["safe_observe", "note_oracle_result"],
+                "driver_helpers": ["exercise_case", "drive_inputs", "wait_for_settle", "record_case_inputs"],
+                "monitor_helpers": ["safe_observe", "note_oracle_result", "sample_outputs"],
                 "oracle_helper_module": oracle_module,
             },
             oracle_summary={
                 **oracle_summary,
                 "preserves_temporal_modes": temporal_modes_used,
+                "runtime_helper_module": runtime_module,
             },
             coverage_summary=coverage_summary,
             template_inventory=_template_inventory(generated_files=generated_files, llm_todo_blocks=llm_todo_blocks),
             llm_todo_blocks=llm_todo_blocks,
+            filled_todo_block_ids=[],
+            unfilled_todo_block_ids=[block.block_id for block in llm_todo_blocks],
+            fill_status="pending" if llm_todo_blocks else "not_required",
+            fill_warnings=["Rendered TODO blocks require the fill stage before this package becomes a strong functional testbench."],
             render_warnings=render_warnings,
             render_confidence=_estimate_render_confidence(contract=contract, plan=plan, oracle=oracle, warnings=render_warnings),
         )

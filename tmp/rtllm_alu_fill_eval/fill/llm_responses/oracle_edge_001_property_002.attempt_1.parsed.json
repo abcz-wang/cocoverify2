@@ -1,0 +1,35 @@
+{
+  "assumptions": [],
+  "block_id": "oracle_edge_001_property_002",
+  "code_lines": [
+    "inputs = env.get_case_inputs(plan_case_id)",
+    "aluc = inputs['aluc']",
+    "defined_opcodes = {0b100000, 0b100001, 0b100010, 0b100011, 0b100100, 0b100101, 0b100110, 0b100111, 0b101010, 0b101011, 0b000000, 0b000010, 0b000011, 0b000100, 0b000110, 0b000111, 0b001111}",
+    "if aluc not in defined_opcodes:",
+    "    outputs = await env.sample_outputs(observed_signals)",
+    "    r = outputs['r']",
+    "    zero = outputs['zero']",
+    "    carry = outputs['carry']",
+    "    negative = outputs['negative']",
+    "    overflow = outputs['overflow']",
+    "    flag = outputs['flag']",
+    "    # r must be high\u2011impedance for undefined opcode",
+    "    assert_true(is_high_impedance(r), 'r should be high-impedance for undefined opcode')",
+    "    # each flag\u2011type output must be 0 or high\u2011impedance",
+    "    for name, val in [('zero', zero), ('carry', carry), ('negative', negative), ('overflow', overflow), ('flag', flag)]:",
+    "        cond = (val == 0) or is_high_impedance(val)",
+    "        assert_true(cond, f'{name} should be 0 or high-impedance for undefined opcode')",
+    "    env.record_case_note(plan_case_id, f'Undefined opcode 0x{aluc:02x} produced high\u2011impedance outputs as expected')",
+    "else:",
+    "    # Defined opcode \u2013 no special edge checks required here",
+    "    pass"
+  ],
+  "helper_calls": [
+    "env.get_case_inputs",
+    "env.sample_outputs",
+    "assert_true",
+    "is_high_impedance",
+    "env.record_case_note"
+  ],
+  "unresolved_items": []
+}

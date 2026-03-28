@@ -111,3 +111,13 @@ class OracleAugmentation(LLMModelBase):
     assumptions: list[str] = Field(default_factory=list)
     unresolved_items: list[str] = Field(default_factory=list)
     oracle_notes: list[str] = Field(default_factory=list)
+
+
+class TodoFillResponse(LLMModelBase):
+    """Block-level LLM response for filling a rendered TODO block."""
+
+    block_id: str = Field(min_length=1)
+    code_lines: list[str] = Field(default_factory=list)
+    helper_calls: list[str] = Field(default_factory=list)
+    assumptions: list[str] = Field(default_factory=list)
+    unresolved_items: list[str] = Field(default_factory=list)

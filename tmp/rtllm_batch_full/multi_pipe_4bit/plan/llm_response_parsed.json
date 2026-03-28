@@ -1,0 +1,123 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "reset"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "Design does not drive X or Z on observable outputs when illegal input values are presented.",
+        "No unexpected state transitions occur during illegal input stimulation."
+      ],
+      "goal": "Verify safe handling of illegal or undefined input patterns under reset deasserted condition.",
+      "notes": [
+        "Uses only ports identified in the contract; does not assume hidden signals."
+      ],
+      "observed_signals": [
+        "output"
+      ],
+      "preconditions": [
+        "Reset is released (rst_n = 1)."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive X and Z values to the two input ports while keeping clk toggling."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "input"
+      ],
+      "timing_assumptions": [
+        "Observe output stability over several clock cycles without assuming a fixed latency."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "b2b_001",
+      "expected_properties": [
+        "Consecutive legal operations produce distinct observable output changes.",
+        "No hidden state leakage between back\u2011to\u2011back operations."
+      ],
+      "goal": "Confirm that the pipeline correctly processes two successive multiplication requests without assuming exact cycle overlap.",
+      "notes": [
+        "Maintains conservative timing; does not rely on exact pipeline depth."
+      ],
+      "observed_signals": [
+        "output"
+      ],
+      "preconditions": [
+        "Reset released."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply two different input patterns on successive clock cycles with minimal idle cycles."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "input"
+      ],
+      "timing_assumptions": [
+        "Allow observation over multiple cycles; do not assume a fixed completion point."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "Output eventually reflects the multiplication of the driven inputs."
+      ],
+      "goal": "Validate functional multiplication under nominal conditions while preserving ambiguity about exact latency.",
+      "notes": [
+        "Enrichment adds explicit expectation of eventual output stability."
+      ],
+      "observed_signals": [
+        "output"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a simple non\u2011zero pattern to the two input ports after reset release."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "input"
+      ],
+      "timing_assumptions": [
+        "Monitor output over several clock cycles; do not assume a fixed number of cycles for result availability."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

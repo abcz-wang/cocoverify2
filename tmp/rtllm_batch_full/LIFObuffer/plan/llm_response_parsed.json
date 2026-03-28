@@ -1,0 +1,99 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal",
+        "underflow",
+        "overflow"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When a write is attempted while FULL, the stack pointer and memory contents remain unchanged and FULL stays asserted.",
+        "When a read is attempted while EMPTY, dataOut retains its previous value and EMPTY stays asserted."
+      ],
+      "goal": "Validate that illegal write\u2011when\u2011full and read\u2011when\u2011empty conditions do not corrupt internal state.",
+      "notes": [
+        "The design does not expose explicit error flags; safety is inferred from unchanged observable signals."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer is filled to capacity before the overflow test.",
+        "Buffer is emptied before the underflow test."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Attempt a write operation while FULL.",
+        "Attempt a read operation while EMPTY."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN",
+        "Clk"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after the next rising edge of Clk."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "write_path",
+        "read_path",
+        "flag_update"
+      ],
+      "expected_properties": [
+        "EMPTY flag reflects emptiness after a read that empties the buffer.",
+        "FULL flag reflects fullness after a write that fills the buffer.",
+        "dataOut presents the most recently written value after a read."
+      ],
+      "goal": "Validate correct flag transitions and dataOut behavior for a single write followed by a read.",
+      "notes": [
+        "Conservative timing: observe signals one clock cycle after each operation."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Perform a legal write operation, then a legal read operation."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN",
+        "Rst",
+        "Clk"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations; do not assume fixed latency beyond one clock edge."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "Added a negative test case to cover overflow and underflow scenarios while preserving baseline coverage.",
+    "Enriched basic_001 with explicit flag\u2011update expectations and a combined write\u2011then\u2011read stimulus."
+  ],
+  "unresolved_items": [
+    "Reset polarity for 'EMPTY' is unresolved."
+  ]
+}

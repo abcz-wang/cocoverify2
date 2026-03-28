@@ -1,0 +1,38 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [],
+  "case_enrichments": [
+    {
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "functional",
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that result equals signed subtraction of A and B and overflow flag follows sign-bit rules.",
+          "observed_signals": [
+            "result",
+            "overflow"
+          ],
+          "pass_condition": "result == $signed(A) - $signed(B) && overflow == ((A[63] && !B[63] && !result[63]) || (!A[63] && B[63] && result[63]))",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever inputs A and B change."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

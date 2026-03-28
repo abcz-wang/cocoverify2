@@ -1,0 +1,76 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "description": "Guardrail: product must stay within the 16‑bit range for all inputs.",
+          "observed_signals": [
+            "product"
+          ],
+          "pass_condition": "product is never X or Z and never exceeds 16'hFFFF.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "signal_policies": {
+            "product": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "range_guard",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever inputs A or B change."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "observed_signals": [
+            "product"
+          ],
+          "pass_condition": "When A and B are stable and known (no X/Z), product eventually stabilizes to the arithmetic product A*B and remains unchanged thereafter.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "On any change of A or B."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

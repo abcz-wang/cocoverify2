@@ -1,0 +1,166 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a module of a 16-bit full adder in combinational logic.",
+    "Module name:",
+    "adder_16bit",
+    "Input ports:",
+    "a[15:0]: 16-bit input operand A.",
+    "b[15:0]: 16-bit input operand B.",
+    "Output ports:",
+    "y[15:0]: 16-bit output representing the sum of A and B.",
+    "Implementation:",
+    "In the adder_16bit module, you need to design a small bit-width adder(8-bit adder), which will be instantiated multiple times.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_adder_16bit",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.6599999999999999,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing.",
+        "y equals (a + b + Cin) modulo 2^16",
+        "Co equals the carry-out of the 16\u2011bit addition"
+      ],
+      "goal": "Validate combinational sum functionality across random legal inputs",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Ensures basic functional correctness without assuming timing"
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['a', 'b', 'Cin']",
+        "Apply random legal values to a, b, and Cin"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage.",
+        "Outputs are expected to settle after input stabilization; sample after a short propagation delay"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.6099999999999999,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "y correctly reflects overflow behavior at maximum operand values",
+        "Co correctly indicates overflow for boundary conditions"
+      ],
+      "goal": "Exercise boundary\u2011value patterns (all\u2011zeros, all\u2011ones, mixed extremes) on a, b, and Cin",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Focuses on extreme values to expose width\u2011related edge cases"
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['a', 'b']",
+        "Apply zero\u2011like, one\u2011like, and mixed boundary patterns to a, b, and Cin"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage.",
+        "Observe outputs after inputs have stabilized; no fixed\u2011cycle latency assumed"
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.6599999999999999,
+      "coverage_tags": [
+        "illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Outputs become X when any input is X",
+        "No deterministic value is produced when inputs contain X/Z"
+      ],
+      "goal": "Verify that unknown/illegal input values propagate to outputs as per combinational logic",
+      "notes": [
+        "Testing X/Z propagation on a, b, and Cin"
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive X to each input individually and observe output behavior"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs have stabilized"
+      ]
+    }
+  ],
+  "module_name": "verified_adder_16bit",
+  "plan_confidence": 0.73,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

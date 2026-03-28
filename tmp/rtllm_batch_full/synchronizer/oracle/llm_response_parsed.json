@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When the enable pipeline reaches the second stage (en_clap_two high), the output dataout must reflect the stored data_reg value.",
+          "notes": [
+            "Conservative check without assuming exact latency."
+          ],
+          "observed_signals": [
+            "dataout"
+          ],
+          "pass_condition": "If en_clap_two is observed high, dataout must equal the value captured in data_reg (which follows the stable input during the enable window). No X or Z values are permitted.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "en_clap_two_high",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Triggered on the rising edge of en_clap_two."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "dataout"
+          ],
+          "pass_condition": "When en_clap_two becomes active after a legal enable window, dataout must equal the captured input value (the stable 4\u2011bit input during the enable period).",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After data_en has been high for at least 3 clk_b cycles while the input remains constant."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

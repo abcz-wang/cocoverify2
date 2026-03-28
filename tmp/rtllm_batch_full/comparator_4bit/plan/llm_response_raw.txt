@@ -1,0 +1,121 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back",
+        "glitch"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Outputs follow input changes without transient glitches",
+        "Mutual exclusivity holds throughout rapid toggling"
+      ],
+      "goal": "Verify output stability under rapid successive input changes",
+      "notes": [],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Toggle A and B through a sequence of values with minimal delay"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Assume combinational propagation; capture outputs after each toggle"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "comb"
+      ],
+      "expected_properties": [
+        "A_greater is high iff A > B",
+        "A_equal is high iff A == B",
+        "A_less is high iff A < B",
+        "Outputs are mutually exclusive"
+      ],
+      "goal": "Validate correct output encoding for representative input pairs",
+      "notes": [
+        "Ensures mutual exclusivity of outputs",
+        "Conservative verification without timing assumptions"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply typical legal input combinations to A and B"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Assume zero-delay combinational propagation; observe outputs after inputs settle"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Correctly identifies A<B when A=0 and B=15",
+        "Correctly identifies A>B when A=15 and B=0",
+        "Identifies equality for A=B at min and max values"
+      ],
+      "goal": "Exercise boundary values and width extremes for the comparator",
+      "notes": [
+        "Tests zero, all-ones, and one-hot patterns"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive zero-like, one-like, and max patterns on A and B"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs stabilize; no sequential timing assumed"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

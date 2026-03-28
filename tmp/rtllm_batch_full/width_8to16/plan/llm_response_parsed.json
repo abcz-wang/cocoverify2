@@ -1,0 +1,162 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "reset",
+        "stability"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "When rst_n is asserted low, data_out returns to zero regardless of prior input activity.",
+        "No X-propagation is observed on data_out after reset release."
+      ],
+      "goal": "Validate that an active-low reset reliably clears the data_out register and that the module remains stable after reset deassertion.",
+      "notes": [
+        "Uses only the known signals clk, rst_n, and input."
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "preconditions": [
+        "Module is in a post\u2011reset stable state."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst_n low for two clock cycles while toggling the 'input' signal, then deassert rst_n and observe data_out."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "input"
+      ],
+      "timing_assumptions": [
+        "Observe data_out after each rising edge of clk; no fixed latency is assumed."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "repeated_operation",
+        "back_to_back"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "b2b_001",
+      "expected_properties": [
+        "Consecutive valid input pulses produce successive observable updates (or stable behavior) on data_out without requiring hidden latency.",
+        "The module does not latch unintended state between back\u2011to\u2011back operations."
+      ],
+      "goal": "Exercise two successive input events with minimal idle cycles to ensure the design handles back\u2011to\u2011back activity conservatively.",
+      "notes": [
+        "Only the 'input' signal is driven; other inputs remain idle."
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in normal operation."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Generate two back\u2011to\u2011back pulses on 'input' separated by a single clock cycle."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "input"
+      ],
+      "timing_assumptions": [
+        "Check data_out after each rising edge of clk; no assumption of exact cycle latency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "A legal input pulse on 'input' results in a deterministic observation of data_out after a conservative observation window.",
+        "The plan does not assume a hidden completion event before data_out becomes externally visible."
+      ],
+      "goal": "Apply a single legal input transition and verify that data_out either remains unchanged or updates in a way consistent with the unknown internal logic.",
+      "notes": [
+        "Preserves ambiguity about exact concatenation behavior due to missing ports in the contract."
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a one\u2011cycle high pulse on the 'input' signal while keeping rst_n deasserted."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "input"
+      ],
+      "timing_assumptions": [
+        "Observe data_out on the rising edge of clk following the input pulse; no fixed latency is assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Boundary values (0 and 1) on the 'input' signal do not cause X\u2011propagation or illegal state in data_out.",
+        "The module remains stable across extreme input patterns."
+      ],
+      "goal": "Exercise the extreme logical values on the known input to ensure robust handling at the boundaries of the input domain.",
+      "notes": [
+        "Uses only the 'input' signal; other ports are left idle."
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply a sequence of alternating 0 and 1 values on 'input' over several clock cycles."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "input"
+      ],
+      "timing_assumptions": [
+        "Monitor data_out after each rising edge of clk; no deterministic latency is required."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": [
+    "Golden interface mentioned port 'valid_in', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'data_in', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'valid_out', but it was not found in the RTL header.",
+    "Reset polarity for 'clk' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions."
+  ]
+}

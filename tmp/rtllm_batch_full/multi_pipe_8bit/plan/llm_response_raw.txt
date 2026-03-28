@@ -1,0 +1,155 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "edge_001",
+      "category": "edge",
+      "coverage_tags": [
+        "reset_release",
+        "output_enable_transition"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "When rst_n is deasserted while mul_en_in is asserted, mul_en_out transitions from 0 to 1 after a conservative number of clock cycles.",
+        "The product output mul_out remains 0 until mul_en_out becomes 1 and the pipeline latency has elapsed."
+      ],
+      "goal": "Validate correct behavior of output enable and product output during reset release under active input enable.",
+      "notes": [
+        "Preserves ambiguity about exact pipeline depth; only observes that outputs eventually become valid."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "mul_en_in",
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "Design is in reset (rst_n asserted low)."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset (rst_n = 0) for several cycles.",
+        "Release reset (rst_n = 1) while keeping mul_en_in = 1.",
+        "Observe the emergence of mul_en_out and mul_out."
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed number of cycles for mul_en_out to become active; monitor until the signal changes."
+      ]
+    },
+    {
+      "draft_id": "negative_001",
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "enable_mismatch"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "If mul_en_in is deasserted while mul_a or mul_b change, the pipeline registers should retain previous values and no spurious product should appear.",
+        "mul_en_out must remain 0 until a new enabled operation propagates through the pipeline."
+      ],
+      "goal": "Check that the design safely ignores input changes when the enable is low, preventing illegal state transitions.",
+      "notes": [
+        "Ensures robustness against input glitches when operation is disabled."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "mul_en_in",
+        "mul_a",
+        "mul_b",
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "Design is out of reset and mul_en_in is initially 0."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Keep mul_en_in low.",
+        "Toggle mul_a and mul_b to random values.",
+        "Verify that mul_en_out stays low and mul_out remains zero."
+      ],
+      "stimulus_signals": [
+        "mul_en_in",
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Observe over several clock cycles to ensure no delayed enable occurs."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "A single enabled multiplication (mul_en_in=1) results in mul_en_out becoming 1 after a conservative observation window.",
+        "When mul_en_out is 1, mul_out reflects the 16‑bit product of mul_a and mul_b."
+      ],
+      "goal": "Apply one legal multiplication operation and verify that a valid product appears on mul_out when enabled.",
+      "notes": [
+        "The exact latency is not assumed; the check waits until mul_en_out asserts."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "mul_en_in",
+        "mul_a",
+        "mul_b",
+        "mul_en_out",
+        "mul_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Deassert reset.",
+        "Assert mul_en_in for one cycle with specific mul_a and mul_b values.",
+        "Monitor mul_en_out and mul_out until they become valid."
+      ],
+      "stimulus_signals": [
+        "mul_en_in",
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations without assuming a fixed pipeline depth."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "All added cases respect the unknown direction ambiguity by only referencing known signal names.",
+    "No exact cycle latency is assumed; observations are made until the externally visible signals change.",
+    "Edge case focuses on reset release while enable is active, a common corner in pipelined designs."
+  ],
+  "unresolved_items": [
+    "Port directions remain unknown; test cases avoid source/sink assumptions beyond driving inputs and observing outputs.",
+    "Exact pipeline latency is unspecified; timing assumptions are kept conservative."
+  ]
+}

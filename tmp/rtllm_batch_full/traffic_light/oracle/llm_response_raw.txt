@@ -1,0 +1,75 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When a pass_request is asserted while the green light is active and the remaining counter value is greater than 10, the internal counter must be reduced to 10 within two clock cycles.",
+          "notes": [
+            "Conservative bounded observation; does not assume exact-cycle latency."
+          ],
+          "observed_signals": [
+            "clock",
+            "green"
+          ],
+          "pass_condition": "The counter output (clock) reaches the value 10 no later than two cycles after the rising edge of pass_request, and the green output remains asserted during this interval.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "pass_request_asserted",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On the rising edge of pass_request while green == 1 and clock > 10."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "clock",
+            "red",
+            "yellow",
+            "green"
+          ],
+          "pass_condition": "If pass_request is asserted during a green period with more than 10 cycles remaining, the green output stays high and the counter output (clock) is set to 10 within two cycles; subsequent counting proceeds from 10 down to 0 before transitioning to yellow.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "pass_request_asserted",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When pass_request transitions high while green == 1 and clock > 10."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

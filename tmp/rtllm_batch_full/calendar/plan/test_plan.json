@@ -1,0 +1,246 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a module of perpetual calendar. The starting value of Secs, Mins, and Hours are all 0. Both Secs and Mins loop continuously from 0 to 59. When Secs=59, Min increases by 1 at the next cycle, and when Min=59 && Secs=59, Hours increases by 1 at the next cycle. Hours is counted from the 0-23 cycle.",
+    "Module name:",
+    "calendar",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "The calendar module uses three always blocks to update the values of seconds, minutes, and hours based on the clock signal and reset signal.",
+    "The first always block triggers on the positive edge of the clock signal (posedge CLK) or the positive edge of the reset signal (posedge RST). It checks if the reset signal is active (RST) and sets the seconds value (Secs) to 0. If the seconds value is 59, it wraps around and sets the seconds value to 0. Otherwise, it increments the seconds value by 1.",
+    "The second always block also triggers on the positive edge of the clock signal or the positive edge of the reset signal. It handles the minutes value (Mins). If the reset signal is active, it sets the minutes value to 0. If both the minutes and seconds values are 59, it wraps around and sets the minutes value to 0. If the seconds value is 59, it increments the minutes value by 1. Otherwise, it keeps the minutes value unchanged.",
+    "The third always block triggers on the positive edge of the clock signal or the positive edge of the reset signal. It handles the hours value (Hours). If the reset signal is active, it sets the hours value to 0. If the hours, minutes, and seconds values are all at their maximum (23, 59, and 59 respectively), it wraps around and sets the hours value to 0. If the minutes and seconds values are both 59, it increments the hours value by 1. Otherwise, it keeps the hours value unchanged.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_calendar",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "CLK",
+        "RST",
+        "Hours"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "After reset deassertion, a single CLK rising edge increments Secs by 1 while Mins and Hours remain at 0."
+      ],
+      "goal": "Verify that the calendar starts counting seconds correctly from the reset state.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Observation is limited to the first clock tick after reset; no exact latency beyond one edge is assumed."
+      ],
+      "observed_signals": [
+        "CLK",
+        "RST",
+        "Hours",
+        "Secs",
+        "Mins"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['<no resolved inputs>']",
+        "Release RST and apply one CLK rising edge, then observe the outputs."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Check output values after the first observed rising edge of CLK following reset release."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "CLK",
+        "RST",
+        "Hours"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "wrap_around",
+        "minute_increment"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When Secs == 59, the next observed rising edge of CLK causes Secs to wrap to 0 and Mins to increment by 1 while Hours remains unchanged."
+      ],
+      "goal": "Validate correct second-to-minute rollover behavior under conservative timing assumptions.",
+      "notes": [
+        "The case does not assume a fixed number of cycles to reach Secs=59; it drives the clock until the condition is observed."
+      ],
+      "observed_signals": [
+        "Secs",
+        "Mins",
+        "Hours"
+      ],
+      "preconditions": [
+        "Module is out of reset and counting normally."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Generate a sequence of CLK rising edges sufficient to observe Secs reaching 59 and then the rollover on the following edge."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe state after each rising edge; do not assume exact cycle count to reach the rollover."
+      ]
+    },
+    {
+      "case_id": "edge_002",
+      "category": "edge",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "hour_wrap",
+        "day_cycle"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "expected_properties": [
+        "When Hours == 23, Mins == 59, and Secs == 59, the next observed rising edge of CLK causes Hours to wrap to 0 while Mins and Secs wrap to 0."
+      ],
+      "goal": "Confirm correct hour/day wrap\u2011around after a full 24\u2011hour cycle.",
+      "notes": [
+        "The test proceeds conservatively by iterating clock cycles until the maximum state is observed."
+      ],
+      "observed_signals": [
+        "Secs",
+        "Mins",
+        "Hours"
+      ],
+      "preconditions": [
+        "Module has progressed through normal counting to reach the maximum time state."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Continue clocking the design until the (23,59,59) state is seen, then verify the transition on the next edge."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "State is sampled after each CLK rising edge; no fixed\u2011latency guarantee is required."
+      ]
+    }
+  ],
+  "module_name": "verified_calendar",
+  "plan_confidence": 0.18,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+    "No observable outputs were identified from the parsed RTL header.",
+    "Reset polarity for 'Hours' is unresolved.",
+    "Reset polarity for 'CLK' is unresolved.",
+    "Reset polarity for 'Mins' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Observable outputs are incomplete or unresolved; some cases rely on protocol-visible or port-level observation.",
+    "Some port directions are unresolved; case intents avoid strong source/sink assumptions for those signals."
+  ]
+}

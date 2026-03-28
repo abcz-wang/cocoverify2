@@ -1,0 +1,218 @@
+{
+  "allowed_unknowns": [],
+  "ambiguities": [
+    "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+    "No observable outputs were identified from the parsed RTL header.",
+    "Reset polarity for 'Hours' is unresolved.",
+    "Reset polarity for 'CLK' is unresolved.",
+    "Reset polarity for 'Mins' is unresolved."
+  ],
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a module of perpetual calendar. The starting value of Secs, Mins, and Hours are all 0. Both Secs and Mins loop continuously from 0 to 59. When Secs=59, Min increases by 1 at the next cycle, and when Min=59 && Secs=59, Hours increases by 1 at the next cycle. Hours is counted from the 0-23 cycle.",
+    "Module name:",
+    "calendar",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "The calendar module uses three always blocks to update the values of seconds, minutes, and hours based on the clock signal and reset signal.",
+    "The first always block triggers on the positive edge of the clock signal (posedge CLK) or the positive edge of the reset signal (posedge RST). It checks if the reset signal is active (RST) and sets the seconds value (Secs) to 0. If the seconds value is 59, it wraps around and sets the seconds value to 0. Otherwise, it increments the seconds value by 1.",
+    "The second always block also triggers on the positive edge of the clock signal or the positive edge of the reset signal. It handles the minutes value (Mins). If the reset signal is active, it sets the minutes value to 0. If both the minutes and seconds values are 59, it wraps around and sets the minutes value to 0. If the seconds value is 59, it increments the minutes value by 1. Otherwise, it keeps the minutes value unchanged.",
+    "The third always block triggers on the positive edge of the clock signal or the positive edge of the reset signal. It handles the hours value (Hours). If the reset signal is active, it sets the hours value to 0. If the hours, minutes, and seconds values are all at their maximum (23, 59, and 59 respectively), it wraps around and sets the hours value to 0. If the minutes and seconds values are both 59, it increments the hours value by 1. Otherwise, it keeps the hours value unchanged.",
+    "Give me the complete code."
+  ],
+  "clocks": [
+    {
+      "confidence": 0.95,
+      "name": "CLK",
+      "period_ns_guess": null,
+      "source": "spec_hint"
+    },
+    {
+      "confidence": 0.8,
+      "name": "RST",
+      "period_ns_guess": null,
+      "source": "rtl_heuristic"
+    },
+    {
+      "confidence": 0.6,
+      "name": "Hours",
+      "period_ns_guess": null,
+      "source": "spec_hint"
+    },
+    {
+      "confidence": 0.6,
+      "name": "Mins",
+      "period_ns_guess": null,
+      "source": "spec_hint"
+    }
+  ],
+  "contract_confidence": 0.05,
+  "extraction_warnings": [
+    "Port segment is missing a direction keyword: CLK",
+    "Port segment is missing a direction keyword: RST",
+    "Port segment is missing a direction keyword: Hours",
+    "Port segment is missing a direction keyword: Mins",
+    "Port segment is missing a direction keyword: Secs"
+  ],
+  "handshake_groups": [],
+  "handshake_signals": [],
+  "illegal_input_constraints": [],
+  "module_name": "verified_calendar",
+  "observable_outputs": [],
+  "parameters": {},
+  "ports": [
+    {
+      "confidence": 0.25,
+      "data_type": null,
+      "direction": "unknown",
+      "name": "CLK",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header_partial",
+      "width": null
+    },
+    {
+      "confidence": 0.25,
+      "data_type": null,
+      "direction": "unknown",
+      "name": "RST",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header_partial",
+      "width": null
+    },
+    {
+      "confidence": 0.25,
+      "data_type": null,
+      "direction": "unknown",
+      "name": "Hours",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header_partial",
+      "width": null
+    },
+    {
+      "confidence": 0.25,
+      "data_type": null,
+      "direction": "unknown",
+      "name": "Mins",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header_partial",
+      "width": null
+    },
+    {
+      "confidence": 0.25,
+      "data_type": null,
+      "direction": "unknown",
+      "name": "Secs",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header_partial",
+      "width": null
+    }
+  ],
+  "resets": [
+    {
+      "active_level": 1,
+      "confidence": 0.9,
+      "name": "RST",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    },
+    {
+      "active_level": null,
+      "confidence": 0.65,
+      "name": "Hours",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    },
+    {
+      "active_level": null,
+      "confidence": 0.65,
+      "name": "CLK",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    },
+    {
+      "active_level": null,
+      "confidence": 0.65,
+      "name": "Mins",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    }
+  ],
+  "rtl_sources": [
+    "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/calendar/verified_calendar.v"
+  ],
+  "source_map": {
+    "clocks.CLK": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "clocks.Hours": [
+      "spec_hint"
+    ],
+    "clocks.Mins": [
+      "spec_hint"
+    ],
+    "clocks.RST": [
+      "rtl_heuristic"
+    ],
+    "module_name": [
+      "rtl:verified_calendar.v"
+    ],
+    "ports.CLK": [
+      "rtl:verified_calendar.v",
+      "golden_interface"
+    ],
+    "ports.Hours": [
+      "rtl:verified_calendar.v",
+      "golden_interface"
+    ],
+    "ports.Mins": [
+      "rtl:verified_calendar.v",
+      "golden_interface"
+    ],
+    "ports.RST": [
+      "rtl:verified_calendar.v",
+      "golden_interface"
+    ],
+    "ports.Secs": [
+      "rtl:verified_calendar.v",
+      "golden_interface"
+    ],
+    "resets.CLK": [
+      "spec_hint"
+    ],
+    "resets.Hours": [
+      "spec_hint"
+    ],
+    "resets.Mins": [
+      "spec_hint"
+    ],
+    "resets.RST": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "timing": [
+      "rtl_heuristic"
+    ]
+  },
+  "timing": {
+    "confidence": 0.9,
+    "fixed_latency_cycles": null,
+    "latency_model": "unknown",
+    "sampling_window_cycles": null,
+    "sequential_kind": "seq",
+    "source": "rtl_heuristic",
+    "variable_latency_range": null
+  }
+}

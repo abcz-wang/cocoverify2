@@ -1,0 +1,1611 @@
+{
+  "artifact_stage": "render",
+  "based_on_contract": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_full/LFSR/contract/contract.json",
+  "based_on_oracle": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_full/LFSR/oracle/oracle.json",
+  "based_on_plan": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_full/LFSR/plan/test_plan.json",
+  "based_on_render_metadata": "",
+  "coverage_summary": {
+    "case_categories": [
+      "back_to_back",
+      "basic",
+      "edge",
+      "negative",
+      "reset"
+    ],
+    "class_name": "LfsrCoverage",
+    "coverage_tags": [
+      "back_to_back",
+      "basic",
+      "edge",
+      "feedback_logic",
+      "feedback_path",
+      "illegal_reset",
+      "initialization",
+      "negative",
+      "repeated_operation",
+      "reset",
+      "sanity",
+      "seq",
+      "stability",
+      "xor_inversion"
+    ]
+  },
+  "env_summary": {
+    "case_count": 5,
+    "class_name": "LfsrEnv",
+    "driver_helpers": [
+      "exercise_case",
+      "drive_inputs",
+      "wait_for_settle",
+      "record_case_inputs"
+    ],
+    "has_reset_helper": true,
+    "llm_todo_blocks": [
+      {
+        "block_id": "stimulus_reset_001",
+        "case_id": "reset_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [],
+          "business_outputs": [],
+          "case_id": "reset_001",
+          "category": "reset",
+          "goal": "Establish a stable post-reset baseline before functional checking.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "stimulus_intent": [
+            "Assert the detected reset using the inferred polarity.",
+            "Release reset conservatively and observe interface stabilization."
+          ],
+          "stimulus_signals": [
+            "rst"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_reset_001 case_id=reset_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_reset_001 case_id=reset_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_basic_001",
+        "case_id": "basic_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [],
+          "business_outputs": [],
+          "case_id": "basic_001",
+          "category": "basic",
+          "goal": "Verify that a single clock cycle after deasserting reset produces the expected LFSR state transition.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "stimulus_intent": [
+            "Drive a representative legal input pattern across known inputs: ['<no resolved inputs>']",
+            "Deassert reset, then apply one clock pulse to observe the state change."
+          ],
+          "stimulus_signals": [],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible.",
+            "Observe 'out' after one rising edge of clk post\u2011reset."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_back_to_back_001",
+        "case_id": "back_to_back_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [],
+          "business_outputs": [],
+          "case_id": "back_to_back_001",
+          "category": "back_to_back",
+          "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "stimulus_intent": [
+            "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+          ],
+          "stimulus_signals": [],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_edge_001",
+        "case_id": "edge_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [],
+          "business_outputs": [],
+          "case_id": "edge_001",
+          "category": "edge",
+          "goal": "Validate the edge behavior of the feedback calculation across a clock transition.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "stimulus_intent": [
+            "Generate a single rising edge of clk after reset release and capture the resulting out value."
+          ],
+          "stimulus_signals": [],
+          "timing_assumptions": [
+            "Capture out one clock cycle after the rising edge."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_negative_001",
+        "case_id": "negative_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [],
+          "business_outputs": [],
+          "case_id": "negative_001",
+          "category": "negative",
+          "goal": "Confirm that holding the active\u2011high reset for multiple cycles keeps the LFSR output stable at zero.",
+          "semantic_tags": [
+            "invalid_illegal_input"
+          ],
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "stimulus_intent": [
+            "Assert rst for several clock cycles, then deassert and observe the first post\u2011reset out value."
+          ],
+          "stimulus_signals": [],
+          "timing_assumptions": [
+            "Observe out after deasserting rst, without assuming a fixed latency."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_negative_001 case_id=negative_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_negative_001 case_id=negative_001",
+        "template_name": "env_module.py.tmpl"
+      }
+    ],
+    "monitor_helpers": [
+      "safe_observe",
+      "note_oracle_result",
+      "sample_outputs"
+    ],
+    "oracle_helper_module": "LFSR_oracle",
+    "template_name": "env_module.py.tmpl",
+    "unresolved_items": [
+      "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+      "No observable outputs were identified from the parsed RTL header.",
+      "Reset polarity for 'clk' is unresolved.",
+      "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+      "Observable outputs are incomplete or unresolved; some cases rely on protocol-visible or port-level observation.",
+      "Some port directions are unresolved; case intents avoid strong source/sink assumptions for those signals."
+    ],
+    "wait_helpers": [
+      "wait_event_based",
+      "wait_bounded_safe",
+      "wait_unbounded_safe"
+    ]
+  },
+  "fill_status": "experimental_available",
+  "fill_warnings": [
+    "Experimental TODO fill metadata is present, but the default mainline pipeline remains render -> run -> triage."
+  ],
+  "filled_todo_block_ids": [],
+  "generated_files": [
+    {
+      "description": "Marks the rendered cocotb test directory as a Python package.",
+      "relative_path": "cocotb_tests/__init__.py",
+      "role": "package_init",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Conservative DUT interface helpers derived from the contract artifact.",
+      "relative_path": "cocotb_tests/LFSR_interface.py",
+      "role": "interface",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Thin environment wrapper that composes interface, timing-safe waits, and coverage helpers.",
+      "relative_path": "cocotb_tests/LFSR_env.py",
+      "role": "env",
+      "template_name": "env_module.py.tmpl",
+      "todo_block_ids": [
+        "stimulus_reset_001",
+        "stimulus_basic_001",
+        "stimulus_back_to_back_001",
+        "stimulus_edge_001",
+        "stimulus_negative_001"
+      ]
+    },
+    {
+      "description": "Structured oracle helper functions rendered from the oracle artifact.",
+      "relative_path": "cocotb_tests/LFSR_oracle.py",
+      "role": "oracle",
+      "template_name": "oracle_module.py.tmpl",
+      "todo_block_ids": [
+        "oracle_reset_001_protocol_001",
+        "oracle_basic_001_functional_001",
+        "oracle_reset_001_property_001",
+        "oracle_basic_001_property_001",
+        "oracle_back_to_back_001_property_001",
+        "oracle_edge_001_property_001",
+        "oracle_edge_001_property_002",
+        "oracle_negative_001_property_001"
+      ]
+    },
+    {
+      "description": "Stable runtime helpers exposed to LLM-filled stimulus and oracle TODO blocks.",
+      "relative_path": "cocotb_tests/LFSR_runtime.py",
+      "role": "runtime",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Coverage scaffold rendered from plan coverage tags for later execution stages.",
+      "relative_path": "cocotb_tests/LFSR_coverage.py",
+      "role": "coverage",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Rendered basic cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_LFSR_basic.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_reset_001",
+        "testcase_setup_basic_001",
+        "testcase_setup_back_to_back_001",
+        "testcase_setup_negative_001"
+      ]
+    },
+    {
+      "description": "Rendered edge cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_LFSR_edge.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_edge_001"
+      ]
+    },
+    {
+      "description": "Phase 4 executable Makefile shell; Phase 5 injects run-time variables and executes it.",
+      "relative_path": "cocotb_tests/Makefile",
+      "role": "makefile",
+      "template_name": "",
+      "todo_block_ids": []
+    }
+  ],
+  "interface_summary": {
+    "business_inputs": [],
+    "business_outputs": [],
+    "class_name": "LfsrInterface",
+    "clock_signals": [
+      "clk",
+      "rst"
+    ],
+    "optional_signals": [
+      "clk",
+      "out",
+      "rst"
+    ],
+    "protocol_signal_names": [],
+    "reset_signals": [
+      "rst",
+      "clk"
+    ],
+    "unknown_direction_signals": [
+      "out",
+      "clk",
+      "rst"
+    ],
+    "unresolved_items": [
+      "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+      "No observable outputs were identified from the parsed RTL header.",
+      "Reset polarity for 'clk' is unresolved.",
+      "Port segment is missing a direction keyword: out",
+      "Port segment is missing a direction keyword: clk",
+      "Port segment is missing a direction keyword: rst"
+    ]
+  },
+  "llm_todo_blocks": [
+    {
+      "block_id": "stimulus_reset_001",
+      "case_id": "reset_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [],
+        "business_outputs": [],
+        "case_id": "reset_001",
+        "category": "reset",
+        "goal": "Establish a stable post-reset baseline before functional checking.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "stimulus_intent": [
+          "Assert the detected reset using the inferred polarity.",
+          "Release reset conservatively and observe interface stabilization."
+        ],
+        "stimulus_signals": [
+          "rst"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_reset_001 case_id=reset_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/LFSR_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_reset_001 case_id=reset_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [],
+        "business_outputs": [],
+        "case_id": "basic_001",
+        "category": "basic",
+        "goal": "Verify that a single clock cycle after deasserting reset produces the expected LFSR state transition.",
+        "semantic_tags": [
+          "ambiguity_preserving",
+          "operation_specific"
+        ],
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "stimulus_intent": [
+          "Drive a representative legal input pattern across known inputs: ['<no resolved inputs>']",
+          "Deassert reset, then apply one clock pulse to observe the state change."
+        ],
+        "stimulus_signals": [],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible.",
+          "Observe 'out' after one rising edge of clk post\u2011reset."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/LFSR_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_back_to_back_001",
+      "case_id": "back_to_back_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [],
+        "business_outputs": [],
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "stimulus_intent": [
+          "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+        ],
+        "stimulus_signals": [],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/LFSR_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [],
+        "business_outputs": [],
+        "case_id": "edge_001",
+        "category": "edge",
+        "goal": "Validate the edge behavior of the feedback calculation across a clock transition.",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "stimulus_intent": [
+          "Generate a single rising edge of clk after reset release and capture the resulting out value."
+        ],
+        "stimulus_signals": [],
+        "timing_assumptions": [
+          "Capture out one clock cycle after the rising edge."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/LFSR_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_negative_001",
+      "case_id": "negative_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [],
+        "business_outputs": [],
+        "case_id": "negative_001",
+        "category": "negative",
+        "goal": "Confirm that holding the active\u2011high reset for multiple cycles keeps the LFSR output stable at zero.",
+        "semantic_tags": [
+          "invalid_illegal_input"
+        ],
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "stimulus_intent": [
+          "Assert rst for several clock cycles, then deassert and observe the first post\u2011reset out value."
+        ],
+        "stimulus_signals": [],
+        "timing_assumptions": [
+          "Observe out after deasserting rst, without assuming a fixed latency."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_negative_001 case_id=negative_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/LFSR_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_negative_001 case_id=negative_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_protocol_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_protocol_001",
+      "context": {
+        "observed_signals": [
+          "out"
+        ],
+        "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When reset 'rst' is asserted and later released according to the inferred polarity."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "protocol_reset_001",
+      "relative_path": "cocotb_tests/LFSR_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_functional_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "out"
+        ],
+        "pass_condition": "After reset is released, on every rising edge of clk the output vector 'out' must transition to a defined (non\u2011X) value different from the prior value, reflecting the shift and feedback operation.",
+        "semantic_tags": [
+          "operation_specific",
+          "ambiguity_preserving"
+        ],
+        "signal_policies": {
+          "out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": 1,
+          "min_cycles": 0,
+          "mode": "bounded_range"
+        },
+        "trigger_condition": "On each rising edge of clk while rst is low."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_basic_001",
+      "relative_path": "cocotb_tests/LFSR_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_property_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_property_001",
+      "context": {
+        "observed_signals": [
+          "out"
+        ],
+        "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "While reset is asserted or being released."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_reset_001",
+      "relative_path": "cocotb_tests/LFSR_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_property_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_property_001",
+      "context": {
+        "observed_signals": [
+          "out"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_basic_001",
+      "relative_path": "cocotb_tests/LFSR_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_back_to_back_001_property_001",
+      "case_id": "back_to_back_001",
+      "check_id": "back_to_back_001_property_001",
+      "context": {
+        "observed_signals": [
+          "out"
+        ],
+        "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "repeated_operations",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "unbounded_safe"
+        },
+        "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_back_to_back_001",
+      "relative_path": "cocotb_tests/LFSR_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_property_001",
+      "case_id": "edge_001",
+      "check_id": "edge_001_property_001",
+      "context": {
+        "observed_signals": [
+          "out"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_edge_001",
+      "relative_path": "cocotb_tests/LFSR_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_property_002",
+      "case_id": "edge_001",
+      "check_id": "edge_001_property_002",
+      "context": {
+        "observed_signals": [
+          "out"
+        ],
+        "pass_condition": "For each rising edge of clk while rst is deasserted, the new out[0] after the edge must be equal to !(previous_out[3] ^ previous_out[2]).",
+        "semantic_tags": [
+          "operation_specific",
+          "ambiguity_preserving"
+        ],
+        "signal_policies": {
+          "out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": 1,
+          "min_cycles": 0,
+          "mode": "bounded_range"
+        },
+        "trigger_condition": "When a rising edge of clk occurs and rst is low."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_002 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_002",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_edge_001",
+      "relative_path": "cocotb_tests/LFSR_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_002 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_002",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_negative_001_property_001",
+      "case_id": "negative_001",
+      "check_id": "negative_001_property_001",
+      "context": {
+        "observed_signals": [
+          "out"
+        ],
+        "pass_condition": "The oracle only requires safe non-violation behavior and does not invent undocumented error responses.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "rationale": "negative_or_illegal_case_preserves_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": null,
+          "out": null,
+          "rst": null
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "illegal_input_observation",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "unbounded_safe"
+        },
+        "trigger_condition": "When the linked plan probes documented illegal or constrained inputs."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_negative_001_property_001 case_id=negative_001 oracle_case_id=property_negative_001 check_id=negative_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_negative_001",
+      "relative_path": "cocotb_tests/LFSR_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_negative_001_property_001 case_id=negative_001 oracle_case_id=property_negative_001 check_id=negative_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_reset_001",
+      "case_id": "reset_001",
+      "check_id": "",
+      "context": {
+        "case_id": "reset_001",
+        "category": "reset",
+        "coverage_tags": [
+          "reset",
+          "initialization",
+          "stability"
+        ],
+        "dependencies": [],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": [
+          "rst"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_reset_001 case_id=reset_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_LFSR_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_reset_001 case_id=reset_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "case_id": "basic_001",
+        "category": "basic",
+        "coverage_tags": [
+          "basic",
+          "sanity",
+          "seq",
+          "feedback_path"
+        ],
+        "dependencies": [
+          "reset_001"
+        ],
+        "semantic_tags": [
+          "ambiguity_preserving",
+          "operation_specific"
+        ],
+        "stimulus_signals": []
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_basic_001 case_id=basic_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_LFSR_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_basic_001 case_id=basic_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_back_to_back_001",
+      "case_id": "back_to_back_001",
+      "check_id": "",
+      "context": {
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "coverage_tags": [
+          "back_to_back",
+          "repeated_operation"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "stimulus_signals": []
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_back_to_back_001 case_id=back_to_back_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_LFSR_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_back_to_back_001 case_id=back_to_back_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_negative_001",
+      "case_id": "negative_001",
+      "check_id": "",
+      "context": {
+        "case_id": "negative_001",
+        "category": "negative",
+        "coverage_tags": [
+          "negative",
+          "illegal_reset"
+        ],
+        "dependencies": [
+          "reset_001"
+        ],
+        "semantic_tags": [
+          "invalid_illegal_input"
+        ],
+        "stimulus_signals": []
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_negative_001 case_id=negative_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_LFSR_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_negative_001 case_id=negative_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "case_id": "edge_001",
+        "category": "edge",
+        "coverage_tags": [
+          "edge",
+          "feedback_logic",
+          "xor_inversion"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "stimulus_signals": []
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_edge_001 case_id=edge_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_LFSR_edge.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_edge_001 case_id=edge_001",
+      "template_name": "test_case.py.tmpl"
+    }
+  ],
+  "module_name": "LFSR",
+  "oracle_summary": {
+    "empty_functional_cases": [
+      "reset_001",
+      "edge_001"
+    ],
+    "functional_case_count": 3,
+    "llm_todo_blocks": [
+      {
+        "block_id": "oracle_reset_001_protocol_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_protocol_001",
+        "context": {
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'rst' is asserted and later released according to the inferred polarity."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "protocol_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_basic_001_functional_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "After reset is released, on every rising edge of clk the output vector 'out' must transition to a defined (non\u2011X) value different from the prior value, reflecting the shift and feedback operation.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On each rising edge of clk while rst is low."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_reset_001_property_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_property_001",
+        "context": {
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_basic_001_property_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_property_001",
+        "context": {
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_back_to_back_001_property_001",
+        "case_id": "back_to_back_001",
+        "check_id": "back_to_back_001_property_001",
+        "context": {
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_back_to_back_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_property_001",
+        "case_id": "edge_001",
+        "check_id": "edge_001_property_001",
+        "context": {
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_edge_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_property_002",
+        "case_id": "edge_001",
+        "check_id": "edge_001_property_002",
+        "context": {
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "For each rising edge of clk while rst is deasserted, the new out[0] after the edge must be equal to !(previous_out[3] ^ previous_out[2]).",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a rising edge of clk occurs and rst is low."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_002 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_002",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_edge_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_002 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_002",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_negative_001_property_001",
+        "case_id": "negative_001",
+        "check_id": "negative_001_property_001",
+        "context": {
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The oracle only requires safe non-violation behavior and does not invent undocumented error responses.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": null,
+            "out": null,
+            "rst": null
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "illegal_input_observation",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked plan probes documented illegal or constrained inputs."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_negative_001_property_001 case_id=negative_001 oracle_case_id=property_negative_001 check_id=negative_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_negative_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_negative_001_property_001 case_id=negative_001 oracle_case_id=property_negative_001 check_id=negative_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      }
+    ],
+    "preserves_temporal_modes": [
+      "bounded_range",
+      "event_based",
+      "unbounded_safe"
+    ],
+    "property_case_count": 5,
+    "protocol_case_count": 1,
+    "runtime_helper_module": "LFSR_runtime",
+    "template_name": "oracle_module.py.tmpl",
+    "temporal_modes": [
+      "bounded_range",
+      "event_based",
+      "unbounded_safe"
+    ],
+    "unresolved_items": [
+      "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+      "No observable outputs were identified from the parsed RTL header.",
+      "Reset polarity for 'clk' is unresolved.",
+      "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+      "Observable outputs are incomplete or unresolved; some cases rely on protocol-visible or port-level observation.",
+      "Some port directions are unresolved; case intents avoid strong source/sink assumptions for those signals.",
+      "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks."
+    ]
+  },
+  "render_confidence": 0.05,
+  "render_warnings": [
+    "Port segment is missing a direction keyword: out",
+    "Port segment is missing a direction keyword: clk",
+    "Port segment is missing a direction keyword: rst",
+    "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+    "No observable outputs were identified from the parsed RTL header.",
+    "Reset polarity for 'clk' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Observable outputs are incomplete or unresolved; some cases rely on protocol-visible or port-level observation.",
+    "Some port directions are unresolved; case intents avoid strong source/sink assumptions for those signals.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+    "Contract confidence is low; interface and testcase rendering remain conservative.",
+    "Plan confidence is limited; testcase grouping avoids inventing stronger sequencing semantics.",
+    "Oracle confidence is limited; rendered checks preserve unresolved items and avoid stronger value-level assertions.",
+    "Some functional oracle cases are intentionally empty; render output preserves them as conservative protocol/property-driven tests.",
+    "Rendered Makefile is an executable Phase 4 shell; Phase 5 injects execution variables and selects the backend.",
+    "Task description was provided to the render stage but not used to invent new testbench semantics.",
+    "Spec text was provided to the render stage but only upstream artifacts were trusted for code generation.",
+    "Deterministic render remains the default mainline; post-render TODO fill is experimental and not required by the benchmark path."
+  ],
+  "template_inventory": [
+    "env_module.py.tmpl",
+    "oracle_module.py.tmpl",
+    "test_case.py.tmpl",
+    "test_module.py.tmpl"
+  ],
+  "test_modules": [
+    "test_LFSR_basic",
+    "test_LFSR_edge"
+  ],
+  "unfilled_todo_block_ids": []
+}

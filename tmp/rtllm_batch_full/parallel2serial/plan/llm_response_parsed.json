@@ -1,0 +1,122 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "reset_during_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When reset is asserted mid\u2011conversion, valid_out returns to 0 and dout returns to a known reset state.",
+        "After deasserting reset, the module resumes normal operation without spurious valid pulses."
+      ],
+      "goal": "Validate correct handling of asynchronous reset during an active serial conversion sequence.",
+      "notes": [
+        "Reset polarity is active\u2011low as indicated in the contract; timing of reset recovery is observed conservatively."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "A conversion sequence must be in progress (valid_out previously asserted)."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst_n low during the middle of a 4\u2011cycle output sequence, then release it, and monitor the outputs."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe outputs on the next rising edge after each stimulus change; do not assume a fixed latency for reset recovery."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "valid_pulse",
+        "serial_sequence"
+      ],
+      "expected_properties": [
+        "valid_out goes high for exactly one cycle for each 4\u2011bit word.",
+        "When valid_out is high, dout presents the MSB of d, followed by the remaining bits in order on subsequent cycles."
+      ],
+      "goal": "Verify correct serial output ordering and valid_out timing for a single parallel word.",
+      "notes": [
+        "Conservative observation: check outputs after each rising edge without assuming a fixed internal latency beyond what is visible."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a representative 4\u2011bit pattern to d and monitor the resulting serial stream and valid signal."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "d"
+      ],
+      "timing_assumptions": [
+        "Capture outputs on the next clock edge after stimulus; do not rely on undocumented cycle counts."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "zero_one"
+      ],
+      "expected_properties": [
+        "For d = 4'b0000 and d = 4'b1111, valid_out and dout follow the same pattern as in the basic case."
+      ],
+      "goal": "Exercise extreme data values to ensure no hidden data\u2011dependent behavior.",
+      "notes": [
+        "Ensures the design treats all data values uniformly."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive all\u2011zero and all\u2011one patterns on d while keeping other inputs stable."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe outputs on the next rising edge after each pattern; no exact latency assumptions are made."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'.",
+    "Reset polarity for 'd' is unresolved."
+  ]
+}

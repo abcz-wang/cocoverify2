@@ -1,0 +1,194 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "independent_clock_domains",
+        "concurrent_operations"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "protocol_001",
+      "expected_properties": [
+        "When wenc is asserted on a write clock edge, the data presented on wdata is stored at the address waddr.",
+        "When renc is asserted on a read clock edge, rdata presents the data stored at the address raddr from the previous write operation, without assuming a fixed latency."
+      ],
+      "goal": "Validate that write and read operations can proceed concurrently on independent clocks without interfering with each other.",
+      "notes": [
+        "No assumptions are made about the exact number of cycles between a write and the corresponding read; observation is limited to stable values after each clock edge."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Toggle wenc and renc in alternating cycles while providing distinct wdata values.",
+        "Vary waddr and raddr to target different memory locations."
+      ],
+      "stimulus_signals": [
+        "wclk",
+        "wenc",
+        "waddr",
+        "wdata",
+        "rclk",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Observe rdata after each rising edge of rclk; no fixed-cycle latency is assumed."
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "address_boundary",
+        "max_depth"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_addr_001",
+      "expected_properties": [
+        "Writing to the maximum address (DEPTH-1) stores the data correctly.",
+        "Reading from the same maximum address returns the previously written data."
+      ],
+      "goal": "Exercise the address decoder at the upper boundary of the RAM depth.",
+      "notes": [
+        "DEPTH is parameterized; the test uses the calculated maximum address based on $clog2(DEPTH)."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Write a known pattern to address (DEPTH-1) and then read back from the same address."
+      ],
+      "stimulus_signals": [
+        "wclk",
+        "wenc",
+        "waddr",
+        "wdata",
+        "rclk",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Allow at least one rclk cycle after the write before asserting renc to observe the stored value."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "repeated_reads",
+        "read_throughput"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_read_001",
+      "expected_properties": [
+        "Consecutive read enable assertions on successive rclk edges produce successive data values from consecutive addresses.",
+        "No unintended data corruption occurs between back\u2011to\u2011back reads."
+      ],
+      "goal": "Verify that the FIFO can sustain consecutive read operations without intermediate idle cycles.",
+      "notes": [
+        "The test assumes the FIFO has been pre\u2011filled to provide valid data for each read."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert renc on two consecutive rclk rising edges while incrementing raddr each cycle."
+      ],
+      "stimulus_signals": [
+        "rclk",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Observe rdata after each rclk edge; no fixed latency between reads is assumed."
+      ]
+    }
+  ],
+  "assumptions": [
+    "All input ports listed in the contract are correctly connected to the DUT.",
+    "The dual\u2011port RAM correctly implements synchronous write on wclk and synchronous read on rclk.",
+    "No hidden internal handshakes affect the observable rdata output beyond the described write/read enable signals."
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "A single write transaction (wenc asserted with valid waddr and wdata) stores the data in the RAM.",
+        "A subsequent read transaction (renc asserted with matching raddr) returns the stored data on rdata.",
+        "No X or Z values appear on rdata after reset release."
+      ],
+      "goal": "Apply one legal write followed by one legal read and observe stable post\u2011operation behavior.",
+      "notes": [
+        "The enrichment adds explicit data\u2011integrity checks while still respecting the unknown reset polarity."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive wenc high for one wclk cycle with a chosen waddr and wdata.",
+        "After a conservative delay, drive renc high for one rclk cycle with raddr equal to the previously used waddr."
+      ],
+      "stimulus_signals": [
+        "wclk",
+        "wenc",
+        "waddr",
+        "wdata",
+        "rclk",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Observe rdata after the rising edge of rclk following the read enable; do not assume a fixed number of cycles between write and read."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "Reset polarity for wclk and rclk remains unresolved; the plan treats reset release as a generic stabilization period before any functional stimulus.",
+    "All cases avoid referencing ports that are absent from the contract (wrstn, rrstn, winc, rinc, wfull, rempty).",
+    "Timing assumptions are deliberately conservative, relying only on observable clock edges and stable signal values."
+  ],
+  "unresolved_items": [
+    "Golden interface mentioned port 'wrstn', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'rrstn', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'winc', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'rinc', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'wfull', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'rempty', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'Dual', but it was not found in the RTL header.",
+    "Spec/reset hint could not be mapped to a known reset port: wrstn: Write reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: rrstn: Read reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: The buffer registers are updated on the positive edge of the respective clocks and reset to 0 on the respective resets (~wrstn and ~rrstn).",
+    "Reset polarity for 'wclk' is unresolved.",
+    "Reset polarity for 'rclk' is unresolved."
+  ]
+}

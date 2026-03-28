@@ -1,0 +1,204 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement an 8-bit Radix-4 booth multiplier that performs the multiplication of two 8-bit inputs (a and b) using the Booth algorithm. It utilizes a clock signal (clk), and a reset signal (reset), and provides the product output (p) and a ready signal (rdy). The ready signal (rdy) is set to 1 to indicate the completion of the multiplication process.",
+    "Module name:",
+    "multi_booth_8bit",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "On the positive edge of the clock signal (clk) or the positive edge of the reset signal (reset), the module performs the multiplication process.",
+    "If the reset signal (reset) is high, two 16-bit registers multiplier <= {{8{a[7]}}, a} and multiplicand <= {{8{b[7]}}, b}.",
+    "If the reset signal (reset) is low, indicating normal operation, the module checks if the counter (5bit ctr) is less than 16.",
+    "If the counter (ctr) is less than 16, the multiplicand register (multiplicand) is left-shifted by 1 to simulate the Booth algorithm's shifting operation.",
+    "If the current bit of the multiplier register (multiplier[ctr]) is 1, indicating a positive Booth encoding, the product register (p) accumulates the value of the multiplicand register (multiplicand).",
+    "The counter (ctr) is incremented by 1. Once the counter (ctr) reaches 16, indicating the completion of the multiplication process, the ready signal (rdy) is set to 1.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_multi_booth_8bit",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy",
+        "clk"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "reset"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "basic_operation"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "Product register p updates only when multiplier[ctr] is 1 and ctr < 16.",
+        "Ready signal rdy stays low until ctr reaches 16."
+      ],
+      "goal": "Execute a single multiplication with known operands and verify conservative evolution of p and rdy.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Using small operands (e.g., a=8'h03, b=8'h04) keeps the expected product within the 16\u2011bit range and simplifies observation."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy",
+        "clk"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['<no resolved inputs>']",
+        "Drive a = 8'h03 and b = 8'h04, then start the operation by releasing reset, and monitor p and rdy until completion."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Allow up to 20 clock cycles for the operation to complete; do not assume an exact cycle count."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy",
+        "clk"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "reset_polarity",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "After deasserting reset, the internal multiplier and multiplicand registers reflect sign\u2011extended values of inputs a and b as described in the spec."
+      ],
+      "goal": "Validate that the module correctly initializes its internal state on a high\u2011level reset, despite the ambiguous reset polarity.",
+      "notes": [
+        "The case does not assume whether reset is synchronous or asynchronous; it observes stable post\u2011reset behavior over several clock edges."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert reset for a conservative number of cycles, then release it, and monitor that p and rdy remain stable until a new operation is started."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over multiple clock cycles after reset release; do not rely on a fixed latency for internal state initialization."
+      ]
+    }
+  ],
+  "module_name": "verified_multi_booth_8bit",
+  "plan_confidence": 0.15000000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+    "No observable outputs were identified from the parsed RTL header.",
+    "Reset polarity for 'p' is unresolved.",
+    "Reset polarity for 'clk' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Observable outputs are incomplete or unresolved; some cases rely on protocol-visible or port-level observation.",
+    "Some port directions are unresolved; case intents avoid strong source/sink assumptions for those signals."
+  ]
+}

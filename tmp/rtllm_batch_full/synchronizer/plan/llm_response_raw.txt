@@ -1,0 +1,170 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "enable_data_violation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When data_en is asserted while the data input changes, the synchronizer should not assert en_clap_two and dataout must remain unchanged."
+      ],
+      "goal": "Validate that the design does not incorrectly capture data when the enable window is violated.",
+      "notes": [
+        "Uses the existing 'input' port as the data_in surrogate; the contract does not define a separate data_in signal."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "preconditions": [
+        "Reset released and stable."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Assert data_en for 3 clk_b cycles while toggling the 'input' signal each clk_a cycle."
+      ],
+      "stimulus_signals": [
+        "clk_a",
+        "clk_b",
+        "arstn",
+        "input",
+        "data_en"
+      ],
+      "timing_assumptions": [
+        "Observe dataout after the minimum 3 clk_b cycles required for enable propagation."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "repeatability",
+        "deterministic_output"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "Repeating the same data/en sequence yields identical dataout values across independent runs."
+      ],
+      "goal": "Check that the synchronizer exhibits deterministic behavior for identical stimulus patterns.",
+      "notes": [
+        "No assumptions about exact latency; only that the output stabilizes to the same value."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "preconditions": [
+        "Reset released and stable."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply two identical sequences: hold 'input' constant, assert data_en for >=3 clk_b cycles, then deassert."
+      ],
+      "stimulus_signals": [
+        "clk_a",
+        "clk_b",
+        "arstn",
+        "input",
+        "data_en"
+      ],
+      "timing_assumptions": [
+        "Allow conservative observation window of at least 5 clk_b cycles after each sequence."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "reset_recovery",
+        "data_path"
+      ],
+      "expected_properties": [
+        "After reset release, a stable data_en high period (>=3 clk_b cycles) with constant 'input' causes dataout to reflect the stored data_reg value once en_clap_two becomes active."
+      ],
+      "goal": "Demonstrate correct data capture and propagation through the two-stage enable pipeline.",
+      "notes": [
+        "The test holds 'input' stable during the enable window as required by the spec."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release arstn, then drive 'input' to a known pattern, assert data_en for 4 clk_b cycles while keeping 'input' unchanged, then deassert."
+      ],
+      "stimulus_signals": [
+        "clk_a",
+        "clk_b",
+        "arstn",
+        "input",
+        "data_en"
+      ],
+      "timing_assumptions": [
+        "Observe dataout after at least 3 clk_b cycles following the deassertion of data_en to allow en_clap_two to become active."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Zero and maximum values of the 4‑bit 'input' are correctly transferred to dataout when enabled."
+      ],
+      "goal": "Exercise extreme data patterns while respecting the enable timing constraints.",
+      "notes": [
+        "Uses the existing 4‑bit width of dataout; no width inference beyond that."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Perform two sub‑tests: (a) drive 'input' = 4'b0000, assert data_en for >=3 clk_b cycles; (b) drive 'input' = 4'b1111, assert data_en for >=3 clk_b cycles."
+      ],
+      "stimulus_signals": [
+        "clk_a",
+        "clk_b",
+        "arstn",
+        "input",
+        "data_en"
+      ],
+      "timing_assumptions": [
+        "Conservative observation window of 5 clk_b cycles after each enable window."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "The contract lacks explicit ports for brstn and data_in; tests avoid referencing these signals.",
+    "Reset polarity for clk_a and clk_b remains ambiguous; all cases assume only the known arstn reset."
+  ],
+  "unresolved_items": [
+    "Golden interface mentioned port 'brstn', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'data_in', but it was not found in the RTL header.",
+    "Golden interface described reset 'brstn', but the signal was not found in the RTL ports.",
+    "Spec/reset hint could not be mapped to a known reset port: brstn: Active-low reset signal B. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: If the reset signal B (brstn) is high, the registers (en_clap_one and en_clap_two) are updated based on the value of en_data_reg. The register en_clap_one is assigned the value of en_data_reg, and en_clap_two is assigned the previous value of en_clap_one.",
+    "Reset polarity for 'clk_a' is unresolved.",
+    "Reset polarity for 'clk_b' is unresolved."
+  ]
+}

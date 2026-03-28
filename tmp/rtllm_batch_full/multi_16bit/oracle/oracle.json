@@ -1,0 +1,592 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement the design of an unsigned 16-bit multiplier. It utilizes shift and accumulate operations to generate the product output (yout). The module also includes control signals such as clock (clk), reset (rst_n), and start (start), along with a completion flag (done) indicating the completion of the multiplication operation.",
+    "Module name:",
+    "multi_16bit",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "Data bit control:",
+    "On every positive edge of the clock signal (clk) or the falling edge of the reset signal (rst_n), the shift count register (i) is updated.",
+    "If the reset signal (rst_n) is low, indicating a reset condition, the shift count register (i) is set to 0.",
+    "If the start signal is active (start) and the shift count register (i) is less than 17, the shift count register (i) increments by 1.",
+    "If the start signal is inactive (!start), the shift count register (i) is reset to 0.",
+    "Multiplication completion flag generation:",
+    "On every positive edge of the clock signal (clk) or the falling edge of the reset signal (rst_n), the multiplication completion flag (done_r) is updated.",
+    "If the reset signal (rst_n) is low, the multiplication completion flag (done_r) is set to 0.",
+    "If the shift count register (i) is equal to 16, indicating the completion of the multiplication operation, the multiplication completion flag (done_r) is set to 1.",
+    "If the shift count register (i) is equal to 17, the multiplication completion flag (done_r) is reset to 0.",
+    "Shift and accumulate operation:",
+    "On every positive edge of the clock signal (clk) or the falling edge of the reset signal (rst_n), the module performs the shift and accumulate operation.",
+    "If the reset signal (rst_n) is low, indicating a reset condition, the multiplicand register (areg), multiplier register (breg), and product register (yout_r) are reset to 0.",
+    "If the start signal is active (start), the module starts the multiplication operation.",
+    "When the shift count register (i) is 0, the multiplicand (ain) and multiplier (bin) are stored in the respective registers (areg and breg).",
+    "For shift counts greater than 0 and less than 17, if the bit at position i-1 in the multiplicand register (areg) is high, the product register (yout_r) accumulates the shifted value of the multiplier register (breg) by shifting it left by i-1 positions and appending zeros at the least significant bit positions.",
+    "Output assignment:",
+    "The product output (yout) is assigned the value of the product register (yout_r).",
+    "Give me the complete code.",
+    "handshake_signals is a flattened compatibility view derived from handshake_groups.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "verified_multi_16bit",
+  "based_on_plan": "verified_multi_16bit",
+  "functional_oracles": [],
+  "module_name": "verified_multi_16bit",
+  "oracle_confidence": {
+    "functional_confidence": 0.0,
+    "overall_confidence": 0.3445238095238095,
+    "property_confidence": 0.6707142857142857,
+    "protocol_confidence": 0.6583333333333333
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7250000000000001,
+          "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+          "notes": [
+            "Clock/reset remain anchors and are not emitted as business outputs."
+          ],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        }
+      ],
+      "confidence": 0.7250000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'reset_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7250000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7250000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "confidence": 0.675,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.675,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'edge_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_protocol_001",
+      "category": "protocol",
+      "checks": [
+        {
+          "check_id": "protocol_001_property_001",
+          "check_type": "property",
+          "confidence": 0.665,
+          "description": "Guardrail: done cannot be treated as completion without a prior visible start event.",
+          "notes": [
+            "Avoids false positives from orphan done pulses or misinterpreted combinational outputs."
+          ],
+          "observed_signals": [
+            "done",
+            "yout"
+          ],
+          "pass_condition": "A completion claim requires an earlier start event in the same scenario; exact-cycle completion is not required.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever completion is claimed for the linked start/done interaction."
+        }
+      ],
+      "confidence": 0.665,
+      "linked_plan_case_id": "protocol_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'protocol_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_back_to_back_001",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_001_property_001",
+          "check_type": "property",
+          "confidence": 0.6250000000000001,
+          "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+          "notes": [
+            "Stability-style property used instead of throughput-specific claims."
+          ],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        }
+      ],
+      "confidence": 0.6250000000000001,
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'back_to_back_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_negative_001",
+      "category": "negative",
+      "checks": [
+        {
+          "check_id": "negative_001_property_001",
+          "check_type": "property",
+          "confidence": 0.6250000000000001,
+          "description": "Guardrail: illegal or constrained inputs do not require normal completion or success signaling.",
+          "notes": [
+            "Negative behavior is guarded by explicit contract constraints only."
+          ],
+          "observed_signals": [
+            "done",
+            "yout"
+          ],
+          "pass_condition": "The oracle only requires safe non-violation behavior and does not invent undocumented error responses.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "illegal_input_observation",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked plan probes documented illegal or constrained inputs."
+        }
+      ],
+      "confidence": 0.6250000000000001,
+      "linked_plan_case_id": "negative_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'negative_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_metamorphic_001",
+      "category": "metamorphic",
+      "checks": [
+        {
+          "check_id": "metamorphic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.6550000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.6550000000000001,
+      "linked_plan_case_id": "metamorphic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'metamorphic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_protocol_001",
+          "check_type": "protocol",
+          "confidence": 0.7150000000000001,
+          "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+          "notes": [
+            "Reset is used as an anchor only; it is not treated as a business output."
+          ],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+        }
+      ],
+      "confidence": 0.7150000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Reset oracle focuses on control-safe behavior instead of value-specific output claims.",
+        "Protocol oracle strictness is downgraded because the contract or plan is weak."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_protocol_001",
+      "category": "protocol",
+      "checks": [
+        {
+          "check_id": "protocol_001_protocol_001",
+          "check_type": "protocol",
+          "confidence": 0.655,
+          "description": "Observe completion only after a visible start event has occurred.",
+          "notes": [
+            "Completion-safe oracle uses event ordering, not cycle counting."
+          ],
+          "observed_signals": [
+            "done",
+            "yout",
+            "start"
+          ],
+          "pass_condition": "'done' may be treated as completion only after the start event; no predetermined completion latency is assumed.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "start": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When 'start' is pulsed or asserted for a legal operation."
+        }
+      ],
+      "confidence": 0.655,
+      "linked_plan_case_id": "protocol_001",
+      "notes": [
+        "Protocol oracle strictness is downgraded because the contract or plan is weak."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_back_to_back_001",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_001_protocol_001",
+          "check_type": "protocol",
+          "confidence": 0.6050000000000001,
+          "description": "Require repeated operations to be distinguished by separate protocol-visible acceptance or completion events.",
+          "notes": [
+            "Repeated-operation oracle avoids throughput and queue-depth assumptions."
+          ],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "A second operation is not treated as accepted or complete unless a distinct later protocol-visible event is observed.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "done": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "yout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies repeated or back-to-back operations with minimal spacing."
+        }
+      ],
+      "confidence": 0.6050000000000001,
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [
+        "Protocol oracle strictness is downgraded because the contract or plan is weak."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: If the shift count register (i) is equal to 17, the multiplication completion flag (done_r) is reset to 0.",
+    "Reset polarity for 'clk' is unresolved.",
+    "Reset polarity for 'start' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+    "Hybrid LLM oracle augmentation produced no accepted checks beyond the baseline oracle."
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Q must remain stable when the clock does not toggle and reset is deasserted.",
+          "notes": [],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "The value of Q does not change across the observation window while clk stays low and rst_n is high.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "no_clk_edge",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When clk remains low for at least two consecutive cycles with rst_n asserted high."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Q updates according to the Johnson rule on each rising edge of clk when reset is not asserted.",
+          "notes": [],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "After a rising edge of clk with rst_n high, Q[0] toggles and Q[63] becomes the complement of the previous Q[0]; all other bits shift right by one position.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a single rising edge of clk occurs while rst_n is high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

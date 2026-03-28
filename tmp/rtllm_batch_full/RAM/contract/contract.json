@@ -1,0 +1,210 @@
+{
+  "allowed_unknowns": [],
+  "ambiguities": [
+    "Reset polarity for 'clk' is unresolved."
+  ],
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a dual-port RAM with a depth of 8 and a bit width of 6 bits, with all data initialized to 000000. It has two groups of ports, respectively for reading data and writing data, and read and write operations can be carried out at the same time. When the read_en signal is 1, the read_data of the corresponding position is read through the read_addr signal and output; When the write_en signal is 1, data is written to the corresponding position through the write_addr signal and write-data signal.",
+    "Module name:",
+    "RAM",
+    "Input ports:",
+    "Output ports:",
+    "Parameter:",
+    "WIDTH = 6;",
+    "DEPTH = 8;",
+    "Implementation:",
+    "RAM Array:",
+    "The module includes a register array, RAM. The array is defined as reg [DEPTH - 1 : 0] RAM [2**WIDTH-1:0], allowing for 2^6 memory locations, each with a width of 6 bits.",
+    "Write Operation:",
+    "The first always block triggers on the positive edge of the clock signal (posedge clk) or the negative edge of the reset signal (negedge rst_n).",
+    "On reset, indicated by !rst_n, all memory locations in the RAM array are cleared to 0.",
+    "If the write enable signal (write_en) is active, the data (write_data) is written to the RAM array at the specified address (write_addr).",
+    "Read Operation:",
+    "The second always block triggers on the positive edge of the clock signal (posedge clk) or the negative edge of the reset signal (negedge rst_n).",
+    "On reset, indicated by !rst_n, the read_data register is cleared to 0.",
+    "If the read enable signal (read_en) is active, the data at the specified address (read_addr) in the RAM array is assigned to the read_data register.",
+    "If the read enable signal is not active, the read_data register is cleared to 0.",
+    "Give me the complete code."
+  ],
+  "clocks": [
+    {
+      "confidence": 0.95,
+      "name": "clk",
+      "period_ns_guess": null,
+      "source": "spec_hint"
+    }
+  ],
+  "contract_confidence": 0.8350000000000001,
+  "extraction_warnings": [],
+  "handshake_groups": [],
+  "handshake_signals": [],
+  "illegal_input_constraints": [],
+  "module_name": "verified_RAM",
+  "observable_outputs": [
+    "read_data"
+  ],
+  "parameters": {},
+  "ports": [
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "clk",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "rst_n",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "write_en",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "write_addr",
+      "raw_range": "[7:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 8
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "write_data",
+      "raw_range": "[5:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 6
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "read_en",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "read_addr",
+      "raw_range": "[7:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 8
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "read_data",
+      "raw_range": "[5:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 6
+    }
+  ],
+  "resets": [
+    {
+      "active_level": 0,
+      "confidence": 0.9,
+      "name": "rst_n",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    },
+    {
+      "active_level": null,
+      "confidence": 0.65,
+      "name": "clk",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    }
+  ],
+  "rtl_sources": [
+    "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/RAM/verified_RAM.v"
+  ],
+  "source_map": {
+    "clocks.clk": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "module_name": [
+      "rtl:verified_RAM.v"
+    ],
+    "ports.clk": [
+      "rtl:verified_RAM.v",
+      "golden_interface"
+    ],
+    "ports.read_addr": [
+      "rtl:verified_RAM.v"
+    ],
+    "ports.read_data": [
+      "rtl:verified_RAM.v",
+      "golden_interface"
+    ],
+    "ports.read_en": [
+      "rtl:verified_RAM.v",
+      "golden_interface"
+    ],
+    "ports.rst_n": [
+      "rtl:verified_RAM.v",
+      "golden_interface"
+    ],
+    "ports.write_addr": [
+      "rtl:verified_RAM.v"
+    ],
+    "ports.write_data": [
+      "rtl:verified_RAM.v"
+    ],
+    "ports.write_en": [
+      "rtl:verified_RAM.v",
+      "golden_interface"
+    ],
+    "resets.clk": [
+      "spec_hint"
+    ],
+    "resets.rst_n": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "timing": [
+      "rtl_heuristic"
+    ]
+  },
+  "timing": {
+    "confidence": 0.9,
+    "fixed_latency_cycles": null,
+    "latency_model": "unknown",
+    "sampling_window_cycles": null,
+    "sequential_kind": "seq",
+    "source": "rtl_heuristic",
+    "variable_latency_range": null
+  }
+}

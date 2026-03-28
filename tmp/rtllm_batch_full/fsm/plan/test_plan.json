@@ -1,0 +1,200 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a Mealy FSM detection circuit that detects a single-bit input IN. When the input is 10011, output MATCH is 1, and MATCH is 0 in other cases. Support for continuous input and loop detection.",
+    "Module name:",
+    "fsm",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "The module implements an FSM detection.",
+    "On every change in the input signal (IN) or positive edge of CLK or RST, if RST is active, the output signal MATCH is set to 0.",
+    "If the sequence of inputs IN is 1, 0, 0, 1, 1, the MATCH signal is 1 at the same time as the last occurrence of IN=1. If the sequence of inputs IN is 1, 0, 0, 1, 1, 0, 0, 1, 1, the MATCH signal becomes 1 at the fifth and ninth of IN; otherwise, it is set to 0.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_fsm",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "IN",
+        "MATCH",
+        "CLK"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "FSM remains stable with no MATCH asserted for non-matching input patterns",
+        "Reset clears MATCH"
+      ],
+      "goal": "Confirm that the FSM does not assert MATCH for a single non\u2011matching input and that reset clears MATCH.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Conservative: only check that MATCH stays 0 after a single IN toggle that does not complete the pattern."
+      ],
+      "observed_signals": [
+        "IN",
+        "MATCH",
+        "CLK"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['<no resolved inputs>']",
+        "Toggle IN to 0 then 1 without forming the full 10011 sequence; keep RST deasserted."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Allow one clock cycle after each input change before sampling MATCH."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "IN",
+        "MATCH",
+        "CLK"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "transition",
+        "mealy"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "MATCH goes high exactly when the fifth input of pattern 10011 is observed",
+        "No spurious MATCH asserts outside pattern"
+      ],
+      "goal": "Validate that the Mealy FSM asserts MATCH on the correct input transition of the detection pattern.",
+      "notes": [
+        "Uses conservative observation after each clock edge; does not assume exact latency beyond Mealy behavior."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "Reset deasserted and FSM in idle state."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive the input sequence 1,0,0,1,1 on IN while toggling CLK, then observe MATCH."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe MATCH on same clock edge as last '1' of the pattern (Mealy), but allow one-cycle observation window."
+      ]
+    }
+  ],
+  "module_name": "verified_fsm",
+  "plan_confidence": 0.15000000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+    "No observable outputs were identified from the parsed RTL header.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Observable outputs are incomplete or unresolved; some cases rely on protocol-visible or port-level observation.",
+    "Some port directions are unresolved; case intents avoid strong source/sink assumptions for those signals."
+  ]
+}

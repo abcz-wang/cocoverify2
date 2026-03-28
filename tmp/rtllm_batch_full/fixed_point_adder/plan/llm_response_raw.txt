@@ -1,0 +1,151 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "operation_specific",
+        "stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "c updates correctly for each successive change of a and b without transient glitches",
+        "output reflects combinational logic immediately after inputs settle"
+      ],
+      "goal": "Validate combinational stability when inputs toggle rapidly in back‑to‑back fashion.",
+      "notes": [
+        "Applies alternating patterns to a and b on successive simulation time steps."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Inputs a and b are driven with legal N‑bit values."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply alternating extreme and typical patterns to a and b on consecutive cycles"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after each input change, assuming only combinational delay."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [],
+      "draft_id": "illegal_input_001",
+      "expected_properties": [
+        "c remains X or a defined safe value when a or b contain X/Z",
+        "No unexpected synthesis errors are inferred from illegal input values"
+      ],
+      "goal": "Assess module behavior under illegal/unknown input values.",
+      "notes": [
+        "Even though the contract does not specify illegal inputs, this case checks robustness."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Inputs a or b may be driven with X or Z values."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive X/Z on a and/or b while keeping the other input legal"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after inputs stabilize; no timing guarantees assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific",
+        "sanity"
+      ],
+      "expected_properties": [
+        "c equals the signed fixed‑point addition or subtraction of a and b as defined by the spec",
+        "sign bit of c matches expected sign based on operand signs"
+      ],
+      "goal": "Validate functional correctness for typical signed operand values.",
+      "notes": [
+        "Uses a mix of positive, negative, and zero operands within the representable range."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a representative set of legal input patterns on a and b"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after inputs have settled; no fixed latency assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "overflow",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "c correctly reflects overflow handling when adding max positive and max negative values",
+        "sign bit of c follows spec for boundary conditions"
+      ],
+      "goal": "Exercise extreme operand values and sign‑bit transitions.",
+      "notes": [
+        "Includes max positive, max negative, and zero inputs to probe edge behavior."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply zero‑like, one‑like, and extreme boundary patterns on a and b"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after inputs stabilize; no sequential timing inferred."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

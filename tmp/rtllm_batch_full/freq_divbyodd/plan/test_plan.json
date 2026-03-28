@@ -1,0 +1,242 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "A frequency divider that divides the input clock frequency by odd numbers. The module generates a divided clock output by an odd divisor value provided as a parameter.",
+    "Module name:",
+    "freq_divbyodd",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "The module divides the input clock frequency by an odd number defined by the parameter NUM_DIV, which defaults to 5.",
+    "Two counters, cnt1 and cnt2, are used for tracking the rising and falling edges of the clock. Each counter counts up to NUM_DIV - 1.",
+    "Two separate clock dividers, clk_div1 and clk_div2, are used for positive and negative edges of the clock, respectively. These are toggled when the counters reach half of NUM_DIV.",
+    "The final divided clock output, clk_div, is derived by logically OR-ing clk_div1 and clk_div2 to account for both clock edges.",
+    "The active low reset signal rst_n initializes the counters and the clock divider outputs.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "freq_divbyodd",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "odd_division",
+        "toggle_behavior",
+        "stability"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "After reset deassertion, clk_div settles to a non\u2011X stable state.",
+        "clk_div exhibits a periodic toggling whose average period corresponds to NUM_DIV * clk period (odd divisor behavior)."
+      ],
+      "goal": "Verify that the divided clock output becomes functional and stable after reset, showing the expected average frequency for the default odd divisor.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Observation is performed over at least 2 * NUM_DIV clock cycles to accommodate unknown internal latency."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "clk_div"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['<no resolved inputs>']",
+        "Release reset and provide a continuous clock on 'clk', then monitor 'clk_div' for stable periodic behavior."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Do not assume a fixed-cycle latency; allow the output to stabilize over multiple clock cycles."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "clk_div"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "toggle_edge",
+        "half_count"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "clk_div toggles only when the internal counters reach half of NUM_DIV (rounded down).",
+        "No extra toggles appear between expected toggle points."
+      ],
+      "goal": "Observe that the divided clock output toggles at the expected half\u2011period intervals derived from the odd divisor, confirming correct edge\u2011based toggling logic.",
+      "notes": [
+        "Internal signals cnt1, cnt2, clk_div1, clk_div2 are not observable; inference is made from the external clk_div waveform."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive a steady clock on 'clk' after reset and monitor 'clk_div' for correct toggle spacing."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Allow observation over at least NUM_DIV clock cycles after each observed toggle to accommodate unknown latency."
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "parameter_variation",
+        "odd_divisor"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Changing the parameter NUM_DIV to another odd value (e.g., 7) results in a proportional change in the observed clk_div period.",
+        "The output remains stable and free of glitches after the parameter change."
+      ],
+      "goal": "Validate that the module correctly adapts to different odd divisor values without functional regression.",
+      "notes": [
+        "Parameter re\u2011instantiation is treated as a separate simulation run; no runtime parameter change is assumed."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Run the design with NUM_DIV set to 7 (or another odd value) and verify the scaled frequency of clk_div."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over multiple periods of the expected divided clock to confirm stable frequency."
+      ]
+    }
+  ],
+  "module_name": "freq_divbyodd",
+  "plan_confidence": 0.18,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+    "No observable outputs were identified from the parsed RTL header.",
+    "Reset polarity for 'clk' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Observable outputs are incomplete or unresolved; some cases rely on protocol-visible or port-level observation.",
+    "Some port directions are unresolved; case intents avoid strong source/sink assumptions for those signals."
+  ]
+}

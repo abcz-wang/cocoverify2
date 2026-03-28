@@ -1,0 +1,291 @@
+{
+  "assumptions": [
+    "Please act as a professional Verilog designer.",
+    "Module name:",
+    "up_down_counter",
+    "Function:",
+    "A 16-bit counter that can increment or decrement based on control signals.",
+    "Input ports:",
+    "If up_down = 1, the counter increments; if up_down = 0, it decrements.",
+    "Output ports:",
+    "count [15:0]: 16-bit output representing the current counter value.",
+    "Implementation:",
+    "The module uses a synchronous process triggered by the rising edge of the clock signal (`clk`).",
+    "If the reset signal (`reset`) is active, the counter resets to zero.",
+    "If the `up_down` control signal is high, the counter increments on each clock cycle.",
+    "If the `up_down` control signal is low, the counter decrements on each clock cycle.",
+    "The `count` output reflects the current value of the counter, which can range from 0 to 65535.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "up_down_counter",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.9350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "reset"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "Count increments by 1 when up_down=1 after reset",
+        "Count decrements by 1 when up_down=0 after reset"
+      ],
+      "goal": "Confirm basic counting direction functionality.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Observe count change by +/-1 relative to the previous value."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['clk', 'reset', 'up_down']",
+        "Apply a single clock cycle with up_down=1 and verify count increments",
+        "Apply a single clock cycle with up_down=0 and verify count decrements"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Wait one clock edge after stimulus; no multi\u2011cycle latency is assumed"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.8350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['known inputs']"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.8050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_002",
+      "category": "edge",
+      "confidence": 0.9,
+      "coverage_tags": [
+        "wrap_around",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Counter wraps from 0xFFFF to 0 on increment",
+        "Counter wraps from 0 to 0xFFFF on decrement"
+      ],
+      "goal": "Validate correct wrap\u2011around behavior at the 16\u2011bit counter limits.",
+      "notes": [
+        "Requires driving sufficient clock cycles to reach limits; observation is performed one cycle after the triggering edge."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "Counter has been incremented to 0xFFFF or decremented to 0x0000"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive up_down=1 repeatedly until count reaches 0xFFFF then observe the next increment wraps to 0",
+        "Drive up_down=0 repeatedly until count reaches 0 then observe the next decrement wraps to 0xFFFF"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Observe count one clock cycle after each stimulus; no fixed\u2011latency assumption is made"
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.9,
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Module does not produce X or undefined behavior when up_down is X"
+      ],
+      "goal": "Check robustness to an unknown (X) control input.",
+      "notes": [
+        "The contract does not define behavior for X; the test ensures the design remains stable."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive up_down to an unknown (X) value while toggling clk"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Observe count after one clock edge; no assumption of hidden latency"
+      ]
+    }
+  ],
+  "module_name": "up_down_counter",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

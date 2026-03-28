@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: ensure no hidden fixed\u2011latency assumptions are made for edge\u2011case stimulation.",
+          "notes": [],
+          "observed_signals": [
+            "input"
+          ],
+          "pass_condition": "The design must not assert any internal completion signals or change outputs in a way that depends on an exact cycle count for the edge patterns.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge\u2011case inputs are applied as defined in plan case edge_001."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Required: after a legal multiplication request the output eventually stabilizes to the correct product value.",
+          "notes": [],
+          "observed_signals": [
+            "output"
+          ],
+          "pass_condition": "When the output ceases to change for at least two consecutive clock cycles and matches the expected product of the driven inputs.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After stimulus defined in plan case basic_001 is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

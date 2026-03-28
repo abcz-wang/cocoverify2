@@ -1,0 +1,82 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "edge_001",
+      "category": "edge",
+      "coverage_tags": [
+        "edge",
+        "toggle",
+        "periodicity"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "clk toggles from 0 to 1 and back at least twice within 2*PERIOD simulation time",
+        "clk maintains a 50% duty cycle (high and low phases of equal length) within observed window",
+        "no glitches or spurious transitions on clk"
+      ],
+      "goal": "Verify that the generated clock exhibits proper edge behavior and approximate period without assuming exact cycle counts.",
+      "notes": [
+        "Conservative observation window; does not rely on exact timing guarantees."
+      ],
+      "observed_signals": [
+        "clk"
+      ],
+      "preconditions": [
+        "Instantiate clkgenerator with default PERIOD parameter"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Run simulation for at least 2*PERIOD time units to capture multiple clock edges"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Do not assume fixed latency; monitor over a window spanning multiple periods"
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "unknown",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "clk starts at 0 after initialization",
+        "clk toggles at least once within a simulation window of PERIOD time units"
+      ],
+      "goal": "Observe that clk toggles from its initial state, confirming basic clock generation.",
+      "notes": [
+        "Baseline case remains conservative due to unknown timing."
+      ],
+      "observed_signals": [
+        "clk"
+      ],
+      "preconditions": [
+        "Instantiate clkgenerator with default PERIOD parameter"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Run simulation for a short duration sufficient to see at least one clock edge"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "No fixed latency assumed; use a reset‑safe observation window"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

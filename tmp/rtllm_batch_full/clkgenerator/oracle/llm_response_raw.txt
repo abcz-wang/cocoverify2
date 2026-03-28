@@ -1,0 +1,67 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: clk should not remain at the same logical level for more than 100 cycles, ensuring progress.",
+          "notes": [],
+          "observed_signals": [
+            "clk"
+          ],
+          "pass_condition": "Within any sliding window of 100 cycles, at least one transition of clk occurs.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 100,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "Continuously monitor clk during simulation."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure clk toggles at least once within 20 cycles, reflecting expected square‑wave behavior without assuming exact timing.",
+          "notes": [],
+          "observed_signals": [
+            "clk"
+          ],
+          "pass_condition": "At least one rising or falling edge of clk occurs within any 20‑cycle window.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 20,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After simulation start."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,317 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a multi-bit MUX-based synchronizer, data_in will remain constant during the period when data_en is high, and data_en is high for at least 3 clk_b clock cycles. When the value of data_en is high, data can be synchronized. The data change frequency of data_in is very low. The change interval between two adjacent data is at least 10 clk_b clock cycles.",
+    "The clock clk_a is responsible for: input data_in is refer to clock a. enable signal data_en is refer to clock a.",
+    "The clock clk_b is responsible for the enable signal data_en delays two cycles, that is, two D flip-flops. This is done with reference to clock b. And the data is finally output dataout, and the output refers to clock b.",
+    "Module name:",
+    "synchronizer",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "Data Register:",
+    "The module includes a register, data_reg, to store the input data signal, data_in.",
+    "On the positive edge of clock signal A (clk_a) or the falling edge of reset signal A (arstn), the module updates the register. If the reset signal A (arstn) is low, indicating a reset condition, the register (data_reg) is set to 0. If the reset signal A (arstn) is high, the register (data_reg) is updated with the input data signal (data_in).",
+    "Enable Data Register:",
+    "The module includes a register, en_data_reg, to store the input enable signal, data_en.",
+    "On the positive edge of clock signal A (clk_a) or the falling edge of reset signal A (arstn), the module updates the register. If the reset signal A (arstn) is low, the register (en_data_reg) is set to 0. If the reset signal A (arstn) is high, the register (en_data_reg) is updated with the input enable signal (data_en).",
+    "Enable Control Registers:",
+    "The module includes two registers, en_clap_one and en_clap_two, to control the selection of the input data. On the positive edge of clock signal B (clk_b) or the falling edge of reset signal B (brstn), the module updates the registers. If the reset signal B (brstn) is low, indicating a reset condition, both registers (en_clap_one and en_clap_two) are set to 0.",
+    "If the reset signal B (brstn) is high, the registers (en_clap_one and en_clap_two) are updated based on the value of en_data_reg. The register en_clap_one is assigned the value of en_data_reg, and en_clap_two is assigned the previous value of en_clap_one.",
+    "Output Assignment:",
+    "On the positive edge of clock signal B (clk_b) or the falling edge of reset signal B (brstn), the module assigns the output data value. If the reset signal B (brstn) is low, indicating a reset condition, the output data (dataout) is set to 0. If the reset signal B (brstn) is high and the control signal (en_clap_two) is active, the output data (dataout) is assigned the value of the data register (data_reg). If the control signal (en_clap_two) is inactive, the output data (dataout) retains its previous value.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM planning note: The contract lacks explicit ports for brstn and data_in; tests avoid referencing these signals.",
+    "LLM planning note: Reset polarity for clk_a and clk_b remains ambiguous; all cases assume only the known arstn reset."
+  ],
+  "based_on_contract": "verified_synchronizer",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.6850000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "arstn"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.6350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "reset_recovery",
+        "data_path"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "After reset release, a stable data_en high period (>=3 clk_b cycles) with constant 'input' causes dataout to reflect the stored data_reg value once en_clap_two becomes active."
+      ],
+      "goal": "Demonstrate correct data capture and propagation through the two-stage enable pipeline.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "The test holds 'input' stable during the enable window as required by the spec."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['clk_a', 'clk_b', 'arstn', 'input', 'input', 'data_en']",
+        "Release arstn, then drive 'input' to a known pattern, assert data_en for 4 clk_b cycles while keeping 'input' unchanged, then deassert."
+      ],
+      "stimulus_signals": [
+        "clk_a",
+        "clk_b",
+        "arstn",
+        "input",
+        "data_en"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe dataout after at least 3 clk_b cycles following the deassertion of data_en to allow en_clap_two to become active."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.5850000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Zero and maximum values of the 4\u2011bit 'input' are correctly transferred to dataout when enabled."
+      ],
+      "goal": "Exercise extreme data patterns while respecting the enable timing constraints.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Uses the existing 4\u2011bit width of dataout; no width inference beyond that."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['known inputs']",
+        "Perform two sub\u2011tests: (a) drive 'input' = 4'b0000, assert data_en for >=3 clk_b cycles; (b) drive 'input' = 4'b1111, assert data_en for >=3 clk_b cycles."
+      ],
+      "stimulus_signals": [
+        "clk_a",
+        "clk_b",
+        "arstn",
+        "input",
+        "data_en"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Conservative observation window of 5 clk_b cycles after each enable window."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.5550000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "clk_a",
+        "clk_b",
+        "arstn"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.48000000000000015,
+      "coverage_tags": [
+        "illegal_input",
+        "enable_data_violation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When data_en is asserted while the data input changes, the synchronizer should not assert en_clap_two and dataout must remain unchanged."
+      ],
+      "goal": "Validate that the design does not incorrectly capture data when the enable window is violated.",
+      "notes": [
+        "Uses the existing 'input' port as the data_in surrogate; the contract does not define a separate data_in signal."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "preconditions": [
+        "Reset released and stable."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert data_en for 3 clk_b cycles while toggling the 'input' signal each clk_a cycle."
+      ],
+      "stimulus_signals": [
+        "clk_a",
+        "clk_b",
+        "arstn",
+        "input",
+        "data_en"
+      ],
+      "timing_assumptions": [
+        "Observe dataout after the minimum 3 clk_b cycles required for enable propagation."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.48000000000000015,
+      "coverage_tags": [
+        "repeatability",
+        "deterministic_output"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeating the same data/en sequence yields identical dataout values across independent runs."
+      ],
+      "goal": "Check that the synchronizer exhibits deterministic behavior for identical stimulus patterns.",
+      "notes": [
+        "No assumptions about exact latency; only that the output stabilizes to the same value."
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "preconditions": [
+        "Reset released and stable."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply two identical sequences: hold 'input' constant, assert data_en for >=3 clk_b cycles, then deassert."
+      ],
+      "stimulus_signals": [
+        "clk_a",
+        "clk_b",
+        "arstn",
+        "input",
+        "data_en"
+      ],
+      "timing_assumptions": [
+        "Allow conservative observation window of at least 5 clk_b cycles after each sequence."
+      ]
+    }
+  ],
+  "module_name": "verified_synchronizer",
+  "plan_confidence": 0.42500000000000016,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Golden interface mentioned port 'brstn', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'data_in', but it was not found in the RTL header.",
+    "Golden interface described reset 'brstn', but the signal was not found in the RTL ports.",
+    "Spec/reset hint could not be mapped to a known reset port: brstn: Active-low reset signal B. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: If the reset signal B (brstn) is high, the registers (en_clap_one and en_clap_two) are updated based on the value of en_data_reg. The register en_clap_one is assigned the value of en_data_reg, and en_clap_two is assigned the previous value of en_clap_one.",
+    "Reset polarity for 'clk_a' is unresolved.",
+    "Reset polarity for 'clk_b' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions."
+  ]
+}

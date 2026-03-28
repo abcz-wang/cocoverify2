@@ -1,0 +1,372 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement the design of an unsigned 16-bit multiplier. It utilizes shift and accumulate operations to generate the product output (yout). The module also includes control signals such as clock (clk), reset (rst_n), and start (start), along with a completion flag (done) indicating the completion of the multiplication operation.",
+    "Module name:",
+    "multi_16bit",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "Data bit control:",
+    "On every positive edge of the clock signal (clk) or the falling edge of the reset signal (rst_n), the shift count register (i) is updated.",
+    "If the reset signal (rst_n) is low, indicating a reset condition, the shift count register (i) is set to 0.",
+    "If the start signal is active (start) and the shift count register (i) is less than 17, the shift count register (i) increments by 1.",
+    "If the start signal is inactive (!start), the shift count register (i) is reset to 0.",
+    "Multiplication completion flag generation:",
+    "On every positive edge of the clock signal (clk) or the falling edge of the reset signal (rst_n), the multiplication completion flag (done_r) is updated.",
+    "If the reset signal (rst_n) is low, the multiplication completion flag (done_r) is set to 0.",
+    "If the shift count register (i) is equal to 16, indicating the completion of the multiplication operation, the multiplication completion flag (done_r) is set to 1.",
+    "If the shift count register (i) is equal to 17, the multiplication completion flag (done_r) is reset to 0.",
+    "Shift and accumulate operation:",
+    "On every positive edge of the clock signal (clk) or the falling edge of the reset signal (rst_n), the module performs the shift and accumulate operation.",
+    "If the reset signal (rst_n) is low, indicating a reset condition, the multiplicand register (areg), multiplier register (breg), and product register (yout_r) are reset to 0.",
+    "If the start signal is active (start), the module starts the multiplication operation.",
+    "When the shift count register (i) is 0, the multiplicand (ain) and multiplier (bin) are stored in the respective registers (areg and breg).",
+    "For shift counts greater than 0 and less than 17, if the bit at position i-1 in the multiplicand register (areg) is high, the product register (yout_r) accumulates the shifted value of the multiplier register (breg) by shifting it left by i-1 positions and appending zeros at the least significant bit positions.",
+    "Output assignment:",
+    "The product output (yout) is assigned the value of the product register (yout_r).",
+    "Give me the complete code.",
+    "handshake_signals is a flattened compatibility view derived from handshake_groups.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_multi_16bit",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.7850000000000001,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "A legal start after reset leads to a visible change in yout and eventually asserts done.",
+        "Done is asserted only after the internal shift count reaches the completion condition, without assuming a fixed cycle count."
+      ],
+      "goal": "Confirm that a single multiplication operation proceeds correctly from start to completion under conservative timing.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "The design may take up to 18 clock cycles (including i=0..17) but the exact number is not assumed."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['clk', 'rst_n', 'start', 'ain', 'bin']",
+        "Apply a reset, release it, provide a start pulse, and drive representative ain and bin values."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "start",
+        "ain",
+        "bin"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe over a window of at least 20 clock cycles after start to capture possible done assertion."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.685,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Zero multiplicand or multiplier yields a zero product.",
+        "Maximum 16\u2011bit values (0xFFFF) produce the correct maximum 32\u2011bit product (0xFFFE0001).",
+        "Partial\u2011boundary patterns (e.g., 0x0001, 0x8000) are handled without overflow or loss."
+      ],
+      "goal": "Exercise boundary\u2011value inputs to verify correct arithmetic handling across the full input width.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "No assumptions about exact latency; only final yout and done are checked."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['ain', 'bin']",
+        "Drive ain and bin with zero, all\u2011ones, and single\u2011bit edge patterns while performing a normal start sequence."
+      ],
+      "stimulus_signals": [
+        "ain",
+        "bin",
+        "clk",
+        "rst_n",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Allow sufficient cycles after each start to observe done and final yout."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "confidence": 0.685,
+      "coverage_tags": [
+        "protocol",
+        "start_done",
+        "completion"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "A legal start request eventually results in a visible completion or completion-related observation.",
+        "No exact completion latency is assumed."
+      ],
+      "goal": "Observe whether start eventually leads to externally visible completion.",
+      "notes": [
+        "Completion is checked conservatively because the contract does not guarantee exact latency."
+      ],
+      "observed_signals": [
+        "start",
+        "done",
+        "yout"
+      ],
+      "preconditions": [
+        "Start and done signals are both present."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Pulse or assert start conservatively and watch for done or related output progress."
+      ],
+      "stimulus_signals": [
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.6550000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.6650000000000001,
+      "coverage_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "If start is asserted while rst_n is low, the design should not produce a valid product and done must remain deasserted."
+      ],
+      "goal": "Verify that asserting start during an active reset does not cause spurious completion or product output.",
+      "notes": [
+        "The contract does not define behavior for start during reset; the conservative expectation is that the design remains in reset state."
+      ],
+      "observed_signals": [
+        "done",
+        "yout"
+      ],
+      "preconditions": [
+        "rst_n is asserted low (active) at time of start assertion."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert start while rst_n is low, then release reset and observe that done does not assert until a proper start after reset."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "start",
+        "ain",
+        "bin"
+      ],
+      "timing_assumptions": [
+        "Observe over multiple clock cycles after reset release; do not assume a fixed latency for done."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.6650000000000001,
+      "coverage_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Two legal start sequences (single-cycle pulse vs multi-cycle hold) that both cover the full multiplication should result in identical final yout and done behavior."
+      ],
+      "goal": "Demonstrate functional equivalence of different legal start driving styles.",
+      "notes": [
+        "The contract does not prescribe exact latency; equivalence is judged by final observable outputs."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "Reset released before each sequence; inputs ain and bin are held constant."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "First sequence: assert start for one clock cycle.",
+        "Second sequence: assert start and keep it high until done asserts."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "start",
+        "ain",
+        "bin"
+      ],
+      "timing_assumptions": [
+        "Allow sufficient clock cycles for each sequence to reach done; do not assume a fixed number of cycles."
+      ]
+    }
+  ],
+  "module_name": "verified_multi_16bit",
+  "plan_confidence": 0.6950000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: If the shift count register (i) is equal to 17, the multiplication completion flag (done_r) is reset to 0.",
+    "Reset polarity for 'clk' is unresolved.",
+    "Reset polarity for 'start' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions."
+  ]
+}

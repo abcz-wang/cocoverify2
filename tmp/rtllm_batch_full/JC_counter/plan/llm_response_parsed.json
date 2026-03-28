@@ -1,0 +1,119 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "reset",
+        "illegal_input"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When rst_n is asserted low while clk is idle, Q remains at its pre\u2011reset value and does not exhibit spurious transitions."
+      ],
+      "goal": "Verify that asserting the active\u2011low reset without clock activity does not cause unintended Q changes.",
+      "notes": [
+        "Reset polarity for clk is ambiguous; this case avoids relying on any clk edge during reset."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "rst_n can be driven low while clk is held steady."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Hold clk low, assert rst_n low for multiple cycles, then deassert rst_n and observe Q stability."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Allow at least two clock periods after deasserting reset before sampling Q."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "sequence",
+        "functional"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "The least\u2011significant bit Q[0] toggles on every rising edge of clk when reset is not asserted.",
+        "Q[63] follows the Johnson rule: it becomes 1 when Q[0] was 0, and 0 when Q[0] was 1."
+      ],
+      "goal": "Validate the characteristic Johnson\u2011counter state evolution across consecutive cycles without assuming a fixed latency.",
+      "notes": [
+        "Checks relational properties rather than exact numeric values, preserving ambiguity in timing."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "Counter is released from reset and runs for several clock cycles."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Generate a burst of rising edges on clk while keeping rst_n deasserted."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Sample Q after each rising edge; no assumption of exact cycle count for full period."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "functional",
+        "state_transition"
+      ],
+      "expected_properties": [
+        "When rst_n is high and a rising edge of clk occurs, Q updates according to the Johnson rule based on the current LSB.",
+        "Q remains stable between clock edges."
+      ],
+      "goal": "Validate correct single\u2011step state transition of the 64\u2011bit Johnson counter.",
+      "notes": [
+        "Observation is performed conservatively after the next rising edge."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Toggle clk once while keeping rst_n deasserted to trigger one Johnson update."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe Q at the next rising edge after the stimulus; no fixed\u2011latency assumption beyond clocked visibility."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": [
+    "Reset polarity for 'clk' is unresolved."
+  ]
+}

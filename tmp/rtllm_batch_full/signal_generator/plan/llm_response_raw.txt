@@ -1,0 +1,150 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "draft_id": "new_case_001",
+      "coverage_tags": [
+        "state_transition",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "State changes from 0 to 1 when wave reaches 31",
+        "State changes from 1 to 0 when wave reaches 0"
+      ],
+      "goal": "Verify correct state transition at waveform boundaries.",
+      "notes": [
+        "Observe wave direction to infer internal state without accessing hidden signals."
+      ],
+      "observed_signals": [
+        "wave"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Drive clock cycles to allow wave to reach 31 and then 0."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clock edge."
+      ]
+    },
+    {
+      "category": "negative",
+      "draft_id": "reset_glitch_001",
+      "coverage_tags": [
+        "reset",
+        "glitch"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "Module recovers correctly after asynchronous reset deassertion."
+      ],
+      "goal": "Test behavior when reset is asserted for a single clock cycle.",
+      "notes": [
+        "Ensures no metastability or latch-up after brief reset."
+      ],
+      "observed_signals": [
+        "wave"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst_n low for one clock cycle then release."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe wave after reset release with conservative clocked sampling."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "draft_id": "full_cycle_001",
+      "coverage_tags": [
+        "regression",
+        "full_cycle"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "After 64 clock cycles wave returns to 0, completing a full up‑down triangle period."
+      ],
+      "goal": "Validate full triangle wave period without assuming exact latency.",
+      "notes": [],
+      "observed_signals": [
+        "wave"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Run clock for 64 cycles without asserting reset."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Conservative observation each cycle; no fixed‑cycle timing assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "sanity",
+        "functional"
+      ],
+      "expected_properties": [
+        "wave increments by 1 on each clock when state=0",
+        "wave decrements by 1 when state=1"
+      ],
+      "goal": "Confirm basic waveform progression after reset release.",
+      "notes": [
+        "Observation limited to one clock edge to avoid timing assumptions."
+      ],
+      "observed_signals": [
+        "wave"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Release reset and allow a few clock cycles to observe wave change."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Check wave value one cycle after each clock edge."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": [
+    "Reset polarity for 'clk' is unresolved."
+  ]
+}

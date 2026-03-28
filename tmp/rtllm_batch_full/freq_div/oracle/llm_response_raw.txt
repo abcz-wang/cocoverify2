@@ -1,0 +1,79 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "description": "During active reset, all output clocks must be held low (0).",
+          "notes": [
+            "Conservative guardrail; does not assume exact reset release latency."
+          ],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "Whenever RST is asserted (active high), each observed output signal remains 0.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {},
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While RST is high."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Rate‑ratio check: over a bounded observation window, the toggling frequency of each output clock must be approximately the expected division ratio relative to CLK_in.",
+          "notes": [
+            "Uses a conservative window of 200 input clock cycles; tolerates minor jitter and does not enforce exact cycle counts."
+          ],
+          "observed_signals": [
+            "CLK_in",
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "Within a monitoring window of 200 CLK_in cycles after reset release, the number of rising edges observed on CLK_50 is roughly half the number of CLK_in edges, on CLK_10 roughly one‑tenth, and on CLK_1 roughly one‑hundredth, allowing a tolerance of ±5%.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 200,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset is deasserted, monitor the signals for at least 200 CLK_in cycles."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

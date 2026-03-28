@@ -1,0 +1,133 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When valid_count is driven to X or Z, the output 'out' must not change unexpectedly.",
+        "The design should not produce X on 'out' solely due to illegal input values."
+      ],
+      "goal": "Verify robustness against illegal X/Z values on the control signal.",
+      "notes": [
+        "The contract does not define behavior for X/Z on valid_count; this case checks for safe handling."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset has been released and the counter is in a known stable state."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive X and Z on valid_count while keeping rst_n deasserted and clk toggling."
+      ],
+      "stimulus_signals": [
+        "valid_count",
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe 'out' after at least one clock edge following the illegal stimulus."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "After a full counting cycle (0 to 11 and wrap), the sequence of output values repeats identically.",
+        "The counter's behavior is invariant to the number of complete cycles performed."
+      ],
+      "goal": "Confirm that repeated full counting cycles produce consistent output patterns.",
+      "notes": [
+        "Uses the known maximum count (11) to define a full cycle."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset released, valid_count held high for enough cycles to complete at least two full wraps."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Enable counting continuously and capture the output sequence over two full wrap periods."
+      ],
+      "stimulus_signals": [
+        "valid_count",
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Conservatively observe output after each clock edge; no fixed latency assumptions are made."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "When rst_n is deasserted and valid_count=1, 'out' increments by one each clock cycle until it reaches 11.",
+        "When out reaches 11 and valid_count=1, the next increment wraps 'out' to 0.",
+        "When valid_count=0, 'out' holds its current value across clock edges."
+      ],
+      "goal": "Validate normal counting operation, wrap behavior, and pause functionality after reset.",
+      "notes": [
+        "Ensures basic functional behavior under typical operating conditions."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a sequence: assert reset, release reset, toggle valid_count between 0 and 1, and observe 'out' across clock edges."
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk",
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Observe 'out' after at least one clock edge following each stimulus change; no exact-cycle latency is assumed."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "All cases use only ports defined in the contract (rst_n, clk, valid_count, out).",
+    "Timing assumptions remain conservative due to unknown fixed latency in the contract."
+  ],
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['valid_count'] without matching role(s) ['ready'] in group 'count'."
+  ]
+}

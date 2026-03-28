@@ -1,0 +1,81 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "negative_001",
+      "category": "negative",
+      "coverage_tags": [
+        "reset",
+        "asynchronous"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "When rst_n is asserted asynchronously, clk_div returns to a known idle state after deassertion.",
+        "No spurious toggles of clk_div occur during or immediately after asynchronous reset release."
+      ],
+      "goal": "Validate module's resilience to asynchronous reset assertion and release.",
+      "notes": [
+        "Reset polarity is known (active low) but timing (sync vs async) is ambiguous; this case treats it conservatively as asynchronous."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset is initially deasserted (rst_n = 1)."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst_n low at a non-clock edge, hold for a few cycles, then release while continuing clk toggling.",
+        "Monitor clk_div for any unexpected activity during the reset window and shortly after release."
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Observe clk_div for at least 5 source clock cycles after reset release before concluding stability."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "fractional_division",
+        "duty_cycle"
+      ],
+      "expected_properties": [
+        "After reset release, clk_div exhibits a repeating pattern of high duration covering 4 source clock cycles followed by a low duration covering 3 source clock cycles (or vice‑versa), reflecting the 3.5× division.",
+        "The average period of clk_div corresponds to 7 source clock cycles."
+      ],
+      "goal": "Confirm that the fractional division produces the expected uneven high/low periods after a stable reset.",
+      "notes": [
+        "Timing is observed conservatively over multiple periods; no exact-cycle latency is assumed."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release rst_n after an asserted reset, then let clk run uninterrupted.",
+        "Capture clk_div for at least 14 source clock cycles to see two full division cycles."
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Allow observation over a window of at least 14 source clock edges to capture the full 7‑cycle division pattern."
+      ]
+    }
+  ]
+}

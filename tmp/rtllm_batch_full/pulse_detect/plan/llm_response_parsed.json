@@ -1,0 +1,84 @@
+{
+  "additional_cases": [
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "back_to_back",
+        "pulse_sequence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Each distinct pulse in data_in generates a corresponding data_out=1 at its end",
+        "No extra data_out spikes are produced"
+      ],
+      "goal": "Verify that back-to-back pulses are independently detected",
+      "notes": [
+        "Applies pattern 01010 (two pulses) and checks data_out 00101"
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "back_to_back"
+      ],
+      "stimulus_intent": [
+        "Drive two consecutive pulses on data_in"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe data_out aligned with each pulse's third cycle"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "conservative"
+      ],
+      "expected_properties": [
+        "Data_out reflects pulse detection after at most one clock cycle post input pattern",
+        "No X values observed after reset release"
+      ],
+      "goal": "Validate that a single pulse pattern (0->1->0) yields data_out=1 on the third cycle",
+      "notes": [
+        "Uses minimal pulse pattern to confirm functional behavior"
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a single pulse on data_in while toggling clk"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe data_out one cycle after the falling edge of data_in that completes the pulse"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

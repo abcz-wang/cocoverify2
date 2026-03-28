@@ -1,0 +1,173 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "Pass_request asserted while red is active does not alter the internal counter or light states"
+      ],
+      "goal": "Verify that a pedestrian request is ignored when the lane light is red",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "preconditions": [
+        "System is in the red state (red == 1, yellow == 0, green == 0)"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Assert pass_request during red and confirm no change to counter or outputs"
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk",
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Observe for at least 5 clock cycles after stimulus"
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "boundary",
+        "edge"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_002",
+      "expected_properties": [
+        "When pass_request occurs with exactly 10 green cycles remaining, the counter remains at 10 (no further shortening)"
+      ],
+      "goal": "Validate that the pedestrian request does not shorten green when remaining time equals the threshold",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "preconditions": [
+        "Lane light is green and internal counter equals 10"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Assert pass_request precisely when counter == 10"
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk",
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Monitor counter for the next few cycles to ensure it continues counting down from 10"
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_002",
+      "expected_properties": [
+        "A second pass_request issued after the first shortening does not further modify the counter"
+      ],
+      "goal": "Check idempotence of consecutive pedestrian requests during a green period",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "preconditions": [
+        "Lane light is green with more than 10 cycles remaining"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert pass_request, wait two cycles, assert pass_request again, and verify counter stays at 10"
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk",
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Observe that after the first request the counter is set to 10 and remains unchanged after the second"
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity"
+      ],
+      "expected_properties": [
+        "A single pass_request pulse during green shortens the remaining green time to 10 cycles when the original remaining time > 10"
+      ],
+      "goal": "Validate pedestrian request shortening behavior under nominal green period",
+      "notes": [
+        "Assumes green state has been entered and more than 10 cycles remain before stimulus"
+      ],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert pass_request while green is active and monitor the counter reduction"
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk",
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Observe for at least 15 clock cycles after stimulus to confirm counter stays at 10"
+      ]
+    }
+  ],
+  "planning_notes": [
+    "All added cases respect the ambiguous timing model; no fixed-cycle latency is assumed beyond observable counter values.",
+    "Stimuli are limited to ports declared in the contract (rst_n, clk, pass_request).",
+    "No new ports, parameters, or internal signals are introduced."
+  ],
+  "unresolved_items": [
+    "Golden interface mentioned port 'idle', but it was not found in the RTL header.",
+    "Golden interface mentioned port 's1_red', but it was not found in the RTL header.",
+    "Golden interface mentioned port 's2_yellow', but it was not found in the RTL header.",
+    "Golden interface mentioned port 's3_green', but it was not found in the RTL header.",
+    "Reset polarity for 'clock' is unresolved."
+  ],
+  "assumptions": []
+}

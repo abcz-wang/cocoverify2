@@ -1,0 +1,74 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "description": "When Secs == 59, the next observed rising edge of CLK must wrap Secs to 0 and increment Mins by 1 while Hours remains unchanged.",
+          "observed_signals": [
+            "Secs",
+            "Mins",
+            "Hours"
+          ],
+          "pass_condition": "If Secs == 59 then after the next CLK rising edge Secs == 0 && Mins == $past(Mins) + 1 && Hours == $past(Hours)",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {},
+          "source": "conservative_enrichment",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When Secs reaches 59 during normal counting."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset deassertion, a single CLK rising edge must increment Secs to 1 while Mins and Hours stay at 0.",
+          "observed_signals": [
+            "Secs",
+            "Mins",
+            "Hours"
+          ],
+          "pass_condition": "Secs == 1 && Mins == 0 && Hours == 0",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On the first rising edge of CLK after RST is released."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

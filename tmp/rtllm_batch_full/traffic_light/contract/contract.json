@@ -1,0 +1,215 @@
+{
+  "allowed_unknowns": [],
+  "ambiguities": [
+    "Golden interface mentioned port 'idle', but it was not found in the RTL header.",
+    "Golden interface mentioned port 's1_red', but it was not found in the RTL header.",
+    "Golden interface mentioned port 's2_yellow', but it was not found in the RTL header.",
+    "Golden interface mentioned port 's3_green', but it was not found in the RTL header.",
+    "Reset polarity for 'clock' is unresolved."
+  ],
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a traffic light, with red, yellow and green three small indicators and a pedestrian button, under normal circumstances, the motor vehicle lane indicator light according to 60 clock cycles of green, 5 clock cycles of yellow, 10 clock cycles of red. When the pedestrian button is pressed, if the remaining green time is greater than 10 clocks, it is shortened to 10 clocks, and if it is less than 10 clocks, it remains unchanged. The lane light and the sidewalk light should be paired, when the lane light is green or yellow, the sidewalk light is red; When the lane light is red, the sidewalk light is green, and for the sake of simplicity, only the lane light is considered.",
+    "Module name:",
+    "traffic_light",
+    "Inputs:",
+    "Outputs:",
+    "clock[7:0]: An 8-bit output representing the count value of the internal counter.",
+    "red, yellow, green: Output signals representing the state of the traffic lights.",
+    "Parameters:",
+    "idle, s1_red, s2_yellow, s3_green: Enumeration values representing different states of the traffic light controller.",
+    "Registers and Wires:",
+    "p_red, p_yellow, p_green: 1-bit registers representing the next values for the red, yellow, and green signals.",
+    "Implementation:",
+    "The following is the design track we recommend:",
+    "The first always block is responsible for the state transition logic. It uses a case statement to handle different states. Here's a summary of each state:",
+    "The second always block handles the counting logic of the internal counter (cnt). The counter is decremented by 1 on every positive edge of the clock or negative edge of the reset signal. The counter values are adjusted based on various conditions:",
+    "If (!rst_n), the counter is set to 10.",
+    "If the pass_request signal is active and the green signal is active, the counter is set to 10.",
+    "If the green signal is inactive and the previous green signal (p_green) was active, the counter is set to 60.",
+    "If the yellow signal is inactive and the previous yellow signal (p_yellow) was active, the counter is set to 5.",
+    "If the red signal is inactive and the previous red signal (p_red) was active, the counter is set to 10.",
+    "Otherwise, the counter is decremented normally.",
+    "The assign statement assigns the value of the internal counter (cnt) to the output clock.",
+    "The final always block handles the output signals. It assigns the previous values (p_red, p_yellow, p_green) to the output signals (red, yellow, green) on the positive edge of the clock or negative edge of the reset signal.",
+    "Give me the complete code."
+  ],
+  "clocks": [
+    {
+      "confidence": 0.95,
+      "name": "clk",
+      "period_ns_guess": null,
+      "source": "spec_hint"
+    },
+    {
+      "confidence": 0.95,
+      "name": "clock",
+      "period_ns_guess": null,
+      "source": "spec_hint"
+    }
+  ],
+  "contract_confidence": 0.6350000000000001,
+  "extraction_warnings": [],
+  "handshake_groups": [],
+  "handshake_signals": [],
+  "illegal_input_constraints": [],
+  "module_name": "verified_traffic_light",
+  "observable_outputs": [
+    "clock",
+    "red",
+    "yellow",
+    "green"
+  ],
+  "parameters": {},
+  "ports": [
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "rst_n",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "clk",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "pass_request",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "wire",
+      "direction": "output",
+      "name": "clock",
+      "raw_range": "[7:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 8
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "red",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "yellow",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "green",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    }
+  ],
+  "resets": [
+    {
+      "active_level": 0,
+      "confidence": 0.9,
+      "name": "rst_n",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    },
+    {
+      "active_level": null,
+      "confidence": 0.65,
+      "name": "clock",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    }
+  ],
+  "rtl_sources": [
+    "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/traffic_light/verified_traffic_light.v"
+  ],
+  "source_map": {
+    "clocks.clk": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "clocks.clock": [
+      "rtl_heuristic",
+      "spec_hint"
+    ],
+    "module_name": [
+      "rtl:verified_traffic_light.v"
+    ],
+    "ports.clk": [
+      "rtl:verified_traffic_light.v",
+      "golden_interface"
+    ],
+    "ports.clock": [
+      "rtl:verified_traffic_light.v"
+    ],
+    "ports.green": [
+      "rtl:verified_traffic_light.v"
+    ],
+    "ports.pass_request": [
+      "rtl:verified_traffic_light.v",
+      "golden_interface"
+    ],
+    "ports.red": [
+      "rtl:verified_traffic_light.v"
+    ],
+    "ports.rst_n": [
+      "rtl:verified_traffic_light.v",
+      "golden_interface"
+    ],
+    "ports.yellow": [
+      "rtl:verified_traffic_light.v"
+    ],
+    "resets.clock": [
+      "spec_hint"
+    ],
+    "resets.rst_n": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "timing": [
+      "rtl_heuristic"
+    ]
+  },
+  "timing": {
+    "confidence": 0.9,
+    "fixed_latency_cycles": null,
+    "latency_model": "unknown",
+    "sampling_window_cycles": null,
+    "sequential_kind": "seq",
+    "source": "rtl_heuristic",
+    "variable_latency_range": null
+  }
+}

@@ -1,0 +1,333 @@
+{
+  "assumptions": [
+    "Please act as a professional Verilog designer.",
+    "Implement a module of a 32-bit floating-point multiplier for IEEE-754 standard single-precision arithmetic.",
+    "The float_multi module is designed to perform high-precision multiplication of 32-bit single-precision floating-point numbers, following the IEEE 754 standard. This module enables accurate arithmetic operations essential for various computational applications.",
+    "Module name:",
+    "float_multi",
+    "Input ports:",
+    "clk (input): Clock signal for synchronization.",
+    "rst (input): Reset signal (active high).",
+    "a (input [31:0]): First operand in IEEE 754 format.",
+    "b (input [31:0]): Second operand in IEEE 754 format.",
+    "Output ports:",
+    "z (output reg [31:0]): Result of the multiplication in IEEE 754 format.",
+    "Internal signals:",
+    "counter (reg [2:0]): Cycle counter for operation sequencing.",
+    "a_mantissa, b_mantissa, z_mantissa (reg [23:0]): Mantissas of input and output numbers.",
+    "a_exponent, b_exponent, z_exponent (reg [9:0]): Exponents of input and output numbers.",
+    "a_sign, b_sign, z_sign (reg): Sign bits for inputs and output.",
+    "product (reg [49:0]): Intermediate product of the mantissas.",
+    "guard_bit, round_bit, sticky (reg): Rounding control bits.",
+    "Implementation:",
+    "Input Processing: The mantissas, exponents, and sign bits of inputs a and b are extracted during the first clock cycle.",
+    "Special Cases Handling: The module identifies special cases like NaN (Not a Number) and infinity based on the inputs.",
+    "Rounding and Adjustment: The module rounds the result and adjusts the exponent to ensure accurate representation.",
+    "Output Generation: The final result is formatted in IEEE 754 standard, addressing overflow and underflow scenarios.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM planning note: All added cases respect the limited contract information: only known ports (clk, rst, a, b, z) are used, and no exact cycle latency is assumed.",
+    "LLM planning note: Edge cases focus on IEEE\u2011754 special values (NaN, Infinity) and exponent overflow, which are described in the specification.",
+    "LLM planning note: Negative case tests reset dominance during an in\u2011flight operation."
+  ],
+  "based_on_contract": "float_multi",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst",
+        "a"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "A legal multiplication of two normal finite operands results in a non\u2011X output 'z' that conforms to IEEE\u2011754 format."
+      ],
+      "goal": "Verify that a single normal multiplication produces a valid result.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Uses representative normal operand values (e.g., 1.5 and 2.0)."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst",
+        "a",
+        "z"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['<no resolved inputs>']",
+        "Drive normal finite values on inputs 'a' and 'b' after reset release."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "After applying inputs, wait for at least 5 clock cycles before sampling 'z', without assuming a fixed latency."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst",
+        "a"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "special_case",
+        "nan_propagation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When input operand 'a' is a NaN value, the output 'z' is also NaN according to IEEE\u2011754 propagation rules."
+      ],
+      "goal": "Validate correct NaN handling and propagation.",
+      "notes": [
+        "Uses a known NaN pattern (exponent all 1s, mantissa non\u2011zero)."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive a NaN pattern on input 'a' and a normal finite value on input 'b'."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "After applying the stimulus, wait for at least 5 clock cycles before sampling 'z', without assuming a fixed latency."
+      ]
+    },
+    {
+      "case_id": "edge_002",
+      "category": "edge",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "special_case",
+        "infinity_propagation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When either operand is +Infinity and the other is a finite non\u2011zero number, the output 'z' is +Infinity."
+      ],
+      "goal": "Verify correct handling of infinite operands.",
+      "notes": [
+        "Infinity pattern: exponent all 1s, mantissa zero."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Design is out of reset."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive +Infinity on input 'a' and a normal finite value on input 'b'."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe 'z' after a conservative waiting period of at least 5 clock cycles."
+      ]
+    },
+    {
+      "case_id": "edge_003",
+      "category": "edge",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "overflow",
+        "exponent_range"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When the exponent addition exceeds the representable range, the output 'z' is +Infinity (or -Infinity depending on sign)."
+      ],
+      "goal": "Check overflow detection and saturation to infinity.",
+      "notes": [
+        "Select operand values with large exponents to force overflow."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Design is stable after reset."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive operands with exponent fields near the maximum to cause exponent overflow."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Sample 'z' after waiting at least 5 clock cycles; do not rely on a fixed latency."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "illegal_input",
+        "reset_behavior"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "If reset is asserted while a multiplication is in progress, the module returns to a known reset state without producing spurious output."
+      ],
+      "goal": "Ensure reset dominance over ongoing operations.",
+      "notes": [
+        "Assert reset mid\u2011operation after the first cycle."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "A multiplication operation has been started (inputs applied)."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply normal inputs, then assert 'rst' before the operation completes."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "After deasserting reset, wait for at least 3 clock cycles before checking that 'z' is X or zero."
+      ]
+    }
+  ],
+  "module_name": "float_multi",
+  "plan_confidence": 0.22,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Golden interface mentioned port 'Initialization', but it was not found in the RTL header.",
+    "Golden interface described reset 'Initialization', but the signal was not found in the RTL ports.",
+    "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+    "No observable outputs were identified from the parsed RTL header.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Observable outputs are incomplete or unresolved; some cases rely on protocol-visible or port-level observation.",
+    "Some port directions are unresolved; case intents avoid strong source/sink assumptions for those signals.",
+    "All parsed ports have unknown directions; the module may use a non\u2011ANSI header."
+  ]
+}

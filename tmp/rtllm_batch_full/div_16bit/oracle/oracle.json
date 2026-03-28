@@ -1,0 +1,473 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a 16-bit divider module, the dividend is 16-bit and the divider is 8-bit in combinational logic. Extract the higher bits of the dividend, matching the bit width of the divisor. Compare these bits with the divisor: if the dividend bits are greater, set the quotient to 1, otherwise set it to 0, and use the difference as the remainder. Concatenate the remainder with the highest remaining 1-bit of the dividend, and repeat the process until all dividend bits are processed.",
+    "Module name:",
+    "div_16bit",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "The module uses two always blocks to perform the division operation.",
+    "The first always block is a combinational block triggered by any change in the input values A and B. It updates the values of two registers, a_reg and b_reg, with the values of A and B, respectively.",
+    "The second always block is also a combinational block triggered by any change in the input values A and B.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "verified_div_16bit",
+  "based_on_plan": "verified_div_16bit",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7475,
+          "description": "Observe that legal input changes are reflected on the observable outputs without state dependence.",
+          "notes": [
+            "Combinational functional oracle stays descriptive and avoids inventing a full truth table."
+          ],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "Observable outputs respond consistently to the applied inputs without relying on hidden state or exact-cycle timing.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked basic stimulus applies legal representative input patterns."
+        },
+        {
+          "check_id": "basic_001_functional_002",
+          "check_type": "functional",
+          "confidence": 0.7675000000000001,
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "Outputs result and odd become stable within one delta cycle after any change to inputs A or B.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When inputs A or B change."
+        }
+      ],
+      "confidence": 0.7575000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.6775,
+          "description": "Observe stable, externally consistent response to boundary-value input patterns.",
+          "notes": [
+            "Boundary oracle is value-oriented but intentionally generic."
+          ],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "Boundary-value outputs remain externally consistent and do not require hidden state or fixed-latency interpretation.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked edge case applies zero-like, one-like, or width-boundary patterns."
+        }
+      ],
+      "confidence": 0.6775,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_002",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_002_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7475,
+          "description": "Observe that legal input changes are reflected on the observable outputs without state dependence.",
+          "notes": [
+            "Combinational functional oracle stays descriptive and avoids inventing a full truth table."
+          ],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "Observable outputs respond consistently to the applied inputs without relying on hidden state or exact-cycle timing.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked basic stimulus applies legal representative input patterns."
+        }
+      ],
+      "confidence": 0.7475,
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7275,
+          "description": "Observe stable, externally consistent response to boundary-value input patterns.",
+          "notes": [
+            "Boundary oracle is value-oriented but intentionally generic."
+          ],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "Boundary-value outputs remain externally consistent and do not require hidden state or fixed-latency interpretation.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked edge case applies zero-like, one-like, or width-boundary patterns."
+        }
+      ],
+      "confidence": 0.7275,
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "module_name": "verified_div_16bit",
+  "oracle_confidence": {
+    "functional_confidence": 0.7275,
+    "overall_confidence": 0.7262500000000001,
+    "property_confidence": 0.7250000000000001,
+    "protocol_confidence": 0.0
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7375,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7375,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "confidence": 0.6875,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.6875,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_002",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_002_property_001",
+          "check_type": "property",
+          "confidence": 0.7375,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7375,
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_property_001",
+          "check_type": "property",
+          "confidence": 0.7375,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7375,
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "protocol_oracles": [],
+  "unresolved_items": []
+}

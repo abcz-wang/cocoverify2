@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Mutual exclusion: rise and down must never be asserted simultaneously in the same clock cycle.",
+          "notes": [],
+          "observed_signals": [
+            "rise",
+            "down"
+          ],
+          "pass_condition": "For every observed clock edge, the conjunction (rise && down) is false. Any cycle where both are 1 violates the property.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever a transition on input a is detected."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Edge pulse width: after a rising edge on a, rise must be 1 for exactly one clock cycle and then return to 0; similarly for a falling edge and down.",
+          "notes": [],
+          "observed_signals": [
+            "rise",
+            "down"
+          ],
+          "pass_condition": "If a transitions 0\u21921, then on the next rising edge of clk rise == 1 and on the following edge rise == 0. If a transitions 1\u21920, then on the next rising edge of clk down == 1 and on the following edge down == 0. No other cycles may assert the same pulse without a new transition.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a change on input a is observed."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

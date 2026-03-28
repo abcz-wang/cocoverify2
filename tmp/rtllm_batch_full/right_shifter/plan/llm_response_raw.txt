@@ -1,0 +1,115 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_basic_002",
+      "category": "basic",
+      "coverage_tags": [
+        "basic",
+        "sanity"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "After a rising edge, q[7] reflects the driven value of d and all other bits shift right by one position."
+      ],
+      "goal": "Validate that a single clock edge correctly updates q with the shift operation and the new most‑significant bit.",
+      "notes": [
+        "Uses conservative observation; no exact cycle latency is assumed beyond the rising edge."
+      ],
+      "observed_signals": [
+        "q"
+      ],
+      "preconditions": [
+        "The register q is initialized to 0 (via the initial block)."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a single value on d and observe q after the next rising edge of clk."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe q after one rising edge of clk."
+      ]
+    },
+    {
+      "draft_id": "new_edge_001",
+      "category": "edge",
+      "coverage_tags": [
+        "edge",
+        "timing"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "A change on d immediately before a rising edge is captured as the new most‑significant bit of q."
+      ],
+      "goal": "Check that input transitions close to the clock edge are still reflected in q after the edge, under conservative timing assumptions.",
+      "notes": [
+        "Conservative: assume synchronous capture on the rising edge without modeling setup/hold windows."
+      ],
+      "observed_signals": [
+        "q"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Toggle d just before the rising edge of clk and verify q[7] after the edge."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Assume the design samples d on the rising edge of clk."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "A legal operation (single clock edge) causes q to update with the shifted value and new MSB from d."
+      ],
+      "goal": "Apply one legal input on d, advance one rising edge of clk, and observe the stable post‑operation value of q.",
+      "notes": [
+        "Conservative observation: do not assume any hidden latency beyond the visible clock edge."
+      ],
+      "observed_signals": [
+        "clk",
+        "q",
+        "d"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a representative value on d (e.g., 1) and capture q after the next rising edge of clk."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations; observe q after the rising edge of clk."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

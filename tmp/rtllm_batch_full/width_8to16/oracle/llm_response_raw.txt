@@ -1,0 +1,67 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "functional",
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that data_out remains a defined 16-bit value (no X or Z) after a legal input pulse on the known 'input' signal.",
+          "notes": [],
+          "observed_signals": [
+            "data_out"
+          ],
+          "pass_condition": "data_out is not X or Z in any bit after the rising edge of clk following the input pulse.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When a one‑cycle high pulse is applied to the 'input' signal while rst_n is deasserted."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "linked_plan_case_id": "edge_001",
+      "oracle_class": "property",
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Data_out must not transition to X or Z when the 'input' signal is driven with extreme values (0 or 1) across consecutive cycles.",
+          "notes": [],
+          "observed_signals": [
+            "data_out"
+          ],
+          "pass_condition": "All bits of data_out stay within {0,1} (no X/Z) throughout the stimulus.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When 'input' is toggled between 0 and 1 over several clock cycles with rst_n deasserted."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

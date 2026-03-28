@@ -1,0 +1,96 @@
+{
+  "assumptions": [
+    "Please act as a professional Verilog designer.",
+    "A clock generator module that produces a periodic clock signal, toggling its output state at regular intervals defined by the PERIOD parameter.",
+    "Module name:",
+    "clkgenerator",
+    "Parameter:",
+    "PERIOD = 10",
+    "Output ports:",
+    "Implementation:",
+    "This module uses an initial block to set the initial state of the clock signal to 0. The clock toggles every half of the specified PERIOD, creating a square wave clock signal with the desired frequency.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM hybrid fallback activated for plan stage: 1 validation error for PlanAugmentation baseline_case_enrichments.0.preconditions Extra inputs are not permitted [type=extra_forbidden, input_value=['Instantiate clkgenerato...fault PERIOD parameter'], input_type=list] For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints.",
+    "LLM hybrid fallback activated for oracle stage: 2 validation errors for OracleAugmentation additional_oracle_cases.0.oracle_class Field required [type=missing, input_value={'assumptions': [], 'chec... 'unresolved_items': []}, input_type=dict] For further information visit https://errors.pydantic.dev/2.11/v/missing additional_oracle_cases.0.source Extra inputs are not permitted [type=extra_forbidden, input_value='rule_based', input_type=str] For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden"
+  ],
+  "based_on_contract": "clkgenerator",
+  "based_on_plan": "clkgenerator",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "basic_001",
+      "notes": [
+        "Functional oracle intentionally omitted due to missing observable outputs."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "No functional oracle was generated for plan case 'basic_001' because no observable non-control outputs were available."
+      ]
+    }
+  ],
+  "module_name": "clkgenerator",
+  "oracle_confidence": {
+    "functional_confidence": 0.05,
+    "overall_confidence": 0.05,
+    "property_confidence": 0.5625,
+    "protocol_confidence": 0.0
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.5625,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {},
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.5625,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [],
+  "unresolved_items": [
+    "Clock/reset candidates were detected, but there is not enough behavioral evidence to classify timing.",
+    "Timing model is unresolved; generated cases avoid fixed-latency checks.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Negative or illegal-input behavior is not planned because the contract does not provide reliable constraints.",
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+    "Timing remains unresolved; oracle checks avoid exact-cycle requirements and prefer event-based or safety-style windows.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+    "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks."
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "edge",
+        "max_shift"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "out reflects the input shifted by the maximum amount (7 positions) as defined by ctrl = 3'b111"
+      ],
+      "goal": "Verify correct behavior when all shift bits are asserted (maximum shift amount).",
+      "notes": [
+        "Keeps ambiguity about whether the operation is a logical shift or a rotate; only checks that the output changes consistently with a 7‑position shift."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply a representative input pattern while asserting ctrl = 3'b111 to exercise the full shift path."
+      ],
+      "stimulus_signals": [
+        "in",
+        "ctrl"
+      ],
+      "timing_assumptions": [
+        "No fixed latency assumed; treat the barrel shifter as combinational."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "out reflects the shift amount encoded by ctrl (sum of 1, 2, 4 positions) applied to in"
+      ],
+      "goal": "Verify that a single legal operation (one ctrl pattern) produces a visibly shifted output.",
+      "notes": [
+        "Preserves ambiguity about direction (rotate vs logical shift) and timing; only checks observable output change."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs."
+      ],
+      "stimulus_signals": [
+        "in",
+        "ctrl"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; use a protocol‑safe observation window."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

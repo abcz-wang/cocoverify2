@@ -1,0 +1,122 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "overflow",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "overflow_edge_001",
+      "expected_properties": [
+        "Accumulator wraps on 32-bit overflow consistent with Verilog arithmetic semantics."
+      ],
+      "goal": "Verify behavior when multiplication result exceeds 32-bit width and accumulates, ensuring defined wrap-around.",
+      "notes": [
+        "Product is 64-bit but only lower 32 bits are stored in c per Verilog truncation."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Reset deasserted, accumulator initialized."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply maximum operand values to provoke overflow."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after one clock edge following stimulus."
+      ]
+    },
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "multi_cycle",
+        "accumulation"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "basic_multi_cycle_001",
+      "expected_properties": [
+        "c increments by product each cycle, cumulative sum observable."
+      ],
+      "goal": "Demonstrate correct accumulation over several consecutive cycles.",
+      "notes": [
+        "Uses a sequence of known operand pairs."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Reset released."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a sequence of (a,b) pairs across successive clock cycles."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst",
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each rising edge."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "sanity",
+        "single_op"
+      ],
+      "expected_properties": [
+        "c updates by a*b on the next observable clock edge when rst is low."
+      ],
+      "goal": "Validate single-cycle multiplication and accumulation.",
+      "notes": [
+        "Ensures basic functional correctness without assuming hidden latency."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a non-zero a and b while rst is low and capture c."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst",
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after one rising edge of clk."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

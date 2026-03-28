@@ -1,0 +1,334 @@
+{
+  "assumptions": [
+    "Please act as a professional Verilog designer.",
+    "Implement a module of a sequence detector to detect a specific 4-bit binary sequence 1001.",
+    "Module name:",
+    "sequence_detector",
+    "Input ports:",
+    "Output ports:",
+    "Internal logic:",
+    "State Machine: The sequence detector uses a finite state machine (FSM) with the following states:",
+    "Implementation:",
+    "FSM Design: The FSM transitions through states based on the bitstream data_in. On each clock cycle, the detector checks for a match of the specific sequence.",
+    "Sequence Detection: The module checks the input data_in and transitions between states. Once the complete sequence is detected, sequence_detected is asserted.",
+    "Reset Behavior: When reset is high, the state machine returns to the IDLE state, resetting the detection process.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "sequence_detector",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.8350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "coverage_extended"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "Driving the exact 4\u2011bit pattern 1001 causes sequence_detected to become high within a bounded number of cycles (\u22643) after the last bit.",
+        "No X or Z values appear on sequence_detected after stable observation."
+      ],
+      "goal": "Apply the canonical sequence and verify observable detection under conservative timing.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "The timing bound is conservative given the contract\u2019s unknown latency model."
+      ],
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['clk', 'rst_n', 'data_in']",
+        "Drive the bitstream 1\u20110\u20110\u20111 on data_in synchronized to clk after reset release."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe up to three clock cycles after the fourth bit before checking sequence_detected."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['known inputs']"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "illegal_input",
+        "reset_glitch"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "The detector does not assert sequence_detected when reset is asserted mid\u2011sequence.",
+        "A brief glitch on the active\u2011low reset does not cause a spurious detection."
+      ],
+      "goal": "Validate robustness to reset glitches and illegal timing of reset relative to an ongoing sequence.",
+      "notes": [
+        "Reset polarity is inferred as active\u2011low per contract; the test conservatively treats the glitch as asynchronous."
+      ],
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "preconditions": [
+        "Reset signal rst_n exists and is active low."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert rst_n low for a single clock cycle while the FSM is part\u2011way through detecting 1001.",
+        "Release reset and continue feeding the remaining bits of the sequence."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe at least two clock cycles after reset release before checking sequence_detected."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "metamorphic",
+        "sequence_variation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Detecting the pattern 1001 yields the same observable assertion of sequence_detected as detecting a one\u2011bit shifted pattern 0100 after aligning the start of observation."
+      ],
+      "goal": "Demonstrate that shifting the input stream by one bit produces equivalent detection behavior, confirming consistent FSM operation.",
+      "notes": [
+        "Uses only the known ports; no timing exactness is assumed."
+      ],
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "preconditions": [
+        "Module is in a stable post\u2011reset state."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply two input streams: first containing the exact sequence 1001, second containing a leading dummy bit followed by 0100, and compare the cycle at which sequence_detected becomes high relative to each stream start."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Conservatively wait up to three clock cycles after the last bit of each stream before checking sequence_detected."
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "regression",
+        "repeatability"
+      ],
+      "dependencies": [
+        "basic_001",
+        "edge_001"
+      ],
+      "expected_properties": [
+        "Repeated execution of the basic detection pattern yields consistent assertion of sequence_detected without intermittent failures."
+      ],
+      "goal": "Ensure that previously verified basic behavior remains stable across multiple consecutive runs.",
+      "notes": [
+        "Runs the basic 1001 pattern three times with standard idle cycles between repetitions."
+      ],
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "preconditions": [
+        "Baseline basic functionality has been validated."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive the sequence 1001, insert at least one idle clock, repeat two more times, and verify that sequence_detected asserts for each occurrence."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Allow at least one idle clock cycle between consecutive sequences; observe up to three cycles after each sequence for detection."
+      ]
+    }
+  ],
+  "module_name": "sequence_detector",
+  "plan_confidence": 0.9150000000000001,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Golden interface mentioned port 'S4', but it was not found in the RTL header.",
+    "Spec/reset hint could not be mapped to a known reset port: -Reset Behavior: When reset is high, the state machine returns to the IDLE state, resetting the detection process."
+  ]
+}

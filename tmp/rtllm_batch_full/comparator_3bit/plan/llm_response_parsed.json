@@ -1,0 +1,125 @@
+{
+  "additional_cases": [
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "swap_inputs",
+        "output_consistency"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "When inputs A and B are swapped, the relationship outputs invert accordingly: A_greater \u2194 A_less, A_equal remains unchanged."
+      ],
+      "goal": "Validate that the comparator's output mapping is symmetric with respect to input swapping.",
+      "notes": [
+        "Ensures mutual exclusivity and correct logical inversion without assuming any timing latency."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [
+        "Both A and B are driven with legal 3\u2011bit values."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a pair of distinct values (e.g., A=3'b101, B=3'b011) then swap them and compare outputs."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input vector stabilizes; no fixed-cycle latency is assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "full_exhaustive_subset"
+      ],
+      "expected_properties": [
+        "A_greater is high iff A > B",
+        "A_equal is high iff A == B",
+        "A_less is high iff A < B",
+        "Exactly one of the three outputs is high for any legal input combination"
+      ],
+      "goal": "Exercise representative legal input combinations and verify exclusive output encoding.",
+      "notes": [
+        "Adds explicit exclusivity check to the original basic case."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a small set of distinct input pairs covering all three comparison outcomes."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Check outputs after inputs have settled; no sequential timing is required."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Boundary values (0 and 7) produce correct comparison results.",
+        "Zero\u2011like patterns (e.g., 3'b000) and one\u2011like patterns (e.g., 3'b111) are handled correctly."
+      ],
+      "goal": "Exercise boundary\u2011value and width\u2011sensitive input patterns.",
+      "notes": [
+        "Reinforces that the comparator works for extreme operand values."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive A and B with min/max values and verify output mapping."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each stimulus stabilizes; no internal state is assumed."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

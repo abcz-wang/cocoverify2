@@ -1,0 +1,244 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a module for pulse detection. The 1-bit input signal data_in is a continuous input, which is triggered by clk. When \"data_in\" changes from 0 to 1 to 0(3 cycles), this is considered as a \"pulse\". The indicating signal dataout is 1 at the end cycle of the \"pulse\", and then returns to 0 until the corresponding pulse appears again. For example, if data_in is 01010(5 cycles), the data_out is 00101.",
+    "Module name:",
+    "pulse_detect",
+    "Input ports\uff1a",
+    "Output ports\uff1a",
+    "Implementation:",
+    "Declare the module pulse_detect with input and output ports as specified in the ports statement.",
+    "Declare a register state to keep track of the current state of the pulse detection process.",
+    "Inside an always block, sensitive to the positive edge of the clk signal and the negative edge of the rst_n signal, implement the logic for pulse detection and output generation.",
+    "In the reset condition (~rst_n), set the state register to the initial state and set the data_out output to 0, indicating no pulse. Continue the detection process for the remaining states. For each state, check the value of data_in and transition to the next state accordingly. If the current state satisfies the last state of a \"pulse\", set data_out to 1, indicating the end of a pulse. Otherwise, set data_out to 0.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_pulse_detect",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.9350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "conservative"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "Data_out reflects pulse detection after at most one clock cycle post input pattern",
+        "No X values observed after reset release"
+      ],
+      "goal": "Validate that a single pulse pattern (0->1->0) yields data_out=1 on the third cycle",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Uses minimal pulse pattern to confirm functional behavior"
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['clk', 'rst_n', 'data_in']",
+        "Drive a single pulse on data_in while toggling clk"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe data_out one cycle after the falling edge of data_in that completes the pulse"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.8350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['known inputs']"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.8050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.9,
+      "coverage_tags": [
+        "back_to_back",
+        "pulse_sequence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Each distinct pulse in data_in generates a corresponding data_out=1 at its end",
+        "No extra data_out spikes are produced"
+      ],
+      "goal": "Verify that back-to-back pulses are independently detected",
+      "notes": [
+        "Applies pattern 01010 (two pulses) and checks data_out 00101"
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "back_to_back"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive two consecutive pulses on data_in"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe data_out aligned with each pulse's third cycle"
+      ]
+    }
+  ],
+  "module_name": "verified_pulse_detect",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

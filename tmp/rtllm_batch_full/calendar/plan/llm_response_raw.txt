@@ -1,0 +1,123 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "wrap_around",
+        "minute_increment"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "When Secs == 59, the next observed rising edge of CLK causes Secs to wrap to 0 and Mins to increment by 1 while Hours remains unchanged."
+      ],
+      "goal": "Validate correct second-to-minute rollover behavior under conservative timing assumptions.",
+      "notes": [
+        "The case does not assume a fixed number of cycles to reach Secs=59; it drives the clock until the condition is observed."
+      ],
+      "observed_signals": [
+        "Secs",
+        "Mins",
+        "Hours"
+      ],
+      "preconditions": [
+        "Module is out of reset and counting normally."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Generate a sequence of CLK rising edges sufficient to observe Secs reaching 59 and then the rollover on the following edge."
+      ],
+      "stimulus_signals": [
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Observe state after each rising edge; do not assume exact cycle count to reach the rollover."
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "hour_wrap",
+        "day_cycle"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "edge_002",
+      "expected_properties": [
+        "When Hours == 23, Mins == 59, and Secs == 59, the next observed rising edge of CLK causes Hours to wrap to 0 while Mins and Secs wrap to 0."
+      ],
+      "goal": "Confirm correct hour/day wrap‑around after a full 24‑hour cycle.",
+      "notes": [
+        "The test proceeds conservatively by iterating clock cycles until the maximum state is observed."
+      ],
+      "observed_signals": [
+        "Secs",
+        "Mins",
+        "Hours"
+      ],
+      "preconditions": [
+        "Module has progressed through normal counting to reach the maximum time state."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Continue clocking the design until the (23,59,59) state is seen, then verify the transition on the next edge."
+      ],
+      "stimulus_signals": [
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "State is sampled after each CLK rising edge; no fixed‑latency guarantee is required."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "After reset deassertion, a single CLK rising edge increments Secs by 1 while Mins and Hours remain at 0."
+      ],
+      "goal": "Verify that the calendar starts counting seconds correctly from the reset state.",
+      "notes": [
+        "Observation is limited to the first clock tick after reset; no exact latency beyond one edge is assumed."
+      ],
+      "observed_signals": [
+        "Secs",
+        "Mins",
+        "Hours"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release RST and apply one CLK rising edge, then observe the outputs."
+      ],
+      "stimulus_signals": [
+        "RST",
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Check output values after the first observed rising edge of CLK following reset release."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,455 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a simplified radix-2 divider on 8-bit signed or unsigned integers. and the inputs are two 8-bit operands. The module accepts a dividend and a divisor as inputs and provides a 16-bit result containing both the quotient and the remainder. The design supports both signed and unsigned division operations.",
+    "Module name:",
+    "radix2_div",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "Operation Start:",
+    "When opn_valid is high and res_valid is low, the module saves the inputs dividend and divisor.",
+    "Initializes the shift register SR with the absolute value of the dividend shifted left by one bit.",
+    "Sets NEG_DIVISOR to the negated absolute value of the divisor.",
+    "Sets the counter cnt to 1 and start_cnt to 1 to begin the division process.",
+    "Division Process(If start_cnt is high, the module performs the following steps):",
+    "If the counter cnt reaches 8 (most significant bit of cnt is set), the division is complete:",
+    "cnt and start_cnt are cleared.",
+    "Updates the shift register SR with the final remainder and quotient.",
+    "Otherwise, the counter cnt is incremented, and the shift register SR is updated based on the subtraction result:",
+    "Computes the subtraction of NEG_DIVISOR.",
+    "Uses a multiplexer to select the appropriate result based on the carry-out.",
+    "Updates SR by shifting left and inserting the carry-out.",
+    "Result Validity:",
+    "res_valid is managed based on the reset signal, the counter, and whether the result has been consumed.",
+    "Give me the complete code.",
+    "handshake_signals is a flattened compatibility view derived from handshake_groups.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_radix2_div",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.8350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "signed_unsigned",
+        "operation_flow"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "Result matches expected quotient and remainder for both signed (sign=1) and unsigned (sign=0) operations."
+      ],
+      "goal": "Validate correct arithmetic for both signed and unsigned division modes.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Include test vectors where sign=0 (unsigned) and sign=1 (signed) with diverse operand values."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['clk', 'rst', 'dividend', 'divisor', 'sign', 'opn_valid', 'res_ready']",
+        "Drive opn_valid with representative legal input patterns covering sign=0 and sign=1 cases."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst",
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Advance through conservative clocked observations; do not assume a fixed latency before result becomes visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['dividend', 'divisor']"
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "confidence": 0.8350000000000002,
+      "coverage_tags": [
+        "protocol",
+        "valid_ready",
+        "acceptance",
+        "res"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "When valid and ready overlap, observe externally visible acceptance or progress.",
+        "Do not assume a fixed completion cycle after acceptance."
+      ],
+      "goal": "Observe basic res valid/ready handshake acceptance.",
+      "notes": [
+        "Protocol case is intentionally acceptance-oriented, not latency-committing."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "res_ready",
+        "result"
+      ],
+      "preconditions": [
+        "Both valid and ready signals are present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Drive res_valid with a legal transaction while allowing res_ready to indicate acceptance."
+      ],
+      "stimulus_signals": [
+        "res_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+      ]
+    },
+    {
+      "case_id": "protocol_002",
+      "category": "protocol",
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "protocol",
+        "valid_ready",
+        "backpressure",
+        "res"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Progress is deferred, stalled, or otherwise safely withheld while ready is low.",
+        "The plan does not assume a single exact stall policy beyond safe non-acceptance observation."
+      ],
+      "goal": "Observe res backpressure behavior when ready is low.",
+      "notes": [
+        "Backpressure case is protocol-safe and avoids precise throughput claims."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "res_ready",
+        "result"
+      ],
+      "preconditions": [
+        "res_ready can be held low or observed low."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Attempt a transaction while res_ready remains low or unavailable for acceptance."
+      ],
+      "stimulus_signals": [
+        "res_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+      ]
+    },
+    {
+      "case_id": "protocol_003",
+      "category": "protocol",
+      "confidence": 0.7050000000000002,
+      "coverage_tags": [
+        "protocol",
+        "valid_ready",
+        "persistence",
+        "res"
+      ],
+      "dependencies": [
+        "protocol_001"
+      ],
+      "expected_properties": [
+        "Source-side behavior remains safe and externally consistent until acceptance is observed.",
+        "No exact persistence policy is assumed beyond safe observation."
+      ],
+      "goal": "Observe safe valid persistence or safe-source behavior for res traffic.",
+      "notes": [
+        "This case is intentionally unresolved-safe when the contract does not define source obligations exactly."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "res_ready",
+        "result"
+      ],
+      "preconditions": [
+        "res_valid is visible in the contract."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Maintain or re-assert res_valid across conservative observation windows until acceptance is visible."
+      ],
+      "stimulus_signals": [
+        "res_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst",
+        "dividend"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.8200000000000002,
+      "coverage_tags": [
+        "signed",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Quotient and remainder follow two's complement signed division semantics for all sign=1 operand combinations."
+      ],
+      "goal": "Validate correct handling of negative operands when sign=1.",
+      "notes": [
+        "Test combinations where dividend and/or divisor are negative (two's complement) while sign=1."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "opn_valid is low before each new transaction."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive opn_valid with sign=1 and operand pairs covering negative dividend, positive divisor, and vice\u2011versa."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst",
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Observe results after conservative clocked intervals; do not assume a fixed latency."
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "confidence": 0.8200000000000002,
+      "coverage_tags": [
+        "random",
+        "stress"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Result contains no X/Z values and res_valid toggles only when a valid result is produced."
+      ],
+      "goal": "Stress\u2011test the divider with a wide variety of random operand values.",
+      "notes": [],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Generate random 8\u2011bit dividend, divisor, and sign values; assert opn_valid for each transaction."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst",
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Use conservative clocked observation windows; avoid assuming exact completion cycles."
+      ]
+    }
+  ],
+  "module_name": "verified_radix2_div",
+  "plan_confidence": 0.9350000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['opn_valid'] without matching role(s) ['ready'] in group 'opn'.",
+    "Reset polarity for 'res_valid' is unresolved."
+  ]
+}

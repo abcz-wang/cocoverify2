@@ -1,0 +1,546 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement an asynchronous FIFO, FIFO bit width and depth can be configured(parameter DEPTH = 16, parameter WIDTH = 8). The asynchronous FIFO structure is divided into several parts. The first part is dual-port RAM, which is used for data storage. Instantiate dual-port RAM as a submodule, The RAM ports are input wclk, input wenc, input [$clog2(DEPTH)-1:0] waddr, input [WIDTH-1:0] wdata, input rclk, input renc, input [$clog2(DEPTH)-1:0] raddr, output reg [WIDTH-1:0] rdata. The second part is the data write controller. The third part is the data read controller. The fourth part is the read pointer synchronizer. The read pointer is collected using the two-stage trigger of the write clock and output to the data write controller. The fifth part is the write pointer synchronizer, which uses the two-stage trigger of the read clock to collect the write pointer and output it to the data read controller.",
+    "The method of empty and full judgment is to generate empty and full signals by comparing the Gray code. Use 4-bit Gray code as a read/write pointer for a FIFO with depth 8. The gray code is converted to a four-digit binary number, using the lower three digits of the binary number as the address to access RAM. When the read and write Pointers are equal, the FIFO is null.",
+    "When the write pointer has one more cycle RAM than the read pointer, the highest and second-highest bits of the read and write pointer are opposite, the remaining bits are the same, and the FIFO is full.",
+    "Module name:",
+    "asyn_fifo",
+    "Input ports:",
+    "Output ports:",
+    "Parameter:",
+    "WIDTH = 8",
+    "DEPTH = 16",
+    "Implementation:",
+    "The module implements an asynchronous FIFO using a dual-port RAM module and additional logic for managing read and write pointers.",
+    "The module instantiates a dual-port RAM module named \"dual_port_RAM\" with configurable depth and width.",
+    "The RAM module has separate clock inputs for write (wclk) and read (rclk) operations.",
+    "The RAM module has separate address inputs for write (waddr) and read (raddr) operations.",
+    "The RAM module has a write enable input (wenc) and a write data input (wdata).",
+    "The RAM module has a read enable input (renc) and a read data output (rdata).",
+    "The RAM module stores data in a two-dimensional array, RAM_MEM, with a size of DEPTH by WIDTH.",
+    "Write and Read Pointers:",
+    "The module includes logic to manage write and read pointers for asynchronous operation.",
+    "The write and read pointers are represented by binary registers, waddr_bin and raddr_bin, respectively.",
+    "The write and read pointers are incremented based on the write and read increment signals (winc and rinc), respectively.",
+    "The write pointer is incremented on the positive edge of the write clock (posedge wclk) and reset to 0 on write reset (~wrstn).",
+    "The read pointer is incremented on the positive edge of the read clock (posedge rclk) and reset to 0 on read reset (~rrstn).",
+    "Gray Code Conversion:",
+    "The write and read pointers are converted to Gray code using XOR operations with right-shifted values.",
+    "The converted write and read pointers are stored in registers wptr and rptr, respectively.",
+    "The Gray code conversion reduces glitches and ensures proper synchronization of the write and read pointers.",
+    "Pointer Buffers:",
+    "The module includes buffer registers (wptr_buff and rptr_buff) to hold the previous values of the write and read pointers.",
+    "The buffer registers are updated on the positive edge of the respective clocks and reset to 0 on the respective resets (~wrstn and ~rrstn).",
+    "The buffer registers are used to synchronize the write and read pointers for determining the full and empty conditions.",
+    "Full and Empty Signals:",
+    "The module compares the current write and read pointers (wptr and rptr_syn) to determine if the FIFO is full or empty.",
+    "The wfull output is set to 1 when the write pointer is equal to the bitwise negation of the most significant bit of the read pointer concatenated with the remaining bits of the read pointer.",
+    "The rempty output is set to 1 when the read pointer is equal to the write pointer.",
+    "Input and Output Connections:",
+    "The module connects the input and output signals to the dual-port RAM module based on the control signals and pointer values.",
+    "The wen and ren signals control the write and read enable signals of the RAM module, respectively.",
+    "The wdata input is connected to the write data input (wdata) of the RAM module.",
+    "The rdata output is connected to the read data output (rdata) of the RAM module.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "All input ports listed in the contract are correctly connected to the DUT.",
+    "The dual\u2011port RAM correctly implements synchronous write on wclk and synchronous read on rclk.",
+    "No hidden internal handshakes affect the observable rdata output beyond the described write/read enable signals.",
+    "LLM planning note: Reset polarity for wclk and rclk remains unresolved; the plan treats reset release as a generic stabilization period before any functional stimulus.",
+    "LLM planning note: All cases avoid referencing ports that are absent from the contract (wrstn, rrstn, winc, rinc, wfull, rempty).",
+    "LLM planning note: Timing assumptions are deliberately conservative, relying only on observable clock edges and stable signal values.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "dual_port_RAM",
+  "based_on_plan": "dual_port_RAM",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_reset_001",
+      "category": "reset",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'reset_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.6050000000000002,
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "After a write operation with wenc=1 and a given waddr/wdata, a subsequent read with renc=1 at the same address returns the same data on rdata within one rclk cycle.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When wenc and renc are asserted on their respective clocks with matching addresses."
+        }
+      ],
+      "confidence": 0.6050000000000002,
+      "linked_plan_case_id": "basic_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'basic_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_001",
+      "category": "edge",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "edge_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'edge_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_002",
+      "category": "edge",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "edge_002",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'edge_002' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    }
+  ],
+  "module_name": "dual_port_RAM",
+  "oracle_confidence": {
+    "functional_confidence": 0.18875000000000006,
+    "overall_confidence": 0.05,
+    "property_confidence": 0.4821428571428573,
+    "protocol_confidence": 0.5650000000000002
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_property_001",
+          "check_type": "property",
+          "confidence": 0.5750000000000002,
+          "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+          "notes": [
+            "Clock/reset remain anchors and are not emitted as business outputs."
+          ],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        }
+      ],
+      "confidence": 0.5750000000000002,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'reset_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.5750000000000002,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.5750000000000002,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "confidence": 0.5250000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.5250000000000001,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'edge_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_back_to_back_001",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_001_property_001",
+          "check_type": "property",
+          "confidence": 0.4750000000000002,
+          "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+          "notes": [
+            "Stability-style property used instead of throughput-specific claims."
+          ],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        }
+      ],
+      "confidence": 0.4750000000000002,
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'back_to_back_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_protocol_001",
+      "category": "protocol",
+      "checks": [
+        {
+          "check_id": "protocol_001_property_001",
+          "check_type": "property",
+          "confidence": 0.4150000000000002,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.4150000000000002,
+      "linked_plan_case_id": "protocol_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'protocol_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_property_001",
+          "check_type": "property",
+          "confidence": 0.4150000000000002,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.4150000000000002,
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'edge_002' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_back_to_back_002",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_002_property_001",
+          "check_type": "property",
+          "confidence": 0.39500000000000024,
+          "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+          "notes": [
+            "Stability-style property used instead of throughput-specific claims."
+          ],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        }
+      ],
+      "confidence": 0.39500000000000024,
+      "linked_plan_case_id": "back_to_back_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'back_to_back_002' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_protocol_001",
+          "check_type": "protocol",
+          "confidence": 0.5650000000000002,
+          "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+          "notes": [
+            "Reset is used as an anchor only; it is not treated as a business output."
+          ],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'wclk' is asserted and later released according to the inferred polarity."
+        }
+      ],
+      "confidence": 0.5650000000000002,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Reset oracle focuses on control-safe behavior instead of value-specific output claims.",
+        "Protocol oracle strictness is downgraded because the contract or plan is weak."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "unresolved_items": [
+    "Golden interface mentioned port 'wrstn', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'rrstn', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'winc', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'rinc', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'wfull', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'rempty', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'Dual', but it was not found in the RTL header.",
+    "Golden interface described reset 'wrstn', but the signal was not found in the RTL ports.",
+    "Golden interface described reset 'rrstn', but the signal was not found in the RTL ports.",
+    "Spec/reset hint could not be mapped to a known reset port: wrstn: Write reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: rrstn: Read reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: The buffer registers are updated on the positive edge of the respective clocks and reset to 0 on the respective resets (~wrstn and ~rrstn).",
+    "Reset polarity for 'wclk' is unresolved.",
+    "Reset polarity for 'rclk' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks."
+  ]
+}

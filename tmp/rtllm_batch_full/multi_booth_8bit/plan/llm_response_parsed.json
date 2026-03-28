@@ -1,0 +1,73 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_polarity",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_reset_polarity_001",
+      "expected_properties": [
+        "After deasserting reset, the internal multiplier and multiplicand registers reflect sign\u2011extended values of inputs a and b as described in the spec."
+      ],
+      "goal": "Validate that the module correctly initializes its internal state on a high\u2011level reset, despite the ambiguous reset polarity.",
+      "notes": [
+        "The case does not assume whether reset is synchronous or asynchronous; it observes stable post\u2011reset behavior over several clock edges."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset for a conservative number of cycles, then release it, and monitor that p and rdy remain stable until a new operation is started."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over multiple clock cycles after reset release; do not rely on a fixed latency for internal state initialization."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic_operation",
+        "sanity"
+      ],
+      "expected_properties": [
+        "Product register p updates only when multiplier[ctr] is 1 and ctr < 16.",
+        "Ready signal rdy stays low until ctr reaches 16."
+      ],
+      "goal": "Execute a single multiplication with known operands and verify conservative evolution of p and rdy.",
+      "notes": [
+        "Using small operands (e.g., a=8'h03, b=8'h04) keeps the expected product within the 16\u2011bit range and simplifies observation."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a = 8'h03 and b = 8'h04, then start the operation by releasing reset, and monitor p and rdy until completion."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Allow up to 20 clock cycles for the operation to complete; do not assume an exact cycle count."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

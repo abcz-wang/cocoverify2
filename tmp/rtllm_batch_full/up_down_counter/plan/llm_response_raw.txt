@@ -1,0 +1,124 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "wrap_001",
+      "category": "edge",
+      "coverage_tags": [
+        "wrap_around",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Counter wraps from 0xFFFF to 0 on increment",
+        "Counter wraps from 0 to 0xFFFF on decrement"
+      ],
+      "goal": "Validate correct wrap‑around behavior at the 16‑bit counter limits.",
+      "notes": [
+        "Requires driving sufficient clock cycles to reach limits; observation is performed one cycle after the triggering edge."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "Counter has been incremented to 0xFFFF or decremented to 0x0000"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive up_down=1 repeatedly until count reaches 0xFFFF then observe the next increment wraps to 0",
+        "Drive up_down=0 repeatedly until count reaches 0 then observe the next decrement wraps to 0xFFFF"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Observe count one clock cycle after each stimulus; no fixed‑latency assumption is made"
+      ]
+    },
+    {
+      "draft_id": "illegal_up_down_x_001",
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Module does not produce X or undefined behavior when up_down is X"
+      ],
+      "goal": "Check robustness to an unknown (X) control input.",
+      "notes": [
+        "The contract does not define behavior for X; the test ensures the design remains stable."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive up_down to an unknown (X) value while toggling clk"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Observe count after one clock edge; no assumption of hidden latency"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Count increments by 1 when up_down=1 after reset",
+        "Count decrements by 1 when up_down=0 after reset"
+      ],
+      "goal": "Confirm basic counting direction functionality.",
+      "notes": [
+        "Observe count change by +/-1 relative to the previous value."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a single clock cycle with up_down=1 and verify count increments",
+        "Apply a single clock cycle with up_down=0 and verify count decrements"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Wait one clock edge after stimulus; no multi‑cycle latency is assumed"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,283 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a 64-bit Johnson counter (torsional ring counter), and the state of the similar 4-bit Johnson counter example is as follows: 0000, 1000, 1100, 1110, 1111, 0111, 0011, 0001, 0000.",
+    "Module name:",
+    "JC_counter",
+    "Input ports:",
+    "Output port:",
+    "Implementation:",
+    "On every rising edge of the clock signal (clk) or the falling edge of the reset signal (rst_n), the counter value is updated.",
+    "If the reset signal (rst_n) is low, indicating a reset condition, the counter value (Q) is set to 0.",
+    "Otherwise, if the least significant bit (Q[0]) is 0, the counter increments by shifting the current value (Q[63:1]) to the right and appending a 1 at the most significant bit position.",
+    "If the least significant bit (Q[0]) is 1, the counter decrements by shifting the current value (Q[63:1]) to the right and appending a 0 at the most significant bit position.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_JC_counter",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.8350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "functional",
+        "state_transition"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "When rst_n is high and a rising edge of clk occurs, Q updates according to the Johnson rule based on the current LSB.",
+        "Q remains stable between clock edges."
+      ],
+      "goal": "Validate correct single\u2011step state transition of the 64\u2011bit Johnson counter.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Observation is performed conservatively after the next rising edge."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['clk', 'rst_n']",
+        "Toggle clk once while keeping rst_n deasserted to trigger one Johnson update."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe Q at the next rising edge after the stimulus; no fixed\u2011latency assumption beyond clocked visibility."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.785,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['known inputs']"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7550000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "reset",
+        "illegal_input"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "When rst_n is asserted low while clk is idle, Q remains at its pre\u2011reset value and does not exhibit spurious transitions."
+      ],
+      "goal": "Verify that asserting the active\u2011low reset without clock activity does not cause unintended Q changes.",
+      "notes": [
+        "Reset polarity for clk is ambiguous; this case avoids relying on any clk edge during reset."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "rst_n can be driven low while clk is held steady."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Hold clk low, assert rst_n low for multiple cycles, then deassert rst_n and observe Q stability."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Allow at least two clock periods after deasserting reset before sampling Q."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "sequence",
+        "functional"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "The least\u2011significant bit Q[0] toggles on every rising edge of clk when reset is not asserted.",
+        "Q[63] follows the Johnson rule: it becomes 1 when Q[0] was 0, and 0 when Q[0] was 1."
+      ],
+      "goal": "Validate the characteristic Johnson\u2011counter state evolution across consecutive cycles without assuming a fixed latency.",
+      "notes": [
+        "Checks relational properties rather than exact numeric values, preserving ambiguity in timing."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "Counter is released from reset and runs for several clock cycles."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Generate a burst of rising edges on clk while keeping rst_n deasserted."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Sample Q after each rising edge; no assumption of exact cycle count for full period."
+      ]
+    }
+  ],
+  "module_name": "verified_JC_counter",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Reset polarity for 'clk' is unresolved."
+  ]
+}

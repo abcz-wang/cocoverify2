@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After a rising edge of clk, the register q must update to the previous value shifted right by one bit with the new most\u2011significant bit equal to the driven value of d.",
+          "notes": [],
+          "observed_signals": [
+            "q",
+            "d",
+            "clk"
+          ],
+          "pass_condition": "q_next == {d, q_current[7:1]} where q_current is the value of q before the rising edge and q_next is the value after the edge.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a rising edge of clk occurs while d is driven."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Validate that after one clock cycle the most\u2011significant bit of q reflects the value presented on d and all other bits have shifted right by one position.",
+          "notes": [],
+          "observed_signals": [
+            "q",
+            "d",
+            "clk"
+          ],
+          "pass_condition": "q[7] == d after the rising edge and for i in 0..6, q[i] == q_prev[i+1] where q_prev is the value before the edge.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a rising edge of clk occurs with a known value on d."
+        }
+      ],
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

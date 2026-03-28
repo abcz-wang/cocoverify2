@@ -1,0 +1,216 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "protocol_opn_valid_001",
+          "check_type": "protocol",
+          "confidence": 0.72,
+          "description": "When a new operation is requested (opn_valid high), the module must not already indicate a valid result (res_valid must be low).",
+          "notes": [
+            "Derived from the specification that operation start occurs only when opn_valid is high and res_valid is low."
+          ],
+          "observed_signals": [
+            "opn_valid",
+            "res_valid"
+          ],
+          "pass_condition": "Whenever opn_valid is asserted, res_valid must be deasserted in the same cycle.",
+          "semantic_tags": [
+            "protocol",
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "opn_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_start",
+            "max_cycles": 0,
+            "min_cycles": 0,
+            "mode": "exact_cycle"
+          },
+          "trigger_condition": "When opn_valid transitions high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "functional_result_composition_001",
+          "check_type": "functional",
+          "confidence": 0.78,
+          "description": "When res_valid rises, the 16‑bit result must contain the quotient in bits [7:0] and the remainder in bits [15:8] as defined by the radix‑2 division algorithm.",
+          "notes": [
+            "Uses only signals defined in the contract."
+          ],
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "If res_valid is high, result[7:0] equals the computed quotient and result[15:8] equals the computed remainder for the given dividend, divisor, and sign inputs.",
+          "semantic_tags": [
+            "functional",
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "result_ready",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When res_valid transitions from low to high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "property_result_no_xz_001",
+          "check_type": "property",
+          "confidence": 0.74,
+          "description": "The result bus must not contain X or Z values while res_valid is asserted.",
+          "notes": [
+            "Ensures defined data output as required for safe downstream consumption."
+          ],
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "If res_valid is high, all bits of result must be 0 or 1 (no X/Z).",
+          "semantic_tags": [
+            "property",
+            "data_integrity"
+          ],
+          "signal_policies": {
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "result_valid",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever res_valid is high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "functional_result_stability_001",
+          "check_type": "functional",
+          "confidence": 0.71,
+          "description": "Result must remain stable until the consumer acknowledges it via res_ready.",
+          "notes": [
+            "Matches the handshake semantics where res_valid stays asserted until res_ready is high."
+          ],
+          "observed_signals": [
+            "res_valid",
+            "res_ready",
+            "result"
+          ],
+          "pass_condition": "While res_valid stays high and res_ready is low, result must not change.",
+          "semantic_tags": [
+            "functional",
+            "protocol"
+          ],
+          "signal_policies": {
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "res_ready": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "handshake_hold",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When res_valid is high and res_ready is low."
+        }
+      ],
+      "linked_plan_case_id": "protocol_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

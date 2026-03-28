@@ -1,0 +1,81 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When aluc does not match any defined opcode, the result r must be high\u2011impedance (z) and the status flags are allowed to be high\u2011impedance or unknown.",
+          "notes": [
+            "Preserves the implementation\u2011defined default case without assuming specific flag values."
+          ],
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "If aluc is outside the set {ADD,ADDU,SUB,SUBU,AND,OR,XOR,NOR,SLT,SLTU,SLL,SRL,SRA,SLLV,SRLV,SRAV,LUI}, then r == 1'bz and all other outputs may be 1'bz or X.",
+          "semantic_tags": [
+            "invalid_illegal_input",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus drives an undefined aluc value."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "For the ADD operation (aluc == ADD), r must equal a + b (unsigned addition). carry is asserted if the unsigned addition produces a carry out. zero is asserted iff r == 0. negative reflects the most\u2011significant bit of r. overflow is asserted only if the signed addition of a and b overflows. flag is 0 (or high\u2011impedance) for ADD.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus applies aluc == ADD with arbitrary a and b."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,208 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Frequency divider that divides the input clock frequency by even numbers. This module generates a divided clock signal by toggling its output every specified number of input clock cycles.",
+    "Module name:",
+    "freq_divbyeven",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "The frequency divider uses a counter (`cnt`) to count the number of clock cycles. The `NUM_DIV` parameter specifies the division factor, which must be an even number.",
+    "When the reset signal (`rst_n`) is low, the counter and the divided clock signal (`clk_div`) are initialized to zero.",
+    "On each positive edge of the input clock (`clk`), if the counter is less than half of `NUM_DIV - 1`, the counter increments without changing the divided clock output.",
+    "When the counter reaches the specified limit, it resets to zero and toggles the `clk_div` output signal, effectively dividing the frequency of the input clock by the even number specified by `NUM_DIV`.",
+    "Counter:",
+    "The counter is a 4-bit register (`cnt`) that tracks the number of clock cycles.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "freq_divbyeven",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "toggle_behavior"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "clk_div toggles at least once after reset release",
+        "Counter wraps correctly when reaching half of NUM_DIV - 1"
+      ],
+      "goal": "Validate that after reset release the divider produces a periodic toggling output consistent with an even division factor.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Assumes NUM_DIV is an even constant >= 2 as described in the spec."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "clk_div"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['<no resolved inputs>']",
+        "Release reset and run the clock for enough cycles to observe at least two toggles of clk_div"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Do not assume exact-cycle latency; allow observation window of up to NUM_DIV cycles per half period"
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.1,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "clk_div"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.2,
+      "coverage_tags": [
+        "toggle_edge",
+        "frequency_division"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "clk_div toggles after a number of clk cycles that is within the expected range derived from the even NUM_DIV parameter",
+        "No X or Z values appear on clk_div during the observation window"
+      ],
+      "goal": "Confirm that the divided clock output exhibits a toggle edge consistent with an even division factor, without assuming a fixed cycle latency.",
+      "notes": [
+        "Timing is observed conservatively; the exact cycle count for the toggle is not assumed."
+      ],
+      "observed_signals": [
+        "clk",
+        "rst_n",
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in stable operation"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Run the clock for at least NUM_DIV cycles after reset release and watch for the first toggle of clk_div"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Allow up to NUM_DIV cycles for the first toggle; do not require exact-cycle alignment"
+      ]
+    }
+  ],
+  "module_name": "freq_divbyeven",
+  "plan_confidence": 0.15000000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "All parsed ports have unknown directions; the module may use a non-ANSI header.",
+    "No observable outputs were identified from the parsed RTL header.",
+    "Reset polarity for 'clk_div' is unresolved.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Observable outputs are incomplete or unresolved; some cases rely on protocol-visible or port-level observation.",
+    "Some port directions are unresolved; case intents avoid strong source/sink assumptions for those signals."
+  ]
+}

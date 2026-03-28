@@ -1,0 +1,110 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "toggle_edge",
+        "half_count"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "clk_div toggles only when the internal counters reach half of NUM_DIV (rounded down).",
+        "No extra toggles appear between expected toggle points."
+      ],
+      "goal": "Observe that the divided clock output toggles at the expected half\u2011period intervals derived from the odd divisor, confirming correct edge\u2011based toggling logic.",
+      "notes": [
+        "Internal signals cnt1, cnt2, clk_div1, clk_div2 are not observable; inference is made from the external clk_div waveform."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a steady clock on 'clk' after reset and monitor 'clk_div' for correct toggle spacing."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Allow observation over at least NUM_DIV clock cycles after each observed toggle to accommodate unknown latency."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "parameter_variation",
+        "odd_divisor"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "regression_001",
+      "expected_properties": [
+        "Changing the parameter NUM_DIV to another odd value (e.g., 7) results in a proportional change in the observed clk_div period.",
+        "The output remains stable and free of glitches after the parameter change."
+      ],
+      "goal": "Validate that the module correctly adapts to different odd divisor values without functional regression.",
+      "notes": [
+        "Parameter re\u2011instantiation is treated as a separate simulation run; no runtime parameter change is assumed."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Run the design with NUM_DIV set to 7 (or another odd value) and verify the scaled frequency of clk_div."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over multiple periods of the expected divided clock to confirm stable frequency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "odd_division",
+        "toggle_behavior",
+        "stability"
+      ],
+      "expected_properties": [
+        "After reset deassertion, clk_div settles to a non\u2011X stable state.",
+        "clk_div exhibits a periodic toggling whose average period corresponds to NUM_DIV * clk period (odd divisor behavior)."
+      ],
+      "goal": "Verify that the divided clock output becomes functional and stable after reset, showing the expected average frequency for the default odd divisor.",
+      "notes": [
+        "Observation is performed over at least 2 * NUM_DIV clock cycles to accommodate unknown internal latency."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset and provide a continuous clock on 'clk', then monitor 'clk_div' for stable periodic behavior."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Do not assume a fixed-cycle latency; allow the output to stabilize over multiple clock cycles."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

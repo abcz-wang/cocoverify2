@@ -1,0 +1,254 @@
+{
+  "assumptions": [
+    "Please act as a professional Verilog designer.",
+    "Implement a module of an 8-bit multiplier based on shifting and adding operations.",
+    "Module name:",
+    "multi_8bit",
+    "Input ports:",
+    "A [7:0]: First 8-bit input operand (representing a multiplicand).",
+    "B [7:0]: Second 8-bit input operand (representing a multiplier).",
+    "Output ports:",
+    "product [15:0]: 16-bit output representing the product of the two 8-bit inputs (A * B).",
+    "Implementation:",
+    "The algorithm iterates through each bit of the multiplier (B). For each bit that is set (1), the multiplicand (A) is added to the product at the corresponding shifted position.",
+    "The process continues until all bits of the multiplier have been processed.",
+    "The final product is stored in the output port, which is 16 bits wide to accommodate the maximum possible product of two 8-bit numbers.",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM planning note: All added cases respect the contract's limited signal set (A, B, product) and avoid inventing clocks, resets, or handshakes.",
+    "LLM planning note: Timing assumptions remain conservative; no fixed-cycle latency is asserted.",
+    "LLM planning note: Negative case acknowledges that illegal input behavior is unspecified, thus only checks for safe handling."
+  ],
+  "based_on_contract": "multi_8bit",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.55,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "unknown",
+        "operation_specific"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Checks are limited to reset-safe, protocol-safe, or output-visible behavior.",
+        "No fixed latency or exact cycle count is assumed.",
+        "Product reflects the multiplication of A and B for a single stimulus.",
+        "No reliance on fixed latency; observation window is open-ended."
+      ],
+      "goal": "Apply one legal input pair and verify that product eventually shows the correct multiplication result.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Conservative check suitable when timing is unresolved."
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['A', 'B']"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only.",
+        "Use reset\u2011safe or protocol\u2011safe observation windows only."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.5,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Product correctly handles minimum and maximum operand values.",
+        "Boundary\u2011value stimulation does not rely on hidden state or undocumented latency."
+      ],
+      "goal": "Exercise boundary\u2011value and width\u2011sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Edge coverage remains value\u2011oriented and avoids fixed\u2011latency assumptions."
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['A', 'B']",
+        "Use zero\u2011like, one\u2011like, and boundary patterns on ['A', 'B']"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only.",
+        "Use reset\u2011safe or protocol\u2011safe observation windows only."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.43000000000000005,
+      "coverage_tags": [
+        "sequential",
+        "throughput"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Product updates reflect each new input pair without requiring a reset.",
+        "No fixed latency is assumed; observation window spans multiple cycles."
+      ],
+      "goal": "Apply a rapid sequence of legal input vectors to A and B and verify that product eventually reflects each pair.",
+      "notes": [
+        "Ensures the design can handle back-to-back transactions in the absence of explicit handshaking."
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "preconditions": [
+        "Design is combinational or has internal pipelining with unknown latency."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive a series of distinct (A,B) pairs in successive cycles."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed number of cycles for product to settle; monitor over a window of several cycles after each stimulus."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.43000000000000005,
+      "coverage_tags": [
+        "commutative",
+        "property"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "product(A,B) == product(B,A) for all legal inputs."
+      ],
+      "goal": "Validate the commutative property of multiplication by swapping inputs.",
+      "notes": [
+        "Leverages the mathematical property of multiplication; useful when timing is unknown."
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "preconditions": [
+        "Both A and B are driven with the same set of values in two separate stimulus phases."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "First drive (A=x, B=y), capture product; then drive (A=y, B=x), capture product."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observation does not rely on exact latency; compare captured values after sufficient observation windows."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.43000000000000005,
+      "coverage_tags": [
+        "illegal_input",
+        "robustness"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Design does not exhibit undefined behavior (e.g., X-propagation) when inputs contain X or Z."
+      ],
+      "goal": "Probe the design's response to unknown or high-impedance values on A and B.",
+      "notes": [
+        "Contract does not define illegal input constraints; this case explores unspecified behavior conservatively."
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "preconditions": [
+        "Inputs can be driven with X/Z values in the simulation environment."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive A or B with X/Z patterns and monitor product for stability or safe handling."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume any latency; simply observe product after stimulus."
+      ]
+    }
+  ],
+  "module_name": "multi_8bit",
+  "plan_confidence": 0.43000000000000005,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Timing model is unresolved; generated cases avoid fixed-latency checks.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Negative or illegal-input behavior is not planned because the contract does not provide reliable constraints.",
+    "Exact latency of the shift\u2011and\u2011add implementation remains unknown; observation windows are open\u2011ended.",
+    "Behavior for X/Z inputs is not defined in the contract; the negative case treats this as an exploratory robustness check."
+  ]
+}

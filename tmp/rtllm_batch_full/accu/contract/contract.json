@@ -1,0 +1,165 @@
+{
+  "allowed_unknowns": [],
+  "ambiguities": [
+    "Detected valid_ready-like signal(s) ['valid_in'] without matching role(s) ['ready'] in group 'in'.",
+    "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'."
+  ],
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a module to achieve serial input data accumulation output, input is 8bit data. The valid_in will be set to 1 before the first data comes in. Whenever the module receives 4 input data, the data_out outputs 4 received data accumulation results and sets the valid_out to be 1 (will last only 1 cycle).",
+    "Module name:",
+    "accu",
+    "Input ports:",
+    "data_in[7:0]: 8-bit input data for addition.",
+    "Output ports:",
+    "data_out[9:0]: 10-bit output data representing the accumulated sum.",
+    "Implementation:",
+    "When valid_in is 1, data_in is a valid input. Accumulate four valid input data_in values and calculate the output data_out by adding these four values together.",
+    "There is no output when there are fewer than four data_in inputs in the interim. Along with the output data_out, a cycle of valid_out=1 will appear as a signal.",
+    "The valid_out signal is set to 1 when the data_out outputs 4 received data accumulation results. Otherwise, it is set to 0.",
+    "Give me the complete code."
+  ],
+  "clocks": [
+    {
+      "confidence": 0.95,
+      "name": "clk",
+      "period_ns_guess": null,
+      "source": "spec_hint"
+    }
+  ],
+  "contract_confidence": 0.7850000000000001,
+  "extraction_warnings": [],
+  "handshake_groups": [],
+  "handshake_signals": [],
+  "illegal_input_constraints": [],
+  "module_name": "accu",
+  "observable_outputs": [
+    "valid_out",
+    "data_out"
+  ],
+  "parameters": {},
+  "ports": [
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "clk",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "rst_n",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "data_in",
+      "raw_range": "[7:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 8
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "valid_in",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "valid_out",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "data_out",
+      "raw_range": "[9:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 10
+    }
+  ],
+  "resets": [
+    {
+      "active_level": 0,
+      "confidence": 0.9,
+      "name": "rst_n",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    }
+  ],
+  "rtl_sources": [
+    "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/accu/verified_accu.v"
+  ],
+  "source_map": {
+    "clocks.clk": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "module_name": [
+      "rtl:verified_accu.v"
+    ],
+    "ports.clk": [
+      "rtl:verified_accu.v",
+      "golden_interface"
+    ],
+    "ports.data_in": [
+      "rtl:verified_accu.v"
+    ],
+    "ports.data_out": [
+      "rtl:verified_accu.v"
+    ],
+    "ports.rst_n": [
+      "rtl:verified_accu.v",
+      "golden_interface"
+    ],
+    "ports.valid_in": [
+      "rtl:verified_accu.v",
+      "golden_interface"
+    ],
+    "ports.valid_out": [
+      "rtl:verified_accu.v",
+      "golden_interface"
+    ],
+    "resets.rst_n": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "timing": [
+      "rtl_heuristic"
+    ]
+  },
+  "timing": {
+    "confidence": 0.9,
+    "fixed_latency_cycles": null,
+    "latency_model": "unknown",
+    "sampling_window_cycles": null,
+    "sequential_kind": "seq",
+    "source": "rtl_heuristic",
+    "variable_latency_range": null
+  }
+}

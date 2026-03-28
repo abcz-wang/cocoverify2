@@ -1,0 +1,120 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "basic_001_property_002",
+          "check_type": "property",
+          "confidence": 0.78,
+          "description": "Safety: output 'out' must never exceed the maximum count value 4'd11.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "For all observed cycles, out <= 4'd11.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "any_cycle",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Continuously monitor during any stimulus."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "pause_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.77,
+          "description": "When valid_count is deasserted, the counter output must hold its value across clock edges.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "If valid_count=0 for a consecutive sequence of clock cycles, out remains unchanged throughout that sequence.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "valid_count_deasserted",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When valid_count transitions to 0 and remains 0."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "out updates only on rising edge of clk when valid_count=1 and rst_n is deasserted; otherwise it holds.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Any change to valid_count or after reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

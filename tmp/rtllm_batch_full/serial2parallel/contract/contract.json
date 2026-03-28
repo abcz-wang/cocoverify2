@@ -1,0 +1,163 @@
+{
+  "allowed_unknowns": [],
+  "ambiguities": [
+    "Detected valid_ready-like signal(s) ['din_valid'] without matching role(s) ['ready'] in group 'din'.",
+    "Detected valid_ready-like signal(s) ['dout_valid'] without matching role(s) ['ready'] in group 'dout'."
+  ],
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement a series-parallel conversion circuit. It receives a serial input signal \"din_serial\" along with a control signal \"din_valid\" indicating the validity of the input data. The module operates on the rising edge of the clock signal \"clk\" and uses a synchronous design. The input din_serial is a single-bit data, and when the module receives 8 input data, the output dout_parallel outputs the 8-bit data(The serial input values are sequentially placed in dout_parallel from the most significant bit to the least significant bit), and the dout_valid is set to 1.",
+    "Module name:",
+    "serial2parallel",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "The module utilizes a 4-bit counter (cnt) to keep track of the number of serial input data bits received. Every eight din_serial input, dout_parallel will output. When all 8 serial data bits have been received, the valid output signal is set to 1, indicating that the parallel output data is valid. Otherwise, the valid output signal is set to 0, indicating that the parallel output data is not valid.",
+    "Give me the complete code."
+  ],
+  "clocks": [
+    {
+      "confidence": 0.95,
+      "name": "clk",
+      "period_ns_guess": null,
+      "source": "spec_hint"
+    }
+  ],
+  "contract_confidence": 0.7850000000000001,
+  "extraction_warnings": [],
+  "handshake_groups": [],
+  "handshake_signals": [],
+  "illegal_input_constraints": [],
+  "module_name": "verified_serial2parallel",
+  "observable_outputs": [
+    "dout_parallel",
+    "dout_valid"
+  ],
+  "parameters": {},
+  "ports": [
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "clk",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "rst_n",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "din_serial",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "din_valid",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "dout_parallel",
+      "raw_range": "[7:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 8
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "dout_valid",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    }
+  ],
+  "resets": [
+    {
+      "active_level": 0,
+      "confidence": 0.9,
+      "name": "rst_n",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    }
+  ],
+  "rtl_sources": [
+    "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/serial2parallel/verified_serial2parallel.v"
+  ],
+  "source_map": {
+    "clocks.clk": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "module_name": [
+      "rtl:verified_serial2parallel.v"
+    ],
+    "ports.clk": [
+      "rtl:verified_serial2parallel.v",
+      "golden_interface"
+    ],
+    "ports.din_serial": [
+      "rtl:verified_serial2parallel.v",
+      "golden_interface"
+    ],
+    "ports.din_valid": [
+      "rtl:verified_serial2parallel.v",
+      "golden_interface"
+    ],
+    "ports.dout_parallel": [
+      "rtl:verified_serial2parallel.v",
+      "golden_interface"
+    ],
+    "ports.dout_valid": [
+      "rtl:verified_serial2parallel.v",
+      "golden_interface"
+    ],
+    "ports.rst_n": [
+      "rtl:verified_serial2parallel.v",
+      "golden_interface"
+    ],
+    "resets.rst_n": [
+      "rtl_heuristic",
+      "golden_interface",
+      "spec_hint"
+    ],
+    "timing": [
+      "rtl_heuristic"
+    ]
+  },
+  "timing": {
+    "confidence": 0.9,
+    "fixed_latency_cycles": null,
+    "latency_model": "unknown",
+    "sampling_window_cycles": null,
+    "sequential_kind": "seq",
+    "source": "rtl_heuristic",
+    "variable_latency_range": null
+  }
+}

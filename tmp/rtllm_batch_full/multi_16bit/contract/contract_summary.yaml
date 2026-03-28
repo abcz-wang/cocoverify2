@@ -1,0 +1,97 @@
+module_name: verified_multi_16bit
+rtl_sources:
+- /workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/multi_16bit/verified_multi_16bit.v
+parameters: {}
+port_count: 7
+ports:
+- name: clk
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: rst_n
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: start
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: ain
+  direction: input
+  width: 16
+  raw_range: '[15:0]'
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: bin
+  direction: input
+  width: 16
+  raw_range: '[15:0]'
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: yout
+  direction: output
+  width: 32
+  raw_range: '[31:0]'
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: done
+  direction: output
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+clock_names:
+- clk
+reset_names:
+- rst_n
+- clk
+- start
+handshake_groups:
+- pattern: start_done
+  group_name: default
+  signals:
+    start: start
+    done: done
+  source: rtl_heuristic
+  confidence: 0.8
+handshake_signals:
+- start
+- done
+timing:
+  sequential_kind: seq
+  latency_model: unknown
+  fixed_latency_cycles: null
+  variable_latency_range: null
+  sampling_window_cycles: null
+  source: rtl_heuristic
+  confidence: 0.9
+observable_outputs:
+- yout
+- done
+ambiguities:
+- 'Spec/reset hint could not be mapped to a known reset port: If the shift count register
+  (i) is equal to 17, the multiplication completion flag (done_r) is reset to 0.'
+- Reset polarity for 'clk' is unresolved.
+- Reset polarity for 'start' is unresolved.
+extraction_warnings: []
+contract_confidence: 0.7350000000000001

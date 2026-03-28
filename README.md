@@ -37,11 +37,27 @@ README is the project status overview. Detailed design lives in `docs/`, detaile
 | Phase 1.1 | done | contract quality patch | timing inference became more conservative, `handshake_groups` was added, weak contracts now degrade `contract_confidence` more clearly | handshake semantics are still heuristic, not proven |
 | Phase 2 | done | `test_plan.json`, `test_plan_summary.yaml`, plan CLI stage | plan generation consumes only `contract.json`; it does not re-parse RTL | still rule-based and intentionally conservative |
 | Phase 3 | done | `oracle.json`, `oracle_summary.yaml`, oracle CLI stage | oracle is split into protocol / functional / property layers and avoids exact-cycle checks under unknown timing | no render/runtime code yet; functional oracle remains descriptive |
-| Phase 4 | planned | structured cocotb package rendering | render should translate artifacts, not invent new semantics | not started |
-| Phase 5 | planned | simulation execution and result artifacts | runner must stay artifact-driven and multi-mode | not started |
+| Phase 4 | done | deterministic cocotb package rendering, `render/metadata.json`, rendered `cocotb_tests/` package, executable Makefile shell | render translates `contract + plan + oracle` artifacts into code without re-inventing semantics | rendered checks still inherit conservative upstream artifacts; render does not strengthen weak oracle semantics |
+| Phase 5 | done | `runner_selection.json`, structured `simulation_result.json`, make-mode execution path, cocotb-tools execution path, structured logs and JUnit support | Phase 4 renders the executable Makefile shell and Phase 5 injects execution config, selects the backend, and runs it | default run currently executes the first rendered test module unless `--test-module` is provided |
 | Phase 6 | planned | structured failure classification | triage should classify failures by layer with evidence | not started |
 | Phase 7 | planned | targeted repair recommendations | repair must be stage-local, not monolithic regeneration | not started |
 | Phase 8 | planned | final report and verdict | verdict must combine evidence, ambiguity, and risk | not started |
+
+## Current Implemented Path
+
+- Phases 1-5 are implemented today as the current mainline path: `contract -> plan -> oracle -> render -> run`.
+- The implementation on `master` is still a rule-based MVP; it is artifact-oriented and deterministic by default.
+- LLM support remains part of the long-term architecture, but it is not yet in the main execution path.
+- Recent RTLLM alu artifacts under `tmp/rtllm_eval4/`, `tmp/rtllm_eval4_run/`, and `tmp/rtllm_eval4_edge_run/` show that the Phase 1-5 path can reach real make-mode execution for:
+  - `cocotb_tests.test_verified_alu_basic.test_basic_001`
+  - `cocotb_tests.test_verified_alu_edge.test_edge_001`
+
+## Current Limitations
+
+- `TestPlan` and `OracleSpec` are still rule-based and conservative; they are designed to preserve ambiguity rather than maximize semantic strength.
+- The RTLLM alu smoke success proves execution-path viability and a real Phase 5 happy path, not benchmark-grade semantic oracle quality.
+- Default `stage run` currently executes the first rendered test module unless `--test-module` is provided explicitly.
+- Real Phase 5 runs require `cocotb`, `cocotb_tools`, `cocotb-config`, and an available simulator such as `iverilog`.
 
 ## Completed Phases in Brief
 
@@ -79,6 +95,20 @@ README is the project status overview. Detailed design lives in `docs/`, detaile
 - Why: separate plan/stimulus intent from oracle intent to lower false positives
 - Limits: oracle generation is still conservative and avoids exact-cycle checks when timing is weak or unknown
 - Feeds next phase with: `protocol_oracles`, `functional_oracles`, `property_oracles`, `TemporalWindow`, `OracleConfidenceSummary`
+
+### Phase 4
+
+- Artifacts: `render/metadata.json`, rendered `cocotb_tests/` package, shared interface/env/oracle/coverage helpers, executable Makefile shell
+- Why: render deterministically translates structured artifacts into a maintainable cocotb package without re-deriving contract, plan, or oracle semantics
+- Limits: render preserves conservative upstream assumptions; it does not make weak or unresolved oracle semantics stronger
+- Feeds next phase with: render metadata, test modules, helper modules, and the executable Makefile shell used by Phase 5
+
+### Phase 5
+
+- Artifacts: `runner_selection.json`, `simulation_result.json`, structured logs, optional JUnit output, make and cocotb-tools execution paths
+- Why: execute render artifacts through an explicit runner-selection layer while keeping execution concerns separate from triage and verdicting
+- Limits: the current mainline remains rule-based, default execution selects the first rendered test module unless overridden, and smoke success should not be read as strong semantic validation
+- Feeds next phase with: execution status, selected backend/mode, structured logs, discovered/executed test lists, and JUnit metadata
 
 ## Docs Guide / Where to Look Next
 
@@ -121,7 +151,13 @@ Typical stage commands supported today:
 cocoverify2 stage contract --rtl path/to/dut.v --out-dir out
 cocoverify2 stage plan --contract out/contract/contract.json --out-dir out
 cocoverify2 stage oracle --contract out/contract/contract.json --plan out/plan/test_plan.json --out-dir out
+cocoverify2 stage render --contract out/contract/contract.json --plan out/plan/test_plan.json --oracle out/oracle/oracle.json --out-dir out
+cocoverify2 stage run --render out/render/metadata.json --out-dir run_out
 ```
+
+Environment note for real Phase 5 execution:
+
+- `stage run` needs `cocotb`, `cocotb_tools`, `cocotb-config`, and a simulator/runtime pair that can actually execute the rendered package.
 
 ## Project Status Note
 

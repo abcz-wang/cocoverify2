@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -12,6 +13,7 @@ from cocoverify2.stages.contract_extractor import ContractExtractor
 _FIXTURES = Path(__file__).parent / "fixtures"
 _RTL = _FIXTURES / "rtl"
 _GOLDEN = _FIXTURES / "golden"
+_SRC = Path(__file__).resolve().parents[1] / "src"
 
 
 def test_simple_seq_detects_clock_reset_and_artifacts(tmp_path: Path) -> None:
@@ -118,6 +120,10 @@ def test_stage_contract_cli_smoke(tmp_path: Path) -> None:
         capture_output=True,
         text=True,
         check=False,
+        env={
+            **os.environ,
+            "PYTHONPATH": str(_SRC) if not os.environ.get("PYTHONPATH") else f"{_SRC}{os.pathsep}{os.environ['PYTHONPATH']}",
+        },
     )
 
     assert result.returncode == 0, result.stderr

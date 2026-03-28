@@ -91,10 +91,14 @@ def test_simple_comb_renders_basic_and_edge_without_protocol_file(tmp_path: Path
         "test_case.py.tmpl",
         "test_module.py.tmpl",
     }
+    assert payload["fill_status"] == "experimental_available"
+    assert payload["unfilled_todo_block_ids"] == []
+    assert any("experimental" in item.lower() for item in payload["fill_warnings"])
     assert set(payload["test_modules"]) == {"test_simple_comb_basic", "test_simple_comb_edge"}
     assert "# TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001" in env_text
     assert "# TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001" in oracle_text
     assert "# TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_basic_001 case_id=basic_001" in basic_text
+    assert "_apply_structured_signal_policy" in oracle_text
     _compile_generated_python(package_dir)
 
 
@@ -118,6 +122,7 @@ def test_render_metadata_tracks_llm_todo_blocks_and_template_names(tmp_path: Pat
     assert oracle_blocks
     assert all(block["check_id"] for block in oracle_blocks)
     assert all("semantic_tags" in block["context"] for block in oracle_blocks)
+    assert all("signal_policies" in block["context"] for block in oracle_blocks)
     assert all(block["relative_path"].startswith("cocotb_tests/") for block in todo_blocks)
     assert generated_files["cocotb_tests/simple_comb_env.py"]["template_name"] == "env_module.py.tmpl"
     assert generated_files["cocotb_tests/simple_comb_oracle.py"]["template_name"] == "oracle_module.py.tmpl"

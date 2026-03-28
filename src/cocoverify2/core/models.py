@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from cocoverify2.core.types import (
+    AssertionStrength,
     ExecutionStatus,
     LatencyModel,
     OracleCheckType,
@@ -150,6 +151,15 @@ class TemporalWindow(ModelBase):
     anchor: str = ""
 
 
+class SignalAssertionPolicy(ModelBase):
+    """Structured observability policy for one signal inside an oracle check."""
+
+    strength: AssertionStrength = AssertionStrength.UNRESOLVED
+    allow_unknown: bool = True
+    allow_high_impedance: bool = True
+    rationale: str = ""
+
+
 class OracleCheck(ModelBase):
     """Single structured oracle check ready for later render-stage translation."""
 
@@ -161,6 +171,7 @@ class OracleCheck(ModelBase):
     pass_condition: str = ""
     temporal_window: TemporalWindow = Field(default_factory=TemporalWindow)
     strictness: OracleStrictness = OracleStrictness.CONSERVATIVE
+    signal_policies: dict[str, SignalAssertionPolicy] = Field(default_factory=dict)
     semantic_tags: list[str] = Field(default_factory=list)
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     source: str = "unknown"

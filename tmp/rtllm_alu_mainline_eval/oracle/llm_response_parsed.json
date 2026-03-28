@@ -1,0 +1,43 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Result and flag signals must reflect the defined operation semantics for each supported opcode.",
+          "notes": [],
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "For a given aluc value matching a defined opcode, r equals the expected arithmetic/logic result; zero is 1 iff r==0; negative is 1 iff r[31]==1; carry is 1 for unsigned overflow in ADDU/SUBU; overflow is 1 for signed overflow in ADD/SUB; flag is 1 only for SLT or SLTU (otherwise high-impedance). For undefined aluc, r is high-impedance.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When aluc matches any defined opcode."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

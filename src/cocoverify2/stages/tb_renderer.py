@@ -158,6 +158,8 @@ class TBRenderer:
             render_warnings.append("Task description was provided to the render stage but not used to invent new testbench semantics.")
         if spec_text:
             render_warnings.append("Spec text was provided to the render stage but only upstream artifacts were trusted for code generation.")
+        if llm_todo_blocks:
+            render_warnings.append("Deterministic render remains the default mainline; post-render TODO fill is experimental and not required by the benchmark path.")
         render_warnings = _deduped(render_warnings)
 
         metadata = RenderMetadata(
@@ -184,9 +186,13 @@ class TBRenderer:
             template_inventory=_template_inventory(generated_files=generated_files, llm_todo_blocks=llm_todo_blocks),
             llm_todo_blocks=llm_todo_blocks,
             filled_todo_block_ids=[],
-            unfilled_todo_block_ids=[block.block_id for block in llm_todo_blocks],
-            fill_status="pending" if llm_todo_blocks else "not_required",
-            fill_warnings=["Rendered TODO blocks require the fill stage before this package becomes a strong functional testbench."],
+            unfilled_todo_block_ids=[],
+            fill_status="experimental_available" if llm_todo_blocks else "not_applicable",
+            fill_warnings=(
+                ["Experimental TODO fill metadata is present, but the default mainline pipeline remains render -> run -> triage."]
+                if llm_todo_blocks
+                else []
+            ),
             render_warnings=render_warnings,
             render_confidence=_estimate_render_confidence(contract=contract, plan=plan, oracle=oracle, warnings=render_warnings),
         )

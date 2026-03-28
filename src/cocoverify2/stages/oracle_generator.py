@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 from statistics import fmean
 
 from cocoverify2.core.config import LLMConfig
@@ -13,11 +14,20 @@ from cocoverify2.core.models import (
     OracleCheck,
     OracleConfidenceSummary,
     OracleSpec,
+    SignalAssertionPolicy,
     TemporalWindow,
     TestCasePlan,
     TestPlan,
 )
-from cocoverify2.core.types import GenerationMode, OracleCheckType, OracleStrictness, SequentialKind, TemporalWindowMode
+from cocoverify2.core.types import (
+    AssertionStrength,
+    GenerationMode,
+    OracleCheckType,
+    OracleStrictness,
+    PortDirection,
+    SequentialKind,
+    TemporalWindowMode,
+)
 from cocoverify2.llm.client import LLMClient
 from cocoverify2.llm.prompts import build_oracle_system_prompt, build_oracle_user_prompt
 from cocoverify2.llm.validators import parse_oracle_augmentation, validate_oracle_augmentation
@@ -189,6 +199,7 @@ class OracleGenerator:
             assumptions=assumptions,
             oracle_confidence=confidence_summary,
         )
+        _attach_signal_policies(oracle=oracle, contract=contract, plan=plan)
         return oracle
 
     def run_from_artifacts(
@@ -404,6 +415,7 @@ class OracleGenerator:
                 weak_contract=weak_contract,
             ),
         )
+        _attach_signal_policies(oracle=merged_oracle, contract=contract, plan=plan)
         merge_report = {
             "status": "merged",
             "accepted_check_ids": accepted_checks,
@@ -1257,6 +1269,159 @@ def _make_hybrid_check(
         source="hybrid_llm_generated",
         notes=_deduped(list(proposed_check.notes)),
     )
+
+
+def _attach_signal_policies(*, oracle: OracleSpec, contract: DUTContract, plan: TestPlan) -> None:
+    plan_cases = {case.case_id: case for case in plan.cases}
+    weak_contract = _is_weak_contract(contract, plan)
+    semantic_hints = _explicit_output_semantic_hints(contract)
+    for oracle_case in [*oracle.protocol_oracles, *oracle.functional_oracles, *oracle.property_oracles]:
+        plan_case = plan_cases.get(oracle_case.linked_plan_case_id)
+        for check in oracle_case.checks:
+            check.signal_policies = _build_signal_policies(
+                contract=contract,
+                plan_case=plan_case,
+                check=check,
+                weak_contract=weak_contract,
+                semantic_hints=semantic_hints,
+            )
+
+
+def _build_signal_policies(
+    *,
+    contract: DUTContract,
+    plan_case: TestCasePlan | None,
+    check: OracleCheck,
+    weak_contract: bool,
+    semantic_hints: dict[str, SignalAssertionPolicy],
+) -> dict[str, SignalAssertionPolicy]:
+    policies: dict[str, SignalAssertionPolicy] = {}
+    handshake_signals = set(contract.handshake_signals)
+    allowed_unknowns = set(contract.allowed_unknowns)
+    ambiguity_preserving = bool(plan_case and "ambiguity_preserving" in set(plan_case.semantic_tags))
+    negative_like = bool(
+        plan_case
+        and (
+            plan_case.category == "negative"
+            or "invalid_illegal_input" in set(plan_case.semantic_tags)
+        )
+    )
+    for signal in check.observed_signals:
+        if signal in allowed_unknowns:
+            policies[signal] = SignalAssertionPolicy(
+                strength=AssertionStrength.GUARDED,
+                allow_unknown=True,
+                allow_high_impedance=True,
+                rationale="contract_allowed_unknown",
+            )
+            continue
+        if signal in handshake_signals:
+            policies[signal] = SignalAssertionPolicy(
+                strength=AssertionStrength.GUARDED,
+                allow_unknown=False,
+                allow_high_impedance=False,
+                rationale="protocol_visible_signal",
+            )
+            continue
+        if negative_like:
+            policies[signal] = SignalAssertionPolicy(
+                strength=AssertionStrength.UNRESOLVED,
+                allow_unknown=True,
+                allow_high_impedance=True,
+                rationale="negative_or_illegal_case_preserves_ambiguity",
+            )
+            continue
+
+        hinted_policy = semantic_hints.get(signal)
+        if hinted_policy is not None:
+            policy = hinted_policy.model_copy(deep=True)
+            if weak_contract and policy.strength == AssertionStrength.EXACT and signal not in _primary_data_outputs(contract):
+                policy = policy.model_copy(
+                    update={
+                        "strength": AssertionStrength.GUARDED,
+                        "rationale": f"{policy.rationale}_downgraded_for_weak_contract",
+                    }
+                )
+            policies[signal] = policy
+            continue
+
+        if signal in _primary_data_outputs(contract) and not ambiguity_preserving:
+            policies[signal] = SignalAssertionPolicy(
+                strength=AssertionStrength.GUARDED,
+                allow_unknown=False,
+                allow_high_impedance=False,
+                rationale="primary_data_output_guarded_definedness",
+            )
+            continue
+
+        policies[signal] = SignalAssertionPolicy(
+            strength=AssertionStrength.UNRESOLVED,
+            allow_unknown=True,
+            allow_high_impedance=True,
+            rationale="insufficient_structured_evidence",
+        )
+    return policies
+
+
+def _explicit_output_semantic_hints(contract: DUTContract) -> dict[str, SignalAssertionPolicy]:
+    strong_behavior_tokens = (
+        " is set to ",
+        " are set to ",
+        " is determined ",
+        " are determined ",
+        " assign ",
+        " assigns ",
+        " assigned ",
+        " concatenated ",
+        " formed ",
+        " lower 32 bits ",
+    )
+    hints: dict[str, SignalAssertionPolicy] = {}
+    for signal in _output_signal_names(contract):
+        matching_lines = _assumption_lines_for_signal(contract, signal)
+        if not matching_lines:
+            continue
+        has_explicit_behavior = any(any(token in line for token in strong_behavior_tokens) for line in matching_lines)
+        has_high_impedance = any("high-impedance" in line or "'z'" in line or " 1'bz" in line for line in matching_lines)
+        if has_explicit_behavior and has_high_impedance:
+            hints[signal] = SignalAssertionPolicy(
+                strength=AssertionStrength.GUARDED,
+                allow_unknown=False,
+                allow_high_impedance=True,
+                rationale="explicit_conditional_high_impedance_behavior",
+            )
+        elif has_explicit_behavior:
+            hints[signal] = SignalAssertionPolicy(
+                strength=AssertionStrength.EXACT,
+                allow_unknown=False,
+                allow_high_impedance=False,
+                rationale="explicit_output_behavior",
+            )
+    return hints
+
+
+def _assumption_lines_for_signal(contract: DUTContract, signal: str) -> list[str]:
+    pattern = re.compile(rf"\b{re.escape(signal.lower())}\b")
+    return [line.lower() for line in contract.assumptions if pattern.search(str(line or "").lower())]
+
+
+def _output_signal_names(contract: DUTContract) -> list[str]:
+    return [
+        port.name
+        for port in contract.ports
+        if port.direction in {PortDirection.OUTPUT, PortDirection.INOUT} and port.name
+    ]
+
+
+def _primary_data_outputs(contract: DUTContract) -> set[str]:
+    return {
+        port.name
+        for port in contract.ports
+        if port.direction == PortDirection.OUTPUT
+        and isinstance(port.width, int)
+        and port.width > 1
+        and port.name in set(contract.observable_outputs)
+    }
 
 
 def _is_duplicate_oracle_check(candidate: OracleCheck, existing_checks: list[OracleCheck]) -> bool:

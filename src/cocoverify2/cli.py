@@ -24,7 +24,7 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the top-level CLI parser."""
     parser = argparse.ArgumentParser(
         prog="cocoverify2",
-        description="Stage-based LLM-assisted cocotb verification framework.",
+        description="Stage-based cocotb verification framework with hybrid LLM support in plan/oracle stages and experimental post-render fill.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
 
@@ -246,7 +246,7 @@ def _handle_stage(args: argparse.Namespace) -> int:
             spec_text=load_optional_text(spec_path),
         )
         print(
-            "TODO fill completed for module "
+            "Experimental TODO fill completed for module "
             f"'{report.module_name or '<unknown>'}' with status '{report.fill_status}' -> {out_dir / 'fill' / 'metadata.json'}"
         )
         return 0

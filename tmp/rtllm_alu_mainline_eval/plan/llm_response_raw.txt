@@ -1,0 +1,169 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "add_basic_001",
+      "category": "basic",
+      "coverage_tags": [
+        "add",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Result r equals a + b for ADD opcode",
+        "Carry flag set when unsigned overflow occurs",
+        "Overflow flag set when signed overflow occurs"
+      ],
+      "goal": "Exercise ADD operation with varied operand patterns",
+      "notes": [
+        "Focus on signed vs unsigned overflow detection"
+      ],
+      "observed_signals": [
+        "r",
+        "carry",
+        "overflow",
+        "zero",
+        "negative"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply ADD opcode with random and edge operand values"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle"
+      ]
+    },
+    {
+      "draft_id": "illegal_opcode_001",
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Output r is high-impedance (z) when aluc is undefined"
+      ],
+      "goal": "Verify module response to undefined opcode",
+      "notes": [
+        "Uses opcode 6'b111111 not defined in spec"
+      ],
+      "observed_signals": [
+        "r"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive aluc with an undefined value while providing arbitrary a,b"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle"
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Result matches arithmetic definition for given opcode"
+      ],
+      "goal": "Validate functional mapping for typical opcodes",
+      "notes": [
+        "Preserves original intent while adding operation specificity"
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a representative set of opcodes (ADD, SUB, AND, OR) with random operands"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization",
+        "Do not infer internal state or undocumented storage"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Boundary values (0x0, 0xFFFFFFFF) produce correct zero, carry, overflow, and sign flags"
+      ],
+      "goal": "Validate boundary handling for arithmetic and shift operations",
+      "notes": [
+        "Ensures correct flag behavior at extreme operand and shift amounts"
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "edge_case"
+      ],
+      "stimulus_intent": [
+        "Drive min/max operand values and extreme shift amounts (0 and 31)"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization",
+        "Do not infer internal state or undocumented storage"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

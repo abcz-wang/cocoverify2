@@ -1,0 +1,234 @@
+{
+  "assumptions": [
+    "Please act as a professional verilog designer.",
+    "Implement an ALU for a 32-bit MIPS-ISA CPU. The \u201ca\u201d and \u201cb\u201d are the two operands of the ALU, the \u201caluc\u201d is the opcode, and the \u201cr\u201d gives out the result. \u201czero\u201d means if the result is zero, \u201ccarry\u201d means if there is a carry bit, \u201cnegative\u201d means if the result is negative, \u201coverflow\u201d means if the computation is overflow, the \u201cflag\u201d is the result of \u201cslt\u201d and \u201csltu\u201d instructions. The supported operations and corresponding opcode are shown below:",
+    "parameter ADD = 6'b100000;",
+    "parameter ADDU = 6'b100001;",
+    "parameter SUB = 6'b100010;",
+    "parameter SUBU = 6'b100011;",
+    "parameter AND = 6'b100100;",
+    "parameter OR = 6'b100101;",
+    "parameter XOR = 6'b100110;",
+    "parameter NOR = 6'b100111;",
+    "parameter SLT = 6'b101010;",
+    "parameter SLTU = 6'b101011;",
+    "parameter SLL = 6'b000000;",
+    "parameter SRL = 6'b000010;",
+    "parameter SRA = 6'b000011;",
+    "parameter SLLV = 6'b000100;",
+    "parameter SRLV = 6'b000110;",
+    "parameter SRAV = 6'b000111;",
+    "parameter LUI = 6'b001111;",
+    "Module name:",
+    "alu",
+    "Input ports:",
+    "Output ports:",
+    "Implementation:",
+    "The module uses parameters to define the control signals for various operations, such as ADD, SUB, AND, OR, etc.",
+    "The module assigns the input operands to the signed wires and the output result (r) to the lower 32 bits of the register (res[31:0]). The flag output is determined based on the control signal (aluc) and is set to '1' when the operation is SLT or SLTU, and 'z' (high-impedance) otherwise. The zero output is set to '1' when the result is all zeros, and '0' otherwise.",
+    "Inside the always block, a case statement is used to perform the appropriate operation based on the control signal (aluc). The result is assigned to the register (res) accordingly. For shift operations (SLL, SRL, SRA, SLLV, SRLV, SRAV), the shift amount is determined by the value of 'a' or 'a[4:0]'. For the LUI operation, the upper 16 bits of 'a' are concatenated with 16 zeros to form the result.",
+    "If the control signal (aluc) does not match any defined operation, the result is assigned as 'z' (high-impedance).",
+    "Give me the complete code.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_alu_mainline_eval/contract/contract.json",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing.",
+        "Result matches arithmetic definition for given opcode"
+      ],
+      "goal": "Validate functional mapping for typical opcodes",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Preserves original intent while adding operation specificity"
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known inputs: ['a', 'b', 'aluc']",
+        "Apply a representative set of opcodes (ADD, SUB, AND, OR) with random operands"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage.",
+        "Observe outputs after input stabilization",
+        "Do not infer internal state or undocumented storage"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.6975,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Boundary values (0x0, 0xFFFFFFFF) produce correct zero, carry, overflow, and sign flags"
+      ],
+      "goal": "Validate boundary handling for arithmetic and shift operations",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Ensures correct flag behavior at extreme operand and shift amounts"
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "edge_case"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['a', 'b', 'aluc']",
+        "Drive min/max operand values and extreme shift amounts (0 and 31)"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage.",
+        "Observe outputs after input stabilization",
+        "Do not infer internal state or undocumented storage"
+      ]
+    },
+    {
+      "case_id": "basic_002",
+      "category": "basic",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "add",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Result r equals a + b for ADD opcode",
+        "Carry flag set when unsigned overflow occurs",
+        "Overflow flag set when signed overflow occurs"
+      ],
+      "goal": "Exercise ADD operation with varied operand patterns",
+      "notes": [
+        "Focus on signed vs unsigned overflow detection"
+      ],
+      "observed_signals": [
+        "r",
+        "carry",
+        "overflow",
+        "zero",
+        "negative"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply ADD opcode with random and edge operand values"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle"
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Output r is high-impedance (z) when aluc is undefined"
+      ],
+      "goal": "Verify module response to undefined opcode",
+      "notes": [
+        "Uses opcode 6'b111111 not defined in spec"
+      ],
+      "observed_signals": [
+        "r"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive aluc with an undefined value while providing arbitrary a,b"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle"
+      ]
+    }
+  ],
+  "module_name": "verified_alu",
+  "plan_confidence": 0.8475,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

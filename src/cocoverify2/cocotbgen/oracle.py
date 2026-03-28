@@ -71,6 +71,7 @@ def render_oracle_module(
                     ],
                     context={
                         "observed_signals": list(check["observed_signals"]),
+                        "signal_policies": dict(check.get("signal_policies", {})),
                         "trigger_condition": check.get("trigger_condition", ""),
                         "pass_condition": check.get("pass_condition", ""),
                         "strictness": check.get("strictness", ""),

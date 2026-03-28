@@ -91,6 +91,14 @@ class OracleStrictness(str, Enum):
     GUARDED = "guarded"
 
 
+class AssertionStrength(str, Enum):
+    """Artifact-level value assertion strength for one observed signal."""
+
+    EXACT = "exact"
+    GUARDED = "guarded"
+    UNRESOLVED = "unresolved"
+
+
 class GenerationMode(str, Enum):
     """Supported generation modes for plan/oracle stages."""
 

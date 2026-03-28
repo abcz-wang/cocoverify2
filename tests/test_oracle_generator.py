@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 from cocoverify2.core.config import LLMConfig
-from cocoverify2.core.types import GenerationMode
+from cocoverify2.core.models import DUTContract, PortSpec, TestCasePlan as PlanCaseModel, TestPlan as PlanModel, TimingSpec
+from cocoverify2.core.types import AssertionStrength, GenerationMode, PortDirection, SequentialKind, TestCategory as PlanCategory
 from cocoverify2.stages.contract_extractor import ContractExtractor
 from cocoverify2.stages.oracle_generator import OracleGenerator
 from cocoverify2.stages.test_plan_generator import TestPlanGenerator
@@ -231,6 +232,76 @@ def test_hybrid_oracle_falls_back_cleanly_on_invalid_llm_response(tmp_path: Path
     assert any("fallback" in item.lower() for item in oracle.assumptions)
     payload = json.loads((tmp_path / "oracle" / "llm_merge_report.json").read_text(encoding="utf-8"))
     assert payload["status"] == "fallback"
+
+
+def test_oracle_artifact_marks_weak_side_outputs_as_unresolved(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="demo_alu",
+        ports=[
+            PortSpec(name="a", direction=PortDirection.INPUT, width=32),
+            PortSpec(name="b", direction=PortDirection.INPUT, width=32),
+            PortSpec(name="aluc", direction=PortDirection.INPUT, width=6),
+            PortSpec(name="r", direction=PortDirection.OUTPUT, width=32),
+            PortSpec(name="zero", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="carry", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="negative", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="overflow", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="flag", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["r", "zero", "carry", "negative", "overflow", "flag"],
+        timing=TimingSpec(sequential_kind=SequentialKind.COMB, latency_model="unknown", confidence=0.8),
+        assumptions=[
+            "The output result (r) is assigned to the lower 32 bits of the datapath result.",
+            "The zero output is set to '1' when the result is all zeros, and '0' otherwise.",
+            "The flag output is determined by the opcode and is set to '1' for SLT/SLTU and 'z' otherwise.",
+            "carry means if there is a carry bit.",
+            "negative means if the result is negative.",
+            "overflow means if the computation is overflow.",
+        ],
+        contract_confidence=0.78,
+    )
+    plan = PlanModel(
+        module_name="demo_alu",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.74,
+        cases=[
+            PlanCaseModel(
+                case_id="basic_001",
+                goal="Exercise legal ALU operations.",
+                category=PlanCategory.BASIC,
+                stimulus_intent=["Drive legal ALU operations."],
+                stimulus_signals=["a", "b", "aluc"],
+                expected_properties=["Outputs respond consistently to legal inputs."],
+                observed_signals=["r", "zero", "carry", "negative", "overflow", "flag"],
+                timing_assumptions=["Observe after input stabilization."],
+                coverage_tags=["basic", "comb"],
+                semantic_tags=["ambiguity_preserving"],
+                confidence=0.74,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    functional_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
+    check = functional_case.checks[0]
+
+    assert check.signal_policies["r"].strength == AssertionStrength.EXACT
+    assert check.signal_policies["zero"].strength == AssertionStrength.EXACT
+    assert check.signal_policies["flag"].strength == AssertionStrength.GUARDED
+    assert check.signal_policies["flag"].allow_high_impedance is True
+    assert check.signal_policies["carry"].strength == AssertionStrength.UNRESOLVED
+    assert check.signal_policies["negative"].strength == AssertionStrength.UNRESOLVED
+    assert check.signal_policies["overflow"].strength == AssertionStrength.UNRESOLVED
 
 
 def test_stage_oracle_cli_smoke(tmp_path: Path) -> None:

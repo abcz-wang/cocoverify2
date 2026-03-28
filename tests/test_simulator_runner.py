@@ -197,12 +197,131 @@ def test_make_runner_injects_include_dirs_parameters_defines_and_existing_contro
     assert env["MODULE"] == "cocotb_tests.test_simple_seq_basic"
     assert str(render_path.parent.resolve()) in env["PYTHONPATH"].split(os.pathsep)
     assert env["COCOTB_MAKEFILES_DIR"] == str(tmp_path / "fake_makefiles")
+    assert env["SIM_BUILD"] == str((tmp_path / "run" / "sim_build").resolve())
     assert env["INCLUDE_DIRS"] == str(_RTL)
     assert env["PARAMETER_OVERRIDES"] == "WIDTH=16"
     assert env["DEFINE_OVERRIDES"] == "ENABLE_TRACE=1 FLAG_ONLY"
     assert env["PLUSARGS"] == "+trace=1"
     assert env["WAVES"] == "1"
-    assert env["COCOTB_RESULTS_FILE"].endswith("results.xml")
+    assert env["COCOTB_RESULTS_FILE"] == str((tmp_path / "junit" / "results.xml").resolve())
+
+
+def test_make_runner_clean_build_uses_run_local_sim_build_and_removes_stale_output(tmp_path: Path, monkeypatch) -> None:
+    render_path = _build_render_metadata(tmp_path, "simple_seq.v")
+    metadata = load_render_metadata_artifact(render_path)
+    config = SimulationConfig(
+        mode="make",
+        rtl_sources=[_RTL / "simple_seq.v"],
+        clean_build=True,
+    )
+    selection, _ = SimulatorRunnerStage()._select_runner(
+        metadata=metadata,
+        render_metadata_path=render_path,
+        config=config,
+    )
+    stale_run_sim_build = tmp_path / "run_clean" / "sim_build"
+    stale_run_sim_build.mkdir(parents=True, exist_ok=True)
+    (stale_run_sim_build / "stale.vvp").write_text("old build", encoding="utf-8")
+    stale_render_sim_build = render_path.parent / "cocotb_tests" / "sim_build"
+    stale_render_sim_build.mkdir(parents=True, exist_ok=True)
+    (stale_render_sim_build / "keep.me").write_text("render-local artifact", encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    def fake_execute_command(command, *, cwd, extra_env, timeout_seconds):
+        if command[:2] == ["cocotb-config", "--makefiles"]:
+            fake_makefiles = tmp_path / "fake_makefiles"
+            fake_makefiles.mkdir(parents=True, exist_ok=True)
+            return CommandExecutionResult(
+                command=list(command),
+                cwd=str(cwd),
+                return_code=0,
+                stdout=str(fake_makefiles),
+                stderr="",
+                start_time=datetime.now(timezone.utc),
+                end_time=datetime.now(timezone.utc),
+                duration_seconds=0.01,
+            )
+        captured["env"] = dict(extra_env or {})
+        return _fake_command_result(cwd=Path(cwd))
+
+    monkeypatch.setattr("cocoverify2.execution.make_runner.execute_command", fake_execute_command)
+    runner = MakeRunner()
+    result = runner.execute(
+        metadata=metadata,
+        config=config,
+        selection=selection,
+        context=RunnerContext(
+            render_metadata_path=render_path,
+            render_dir=render_path.parent,
+            package_dir=render_path.parent / "cocotb_tests",
+            run_dir=tmp_path / "run_clean",
+            logs_dir=tmp_path / "logs_clean",
+            junit_dir=tmp_path / "junit_clean",
+            waves_dir=tmp_path / "waves_clean",
+        ),
+    )
+
+    assert result.return_code == 0
+    assert not stale_run_sim_build.exists()
+    assert stale_render_sim_build.exists()
+    assert captured["env"]["SIM_BUILD"] == str((tmp_path / "run_clean" / "sim_build").resolve())
+
+
+def test_make_runner_relative_junit_path_is_resolved_absolute(tmp_path: Path, monkeypatch) -> None:
+    render_path = _build_render_metadata(tmp_path, "simple_comb.v")
+    metadata = load_render_metadata_artifact(render_path)
+    monkeypatch.chdir(tmp_path)
+    relative_render_metadata_path = render_path.relative_to(tmp_path)
+    config = SimulationConfig(
+        mode="make",
+        rtl_sources=[_RTL / "simple_comb.v"],
+        junit_enabled=True,
+    )
+    selection, _ = SimulatorRunnerStage()._select_runner(
+        metadata=metadata,
+        render_metadata_path=render_path,
+        config=config,
+    )
+    captured: dict[str, object] = {}
+
+    def fake_execute_command(command, *, cwd, extra_env, timeout_seconds):
+        if command[:2] == ["cocotb-config", "--makefiles"]:
+            fake_makefiles = tmp_path / "fake_makefiles_rel"
+            fake_makefiles.mkdir(parents=True, exist_ok=True)
+            return CommandExecutionResult(
+                command=list(command),
+                cwd=str(cwd),
+                return_code=0,
+                stdout=str(fake_makefiles),
+                stderr="",
+                start_time=datetime.now(timezone.utc),
+                end_time=datetime.now(timezone.utc),
+                duration_seconds=0.01,
+            )
+        captured["env"] = dict(extra_env or {})
+        return _fake_command_result(cwd=Path(cwd))
+
+    monkeypatch.setattr("cocoverify2.execution.make_runner.execute_command", fake_execute_command)
+    runner = MakeRunner()
+    result = runner.execute(
+        metadata=metadata,
+        config=config,
+        selection=selection,
+        context=RunnerContext(
+            render_metadata_path=relative_render_metadata_path,
+            render_dir=relative_render_metadata_path.parent,
+            package_dir=relative_render_metadata_path.parent / "cocotb_tests",
+            run_dir=Path("rel_run/run"),
+            logs_dir=Path("rel_run/run/logs"),
+            junit_dir=Path("rel_run/run/junit"),
+            waves_dir=Path("rel_run/run/waves"),
+        ),
+    )
+
+    assert result.return_code == 0
+    junit_path = Path(captured["env"]["COCOTB_RESULTS_FILE"])
+    assert junit_path.is_absolute()
+    assert junit_path.name == "results.xml"
 
 
 def test_missing_tool_is_reported_as_environment_error(tmp_path: Path, monkeypatch) -> None:

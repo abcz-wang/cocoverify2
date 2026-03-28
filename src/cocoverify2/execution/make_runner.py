@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 from pathlib import Path
 
 from cocoverify2.cocotbgen.makefile import MAKEFILE_CONTRACT_MARKER
@@ -51,11 +52,15 @@ class MakeRunner(RunnerBase):
         rtl_sources = list(config.rtl_sources)
         if not rtl_sources:
             rtl_sources = [Path(path) for path in selection.resolved_rtl_sources]
+        sim_build_dir = (context.run_dir / "sim_build").resolve()
+        if config.clean_build and sim_build_dir.exists():
+            shutil.rmtree(sim_build_dir)
         env = {
             "SIM": config.simulator,
             "TOPLEVEL": self.resolve_top_module(metadata, config),
             "MODULE": _qualified_test_module(self.resolve_test_module(metadata, config)),
             "COCOTB_MAKEFILES_DIR": str(cocotb_makefiles_dir),
+            "SIM_BUILD": str(sim_build_dir),
             "VERILOG_SOURCES": " ".join(str(path) for path in rtl_sources),
             "INCLUDE_DIRS": " ".join(str(path) for path in config.include_dirs),
             "DEFINE_OVERRIDES": " ".join(_format_define_overrides(config.defines)),
@@ -65,7 +70,7 @@ class MakeRunner(RunnerBase):
         }
         env["PYTHONPATH"] = _merge_pythonpath(str(context.render_dir.resolve()), config.extra_env.get("PYTHONPATH"))
         if config.junit_enabled:
-            env["COCOTB_RESULTS_FILE"] = str(context.junit_dir / "results.xml")
+            env["COCOTB_RESULTS_FILE"] = str((context.junit_dir / "results.xml").resolve())
         if config.waves_enabled or config.waves:
             env["WAVES"] = "1"
         targets = list(config.make_targets) or []

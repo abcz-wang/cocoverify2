@@ -153,6 +153,8 @@ def test_render_stage_writes_metadata_and_makefile(tmp_path: Path) -> None:
     assert "PARAMETER_OVERRIDES ?=" in makefile_text
     assert "COCOTB_MAKEFILES_DIR must be provided by Phase 5 preflight" in makefile_text
     assert "VERILOG_SOURCES must be provided by Phase 5" in makefile_text
+    assert not any("scaffold" in item.lower() for item in metadata.render_warnings)
+    assert any("executable phase 4 shell" in item.lower() for item in metadata.render_warnings)
 
 
 def test_stage_render_cli_smoke(tmp_path: Path) -> None:

@@ -278,7 +278,7 @@ def _render_warnings(
         warnings.append("Some functional oracle cases are intentionally empty; render output preserves them as conservative protocol/property-driven tests.")
     if "test_{}_protocol.py".format(contract.module_name) not in test_modules and contract.handshake_groups:
         warnings.append("Handshake hints exist, but no protocol testcase module was rendered because the plan/oracle did not justify one.")
-    warnings.append("Rendered Makefile is a Phase 4 scaffold; Phase 5 will select execution mode and source wiring.")
+    warnings.append("Rendered Makefile is an executable Phase 4 shell; Phase 5 injects execution variables and selects the backend.")
     return warnings
 
 

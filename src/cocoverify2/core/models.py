@@ -300,6 +300,11 @@ class SimulationResult(ModelBase):
 class TriageResult(ModelBase):
     """Structured triage outcome after simulation analysis."""
 
+    module_name: str = ""
+    based_on_simulation_result: str = ""
+    based_on_runner_selection: str | None = None
+    based_on_render_metadata: str | None = None
+    source_status: str = ""
     primary_category: str = "unclassified"
     secondary_categories: list[str] = Field(default_factory=list)
     evidence: list[str] = Field(default_factory=list)

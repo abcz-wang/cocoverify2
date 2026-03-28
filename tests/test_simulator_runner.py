@@ -477,6 +477,8 @@ def test_timeout_path_preserves_logs_and_sets_timeout_status(tmp_path: Path, mon
 
 def test_stage_run_cli_smoke(tmp_path: Path) -> None:
     render_path = _build_render_metadata(tmp_path, "simple_comb.v")
+    env = os.environ.copy()
+    env["PATH"] = ""
 
     result = subprocess.run(
         [
@@ -497,8 +499,10 @@ def test_stage_run_cli_smoke(tmp_path: Path) -> None:
         capture_output=True,
         text=True,
         check=False,
+        env=env,
     )
 
     assert result.returncode == 0, result.stderr
     assert "Simulation execution finished" in result.stdout
-    assert (tmp_path / "cli_run" / "run" / "simulation_result.json").exists()
+    result_payload = json.loads((tmp_path / "cli_run" / "run" / "simulation_result.json").read_text(encoding="utf-8"))
+    assert result_payload["status"] == "environment_error"

@@ -14,6 +14,7 @@ from cocoverify2.stages.contract_extractor import ContractExtractor, load_option
 from cocoverify2.stages.oracle_generator import OracleGenerator
 from cocoverify2.stages.simulator_runner import SimulatorRunnerStage
 from cocoverify2.stages.tb_renderer import TBRenderer
+from cocoverify2.stages.triage import TriageStage
 from cocoverify2.stages.test_plan_generator import TestPlanGenerator
 
 
@@ -108,7 +109,7 @@ def _handle_verify(args: argparse.Namespace) -> int:
     """Handle the placeholder verify command."""
     _ = args
     raise PhaseNotImplementedError(
-        "Phase 5 implements the contract, plan, oracle, render, and run stages only; verify is not implemented yet."
+        "Phase 6 implements the contract, plan, oracle, render, run, and triage stages only; verify is not implemented yet."
     )
 
 
@@ -210,8 +211,20 @@ def _handle_stage(args: argparse.Namespace) -> int:
         )
         return 0
 
+    if args.stage_name == "triage":
+        if args.in_dir is None:
+            raise ConfigurationError("The triage stage requires --in-dir pointing to a run directory or a phase root containing run/.")
+        out_dir = args.out_dir or Path("out")
+        stage = TriageStage()
+        result = stage.run_from_dir(in_dir=args.in_dir, out_dir=out_dir)
+        print(
+            "Triage completed for module "
+            f"'{result.module_name or '<unknown>'}' with category '{result.primary_category}' -> {out_dir / 'triage' / 'triage.json'}"
+        )
+        return 0
+
     raise PhaseNotImplementedError(
-        "Phase 5 implements the contract, plan, oracle, render, and run stages only; other stage commands are not implemented yet."
+        "Phase 6 implements the contract, plan, oracle, render, run, and triage stages only; other stage commands are not implemented yet."
     )
 
 
@@ -219,7 +232,7 @@ def _handle_repair(args: argparse.Namespace) -> int:
     """Handle the placeholder repair command."""
     _ = args
     raise PhaseNotImplementedError(
-        "Phase 5 implements the contract, plan, oracle, render, and run stages only; repair is not implemented yet."
+        "Phase 6 implements the contract, plan, oracle, render, run, and triage stages only; repair is not implemented yet."
     )
 
 

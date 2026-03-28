@@ -136,7 +136,13 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
         passed_tests=["reset_001"],
         log_paths={"stdout": "run/logs/stdout.txt"},
     )
-    triage = TriageResult(primary_category="unclassified")
+    triage = TriageResult(
+        module_name="demo",
+        based_on_simulation_result="artifacts/run/simulation_result.json",
+        based_on_render_metadata="artifacts/render/metadata.json",
+        source_status="success",
+        primary_category="unclassified",
+    )
     verdict = FinalVerdict(verdict=VerdictKind.INCONCLUSIVE, rationale=["phase smoke"])
     report = VerificationReport(
         contract=contract,
@@ -158,3 +164,4 @@ def test_core_models_can_be_instantiated_and_serialized() -> None:
     assert selection.model_dump(mode="json")["selected_mode"] == "cocotb_tools"
     assert sim_cfg.model_dump(mode="json")["top_module"] == "demo"
     assert sim_result.model_dump(mode="json")["status"] == "success"
+    assert triage.model_dump(mode="json")["based_on_simulation_result"] == "artifacts/run/simulation_result.json"

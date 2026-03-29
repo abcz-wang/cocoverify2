@@ -1,0 +1,173 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "zero_divisor"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When divisor is zero, res_valid must remain low and result must not become a defined non-X value."
+      ],
+      "goal": "Validate handling of divisor‑zero edge case without assuming a defined error protocol.",
+      "notes": [
+        "Spec does not define explicit error signalling; the test checks for absence of spurious valid output."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "divisor set to 0, opn_valid asserted, res_ready may be low or high."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Issue an operation request with divisor=0 while opn_valid is high."
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid"
+      ],
+      "timing_assumptions": [
+        "Observe for at least 12 clock cycles after deasserting opn_valid without assuming any fixed completion latency."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "reuse",
+        "back_to_back"
+      ],
+      "dependencies": [
+        "basic_001",
+        "protocol_001"
+      ],
+      "draft_id": "regression_001",
+      "expected_properties": [
+        "After a transaction is accepted (res_valid && res_ready), a subsequent legal operation can be started and will produce an independent result."
+      ],
+      "goal": "Confirm that internal state is correctly cleared after result consumption.",
+      "notes": [
+        "Ensures no residual data from the first division influences the second."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "First operation completed and consumed (res_valid && res_ready)."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a second legal operation immediately after asserting res_ready for the first result."
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Conservative observation windows after each transaction; no fixed‑cycle latency is assumed."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "sign_behavior",
+        "signed_unsigned"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "Signed division result (sign=1) should correspond to the unsigned division of absolute operands with the sign of the quotient derived from operand signs."
+      ],
+      "goal": "Cross‑check signed vs. unsigned division using a metamorphic relation.",
+      "notes": [
+        "Relates two executions: (a) unsigned division of |dividend| by |divisor|, (b) signed division with original signs."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Run two operations: first with sign=0 on absolute values, second with sign=1 on original signed values; compare quotient bits."
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid"
+      ],
+      "timing_assumptions": [
+        "Each operation is observed independently; no timing assumptions beyond external visibility."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "opn_handshake"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "opn_valid must be sampled only when res_valid is low, reflecting the start‑condition described in the spec.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "goal": "Apply one legal operation and observe stable post‑operation behavior, explicitly checking that opn_valid is ignored while a previous result is pending.",
+      "notes": [
+        "Adds explicit verification of the start condition (opn_valid && !res_valid) from the implementation description."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs while ensuring res_valid is low before asserting opn_valid."
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,77 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "description": "Ensure clk_div does not toggle on every clk rising edge, indicating division factor >1.",
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "Within a bounded observation window of at least 4 clk cycles after reset release, the number of clk_div toggles is strictly less than the number of clk rising edges.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "clk_div": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "augmented",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "min_cycles": 4,
+            "max_cycles": 8,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset deassertion, monitor clk_div for a window of 4-8 cycles."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that clk_div is a defined binary value (0 or 1) after reset release and remains non-X during observation.",
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "For each sampled clock edge (at least 3 cycles) after reset release, clk_div must be either 0 or 1 (no X or Z).",
+          "semantic_tags": [
+            "basic",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "min_cycles": 0,
+            "max_cycles": 3,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted, sample clk_div on successive rising edges of clk for three cycles."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,79 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "toggle",
+        "stability",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "clk must transition from 0 to 1 or from 1 to 0 at least once within the observation window"
+      ],
+      "goal": "Demonstrate that the generated clock is not static and exhibits at least one toggle during a reasonable observation period.",
+      "notes": [
+        "No assumptions about exact period or latency are made; only the existence of a transition is required.",
+        "The observation window is chosen conservatively to accommodate unknown timing."
+      ],
+      "observed_signals": [
+        "clk"
+      ],
+      "preconditions": [
+        "Apply a reset\u2011safe or idle stimulus (none required for this module)."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "No external stimulus needed; monitor the output directly."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe clk for at least 20 cycles after power\u2011up to allow a toggle to appear."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "unknown",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "Checks are limited to reset-safe, protocol-safe, or output-visible behavior.",
+        "No fixed latency or exact cycle count is assumed."
+      ],
+      "goal": "Observe any externally visible progress without inventing unresolved stimulus semantics.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "No deterministic non\u2011control stimulus could be derived from the current contract."
+      ],
+      "observed_signals": [
+        "clk"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Only deterministic, contract\u2011supported stimulus is used; otherwise the case is downgraded."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset\u2011safe or protocol\u2011safe observation windows only."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

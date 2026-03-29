@@ -1,0 +1,45 @@
+rm -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/fsm/runs/test_verified_fsm_basic/run/junit/results.xml
+"make" -f Makefile /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/fsm/runs/test_verified_fsm_basic/run/junit/results.xml
+make[1]: Entering directory '/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/fsm/render/cocotb_tests'
+mkdir -p /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/fsm/runs/test_verified_fsm_basic/run/sim_build
+/workspace/I/qimeng6/miniconda3/bin/iverilog -o /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/fsm/runs/test_verified_fsm_basic/run/sim_build/sim.vvp -s verified_fsm -g2012     -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/fsm/runs/test_verified_fsm_basic/run/sim_build/cmds.f  /workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/fsm/verified_fsm.v
+rm -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/fsm/runs/test_verified_fsm_basic/run/junit/results.xml
+COCOTB_TEST_MODULES=cocotb_tests.test_verified_fsm_basic COCOTB_TESTCASE= COCOTB_TEST_FILTER= COCOTB_TOPLEVEL=verified_fsm TOPLEVEL_LANG=verilog \
+         /workspace/I/qimeng6/miniconda3/bin/vvp -M /workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb/libs -m libcocotbvpi_icarus    /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/fsm/runs/test_verified_fsm_basic/run/sim_build/sim.vvp -none  
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.0rc1 interpreter at /workspace/I/qimeng6/miniconda3/bin/python
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 10.2 (stable)
+     0.00ns WARNING  gpi                                vpi_iterate returned NULL for type vpiInstance for object NULL
+     0.00ns INFO     cocotb                             Seeding Python random module with 1774764949
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_fsm_basic.test_reset_001 (1/6)
+                                                            Establish a stable post-reset baseline before functional checking. Note: Reset polarity may still be heuristic if the contract marks it ambiguous.
+    55.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_fsm_basic.test_reset_001 passed
+    55.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_fsm_basic.test_basic_001 (2/6)
+                                                            Validate that a single occurrence of the target pattern is correctly detected and reflected on MATCH. Note: Case intent is conservative when the contract is weak or timing is unresolved. Note: The FSM is Mealy; output may change combinationally with the last input bit. Observation is performed after the same clock edge that samples IN.
+   120.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_fsm_basic.test_basic_001 passed
+   120.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_fsm_basic.test_back_to_back_001 (3/6)
+                                                            Observe repeated or back-to-back legal operations under conservative timing assumptions. Note: When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior.
+   165.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_fsm_basic.test_back_to_back_001 passed
+   165.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_fsm_basic.test_basic_002 (4/6)
+                                                            Confirm that the FSM correctly detects multiple, back‑to‑back occurrences of the pattern in a continuous input stream. Note: This tests the loop detection requirement from the spec. Note: Case relies on deterministic clock-driven observation because no non-control inputs were resolved.
+   220.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_fsm_basic.test_basic_002 passed
+   220.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_fsm_basic.test_reset_002 (5/6)
+                                                            Validate that reset clears the FSM state and that subsequent detection works correctly. Note: Ensures no latch‑up or undefined state after reset.
+   275.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_fsm_basic.test_reset_002 passed
+   275.00ns INFO     cocotb.regression                  skipping cocotb_tests.test_verified_fsm_basic.test_negative_001 (6/6)
+                                                            Ensure robustness against undefined input values. Note: Even though the contract does not list illegal inputs, X/Z are considered illegal for synthesis. Note: Negative cases require stronger structured illegal-input semantics than the current contract provides.
+   275.00ns INFO     cocotb.regression                  ********************************************************************************************************************
+                                                        ** TEST                                                        STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ********************************************************************************************************************
+                                                        ** cocotb_tests.test_verified_fsm_basic.test_reset_001          PASS          55.00           0.00      47252.50  **
+                                                        ** cocotb_tests.test_verified_fsm_basic.test_basic_001          PASS          65.00           0.00      71462.58  **
+                                                        ** cocotb_tests.test_verified_fsm_basic.test_back_to_back_001   PASS          45.00           0.00      72482.21  **
+                                                        ** cocotb_tests.test_verified_fsm_basic.test_basic_002          PASS          55.00           0.00      87117.34  **
+                                                        ** cocotb_tests.test_verified_fsm_basic.test_reset_002          PASS          55.00           0.00      80127.38  **
+                                                        ** cocotb_tests.test_verified_fsm_basic.test_negative_001       SKIP           0.00           0.00          -.--  **
+                                                        ********************************************************************************************************************
+                                                        ** TESTS=6 PASS=5 FAIL=0 SKIP=1                                              275.00           0.01      40184.31  **
+                                                        ********************************************************************************************************************
+make[1]: Leaving directory '/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/fsm/render/cocotb_tests'

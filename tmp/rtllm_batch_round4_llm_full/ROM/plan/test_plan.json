@@ -1,0 +1,194 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "ROM",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.55,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "unknown",
+        "read_combination",
+        "address_dependent"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Checks are limited to reset-safe, protocol-safe, or output-visible behavior.",
+        "No fixed latency or exact cycle count is assumed.",
+        "dout updates combinationally with addr changes"
+      ],
+      "goal": "Validate combinational read behavior across arbitrary addresses",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Since ROM is combinational, dout should reflect mem[addr] without a clock."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Only deterministic, contract-supported stimulus is used; otherwise the case is downgraded.",
+        "Drive a set of diverse address values and monitor dout"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only.",
+        "Observe dout within the same simulation delta as addr change (no clock required)"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.5,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "address_min_max",
+        "initialized_values"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "dout matches known initialized values for addresses 0, 1, 2, 3"
+      ],
+      "goal": "Check boundary addresses and known data values",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Addresses 0x00 and 0xFF test lower and upper bounds; also test initialized locations 0x00\u20110x03."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "boundary"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['addr']",
+        "Apply addr = 0x00, 0xFF, and the initialized addresses 0x00\u20110x03"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only.",
+        "Observe dout within the same simulation delta as addr change (no latency assumptions)"
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.43000000000000005,
+      "coverage_tags": [
+        "rapid_change",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "dout follows each addr change without spurious glitches"
+      ],
+      "goal": "Verify ROM output stability under fast successive address changes",
+      "notes": [
+        "Sequence of address values applied without idle cycles"
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply a rapid sequence of address values (e.g., 0x00, 0x01, ..., 0xFF)"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Combinational response expected; no latency assumptions"
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.43000000000000005,
+      "coverage_tags": [
+        "determinism"
+      ],
+      "defer_reason": "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Identical address sequences produce identical dout sequences across runs"
+      ],
+      "goal": "Confirm deterministic behavior of ROM across simulation runs",
+      "notes": [
+        "Run two simulations with same address stimulus and compare dout",
+        "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive identical address pattern in two independent runs"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Combinational behavior; no timing constraints"
+      ]
+    }
+  ],
+  "module_name": "ROM",
+  "plan_confidence": 0.41000000000000003,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Timing model is unresolved; generated cases avoid fixed-latency checks.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Negative or illegal-input behavior is not planned because the contract does not provide reliable constraints."
+  ]
+}

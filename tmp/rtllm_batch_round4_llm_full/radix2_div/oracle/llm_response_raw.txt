@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Start condition: opn_valid must only be considered when res_valid is low; if res_valid is high, opn_valid is ignored and must not cause res_valid to toggle.",
+          "notes": [],
+          "observed_signals": [
+            "opn_valid",
+            "res_valid"
+          ],
+          "pass_condition": "Whenever opn_valid is high while res_valid is high, res_valid must remain unchanged (no new acceptance).",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "opn_valid_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When opn_valid transitions high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After a legal start (opn_valid && !res_valid), the design must eventually assert res_valid and present a defined result.",
+          "notes": [],
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "Within an unbounded conservative observation window, a transition of res_valid from low to high must be observed, and result must not be X or Z at that moment.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "opn_valid_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When opn_valid is asserted while res_valid is low."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [
+    "The opn_valid signal lacks a matching ready handshake; the added property oracle conservatively ensures it does not cause spurious acceptance when a previous result is pending."
+  ],
+  "unresolved_items": []
+}

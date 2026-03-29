@@ -172,6 +172,47 @@ It handles the hours value (Hours) and keeps the minutes value (Mins) unchanged 
     assert "Mins" not in {reset.name for reset in contract.resets}
 
 
+def test_vector_frequency_input_is_not_promoted_to_clock(tmp_path: Path) -> None:
+    rtl_path = tmp_path / "square_wave_like.v"
+    rtl_path.write_text(
+        "\n".join(
+            [
+                "module square_wave(clk, freq, wave_out);",
+                "input clk;",
+                "input [7:0] freq;",
+                "output reg wave_out;",
+                "endmodule",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    spec_text = """
+Module name:
+    square_wave
+
+Input ports:
+    clk: clock input
+    freq: 8-bit divider frequency input
+
+Output ports:
+    wave_out: square wave output
+
+Implementation:
+The output toggles according to the clock and the requested frequency.
+""".strip()
+
+    contract = ContractExtractor().run(
+        rtl_paths=[rtl_path],
+        task_description=None,
+        spec_text=spec_text,
+        golden_interface_text=extract_interface_hint_text(spec_text),
+        out_dir=tmp_path / "out",
+    )
+
+    assert [clock.name for clock in contract.clocks] == ["clk"]
+    assert "freq" not in {clock.name for clock in contract.clocks}
+
+
 def test_interface_hint_extraction_feeds_contract_without_reusing_full_spec(tmp_path: Path) -> None:
     spec_text = """
 Module name:

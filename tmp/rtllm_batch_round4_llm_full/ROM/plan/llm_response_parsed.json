@@ -1,0 +1,140 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "rapid_change",
+        "stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "dout follows each addr change without spurious glitches"
+      ],
+      "goal": "Verify ROM output stability under fast successive address changes",
+      "notes": [
+        "Sequence of address values applied without idle cycles"
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a rapid sequence of address values (e.g., 0x00, 0x01, ..., 0xFF)"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Combinational response expected; no latency assumptions"
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "determinism"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "Identical address sequences produce identical dout sequences across runs"
+      ],
+      "goal": "Confirm deterministic behavior of ROM across simulation runs",
+      "notes": [
+        "Run two simulations with same address stimulus and compare dout"
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive identical address pattern in two independent runs"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Combinational behavior; no timing constraints"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "read_combination",
+        "address_dependent"
+      ],
+      "expected_properties": [
+        "dout updates combinationally with addr changes"
+      ],
+      "goal": "Validate combinational read behavior across arbitrary addresses",
+      "notes": [
+        "Since ROM is combinational, dout should reflect mem[addr] without a clock."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a set of diverse address values and monitor dout"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Observe dout within the same simulation delta as addr change (no clock required)"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "address_min_max",
+        "initialized_values"
+      ],
+      "expected_properties": [
+        "dout matches known initialized values for addresses 0, 1, 2, 3"
+      ],
+      "goal": "Check boundary addresses and known data values",
+      "notes": [
+        "Addresses 0x00 and 0xFF test lower and upper bounds; also test initialized locations 0x00\u20110x03."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "boundary"
+      ],
+      "stimulus_intent": [
+        "Apply addr = 0x00, 0xFF, and the initialized addresses 0x00\u20110x03"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Observe dout within the same simulation delta as addr change (no latency assumptions)"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

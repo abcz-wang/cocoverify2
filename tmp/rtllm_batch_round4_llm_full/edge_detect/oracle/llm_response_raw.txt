@@ -1,0 +1,59 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_latency_001",
+          "check_type": "property",
+          "confidence": 0.85,
+          "description": "When input a transitions from 0 to 1, rise must be asserted exactly one clock cycle later and then deasserted; when a transitions from 1 to 0, down must be asserted exactly one clock cycle later and then deasserted.",
+          "notes": [
+            "Conservative latency based on the spec description; the one‑cycle guarantee is the only timing claim retained."
+          ],
+          "observed_signals": [
+            "a",
+            "rise",
+            "down",
+            "clk"
+          ],
+          "pass_condition": "If a rising edge of a is observed at clock N, rise == 1 at clock N+1 and 0 for all subsequent cycles until the next edge. If a falling edge of a is observed at clock N, down == 1 at clock N+1 and 0 thereafter until the next edge.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "rise": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "spec_defined",
+              "strength": "guarded"
+            },
+            "down": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "spec_defined",
+              "strength": "guarded"
+            }
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "edge_detection",
+            "max_cycles": 2,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a changes value between consecutive rising edges of clk."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Carry-out Co must be asserted only when the unsigned sum of a, b, and Cin exceeds 16 bits.",
+          "notes": [],
+          "observed_signals": [
+            "Co"
+          ],
+          "pass_condition": "Co == 1 iff (a + b + Cin) > 0xFFFF; otherwise Co == 0. Unknown or high‑impedance inputs propagate X/Z per Verilog semantics.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge_001 stimulus applies boundary‑value patterns."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that the sum output y matches the unsigned addition of a, b, and Cin for each driven vector.",
+          "notes": [],
+          "observed_signals": [
+            "y"
+          ],
+          "pass_condition": "y == (a + b + Cin)[15:0] for all legal input combinations; X/Z propagation follows Verilog rules when any input is X/Z.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When basic_001 stimulus applies a representative set of legal input vectors."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

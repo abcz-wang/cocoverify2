@@ -1,0 +1,160 @@
+{
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "unknown",
+        "reset_safe",
+        "functional_correctness"
+      ],
+      "expected_properties": [
+        "Result equals A - B modulo 2^64 for any driven values.",
+        "Overflow flag follows sign‑bit analysis defined in the contract."
+      ],
+      "goal": "Validate functional correctness of subtraction and overflow detection without relying on fixed latency.",
+      "notes": [
+        "Conservative observation window is used because timing is unspecified."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive A and B with a mix of random, deterministic, and corner‑case values."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Monitor outputs for an indeterminate number of cycles after stimulus; no fixed cycle count is assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive",
+        "min_max_values"
+      ],
+      "expected_properties": [
+        "Result matches subtraction for extreme operand values (0, 2^64‑1, sign‑extended extremes).",
+        "Overflow flag is asserted correctly for signed overflow scenarios at the boundaries."
+      ],
+      "goal": "Exercise boundary‑value and width‑sensitive input patterns while preserving timing ambiguity.",
+      "notes": [
+        "Only value‑oriented edge cases are used; no assumptions about latency."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply zero‑like, one‑like, all‑ones, and two's‑complement extreme patterns on A and B."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs within a flexible window after each stimulus; no fixed latency is assumed."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "back_to_back_001",
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back",
+        "stateful"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Each subtraction result reflects the most recent A and B values.",
+        "Overflow flag is evaluated independently for each operation."
+      ],
+      "goal": "Verify that consecutive subtractions produce correct independent results without hidden state.",
+      "notes": [
+        "No reset between operations; timing remains unspecified."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [
+        "A and B are driven with two distinct value pairs sequentially."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply two back‑to‑back subtraction stimuli without idle cycles."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Allow an indeterminate observation window after each stimulus; do not assume fixed latency."
+      ]
+    },
+    {
+      "draft_id": "negative_001",
+      "category": "negative",
+      "coverage_tags": [
+        "signed_extremes",
+        "overflow_cases"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "expected_properties": [
+        "Overflow flag is asserted for signed overflow conditions (e.g., A = 0x8000_0000_0000_0000, B = 0xFFFF_FFFF_FFFF_FFFF).",
+        "Result follows two's‑complement arithmetic modulo 2^64."
+      ],
+      "goal": "Exercise signed overflow scenarios using two's‑complement extreme values.",
+      "notes": [
+        "Ports are unsigned in the contract, but values are interpreted as signed two's‑complement per specification."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [
+        "Drive A and B with signed extreme patterns."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Provide signed‑extreme operand pairs to trigger positive and negative overflow."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs within a flexible window; no fixed cycle count is assumed."
+      ]
+    }
+  ]
+}

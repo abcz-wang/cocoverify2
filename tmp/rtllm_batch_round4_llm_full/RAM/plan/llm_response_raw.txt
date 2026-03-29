@@ -1,0 +1,190 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "neg_addr_001",
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "address_out_of_range"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Write operation with address outside defined depth does not corrupt memory or cause undefined behavior"
+      ],
+      "goal": "Verify that out-of-range address writes are safely ignored or handled.",
+      "notes": [
+        "Contract does not specify address range limits; this case explores potential implementation safety."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [
+        "write_en = 1"
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Attempt a write with address 0xFF (255) while write_en is asserted"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data"
+      ],
+      "timing_assumptions": [
+        "Observe after at least one clock cycle post stimulus"
+      ]
+    },
+    {
+      "draft_id": "proto_simultaneous_001",
+      "category": "protocol",
+      "coverage_tags": [
+        "simultaneous_rw"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When read_en and write_en are asserted in the same cycle to the same address, read_data reflects either the old data or the newly written data consistently per implementation"
+      ],
+      "goal": "Check behavior of concurrent read/write to the same address.",
+      "notes": [],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert write_en and read_en together with the same address, write_data set to a known pattern"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Observe read_data in the following clock cycle"
+      ]
+    },
+    {
+      "draft_id": "regress_reset_during_write_001",
+      "category": "regression",
+      "coverage_tags": [
+        "reset_during_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "If reset occurs while a write is asserted, memory returns to zero state after reset release"
+      ],
+      "goal": "Validate reset robustness during an active write.",
+      "notes": [],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert write_en with a valid address and data, then assert rst_n low before the next clock edge"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Allow at least two clock cycles after reset deassertion to observe a stable state"
+      ]
+    },
+    {
+      "draft_id": "meta_write_then_read_001",
+      "category": "metamorphic",
+      "coverage_tags": [
+        "write_then_read"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Data written to an address can be read back unchanged after any number of idle cycles"
+      ],
+      "goal": "Confirm data persistence across cycles.",
+      "notes": [],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Write a pattern to address X, then after N idle cycles (N variable), enable read_en for the same address and compare output"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Conservative observation: wait at least one clock after write before read"
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "write_basic",
+        "sanity_check"
+      ],
+      "expected_properties": [
+        "Write operation updates memory and can be observed via subsequent read",
+        "No hidden latency assumptions; effect visible after a conservative observation window"
+      ],
+      "goal": "Demonstrate basic write functionality and observable effect on read_data.",
+      "notes": [
+        "Conservative: does not assume exact write-to-read latency."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Perform a single write with write_en asserted, then read back after at least one clock cycle"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Wait at least one clock cycle after write before checking read_data"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

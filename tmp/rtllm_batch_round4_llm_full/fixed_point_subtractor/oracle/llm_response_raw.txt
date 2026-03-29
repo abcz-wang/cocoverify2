@@ -1,0 +1,84 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "confidence": 0.71,
+          "description": "Guardrail: for extreme operand values the output must remain within the N‑bit range and reflect unsigned subtraction modulo 2^N.",
+          "notes": [
+            "Preserves ambiguity about signed handling by asserting only range‑bounded behavior."
+          ],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c is always a N‑bit value (no overflow beyond N bits) when a and b are driven with all‑zeros, all‑ones, or one‑hot patterns.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "c": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "preserve_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge_001 stimulus applies boundary patterns to a and b."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "Check that the observable output matches the unsigned subtraction result modulo 2^N for the exercised legal inputs."
+          ],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c == (a - b) modulo 2^N for each stimulus vector applied in basic_001.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When basic_001 stimulus drives legal N‑bit patterns to a and b."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

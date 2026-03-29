@@ -1,0 +1,154 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "loop",
+        "continuous",
+        "mealy_fsm"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "loop_detection_001",
+      "expected_properties": [
+        "After detecting the pattern, the FSM continues to monitor subsequent bits without requiring reset.",
+        "A second occurrence of 10011 later in the stream also sets MATCH to 1 at the appropriate time."
+      ],
+      "goal": "Confirm that the FSM correctly detects multiple, back\u2011to\u2011back occurrences of the pattern in a continuous input stream.",
+      "notes": [
+        "This tests the loop detection requirement from the spec."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "Reset has been released and the FSM is in a stable post\u2011reset state."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply the bitstream 1\u20110\u20110\u20111\u20111\u20110\u20110\u20111\u20111 on IN across successive clock cycles.",
+        "Verify MATCH asserts on cycles corresponding to the fifth and ninth bits."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe MATCH within the same clock cycle as the final '1' of each pattern, allowing conservative one\u2011cycle observation."
+      ]
+    },
+    {
+      "category": "reset",
+      "coverage_tags": [
+        "reset",
+        "recovery",
+        "stability"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "reset_recovery_001",
+      "expected_properties": [
+        "When RST is asserted high, MATCH is forced to 0 regardless of prior state.",
+        "After deasserting RST, the FSM resumes normal detection without residual state."
+      ],
+      "goal": "Validate that reset clears the FSM state and that subsequent detection works correctly.",
+      "notes": [
+        "Ensures no latch\u2011up or undefined state after reset."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "FSM is in a stable post\u2011reset state."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert RST high for a few cycles while providing arbitrary IN values.",
+        "Release RST and then present a matching sequence to verify detection."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Allow at least one clock cycle after RST deassertion before checking MATCH."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "illegal_input_001",
+      "expected_properties": [
+        "If IN is driven to X or Z (unknown/high\u2011impedance), MATCH remains 0 and no false detection occurs."
+      ],
+      "goal": "Ensure robustness against undefined input values.",
+      "notes": [
+        "Even though the contract does not list illegal inputs, X/Z are considered illegal for synthesis."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "Reset released."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive IN with X for one cycle amidst a valid sequence and verify MATCH does not assert."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative observation after the X occurrence."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "mealy_fsm"
+      ],
+      "expected_properties": [
+        "After a legal input sequence, MATCH reflects detection of pattern 10011 within one clock cycle of the final '1' (conservative observation).",
+        "No spurious MATCH assertion occurs for non\u2011matching sequences."
+      ],
+      "goal": "Validate that a single occurrence of the target pattern is correctly detected and reflected on MATCH.",
+      "notes": [
+        "The FSM is Mealy; output may change combinationally with the last input bit. Observation is performed after the same clock edge that samples IN."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a simple matching sequence 1\u20110\u20110\u20111\u20111 on IN while toggling CLK.",
+        "Observe MATCH transition to 1 coincident with the last '1' of the sequence."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative: allow one clock cycle after the final input bit for MATCH to become visible.",
+        "Do not assume fixed latency beyond Mealy combinational update."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

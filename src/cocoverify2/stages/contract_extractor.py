@@ -184,15 +184,15 @@ class ContractExtractor:
         for port in module.ports:
             clock_confidence = _clock_name_confidence(port.name)
             reset_confidence = _reset_name_confidence(port.name)
-            if clock_confidence > reset_confidence and port.direction in {PortDirection.INPUT, PortDirection.UNKNOWN}:
+            if clock_confidence > reset_confidence and _is_scalar_input_like_port(port):
                 clocks[port.name] = ClockSpec(name=port.name, source="rtl_heuristic", confidence=clock_confidence)
-            elif port.name in posedge_names and reset_confidence == 0.0:
+            elif port.name in posedge_names and reset_confidence == 0.0 and _is_scalar_input_like_port(port):
                 clocks[port.name] = ClockSpec(name=port.name, source="rtl_heuristic", confidence=0.8)
         for signal_name in posedge_names:
             if (
                 signal_name not in clocks
                 and _reset_name_confidence(signal_name) == 0.0
-                and any(port.name == signal_name and port.direction in {PortDirection.INPUT, PortDirection.UNKNOWN} for port in module.ports)
+                and any(port.name == signal_name and _is_scalar_input_like_port(port) for port in module.ports)
             ):
                 clocks[signal_name] = ClockSpec(name=signal_name, source="rtl_heuristic", confidence=0.8)
         return list(clocks.values())
@@ -207,7 +207,7 @@ class ContractExtractor:
             clock_confidence = _clock_name_confidence(port.name)
             if (
                 (reset_confidence <= clock_confidence and port.name not in negative_edge_names)
-                or port.direction not in {PortDirection.INPUT, PortDirection.UNKNOWN}
+                or not _is_scalar_input_like_port(port)
             ):
                 continue
             active_level, level_confidence = _guess_reset_polarity(port.name)
@@ -220,7 +220,7 @@ class ContractExtractor:
         for signal_name in sensitivity:
             if signal_name in resets:
                 continue
-            if signal_name in negative_edge_names and any(port.name == signal_name for port in module.ports):
+            if signal_name in negative_edge_names and any(port.name == signal_name and _is_scalar_input_like_port(port) for port in module.ports):
                 active_level, level_confidence = _guess_reset_polarity(signal_name)
                 resets[signal_name] = ResetSpec(
                     name=signal_name,
@@ -352,12 +352,17 @@ class ContractExtractor:
         for clock_hint in hints.clocks:
             existing = _find_by_name(clocks, clock_hint.name)
             if existing is None:
-                if clock_hint.name in port_lookup:
+                hinted_port = port_lookup.get(clock_hint.name)
+                if hinted_port and _is_scalar_input_like_port(hinted_port):
                     clocks.append(clock_hint)
                     _append_source(source_map, f"clocks.{clock_hint.name}", "golden_interface")
-                else:
+                elif hinted_port is None:
                     ambiguities.append(
                         f"Golden interface described clock '{clock_hint.name}', but the signal was not found in the RTL ports."
+                    )
+                else:
+                    ambiguities.append(
+                        f"Golden interface described clock '{clock_hint.name}', but the RTL port is not a scalar input-like signal."
                     )
                 continue
             existing.confidence = max(existing.confidence, clock_hint.confidence)
@@ -367,12 +372,17 @@ class ContractExtractor:
         for reset_hint in hints.resets:
             existing_reset = _find_by_name(resets, reset_hint.name)
             if existing_reset is None:
-                if reset_hint.name in port_lookup:
+                hinted_port = port_lookup.get(reset_hint.name)
+                if hinted_port and _is_scalar_input_like_port(hinted_port):
                     resets.append(reset_hint)
                     _append_source(source_map, f"resets.{reset_hint.name}", "golden_interface")
-                else:
+                elif hinted_port is None:
                     ambiguities.append(
                         f"Golden interface described reset '{reset_hint.name}', but the signal was not found in the RTL ports."
+                    )
+                else:
+                    ambiguities.append(
+                        f"Golden interface described reset '{reset_hint.name}', but the RTL port is not a scalar input-like signal."
                     )
                 continue
             if reset_hint.active_level is not None:
@@ -403,11 +413,7 @@ class ContractExtractor:
             combined_lines.extend(spec_text.splitlines())
 
         port_lookup = {port.name.lower(): port.name for port in ports}
-        control_hint_candidates = {
-            port.name
-            for port in ports
-            if port.direction in {PortDirection.INPUT, PortDirection.UNKNOWN}
-        }
+        control_hint_candidates = {port.name for port in ports if _is_scalar_input_like_port(port)}
         for raw_line in combined_lines:
             line = raw_line.strip()
             if not line:
@@ -577,6 +583,17 @@ def _find_by_name(items: Iterable[ClockSpec | ResetSpec], name: str) -> ClockSpe
         if item.name == name:
             return item
     return None
+
+
+def _is_scalar_input_like_port(port: PortSpec) -> bool:
+    if port.direction not in {PortDirection.INPUT, PortDirection.UNKNOWN}:
+        return False
+    width = port.width
+    if isinstance(width, int):
+        return width == 1
+    if isinstance(width, str):
+        return False
+    return port.raw_range is None
 
 
 def _clock_name_confidence(name: str) -> float:

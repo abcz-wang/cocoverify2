@@ -1,0 +1,85 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "confidence": 0.73,
+          "description": "Guardrail: accumulated sum must fit within the declared 10‑bit output width.",
+          "notes": [
+            "Derived from the spec stating data_out is 10 bits and accumulates four 8‑bit values."
+          ],
+          "observed_signals": [
+            "data_out"
+          ],
+          "pass_condition": "data_out <= 1020 (4 * 255) at all times; any violation indicates overflow beyond the defined width.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever data_out is observed after any sequence of valid inputs."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "Enrichment adds explicit observation of the accumulation completion pulse."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "After exactly four cycles where valid_in=1 and data_in is presented, a single-cycle pulse of valid_out=1 must appear and data_out must hold the sum of the four data_in values for at least one subsequent cycle.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 case drives four consecutive valid inputs."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

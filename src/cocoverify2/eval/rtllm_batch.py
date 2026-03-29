@@ -76,6 +76,16 @@ class RTLLMTaskSummary:
     ignored_generation_inputs: list[str] = field(default_factory=list)
     plan_generation_mode: str = GenerationMode.HYBRID.value
     oracle_generation_mode: str = GenerationMode.HYBRID.value
+    llm_plan_attempted: bool = False
+    llm_plan_succeeded: bool = False
+    llm_plan_fallback_used: bool = False
+    llm_plan_status: str = "not_attempted"
+    llm_plan_reason: str = ""
+    llm_oracle_attempted: bool = False
+    llm_oracle_succeeded: bool = False
+    llm_oracle_fallback_used: bool = False
+    llm_oracle_status: str = "not_attempted"
+    llm_oracle_reason: str = ""
     contract_success: bool = False
     plan_success: bool = False
     oracle_success: bool = False
@@ -100,6 +110,16 @@ class RTLLMTaskSummary:
             "ignored_generation_inputs": list(self.ignored_generation_inputs),
             "plan_generation_mode": self.plan_generation_mode,
             "oracle_generation_mode": self.oracle_generation_mode,
+            "llm_plan_attempted": self.llm_plan_attempted,
+            "llm_plan_succeeded": self.llm_plan_succeeded,
+            "llm_plan_fallback_used": self.llm_plan_fallback_used,
+            "llm_plan_status": self.llm_plan_status,
+            "llm_plan_reason": self.llm_plan_reason,
+            "llm_oracle_attempted": self.llm_oracle_attempted,
+            "llm_oracle_succeeded": self.llm_oracle_succeeded,
+            "llm_oracle_fallback_used": self.llm_oracle_fallback_used,
+            "llm_oracle_status": self.llm_oracle_status,
+            "llm_oracle_reason": self.llm_oracle_reason,
             "contract_success": self.contract_success,
             "plan_success": self.plan_success,
             "oracle_success": self.oracle_success,
@@ -273,6 +293,12 @@ def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, ta
             llm_config=config.llm_config,
         )
         summary.plan_success = True
+        _apply_llm_stage_status(
+            summary=summary,
+            stage_name="plan",
+            attempted=config.generation_mode == GenerationMode.HYBRID,
+            merge_report_path=task_out_dir / "plan" / "llm_merge_report.json",
+        )
     except Exception as exc:
         summary.failure_reason_summary = f"plan_failed: {_single_line(str(exc))}"
         return summary
@@ -289,6 +315,12 @@ def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, ta
         )
         summary.oracle_success = True
         summary.assertion_strength_counts = _count_assertion_strengths(oracle)
+        _apply_llm_stage_status(
+            summary=summary,
+            stage_name="oracle",
+            attempted=config.generation_mode == GenerationMode.HYBRID,
+            merge_report_path=task_out_dir / "oracle" / "llm_merge_report.json",
+        )
     except Exception as exc:
         summary.failure_reason_summary = f"oracle_failed: {_single_line(str(exc))}"
         return summary
@@ -393,6 +425,38 @@ def _count_assertion_strengths(oracle: OracleSpec) -> dict[str, int]:
     return {key: int(counts.get(key, 0)) for key in ("exact", "guarded", "unresolved")}
 
 
+def _apply_llm_stage_status(
+    *,
+    summary: RTLLMTaskSummary,
+    stage_name: str,
+    attempted: bool,
+    merge_report_path: Path,
+) -> None:
+    report = _load_optional_json(merge_report_path)
+    status = str(report.get("status", "missing_report")) if report else ("missing_report" if attempted else "not_attempted")
+    reason = _single_line(str(report.get("reason", ""))) if report else ""
+    succeeded = attempted and status == "merged"
+    fallback_used = attempted and status == "fallback"
+    if stage_name == "plan":
+        summary.llm_plan_attempted = attempted
+        summary.llm_plan_succeeded = succeeded
+        summary.llm_plan_fallback_used = fallback_used
+        summary.llm_plan_status = status
+        summary.llm_plan_reason = reason
+        return
+    summary.llm_oracle_attempted = attempted
+    summary.llm_oracle_succeeded = succeeded
+    summary.llm_oracle_fallback_used = fallback_used
+    summary.llm_oracle_status = status
+    summary.llm_oracle_reason = reason
+
+
+def _load_optional_json(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def _derive_task_status(summary: RTLLMTaskSummary) -> str:
     if not summary.render_success:
         return "failed"
@@ -432,6 +496,8 @@ def _build_batch_summary(*, config: RTLLMBatchConfig, task_summaries: Iterable[R
     tasks_with_at_least_one_successful_run = 0
     tasks_with_all_rendered_test_modules_successful = 0
     ambiguity_preserving_tasks = 0
+    llm_plan_status_histogram: Counter[str] = Counter()
+    llm_oracle_status_histogram: Counter[str] = Counter()
 
     for task_summary in task_summaries:
         successful_modules = [
@@ -447,6 +513,8 @@ def _build_batch_summary(*, config: RTLLMBatchConfig, task_summaries: Iterable[R
             false_positive_count += 1
         if task_summary.assertion_strength_counts.get("guarded", 0) or task_summary.assertion_strength_counts.get("unresolved", 0):
             ambiguity_preserving_tasks += 1
+        llm_plan_status_histogram[task_summary.llm_plan_status] += 1
+        llm_oracle_status_histogram[task_summary.llm_oracle_status] += 1
         for item in task_summary.test_module_results:
             triage_histogram[item.triage_category] += 1
         for key, value in task_summary.assertion_strength_counts.items():
@@ -462,6 +530,14 @@ def _build_batch_summary(*, config: RTLLMBatchConfig, task_summaries: Iterable[R
         "tasks_with_all_rendered_test_modules_successful": tasks_with_all_rendered_test_modules_successful,
         "false_positive_count_on_verified_rtl": false_positive_count,
         "tasks_with_guarded_or_unresolved_policies": ambiguity_preserving_tasks,
+        "llm_plan_attempted": sum(1 for item in task_summaries if item.llm_plan_attempted),
+        "llm_plan_succeeded": sum(1 for item in task_summaries if item.llm_plan_succeeded),
+        "llm_plan_fallback_used": sum(1 for item in task_summaries if item.llm_plan_fallback_used),
+        "llm_oracle_attempted": sum(1 for item in task_summaries if item.llm_oracle_attempted),
+        "llm_oracle_succeeded": sum(1 for item in task_summaries if item.llm_oracle_succeeded),
+        "llm_oracle_fallback_used": sum(1 for item in task_summaries if item.llm_oracle_fallback_used),
+        "llm_plan_status_histogram": dict(sorted(llm_plan_status_histogram.items())),
+        "llm_oracle_status_histogram": dict(sorted(llm_oracle_status_histogram.items())),
         "triage_category_histogram": dict(sorted(triage_histogram.items())),
         "assertion_strength_histogram": {
             "exact": int(assertion_histogram["exact"]),
@@ -483,6 +559,13 @@ def _build_batch_summary(*, config: RTLLMBatchConfig, task_summaries: Iterable[R
             "triage",
         ],
         "experimental_fill_used": False,
+        "llm_runtime_policy": {
+            "provider": config.llm_config.provider,
+            "model": config.llm_config.model,
+            "base_url": config.llm_config.base_url,
+            "trust_env": config.llm_config.trust_env,
+            "disable_proxies": config.llm_config.disable_proxies,
+        },
         "generation_input_policy": {
             "allowed": ["verified RTL", "design_description.txt", "benchmark makefile only for source discovery if needed"],
             "disallowed": ["reference.dat", "benchmark testbench.v", "golden output data"],
@@ -514,6 +597,8 @@ def _write_summary_csv(path: Path, batch_summary: dict[str, Any]) -> None:
                 "spec_present",
                 "rtl_sources",
                 "rendered_test_modules",
+                "llm_plan_status",
+                "llm_oracle_status",
                 "test_module_outcomes",
                 "assertion_exact",
                 "assertion_guarded",
@@ -536,6 +621,8 @@ def _write_summary_csv(path: Path, batch_summary: dict[str, Any]) -> None:
                     "spec_present": task["spec_present"],
                     "rtl_sources": ";".join(task["rtl_sources"]),
                     "rendered_test_modules": ";".join(task["rendered_test_modules"]),
+                    "llm_plan_status": task["llm_plan_status"],
+                    "llm_oracle_status": task["llm_oracle_status"],
                     "test_module_outcomes": ";".join(
                         f"{item['test_module']}:{item['run_status']}/{item['triage_category']}"
                         for item in task["test_module_results"]
@@ -558,6 +645,7 @@ def _render_summary_markdown(batch_summary: dict[str, Any]) -> str:
         f"- Output dir: `{batch_summary['out_dir']}`",
         f"- Pipeline: `{ ' -> '.join(batch_summary['pipeline']) }`",
         f"- Experimental fill used: `{batch_summary['experimental_fill_used']}`",
+        f"- LLM runtime policy: `provider={batch_summary['llm_runtime_policy']['provider']}, model={batch_summary['llm_runtime_policy']['model']}, trust_env={batch_summary['llm_runtime_policy']['trust_env']}, disable_proxies={batch_summary['llm_runtime_policy']['disable_proxies']}`",
         "",
         "## Aggregate Metrics",
         "",
@@ -570,16 +658,20 @@ def _render_summary_markdown(batch_summary: dict[str, Any]) -> str:
         f"- Tasks with all rendered modules successful: {metrics['tasks_with_all_rendered_test_modules_successful']}",
         f"- False positive count on verified RTL: {metrics['false_positive_count_on_verified_rtl']}",
         f"- Tasks with guarded/unresolved policies: {metrics['tasks_with_guarded_or_unresolved_policies']}",
+        f"- LLM plan attempted/succeeded/fallback: {metrics['llm_plan_attempted']}/{metrics['llm_plan_succeeded']}/{metrics['llm_plan_fallback_used']}",
+        f"- LLM oracle attempted/succeeded/fallback: {metrics['llm_oracle_attempted']}/{metrics['llm_oracle_succeeded']}/{metrics['llm_oracle_fallback_used']}",
         "",
         "## Histograms",
         "",
         f"- Triage: `{json.dumps(metrics['triage_category_histogram'], sort_keys=True)}`",
         f"- Assertion strength: `{json.dumps(metrics['assertion_strength_histogram'], sort_keys=True)}`",
+        f"- LLM plan status: `{json.dumps(metrics['llm_plan_status_histogram'], sort_keys=True)}`",
+        f"- LLM oracle status: `{json.dumps(metrics['llm_oracle_status_histogram'], sort_keys=True)}`",
         "",
         "## Per-Task Rollup",
         "",
-        "| Task | Status | Modules | Assertion Strengths | Failure Summary |",
-        "| --- | --- | --- | --- | --- |",
+        "| Task | Status | LLM(plan/oracle) | Modules | Assertion Strengths | Failure Summary |",
+        "| --- | --- | --- | --- | --- | --- |",
     ]
     for task in batch_summary["tasks"]:
         module_summary = ", ".join(
@@ -588,9 +680,11 @@ def _render_summary_markdown(batch_summary: dict[str, Any]) -> str:
         )
         strength_summary = task["assertion_strength_counts"]
         lines.append(
-            "| {task} | {status} | {modules} | exact={exact}, guarded={guarded}, unresolved={unresolved} | {failure} |".format(
+            "| {task} | {status} | {llm_plan}/{llm_oracle} | {modules} | exact={exact}, guarded={guarded}, unresolved={unresolved} | {failure} |".format(
                 task=task["task_name"],
                 status=task["task_status"],
+                llm_plan=task["llm_plan_status"],
+                llm_oracle=task["llm_oracle_status"],
                 modules=module_summary or "-",
                 exact=strength_summary["exact"],
                 guarded=strength_summary["guarded"],
@@ -642,6 +736,16 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--llm-temperature", type=float, default=None, help="Optional LLM temperature override.")
     parser.add_argument("--llm-timeout-seconds", type=int, default=None, help="Optional LLM timeout override.")
     parser.add_argument("--llm-max-retries", type=int, default=None, help="Optional LLM retry override.")
+    parser.add_argument(
+        "--llm-disable-proxies",
+        action="store_true",
+        help="Explicitly clear proxy environment variables for LLM requests during the batch run.",
+    )
+    parser.add_argument(
+        "--llm-trust-env",
+        action="store_true",
+        help="Force the LLM client to keep proxy-related environment variables untouched.",
+    )
     parser.add_argument("--task", action="append", default=[], help="Optional task name filter; may be passed multiple times.")
     parser.add_argument("--limit", type=int, default=None, help="Optional maximum number of tasks to run.")
     parser.add_argument("--no-clean-build", action="store_true", help="Disable clean-build runs.")
@@ -666,6 +770,10 @@ def _build_llm_config(args: argparse.Namespace) -> LLMConfig:
         overrides["timeout_seconds"] = args.llm_timeout_seconds
     if args.llm_max_retries is not None:
         overrides["max_retries"] = args.llm_max_retries
+    if args.llm_disable_proxies:
+        overrides["disable_proxies"] = True
+    if args.llm_trust_env:
+        overrides["trust_env"] = True
     return config.model_copy(update=overrides)
 
 

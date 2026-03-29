@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "wave_out must toggle at least once within a conservative observation window after freq is applied.",
+          "notes": [],
+          "observed_signals": [
+            "wave_out"
+          ],
+          "pass_condition": "wave_out changes value (0→1 or 1→0) at least once within the bounded observation window.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 512,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When freq input is driven to a non-zero value."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "wave_out must never become X or Z for any legal freq value.",
+          "notes": [],
+          "observed_signals": [
+            "wave_out"
+          ],
+          "pass_condition": "wave_out remains 0 or 1 throughout the observation period.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 512,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "During any stimulus where freq is driven within [0,255]."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,145 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "c reflects a - b for each successive input pair without spurious glitches"
+      ],
+      "goal": "Verify that rapid successive changes on a and b produce correct combinational outputs each evaluation cycle",
+      "notes": [
+        "No internal state is assumed; the module is combinational per contract"
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Inputs a and b are driven with legal N‑bit values each cycle"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a sequence of diverse legal patterns on a and b with no idle cycles"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Output c is expected to settle after input changes within the same combinational evaluation window"
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "c becomes X when any input contains X or Z, reflecting unknown propagation"
+      ],
+      "goal": "Confirm that illegal/unknown input values propagate to the output as undefined",
+      "notes": [
+        "Contract does not forbid X/Z, so this tests conservative unknown handling"
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Drive a or b with X/Z values"
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Introduce X/Z on a or b while keeping the other input legal"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after inputs settle; no timing guarantee required"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "c equals the unsigned subtraction a - b modulo 2^N"
+      ],
+      "goal": "Validate basic combinational subtraction across typical legal values",
+      "notes": [
+        "Ensures functional mapping without relying on hidden state or latency"
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply random legal N‑bit patterns to inputs a and b"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Outputs are observed after inputs have stabilized; combinational behavior only"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "c correctly reflects subtraction at extreme values (all zeros, all ones, one‑hot patterns) without overflow artifacts"
+      ],
+      "goal": "Exercise boundary conditions and width‑sensitive scenarios",
+      "notes": [
+        "Covers potential edge effects in unsigned subtraction for the full N‑bit range"
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Drive min, max, and one‑hot patterns on a and b"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe after inputs settle; no fixed latency assumed"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

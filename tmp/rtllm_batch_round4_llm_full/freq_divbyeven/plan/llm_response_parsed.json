@@ -1,0 +1,81 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "frequency_division",
+        "toggle_behavior"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "clk_div does not toggle on every clk edge, indicating a division factor greater than 1",
+        "After reset release, clk_div eventually changes state (at least one toggle) within a conservative observation window"
+      ],
+      "goal": "Demonstrate that the divider produces a slower toggling output than the input clock, confirming frequency division behavior without assuming a fixed cycle count.",
+      "notes": [
+        "NUM_DIV is a parameter; the test does not rely on its concrete value, only on the fact that it is even and > 2."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in post\u2011reset steady state."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset and allow the divider to run, monitoring clk_div for a slower toggle rate compared to clk."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over a window of at least 4 clock cycles after reset release; do not assume exact NUM_DIV latency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic_progress",
+        "post_reset_observation"
+      ],
+      "expected_properties": [
+        "clk_div output is defined (0 or 1) after reset release",
+        "clk_div may change value over successive clock edges, but no assumption of exact toggle period is made"
+      ],
+      "goal": "Observe that the design produces defined, non\u2011X output on clk_div after reset and that the output can evolve over time under normal clocking.",
+      "notes": [
+        "The case remains conservative; it does not rely on knowledge of NUM_DIV or exact latency."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset (if present) and sample clk_div over a few clock cycles to verify stability and definability."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Sample clk_div on successive rising edges of clk for at least 3 cycles after reset deassertion."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "All cases use only ports declared in the contract (clk, rst_n, clk_div).",
+    "No exact-cycle timing assumptions are made due to unknown NUM_DIV and weak latency model."
+  ],
+  "unresolved_items": [
+    "Golden interface described clock 'clk_div', but the RTL port is not a scalar input-like signal.",
+    "Spec/reset hint could not be mapped to a known reset port beyond the inferred active\u2011low rst_n."
+  ]
+}

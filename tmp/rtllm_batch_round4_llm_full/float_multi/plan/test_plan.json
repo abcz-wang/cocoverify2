@@ -1,0 +1,324 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "float_multi",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.6850000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.6350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "basic_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "For a legal pair of normal operands, output z eventually reflects the IEEE\u2011754 multiplication result.",
+        "No X or Z values appear on z after stabilization."
+      ],
+      "goal": "Apply a representative legal input pattern and verify stable post\u2011operation output.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Stimulus uses a typical normal operand pair (e.g., 1.0 * 2.0)."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['a', 'b']",
+        "Drive a normal operand (e.g., 0x3f800000) on a and another normal operand (e.g., 0x40000000) on b."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe z after at least two clock cycles, without assuming a fixed latency."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.5850000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['a', 'b']"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.5550000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.6750000000000002,
+      "coverage_tags": [
+        "negative",
+        "special_case"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "When inputs represent NaN, the output z is also NaN.",
+        "When one operand is infinity and the other is zero, the output follows IEEE\u2011754 rules (NaN).",
+        "When both operands are normal numbers, normal multiplication behavior is observed."
+      ],
+      "goal": "Validate handling of illegal/exceptional floating\u2011point inputs per IEEE\u2011754.",
+      "notes": [
+        "Uses known IEEE\u2011754 bit patterns for NaN, infinity, zero.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Reset has been applied and module is stable."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive NaN pattern on a while b is a normal number.",
+        "Drive infinity on a and zero on b.",
+        "Drive both operands as normal numbers for control."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe z after at least two clock cycles post stimulus, without assuming fixed latency."
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "confidence": 0.6750000000000002,
+      "coverage_tags": [
+        "regression",
+        "state_isolation"
+      ],
+      "defer_reason": "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.",
+      "dependencies": [
+        "basic_001",
+        "edge_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "After a sequence of distinct operations, a previously exercised operation yields the same output as when executed in isolation."
+      ],
+      "goal": "Detect hidden state retention across back\u2011to\u2011back operations.",
+      "notes": [
+        "Repeats a basic multiplication pattern after edge patterns.",
+        "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Module has completed prior operations and is idle."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply a normal multiplication pattern (e.g., a=0x3f800000, b=0x40000000).",
+        "Insert edge patterns (max/min values).",
+        "Re\u2011apply the same normal pattern and compare z."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative observation after each stimulus, no fixed-cycle expectation."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.6750000000000002,
+      "coverage_tags": [
+        "metamorphic",
+        "commutativity"
+      ],
+      "defer_reason": "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Swapping inputs a and b does not change the output z (commutative property)."
+      ],
+      "goal": "Verify commutativity of floating\u2011point multiplication under conservative timing.",
+      "notes": [
+        "Uses a set of diverse operand pairs.",
+        "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Module is reset and stable."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive a pair of normal operands, capture z.",
+        "Swap a and b, capture z', and compare."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Allow at least two clock cycles after each stimulus before sampling z."
+      ]
+    }
+  ],
+  "module_name": "float_multi",
+  "plan_confidence": 0.8250000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

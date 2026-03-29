@@ -1,0 +1,208 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "comparator_3bit",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing.",
+        "Outputs reflect correct relational encoding for typical non\u2011edge values",
+        "Exactly one of A_greater, A_equal, A_less is high for any legal input pair"
+      ],
+      "goal": "Validate combinational correctness across representative mid\u2011range values",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Ensures mutual exclusivity of the three outputs",
+        "Confirms basic functional mapping without assuming latency"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['A', 'B']",
+        "Apply a set of mid\u2011range values (e.g., A=3'b010, B=3'b001) and verify output mapping"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage.",
+        "Outputs stable within one delta cycle after inputs settle",
+        "No internal state or undocumented storage is assumed"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.6975,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Outputs correctly handle minimum and maximum operand values",
+        "Comparator correctly reports transitions at numeric extremes"
+      ],
+      "goal": "Check behavior at numeric limits and one\u2011off boundary conditions",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Edge values include 0 (3'b000) and 7 (3'b111)",
+        "Maintains value\u2011oriented coverage without fixed\u2011latency assumptions"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['A', 'B']",
+        "Drive A=0, B=7 and vice versa, plus patterns where A and B differ by a single LSB"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage.",
+        "Observe outputs after input stabilization",
+        "Do not infer internal state or undocumented storage"
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "timing",
+        "rapid_change"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Outputs track changes without glitches under back-to-back stimulus"
+      ],
+      "goal": "Assess output stability when inputs change every simulation delta cycle",
+      "notes": [
+        "No clock is present; stimulus is applied sequentially in time",
+        "Helps reveal any unintended latch behavior or race conditions"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Toggle A and B between contrasting values each delta cycle to expose potential glitches"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Assume combinational propagation completes within the same simulation timestep; observe outputs after each input change"
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "illegal_input"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Comparator outputs remain defined (0 or 1) even when inputs contain X or Z bits"
+      ],
+      "goal": "Verify robustness against undefined input bits",
+      "notes": [
+        "Although the contract does not specify illegal input handling, exercising X/Z helps uncover unintended X-propagation",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive A and B with patterns containing X and Z bits"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization; no timing guarantees required"
+      ]
+    }
+  ],
+  "module_name": "comparator_3bit",
+  "plan_confidence": 0.8475,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

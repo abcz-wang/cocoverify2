@@ -1,0 +1,111 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "basic_001_property_glitch_001",
+          "check_type": "property",
+          "description": "Guardrail: output must not exhibit unexpected glitches when inputs are stable.",
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "If in and ctrl remain unchanged for a cycle, out must remain unchanged.",
+          "semantic_tags": [
+            "glitch_free",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever in or ctrl are stable for at least one observation window."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "out must equal in when ctrl is zero (no shift).",
+          "observed_signals": [
+            "out",
+            "in",
+            "ctrl"
+          ],
+          "pass_condition": "When ctrl == 3'b000 and inputs are stable, out should equal in after combinational propagation.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When ctrl transitions to 3'b000 or in changes while ctrl==3'b000."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "out must be left-rotate of in by amount specified in ctrl (0-7).",
+          "observed_signals": [
+            "out",
+            "in",
+            "ctrl"
+          ],
+          "pass_condition": "For any stable ctrl value, out should equal rotate_left(in, ctrl) after combinational propagation.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When ctrl changes or in changes."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

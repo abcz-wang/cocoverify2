@@ -1,0 +1,190 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_adder_32bit",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.49750000000000005,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing.",
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 reflects overflow of the 32\u2011bit addition"
+      ],
+      "goal": "Validate combinational correctness of the adder across representative and edge operand values.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Includes edge patterns such as all\u2011zeros, all\u2011ones, and alternating bits while preserving ambiguity about timing.",
+        "Case intent remains conservative given the weak timing contract."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['A', 'B']",
+        "Drive a representative set of legal input patterns on ports A and B, covering typical and boundary values."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage.",
+        "Outputs are expected to stabilize within a delta cycle after inputs settle; no explicit clock or latency is assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.40750000000000003,
+      "coverage_tags": [
+        "edge",
+        "overflow",
+        "carry"
+      ],
+      "defer_reason": "No deterministic non-control stimulus could be derived from the current contract.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 is asserted when addition overflows 32 bits"
+      ],
+      "goal": "Verify correct generation of the carry\u2011out for maximum operand values.",
+      "notes": [
+        "A = 0xFFFFFFFF, B = 0x00000001 produces a sum of 0x00000000 with C32 = 1.",
+        "No deterministic non-control stimulus could be derived from the current contract."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive max operand values to provoke a carry\u2011out."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle; combinational latency is assumed negligible."
+      ]
+    },
+    {
+      "case_id": "basic_002",
+      "category": "basic",
+      "confidence": 0.40750000000000003,
+      "coverage_tags": [
+        "basic",
+        "alternating"
+      ],
+      "defer_reason": "No deterministic non-control stimulus could be derived from the current contract.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 reflects overflow correctly"
+      ],
+      "goal": "Check sum for alternating bit patterns.",
+      "notes": [
+        "A = 0xAAAAAAAA, B = 0x55555555 yields S = 0xFFFFFFFF with C32 = 0.",
+        "No deterministic non-control stimulus could be derived from the current contract."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive alternating bit patterns on A and B."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Outputs should be stable after inputs settle; no clock is required."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.40750000000000003,
+      "coverage_tags": [
+        "back_to_back"
+      ],
+      "defer_reason": "No deterministic non-control stimulus could be derived from the current contract.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32 for each stimulus vector",
+        "Carry-out C32 correctly reflects overflow for each vector"
+      ],
+      "goal": "Validate output stability across rapid successive input changes.",
+      "notes": [
+        "Applies a sequence of legal vectors without idle cycles to ensure combinational behavior is consistent.",
+        "No deterministic non-control stimulus could be derived from the current contract."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply a series of legal input vectors on A and B back\u2011to\u2011back."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Each new vector is presented after the previous outputs have been observed; combinational latency is assumed negligible."
+      ]
+    }
+  ],
+  "module_name": "verified_adder_32bit",
+  "plan_confidence": 0.4275,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions."
+  ]
+}

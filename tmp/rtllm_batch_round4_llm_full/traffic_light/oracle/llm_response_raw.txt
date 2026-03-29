@@ -1,0 +1,100 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that after any pass_request pulse, the green output does not remain asserted beyond the conservative maximum of 60 cycles from the start of the green phase.",
+          "notes": [],
+          "observed_signals": [
+            "green",
+            "clock"
+          ],
+          "pass_condition": "The green signal deasserts within 60 clock cycles after it becomes asserted, unless a pass_request shortens it, in which case deassertion occurs within 10 cycles.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "green_asserted",
+            "max_cycles": 60,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When green transitions from 0 to 1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that the output clock reflects the internal counter value without X or Z after reset release.",
+          "notes": [],
+          "observed_signals": [
+            "clock"
+          ],
+          "pass_condition": "clock output is a defined 8‑bit value (no X/Z) for at least two consecutive cycles after reset deassertion.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is released."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Confirm that the red, yellow, and green outputs never assert simultaneously.",
+          "notes": [],
+          "observed_signals": [
+            "red",
+            "yellow",
+            "green"
+          ],
+          "pass_condition": "At any observed cycle, at most one of red, yellow, green is high.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "any_cycle",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Continuously during simulation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

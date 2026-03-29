@@ -1,0 +1,89 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "confidence": 0.70,
+          "description": "When divisor B is non‑zero, both result and odd must resolve to defined 0/1 values (no X or Z) after inputs stabilize.",
+          "notes": [
+            "Preserves ambiguity‑preserving stance while ensuring defined data outputs for legal divisor values."
+          ],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "After any change to A or B where B != 0, the signals result and odd contain only 0 or 1 bits (no X/Z) and remain stable until the next input change.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "odd": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "augmented",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever inputs A or B change and B != 0."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "After inputs A and B become stable, result and odd must be defined (no X/Z) and must not change until the next input change.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When any change occurs on inputs A or B."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

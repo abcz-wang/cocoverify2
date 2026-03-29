@@ -1,0 +1,366 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_RAM",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.9350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "write_basic",
+        "sanity_check"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "Write operation updates memory and can be observed via subsequent read",
+        "No hidden latency assumptions; effect visible after a conservative observation window"
+      ],
+      "goal": "Demonstrate basic write functionality and observable effect on read_data.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Conservative: does not assume exact write-to-read latency."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['write_en', 'write_addr', 'write_data', 'read_en', 'read_addr']",
+        "Perform a single write with write_en asserted, then read back after at least one clock cycle"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Wait at least one clock cycle after write before checking read_data"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.8350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['write_addr', 'write_data', 'read_addr', 'write_en', 'read_en']"
+      ],
+      "stimulus_signals": [
+        "write_addr",
+        "write_data",
+        "read_addr",
+        "write_en",
+        "read_en"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.8050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.9,
+      "coverage_tags": [
+        "illegal_input",
+        "address_out_of_range"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Write operation with address outside defined depth does not corrupt memory or cause undefined behavior"
+      ],
+      "goal": "Verify that out-of-range address writes are safely ignored or handled.",
+      "notes": [
+        "Contract does not specify address range limits; this case explores potential implementation safety.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [
+        "write_en = 1"
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Attempt a write with address 0xFF (255) while write_en is asserted"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data"
+      ],
+      "timing_assumptions": [
+        "Observe after at least one clock cycle post stimulus"
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "confidence": 0.9,
+      "coverage_tags": [
+        "simultaneous_rw"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "When read_en and write_en are asserted in the same cycle to the same address, read_data reflects either the old data or the newly written data consistently per implementation"
+      ],
+      "goal": "Check behavior of concurrent read/write to the same address.",
+      "notes": [],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert write_en and read_en together with the same address, write_data set to a known pattern"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Observe read_data in the following clock cycle"
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "confidence": 0.9,
+      "coverage_tags": [
+        "reset_during_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "If reset occurs while a write is asserted, memory returns to zero state after reset release"
+      ],
+      "goal": "Validate reset robustness during an active write.",
+      "notes": [],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert write_en with a valid address and data, then assert rst_n low before the next clock edge"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data"
+      ],
+      "timing_assumptions": [
+        "Allow at least two clock cycles after reset deassertion to observe a stable state"
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.9,
+      "coverage_tags": [
+        "write_then_read"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Data written to an address can be read back unchanged after any number of idle cycles"
+      ],
+      "goal": "Confirm data persistence across cycles.",
+      "notes": [],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Write a pattern to address X, then after N idle cycles (N variable), enable read_en for the same address and compare output"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Conservative observation: wait at least one clock after write before read"
+      ]
+    }
+  ],
+  "module_name": "verified_RAM",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

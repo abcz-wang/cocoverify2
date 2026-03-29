@@ -1,0 +1,75 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When a legal 4‑bit word is presented on d while the module is idle, the serial output dout must emit the bits of the word from most‑significant to least‑significant over four consecutive clock cycles, and valid_out must be asserted for exactly one cycle coincident with the first emitted bit.",
+          "notes": [
+            "The check does not assume a fixed latency between the input presentation and the first valid_out; it only requires that the observed sequence matches the MSB‑first ordering within a conservative observation window after d changes.",
+            "If multiple words are presented back‑to‑back, each word must generate its own distinct valid_out pulse and corresponding four‑cycle bit stream."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "pass_condition": "For each transition of d while reset is de‑asserted and the module is not currently streaming, a four‑cycle window is observed starting at the first cycle where valid_out becomes high. Within that window, dout must equal d[3], d[2], d[1], d[0] in order, and valid_out must be high only on the first cycle and low on the remaining three cycles. No extra valid_out pulses may appear outside these windows.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "On any rising edge of clk after reset release when d changes and the module is not already asserting valid_out."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Boundary‑value inputs (all‑zeros, all‑ones, single‑one, single‑zero) must produce the expected serial bit patterns without relying on exact latency.",
+          "notes": [
+            "The check observes the same four‑cycle pattern as the basic case but focuses on extreme input values."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "pass_condition": "For each stimulus of d equal to 4'b0000, 4'b1111, 4'b0001, or 4'b1000, the dout sequence over the four cycles following the first valid_out pulse must be respectively 0,0,0,0; 1,1,1,1; 0,0,0,1; and 1,0,0,0. valid_out must be high only on the first of those four cycles.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When d is driven with one of the specified boundary patterns after reset release."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

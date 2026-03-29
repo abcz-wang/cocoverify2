@@ -75,7 +75,11 @@ def _extract_response_text(response: Any) -> str:
 
 @contextmanager
 def _proxy_environment(config: LLMConfig):
-    if config.trust_env or not _should_disable_proxy(config.base_url):
+    if config.trust_env:
+        yield
+        return
+
+    if not config.disable_proxies and not _should_disable_proxy(config.base_url):
         yield
         return
 

@@ -1,0 +1,604 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "freq_div",
+  "based_on_plan": "freq_div",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_reset_001",
+      "category": "reset",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'reset_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.40500000000000014,
+          "description": "After reset release, all output clocks become defined (no X/Z) within a few CLK_in cycles.",
+          "notes": [
+            "Ensures basic post\u2011reset stability without assuming exact latency."
+          ],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "Each of CLK_50, CLK_10, and CLK_1 is observed as 0 or 1 (no X/Z) within 5 CLK_in cycles after reset deassertion.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "CLK_10": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "CLK_50": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset transitions from asserted to deasserted."
+        }
+      ],
+      "confidence": 0.40500000000000014,
+      "linked_plan_case_id": "basic_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'basic_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.26250000000000007,
+          "description": "Verify that CLK_10 toggles at least once within a 12\u2011cycle observation window after reset release.",
+          "notes": [
+            "Does not require exact cycle count; only a minimum progress guarantee."
+          ],
+          "observed_signals": [
+            "CLK_10"
+          ],
+          "pass_condition": "At least one rising or falling edge of CLK_10 is detected within 12 consecutive CLK_in cycles following reset release.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "CLK_10": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 12,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While observing the design after reset deassertion."
+        },
+        {
+          "check_id": "edge_001_functional_002",
+          "check_type": "functional",
+          "confidence": 0.26250000000000007,
+          "description": "Observe that CLK_10 does not assume X or Z values during the observation window after reset release.",
+          "notes": [
+            "Conservative functional guardrail; does not assert exact toggle timing."
+          ],
+          "observed_signals": [
+            "CLK_10"
+          ],
+          "pass_condition": "All sampled values of CLK_10 are either 0 or 1 (no X/Z) for the duration of the window.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "CLK_10": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 12,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is deasserted and the design is observed for at least 12 CLK_in cycles."
+        }
+      ],
+      "confidence": 0.26250000000000007,
+      "linked_plan_case_id": "edge_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "hybrid_llm_generated",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'edge_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_functional_001",
+          "check_type": "functional",
+          "confidence": 0.26250000000000007,
+          "description": "Verify that CLK_1 toggles at most once per 50 CLK_in cycles after reset release.",
+          "notes": [
+            "Provides a conservative upper\u2011bound progress check without fixing exact latency."
+          ],
+          "observed_signals": [
+            "CLK_1"
+          ],
+          "pass_condition": "No more than one toggle of CLK_1 is observed within any 50\u2011cycle window of CLK_in after reset release.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 50,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "During extended observation after reset deassertion."
+        },
+        {
+          "check_id": "edge_002_functional_002",
+          "check_type": "functional",
+          "confidence": 0.26250000000000007,
+          "description": "Observe that CLK_1 does not assume X or Z values during the observation window after reset release.",
+          "notes": [
+            "Conservative functional guardrail; does not assert exact toggle timing."
+          ],
+          "observed_signals": [
+            "CLK_1"
+          ],
+          "pass_condition": "All sampled values of CLK_1 are either 0 or 1 (no X/Z) for the duration of the window.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 110,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is deasserted and the design is observed for at least 110 CLK_in cycles."
+        }
+      ],
+      "confidence": 0.26250000000000007,
+      "linked_plan_case_id": "edge_002",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "hybrid_llm_generated",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'edge_002' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    }
+  ],
+  "module_name": "freq_div",
+  "oracle_confidence": {
+    "functional_confidence": 0.24500000000000008,
+    "overall_confidence": 0.05,
+    "property_confidence": 0.2855000000000001,
+    "protocol_confidence": 0.3650000000000001
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_property_001",
+          "check_type": "property",
+          "confidence": 0.3750000000000001,
+          "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+          "notes": [
+            "Clock/reset remain anchors and are not emitted as business outputs."
+          ],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "CLK_10": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "CLK_50": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        }
+      ],
+      "confidence": 0.3750000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'reset_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.3750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "CLK_10": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "CLK_50": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.3750000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "confidence": 0.23250000000000004,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "CLK_10"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "CLK_10": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.23250000000000004,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'edge_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_property_001",
+          "check_type": "property",
+          "confidence": 0.23250000000000004,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "CLK_1"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.23250000000000004,
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'edge_002' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_back_to_back_001",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_001_property_001",
+          "check_type": "property",
+          "confidence": 0.21250000000000005,
+          "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+          "notes": [
+            "Stability-style property used instead of throughput-specific claims."
+          ],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            },
+            "CLK_10": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            },
+            "CLK_50": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        }
+      ],
+      "confidence": 0.21250000000000005,
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'back_to_back_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_protocol_001",
+          "check_type": "protocol",
+          "confidence": 0.3650000000000001,
+          "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+          "notes": [
+            "Reset is used as an anchor only; it is not treated as a business output."
+          ],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "CLK_10": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "CLK_50": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'RST' is asserted and later released according to the inferred polarity."
+        }
+      ],
+      "confidence": 0.3650000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Reset oracle focuses on control-safe behavior instead of value-specific output claims.",
+        "Protocol oracle strictness is downgraded because the contract or plan is weak."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "unresolved_items": [
+    "Golden interface described clock 'CLK_50', but the RTL port is not a scalar input-like signal.",
+    "Golden interface described clock 'CLK_10', but the RTL port is not a scalar input-like signal.",
+    "Golden interface described clock 'CLK_1', but the RTL port is not a scalar input-like signal.",
+    "Spec/reset hint could not be mapped to a known reset port: If the counter cnt_10 reaches a value of 4, CLK_10 is toggled by inverting its current value, and the counter cnt_10 is reset to 0.",
+    "Spec/reset hint could not be mapped to a known reset port: If the counter cnt_100 reaches a value of 49, CLK_1 is toggled by inverting its current value, and the counter cnt_100 is reset to 0.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks."
+  ]
+}

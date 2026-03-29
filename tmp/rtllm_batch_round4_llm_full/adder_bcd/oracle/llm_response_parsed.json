@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that Sum and Cout correspond to BCD-corrected addition of A, B, and Cin for legal BCD inputs.",
+          "notes": [],
+          "observed_signals": [
+            "Sum",
+            "Cout"
+          ],
+          "pass_condition": "Sum equals ((A + B + Cin) % 10) and Cout equals ((A + B + Cin) >= 10) for all input combinations where A and B are in 0..9.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When inputs A, B, Cin are driven to any legal BCD combination."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guard against reliance on undocumented latency when observing boundary values.",
+          "notes": [],
+          "observed_signals": [
+            "Sum",
+            "Cout"
+          ],
+          "pass_condition": "After inputs settle to a boundary value (0 or 9) the outputs must stabilize to a consistent value without requiring a fixed number of cycles.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When A or B is set to 0 or 9 and Cin toggles."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

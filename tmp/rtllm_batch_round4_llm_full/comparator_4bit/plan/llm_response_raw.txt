@@ -1,0 +1,198 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "back_to_back",
+      "coverage_tags": [
+        "glitch",
+        "timing_agnostic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Outputs reflect the most recent stabilized inputs after each change",
+        "No transient invalid output states observed between stimulus steps"
+      ],
+      "goal": "Verify that rapid successive input changes produce correct output without glitches.",
+      "notes": [
+        "Stimulus changes are applied with minimal delay; observation occurs after each stabilization period."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a sequence of alternating patterns to A and B with minimal inter‑stimulus delay"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input change has settled; no fixed‑cycle latency is assumed."
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "regression",
+      "coverage_tags": [
+        "exhaustive",
+        "regression"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "expected_properties": [
+        "All output combinations match the reference 4‑bit comparator truth table for every (A,B) pair"
+      ],
+      "goal": "Exhaustively cover all 256 input combinations to confirm combinational truth table.",
+      "notes": [
+        "Iterates through every possible 4‑bit value of A and B."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Iterate through all 256 (A,B) pairs in a systematic order"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input pair stabilizes; timing remains agnostic."
+      ]
+    },
+    {
+      "draft_id": "new_case_003",
+      "category": "metamorphic",
+      "coverage_tags": [
+        "symmetry",
+        "metamorphic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "A_greater(A,B) == A_less(B,A)",
+        "A_less(A,B) == A_greater(B,A)",
+        "A_equal(A,B) == A_equal(B,A)"
+      ],
+      "goal": "Validate symmetry: swapping A and B inverts greater/less outputs while equal remains unchanged.",
+      "notes": [
+        "Select a representative subset of input pairs and also test their swapped counterparts."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "For each chosen (A,B) pair, also apply the swapped pair (B,A) and compare outputs"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input pair stabilizes; no cycle‑accurate timing assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Output mapping matches combinational comparator truth table for sampled inputs"
+      ],
+      "goal": "Confirm basic functional mapping of inputs to mutually exclusive outputs.",
+      "notes": [
+        "Conservative approach due to unknown latency; only input/output consistency is checked."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: ['A', 'B']"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Boundary‑value stimulation (e.g., 0x0, 0xF) yields correct exclusive output encoding"
+      ],
+      "goal": "Exercise boundary‑value and width‑sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value‑oriented and avoids fixed‑latency assumptions."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Use zero‑like, one‑like, and boundary patterns on ['A', 'B']"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

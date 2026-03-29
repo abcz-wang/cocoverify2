@@ -1,0 +1,325 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_multi_pipe_8bit",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.6850000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.6350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_basic",
+        "functional_correctness"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "When mul_en_in is asserted, mul_en_out eventually asserts and mul_out reflects the unsigned 8\u2011bit product of mul_a and mul_b.",
+        "The product is correct for the exercised operand pair."
+      ],
+      "goal": "Confirm correct multiplication for a representative non\u2011boundary operand pair under conservative timing.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Observe for up to 8 cycles after the enable pulse; no exact latency is assumed."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['mul_a', 'mul_b', 'mul_en_in']",
+        "Drive mul_en_in high with a typical operand pair (e.g., mul_a=0x12, mul_b=0x34)."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Sample outputs on each rising edge of clk for a window of 8 cycles after the enable assertion."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.5850000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Zero operands produce a zero product and appropriate enable behavior.",
+        "Maximum 8\u2011bit operands (0xFF) produce the correct 16\u2011bit product (0xFE01) when enabled."
+      ],
+      "goal": "Exercise extreme operand values to verify correct handling of width limits and boundary conditions.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Both zero and max patterns are applied with mul_en_in asserted."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['mul_a', 'mul_b', 'mul_en_in']",
+        "Apply zero\u2011zero, max\u2011max, and mixed boundary patterns on mul_a and mul_b while asserting mul_en_in."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Monitor outputs for up to 8 clock cycles after each stimulus to capture the eventual stable result."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.5550000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.6750000000000002,
+      "coverage_tags": [
+        "illegal_illegal_input",
+        "disable_operation"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "When mul_en_in is deasserted, changes on mul_a or mul_b do not cause mul_en_out to assert.",
+        "mul_out remains zero or unchanged while mul_en_out is low."
+      ],
+      "goal": "Confirm that the design ignores operand changes when the input enable is low, preserving functional safety.",
+      "notes": [
+        "No assumption on how many cycles the design may need to suppress spurious output.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Hold mul_en_in low while toggling mul_a and mul_b across a range of values."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Apply stimulus on consecutive rising edges of clk and monitor outputs for at least 5 cycles after each change."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "confidence": 0.6750000000000002,
+      "coverage_tags": [
+        "pipeline_handshake",
+        "enable_propagation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "mul_en_out becomes asserted after a bounded number of clock cycles following a rising edge of mul_en_in.",
+        "The exact latency is not assumed; only that the assertion occurs within a reasonable observation window."
+      ],
+      "goal": "Verify the enable handshake across the pipeline without relying on a fixed latency.",
+      "notes": [
+        "Observation window set conservatively to 8 clock cycles.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "mul_en_out"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Pulse mul_en_in high for one cycle while providing valid operands."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Sample mul_en_out on each rising edge of clk for up to 8 cycles after the enable pulse."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.6750000000000002,
+      "coverage_tags": [
+        "operand_symmetry"
+      ],
+      "defer_reason": "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "For any pair of operands (A,B), the product observed when mul_a=A, mul_b=B equals the product when mul_a=B, mul_b=A, provided mul_en_in is asserted."
+      ],
+      "goal": "Demonstrate commutative property of multiplication under the pipeline implementation.",
+      "notes": [
+        "Uses two separate stimulus sequences; compares captured mul_out values.",
+        "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply two operand pairs: (A,B) then (B,A) with mul_en_in high, and record the resulting mul_out."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Allow up to 8 clock cycles after each enable assertion before sampling mul_out."
+      ]
+    }
+  ],
+  "module_name": "verified_multi_pipe_8bit",
+  "plan_confidence": 0.8350000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

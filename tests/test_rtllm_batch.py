@@ -97,6 +97,12 @@ def test_build_batch_summary_aggregates_histograms() -> None:
         plan_success=True,
         oracle_success=True,
         render_success=True,
+        llm_plan_attempted=True,
+        llm_plan_succeeded=True,
+        llm_plan_status="merged",
+        llm_oracle_attempted=True,
+        llm_oracle_succeeded=True,
+        llm_oracle_status="merged",
         rendered_test_modules=["test_ok_basic", "test_ok_edge"],
         test_module_results=[
             RTLLMModuleRunResult(
@@ -129,6 +135,14 @@ def test_build_batch_summary_aggregates_histograms() -> None:
         plan_success=True,
         oracle_success=True,
         render_success=True,
+        llm_plan_attempted=True,
+        llm_plan_fallback_used=True,
+        llm_plan_status="fallback",
+        llm_plan_reason="Connection error.",
+        llm_oracle_attempted=True,
+        llm_oracle_fallback_used=True,
+        llm_oracle_status="fallback",
+        llm_oracle_reason="Connection error.",
         rendered_test_modules=["test_partial_basic"],
         test_module_results=[
             RTLLMModuleRunResult(
@@ -157,6 +171,14 @@ def test_build_batch_summary_aggregates_histograms() -> None:
     assert metrics["tasks_with_at_least_one_successful_run"] == 1
     assert metrics["tasks_with_all_rendered_test_modules_successful"] == 1
     assert metrics["false_positive_count_on_verified_rtl"] == 1
+    assert metrics["llm_plan_attempted"] == 2
+    assert metrics["llm_plan_succeeded"] == 1
+    assert metrics["llm_plan_fallback_used"] == 1
+    assert metrics["llm_oracle_attempted"] == 2
+    assert metrics["llm_oracle_succeeded"] == 1
+    assert metrics["llm_oracle_fallback_used"] == 1
+    assert metrics["llm_plan_status_histogram"] == {"fallback": 1, "merged": 1}
+    assert metrics["llm_oracle_status_histogram"] == {"fallback": 1, "merged": 1}
     assert metrics["triage_category_histogram"] == {"no_failure": 2, "runtime_test_failure": 1}
     assert metrics["assertion_strength_histogram"] == {"exact": 2, "guarded": 5, "unresolved": 8}
 

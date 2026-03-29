@@ -1,0 +1,483 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "sequence_detector",
+  "based_on_plan": "sequence_detector",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7550000000000001,
+          "description": "After reset release, observable outputs should reach a stable externally visible state before functional checking resumes.",
+          "notes": [
+            "Reset functional oracle does not invent specific reset values."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "Observable outputs settle to a stable, externally usable state without relying on undocumented exact-cycle convergence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is released after a valid assertion interval."
+        }
+      ],
+      "confidence": 0.7550000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7650000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        {
+          "check_id": "basic_001_functional_002",
+          "check_type": "functional",
+          "confidence": 0.8050000000000002,
+          "description": "Observe that sequence_detected remains low until a full 1001 pattern is presented and then asserts.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "sequence_detected stays low for any input pattern not containing 1001 and transitions to high at some clock after the fourth bit of a 1001 pattern, without requiring a fixed cycle count.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When data_in is driven with a test pattern containing a single 1001 sequence."
+        }
+      ],
+      "confidence": 0.7850000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7500000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        }
+      ],
+      "confidence": 0.7500000000000001,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_002",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_002_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7500000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        }
+      ],
+      "confidence": 0.7500000000000001,
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "module_name": "sequence_detector",
+  "oracle_confidence": {
+    "functional_confidence": 0.7600000000000001,
+    "overall_confidence": 0.7254166666666668,
+    "property_confidence": 0.7712500000000001,
+    "protocol_confidence": 0.7650000000000001
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7750000000000001,
+          "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+          "notes": [
+            "Clock/reset remain anchors and are not emitted as business outputs."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7600000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "confidence": 0.7900000000000001,
+          "description": "Overlapping sequence detection must assert sequence_detected for each valid 1001 occurrence without spurious asserts.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "sequence_detected asserts only when a full 1001 pattern is observed, including overlapping occurrences, and remains low otherwise.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus bitstream contains overlapping 1001 patterns."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "hybrid_llm_generated",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_002",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_002_property_001",
+          "check_type": "property",
+          "confidence": 0.7600000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7600000000000001,
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "protocol_oracles": [
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_protocol_001",
+          "check_type": "protocol",
+          "confidence": 0.7650000000000001,
+          "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+          "notes": [
+            "Reset is used as an anchor only; it is not treated as a business output."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "sequence_detected": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+        }
+      ],
+      "confidence": 0.7650000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Reset oracle focuses on control-safe behavior instead of value-specific output claims."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "unresolved_items": [
+    "Golden interface mentioned port 'S4', but it was not found in the RTL header.",
+    "Spec/reset hint could not be mapped to a known reset port: -Reset Behavior: When reset is high, the state machine returns to the IDLE state, resetting the detection process."
+  ]
+}

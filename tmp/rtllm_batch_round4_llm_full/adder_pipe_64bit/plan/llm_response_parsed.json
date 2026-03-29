@@ -1,0 +1,130 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "When i_en is deasserted, result and o_en must remain unchanged despite changes on adda and addb.",
+        "No spurious o_en high should be generated while i_en is low."
+      ],
+      "goal": "Verify that the adder does not produce output when the operation is disabled.",
+      "notes": [
+        "Pipeline latency is unknown; the check observes stability over multiple cycles."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "i_en can be driven low while inputs toggle."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive i_en low and toggle adda/addb values to ensure no output is generated."
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Observe over several clock cycles without assuming a fixed latency."
+      ]
+    },
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "pipeline",
+        "latency_unknown"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "After i_en is asserted, o_en eventually goes high and result reflects the sum of the corresponding operands.",
+        "o_en must not assert before the sum is ready."
+      ],
+      "goal": "Characterize the unknown pipeline latency conservatively.",
+      "notes": [
+        "Monitor for o_en transition within a reasonable window (e.g., up to 10 cycles) since exact latency is unspecified."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "i_en can be pulsed for a single cycle."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert i_en for one cycle with known operands, then monitor o_en and result."
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Allow up to 10 clock cycles for o_en to assert after i_en."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "pipeline_basic"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "Result matches 65-bit addition of adda and addb when o_en is high."
+      ],
+      "goal": "Confirm functional correctness of addition when enabled, without relying on exact latency.",
+      "notes": [
+        "Conservative timing: do not assume a fixed number of cycles for result availability."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['i_en', 'adda', 'addb']",
+        "Use a simple non\u2011zero operand pair to verify addition."
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

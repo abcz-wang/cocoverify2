@@ -1,0 +1,84 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After data_en is asserted for at least three consecutive clk_b cycles, dataout must eventually reflect the value present on data_in at the time data_en was first asserted.",
+          "notes": [
+            "The check is conservative: it does not assume a fixed latency, only that the update occurs within a bounded observation window."
+          ],
+          "observed_signals": [
+            "dataout"
+          ],
+          "pass_condition": "If data_en remains high for ≥3 clk_b cycles while data_in stays stable, then within 8 clk_b cycles after the third rising edge of clk_b, dataout equals the captured data_in value. No X or Z values are permitted on dataout during this window.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "data_en_deassert",
+            "max_cycles": 8,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When data_en transitions from low to high and remains high for three clk_b cycles."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "During an active reset (arstn or brstn asserted low), dataout must not exhibit any defined value change; it may be X or Z but must not be interpreted as a valid business output.",
+          "notes": [
+            "Reset is treated as a control-only event; the oracle does not enforce a specific reset value for dataout."
+          ],
+          "observed_signals": [
+            "dataout"
+          ],
+          "pass_condition": "While either reset signal is asserted, no safety property is violated by allowing dataout to be X, Z, or any value. The property only requires that no completion or acceptance is claimed during reset.",
+          "semantic_tags": [
+            "reset",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever arstn or brstn is low."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "The spec provides reset behavior but the mapping to the contract's reset ports is ambiguous; the oracles treat reset as a control anchor without asserting specific output values.",
+    "Timing latency between enable assertion and dataout update is unknown; all functional checks use bounded observation windows rather than exact-cycle expectations."
+  ]
+}

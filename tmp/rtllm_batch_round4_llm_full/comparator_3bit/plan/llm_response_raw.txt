@@ -1,0 +1,159 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "back_to_back",
+      "coverage_tags": [
+        "timing",
+        "rapid_change"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Outputs track changes without glitches under back-to-back stimulus"
+      ],
+      "goal": "Assess output stability when inputs change every simulation delta cycle",
+      "notes": [
+        "No clock is present; stimulus is applied sequentially in time",
+        "Helps reveal any unintended latch behavior or race conditions"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Toggle A and B between contrasting values each delta cycle to expose potential glitches"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Assume combinational propagation completes within the same simulation timestep; observe outputs after each input change"
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input"
+      ],
+      "dependencies": [],
+      "expected_properties": [
+        "Comparator outputs remain defined (0 or 1) even when inputs contain X or Z bits"
+      ],
+      "goal": "Verify robustness against undefined input bits",
+      "notes": [
+        "Although the contract does not specify illegal input handling, exercising X/Z helps uncover unintended X-propagation"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive A and B with patterns containing X and Z bits"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization; no timing guarantees required"
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "Outputs reflect correct relational encoding for typical non‑edge values",
+        "Exactly one of A_greater, A_equal, A_less is high for any legal input pair"
+      ],
+      "goal": "Validate combinational correctness across representative mid‑range values",
+      "notes": [
+        "Ensures mutual exclusivity of the three outputs",
+        "Confirms basic functional mapping without assuming latency"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a set of mid‑range values (e.g., A=3'b010, B=3'b001) and verify output mapping"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Outputs stable within one delta cycle after inputs settle",
+        "No internal state or undocumented storage is assumed"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "Outputs correctly handle minimum and maximum operand values",
+        "Comparator correctly reports transitions at numeric extremes"
+      ],
+      "goal": "Check behavior at numeric limits and one‑off boundary conditions",
+      "notes": [
+        "Edge values include 0 (3'b000) and 7 (3'b111)",
+        "Maintains value‑oriented coverage without fixed‑latency assumptions"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive A=0, B=7 and vice versa, plus patterns where A and B differ by a single LSB"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization",
+        "Do not infer internal state or undocumented storage"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,150 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_signal_generator",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.9350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "wave"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "basic_progress",
+        "sanity_check"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access.",
+        "wave output remains defined (no X) after reset release",
+        "wave changes value on successive clock edges without assuming a fixed number of cycles",
+        "wave stays within 5\u2011bit range [0,31]"
+      ],
+      "goal": "Verify that the generator produces a defined, monotonic waveform progression after reset under normal clocking.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved.",
+        "Enriches the original basic case with explicit observation intent and minimal timing assumptions."
+      ],
+      "observed_signals": [
+        "wave"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress.",
+        "Release reset, then observe a sequence of clock edges to confirm that wave updates consistently."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe at least 8 consecutive clock cycles after reset deassertion.",
+        "Do not assume a fixed latency for waveform changes; only require that changes become externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.9,
+      "coverage_tags": [
+        "boundary_transition",
+        "peak_trough"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "When wave reaches the maximum value 31, the next observed value is 30 (decrement direction).",
+        "When wave reaches the minimum value 0, the next observed value is 1 (increment direction).",
+        "The direction change occurs without X or illegal values on wave."
+      ],
+      "goal": "Validate correct handling of waveform peak (31) and trough (0) transitions.",
+      "notes": [
+        "Focuses on the edge behavior of the state machine at the waveform limits.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "wave"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "After reset release, allow the generator to run until wave hits 31, then verify the subsequent decrement, and similarly verify the increment after reaching 0."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Run for enough clock cycles to observe both the 31\u219230 and 0\u21921 transitions; exact cycle count is not assumed."
+      ]
+    }
+  ],
+  "module_name": "verified_signal_generator",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

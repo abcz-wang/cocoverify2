@@ -1,0 +1,81 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "edge",
+        "shift_amount_boundary",
+        "full_range"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "out reflects correct rotation for each possible ctrl value (0-7)",
+        "no combinational glitches on out when ctrl changes",
+        "output updates deterministically with changes on in or ctrl"
+      ],
+      "goal": "Validate correct barrel\u2011shifter operation across the full ctrl range and detect any transient glitches.",
+      "notes": [
+        "Exhaustively exercises each shift amount (0,1,2,3,4,5,6,7).",
+        "Keeps stimulus deterministic; no assumptions about exact latency."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Use only ports defined in the contract."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply each ctrl value while varying the input data to verify correct rotation."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe out after combinational settle; no fixed\u2011cycle latency assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "shift_zero"
+      ],
+      "expected_properties": [
+        "out equals in when ctrl = 3'b000",
+        "no unexpected toggling of out during reset\u2011safe observation window"
+      ],
+      "goal": "Confirm that a zero shift leaves the input unchanged.",
+      "notes": [
+        "Baseline sanity check for the no\u2011shift condition."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply ctrl=0 with various in patterns and verify out mirrors in."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe out after combinational propagation; no fixed latency required."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

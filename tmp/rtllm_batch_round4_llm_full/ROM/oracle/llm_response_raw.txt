@@ -1,0 +1,159 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "confidence": 0.45,
+          "description": "Guardrail: ensure dout is defined (no X/Z) for the explicitly initialized addresses 0x00‑0x03.",
+          "notes": [
+            "Conservative check respects unknown latency; only observes output stability after address stimulus."
+          ],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "When addr is one of 0x00, 0x01, 0x02, 0x03, dout must never be X or Z within the same simulation delta.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "Whenever the linked case evaluates an address in the initialized range."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "back_to_back_001_property_002",
+          "check_type": "property",
+          "confidence": 0.42,
+          "description": "Guardrail: dout must remain defined (no X/Z) during rapid successive address changes.",
+          "notes": [
+            "Avoids exact-cycle latency assumptions; observes stability across consecutive deltas."
+          ],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "If addr changes in consecutive simulation deltas, dout must never transition to X or Z in any delta.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "During the back_to_back_001 stimulus sequence."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Output stability: dout must not change unless addr changes.",
+          "notes": [
+            "Conservative functional guardrail; does not assume exact latency."
+          ],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "If addr remains unchanged between two consecutive simulation deltas, dout must remain unchanged.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On every simulation delta where addr is sampled."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Output stability for edge addresses: dout must not change unless addr changes, even at boundary values.",
+          "notes": [
+            "Applies the same guarded stability rule to edge case stimulus."
+          ],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "If addr remains unchanged between two consecutive simulation deltas, dout must remain unchanged, regardless of being a boundary address.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "boundary"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "During edge_001 stimulus when addr is 0x00, 0xFF, or 0x00‑0x03."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

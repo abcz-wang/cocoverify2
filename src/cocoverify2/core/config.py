@@ -25,6 +25,7 @@ class LLMConfig(BaseModel):
     timeout_seconds: int = Field(default_factory=lambda: int(os.getenv("COCOVERIFY_LLM_TIMEOUT_SECONDS", "60")), ge=1)
     max_retries: int = Field(default_factory=lambda: int(os.getenv("COCOVERIFY_LLM_MAX_RETRIES", "2")), ge=0)
     trust_env: bool = Field(default_factory=lambda: _env_bool("COCOVERIFY_LLM_TRUST_ENV", False))
+    disable_proxies: bool = Field(default_factory=lambda: _env_bool("COCOVERIFY_LLM_DISABLE_PROXIES", False))
 
 
 class ArtifactConfig(BaseModel):

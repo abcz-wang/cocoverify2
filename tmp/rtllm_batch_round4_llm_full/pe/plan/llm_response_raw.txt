@@ -1,0 +1,115 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "metamorphic_001",
+      "category": "metamorphic",
+      "coverage_tags": [
+        "commutativity",
+        "metamorphic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Swapping inputs a and b yields identical c trajectory within conservative observation windows."
+      ],
+      "goal": "Validate that multiplication is commutative and accumulation behaves identically under input swap.",
+      "notes": [
+        "Uses the same random sequence of operand values applied in two orders."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a sequence of (a,b) pairs, then repeat with (b,a) pairs, and compare c."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Allow unknown latency; compare c after sufficient clock cycles for each operation."
+      ]
+    },
+    {
+      "draft_id": "negative_001",
+      "category": "negative",
+      "coverage_tags": [
+        "reset_behavior",
+        "illegal_state"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "When rst is asserted, c is forced to 0 irrespective of prior accumulation."
+      ],
+      "goal": "Confirm that reset overrides any pending accumulation and forces c to zero.",
+      "notes": [],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst high for one cycle while a and b have arbitrary values, then deassert and observe c resets to zero."
+      ],
+      "stimulus_signals": [
+        "rst",
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after deassertion over at least one clock cycle."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_basic",
+        "accumulation"
+      ],
+      "expected_properties": [
+        "After applying a legal (a,b) pair, c eventually reflects previous value plus a*b within a conservative observation window, respecting reset behavior."
+      ],
+      "goal": "Apply one legal operation and observe stable post-operation behavior with accumulation semantics.",
+      "notes": [
+        "Ensures basic accumulation without assuming exact latency."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['a','b'] and monitor c for expected accumulation."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c over at least two clock cycles after stimulus to accommodate unknown latency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

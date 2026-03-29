@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that the done flag does not assert more than once between two distinct start events.",
+          "notes": [],
+          "observed_signals": [
+            "done",
+            "start"
+          ],
+          "pass_condition": "For any pair of consecutive start assertions, the done signal may transition from 0 to 1 at most once. Any additional 1\u21920\u21921 cycles without an intervening start constitute a violation.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_cycle",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a start event is observed, monitor done until the next start event."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that when the done flag rises, the output yout equals the unsigned product of the operands that were captured at the start of the operation.",
+          "notes": [],
+          "observed_signals": [
+            "ain",
+            "bin",
+            "yout",
+            "done"
+          ],
+          "pass_condition": "On each rising edge of done, capture the most recent values of ain and bin that were present when i==0 (the operation start). The yout value must equal ain * bin computed as an unsigned 32\u2011bit product, and yout must not contain X or Z bits.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "done_rise",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever done transitions from 0 to 1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

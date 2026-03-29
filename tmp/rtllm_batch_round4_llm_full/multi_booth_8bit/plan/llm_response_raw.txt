@@ -1,0 +1,194 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "reset_during_operation",
+        "illegal_sequence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "If reset is asserted while multiplication is in progress, the internal state reinitializes and rdy returns to 0 until a new operation completes."
+      ],
+      "goal": "Validate correct handling of asynchronous reset during active multiplication.",
+      "notes": [
+        "Reset is active-high per contract; test asserts reset mid-operation."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [
+        "After starting multiplication (rdy=0) and before the internal counter reaches its terminal value."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset mid-operation and then release it while keeping inputs stable."
+      ],
+      "stimulus_signals": [
+        "reset",
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe after each clock edge; no fixed latency is assumed."
+      ]
+    },
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "ready_handshake"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "protocol_001",
+      "expected_properties": [
+        "rdy deasserts (0) when new inputs are presented after a previous operation completed.",
+        "p holds the previous product until the new operation finishes and rdy reasserts."
+      ],
+      "goal": "Check ready‑signal handshake behavior across consecutive operations.",
+      "notes": [
+        "Ensures rdy toggles appropriately without requiring exact cycle timing."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [
+        "Previous multiplication completed (rdy=1)."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply new a,b values immediately after rdy=1 without inserting idle cycles."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; wait for rdy to assert again before checking p."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "input_commutativity"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "Swapping a and b yields identical product p and comparable rdy timing."
+      ],
+      "goal": "Validate the commutative property of multiplication for the Booth multiplier.",
+      "notes": [
+        "Booth algorithm should be agnostic to the order of multiplicand and multiplier."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "First apply a specific (a,b) pattern, capture p; then apply the swapped (b,a) pattern and capture p."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe until rdy=1 for each run; no exact-cycle assumption."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "random_idle"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "regression_001",
+      "expected_properties": [
+        "Interleaving idle clock cycles between operations does not affect functional correctness."
+      ],
+      "goal": "Ensure stability across random idle periods between successive multiplications.",
+      "notes": [
+        "Insert a random number of clock cycles (0‑10) with no stimulus between two operations."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Perform two multiplications with a random gap of 0‑10 cycles between them."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; wait for rdy after each multiplication before proceeding."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "sanity",
+        "functional"
+      ],
+      "expected_properties": [
+        "When inputs a and b are applied and reset is deasserted, p eventually equals a*b and rdy asserts high.",
+        "No X or Z is observed on p or rdy after stabilization."
+      ],
+      "goal": "Demonstrate correct multiplication for a representative legal input.",
+      "notes": [
+        "Booth algorithm processes up to 16 cycles; observation window extended to 20 cycles to accommodate unknown latency."
+      ],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a typical non‑extreme pattern (e.g., a=0x12, b=0x34)."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Monitor p and rdy for up to 20 clock cycles after stimulus; do not assume an exact cycle count."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

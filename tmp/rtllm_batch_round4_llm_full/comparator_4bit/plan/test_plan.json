@@ -1,0 +1,244 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "comparator_4bit",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing.",
+        "Output mapping matches combinational comparator truth table for sampled inputs"
+      ],
+      "goal": "Confirm basic functional mapping of inputs to mutually exclusive outputs.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Conservative approach due to unknown latency; only input/output consistency is checked."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['A', 'B']",
+        "Drive a representative legal input pattern across known non\u2011control inputs: ['A', 'B']"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.6975,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Boundary\u2011value stimulation (e.g., 0x0, 0xF) yields correct exclusive output encoding"
+      ],
+      "goal": "Exercise boundary\u2011value and width\u2011sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Edge coverage remains value\u2011oriented and avoids fixed\u2011latency assumptions."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['A', 'B']",
+        "Use zero\u2011like, one\u2011like, and boundary patterns on ['A', 'B']"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "glitch",
+        "timing_agnostic"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Outputs reflect the most recent stabilized inputs after each change",
+        "No transient invalid output states observed between stimulus steps"
+      ],
+      "goal": "Verify that rapid successive input changes produce correct output without glitches.",
+      "notes": [
+        "Stimulus changes are applied with minimal delay; observation occurs after each stabilization period."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply a sequence of alternating patterns to A and B with minimal inter\u2011stimulus delay"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input change has settled; no fixed\u2011cycle latency is assumed."
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "exhaustive",
+        "regression"
+      ],
+      "defer_reason": "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.",
+      "dependencies": [
+        "edge_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "All output combinations match the reference 4\u2011bit comparator truth table for every (A,B) pair"
+      ],
+      "goal": "Exhaustively cover all 256 input combinations to confirm combinational truth table.",
+      "notes": [
+        "Iterates through every possible 4\u2011bit value of A and B.",
+        "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Iterate through all 256 (A,B) pairs in a systematic order"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input pair stabilizes; timing remains agnostic."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "symmetry",
+        "metamorphic"
+      ],
+      "defer_reason": "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "A_greater(A,B) == A_less(B,A)",
+        "A_less(A,B) == A_greater(B,A)",
+        "A_equal(A,B) == A_equal(B,A)"
+      ],
+      "goal": "Validate symmetry: swapping A and B inverts greater/less outputs while equal remains unchanged.",
+      "notes": [
+        "Select a representative subset of input pairs and also test their swapped counterparts.",
+        "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "For each chosen (A,B) pair, also apply the swapped pair (B,A) and compare outputs"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input pair stabilizes; no cycle\u2011accurate timing assumed."
+      ]
+    }
+  ],
+  "module_name": "comparator_4bit",
+  "plan_confidence": 0.8675,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

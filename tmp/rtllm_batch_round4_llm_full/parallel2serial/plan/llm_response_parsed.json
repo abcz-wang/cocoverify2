@@ -1,0 +1,194 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "valid_pulse_protocol"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "protocol_001",
+      "expected_properties": [
+        "valid_out is asserted only after the MSB of a new word is presented and remains low while the remaining three bits are streamed.",
+        "If a new parallel word is presented while a previous word is still being serialized, the module does not assert a second valid_out until the first word completes."
+      ],
+      "goal": "Validate the implicit valid\u2011ready protocol implied by valid_out without assuming a ready signal.",
+      "notes": [
+        "The test drives a second d value two cycles after the first word start to check that valid_out does not pulse prematurely."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "Reset has been released and the module is idle."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply first word 0b1100 on d, then after two clock cycles apply second word 0b0011 while the first word is still in progress."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Sample valid_out and dout each rising edge; do not assume a fixed latency for the second word's valid_out."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When d contains unknown (X) or high\u2011impedance (Z) bits, the module does not assert valid_out.",
+        "The serial output dout remains X or Z consistent with the unknown input bits."
+      ],
+      "goal": "Observe module behavior under illegal/undefined input values while respecting contract ambiguity.",
+      "notes": [
+        "The contract does not define illegal input constraints; this case explores the natural Verilog X\u2011propagation semantics."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "Reset de\u2011asserted; module idle."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive d with a value containing X/Z bits (e.g., 4'b1x0z) and monitor outputs."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe for at least five clock cycles after stimulus; no fixed latency assumed."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "repeated_sequence"
+      ],
+      "dependencies": [
+        "back_to_back_001"
+      ],
+      "draft_id": "regression_001",
+      "expected_properties": [
+        "A long sequence of back\u2011to\u2011back words (e.g., 10 consecutive patterns) produces a continuous stream of correct serial bits with a single valid_out pulse per word.",
+        "No spurious valid_out pulses appear between words."
+      ],
+      "goal": "Stress the design with multiple consecutive words to ensure state does not corrupt over time.",
+      "notes": [
+        "The test reuses the stimulus pattern from basic_001 but repeats it many times without idle cycles."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "Reset released; module idle."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a series of alternating patterns (0b1010, 0b0101) on d each cycle without gaps."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Sample each clock edge; do not assume a fixed latency between words."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "sanity",
+        "functional"
+      ],
+      "expected_properties": [
+        "When a new 4\u2011bit word is presented on d while the module is idle, valid_out becomes high for one cycle after the first serial bit (MSB) is emitted.",
+        "The serial output dout follows the MSB\u2011to\u2011LSB order of the presented word."
+      ],
+      "goal": "Confirm that a single legal parallel word produces a correct serial stream and a single valid_out pulse under conservative timing.",
+      "notes": [
+        "The observation window extends for at least five clock cycles after stimulus to capture the full word without assuming a fixed latency."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a nominal 4\u2011bit pattern (e.g., 0b1010) on d while reset is de\u2011asserted."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance clock cycle\u2011by\u2011cycle and sample outputs after each rising edge; do not assume a fixed number of cycles before valid_out appears."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "value_patterns"
+      ],
+      "expected_properties": [
+        "All\u2011zero (0x0) and all\u2011one (0xF) parallel inputs generate a deterministic serial pattern of all zeros or all ones respectively.",
+        "Intermediate boundary values (e.g., 0x1, 0x8) produce the expected MSB\u2011first bit sequence."
+      ],
+      "goal": "Exercise extreme and mixed bit\u2011patterns to verify width\u2011sensitive behavior without relying on exact latency.",
+      "notes": [
+        "Each stimulus is held for enough cycles to allow the previous word to finish before the next is applied."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply boundary patterns (0x0, 0xF, 0x1, 0x8) on d sequentially."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe outputs over a conservative window of 6+ clock cycles after each pattern."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "All cases respect the ambiguous reset polarity (active low) inferred from the contract.",
+    "No exact\u2011cycle latency is assumed; observation windows are conservatively long.",
+    "Only ports present in the contract (clk, rst_n, d, valid_out, dout) are used."
+  ],
+  "unresolved_items": [
+    "valid_ready ambiguity for valid_out without a matching ready signal.",
+    "Exact latency of valid_out assertion relative to input d is unspecified."
+  ]
+}

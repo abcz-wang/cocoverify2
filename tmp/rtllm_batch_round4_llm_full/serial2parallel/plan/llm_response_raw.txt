@@ -1,0 +1,149 @@
+{
+  "additional_cases": [
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "coverage_tags": [
+        "handshake",
+        "valid_without_ready"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When din_valid is asserted continuously without a matching ready handshake, the module should not generate spurious dout_valid pulses."
+      ],
+      "goal": "Observe module behavior under sustained din_valid assertion while varying din_serial, ensuring no unintended output validity.",
+      "notes": [
+        "The contract lacks a ready signal; this case conservatively checks that the design does not rely on an implicit ready."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert din_valid high for more than eight clock cycles while providing a known serial pattern on din_serial."
+      ],
+      "stimulus_signals": [
+        "din_valid",
+        "din_serial"
+      ],
+      "timing_assumptions": [
+        "Observe after each rising edge of clk; do not assume any fixed internal buffering depth."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "If din_valid is low while din_serial toggles, the internal shift register must not capture those bits and dout_valid must remain low."
+      ],
+      "goal": "Verify that spurious din_serial activity when din_valid=0 does not affect the parallel output or its validity.",
+      "notes": [
+        "Ensures the design respects the validity gating implied by din_valid."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Toggle din_serial arbitrarily while keeping din_valid deasserted for several cycles."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Check outputs after each clock edge; no assumption of internal sampling latency."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "coverage_tags": [
+        "bit_ordering",
+        "symmetry"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Feeding a bitwise‑reversed serial sequence should produce a bitwise‑reversed parallel word, confirming MSB‑to‑LSB placement."
+      ],
+      "goal": "Validate correct mapping of serial bits to parallel positions by comparing two complementary patterns.",
+      "notes": [
+        "Uses two complementary 8‑bit patterns to expose any reversal errors."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "First transmit 0b10101010, then transmit 0b01010101, and compare the resulting dout_parallel values."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Wait for dout_valid to assert after each 8‑bit sequence; do not assume a fixed number of cycles between input and output."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "sanity",
+        "basic_operation"
+      ],
+      "expected_properties": [
+        "A sequence of eight consecutive din_valid=1 cycles with arbitrary din_serial values results in dout_valid transitioning high after the eighth cycle.",
+        "dout_parallel reflects the eight serial bits captured in MSB‑to‑LSB order."
+      ],
+      "goal": "Demonstrate normal serial‑to‑parallel conversion for a single 8‑bit word.",
+      "notes": [
+        "Confirms that the design respects the MSB‑first placement described in the spec."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across din_serial while asserting din_valid for exactly eight clock cycles."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations; do not assume a fixed latency before dout_valid becomes visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

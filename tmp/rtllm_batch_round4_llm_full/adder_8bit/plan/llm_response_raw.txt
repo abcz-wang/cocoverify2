@@ -1,0 +1,187 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "Outputs follow input changes without intermediate glitches under combinational logic"
+      ],
+      "goal": "Validate combinational continuity under rapid successive stimulus",
+      "notes": [
+        "No clock is present; rely on zero‑delay propagation assumption"
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a sequence of varied input vectors back‑to‑back without idle cycles"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input vector stabilizes"
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "metamorphic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "Sum output is invariant under swapping a and b for the same cin"
+      ],
+      "goal": "Check commutative property of the 8‑bit addition",
+      "notes": [
+        "Leverages the mathematical commutativity of addition"
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive (a,b,cin) then (b,a,cin) and compare the resulting sum and cout"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each stimulus vector stabilizes"
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "Unknown (X/Z) input values propagate to unknown outputs"
+      ],
+      "goal": "Validate X/Z handling and propagation in the combinational adder",
+      "notes": [
+        "Ensures that the design does not mask unknown values"
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive X or Z on a and/or b while keeping cin at 0"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization"
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "sum equals (a + b + cin) modulo 256",
+        "cout is the carry‑out of the addition"
+      ],
+      "goal": "Exercise representative legal input combinations and verify arithmetic correctness",
+      "notes": [
+        "Adds explicit arithmetic correctness check"
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: ['a', 'b', 'cin']"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Verify overflow behavior when a=0xFF, b=0x01, cin=1 yields sum=0x01 and cout=1",
+        "Check boundary patterns (all zeros, all ones) for correct sum and carry"
+      ],
+      "goal": "Exercise boundary‑value and width‑sensitive input patterns with explicit overflow checks",
+      "notes": [
+        "Edge coverage now includes explicit overflow verification"
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Use zero‑like, one‑like, and boundary patterns on ['a', 'b']"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

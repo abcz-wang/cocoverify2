@@ -1,0 +1,47 @@
+rm -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/runs/test_float_multi_basic/run/junit/results.xml
+"make" -f Makefile /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/runs/test_float_multi_basic/run/junit/results.xml
+make[1]: Entering directory '/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/render/cocotb_tests'
+mkdir -p /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/runs/test_float_multi_basic/run/sim_build
+/workspace/I/qimeng6/miniconda3/bin/iverilog -o /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/runs/test_float_multi_basic/run/sim_build/sim.vvp -s float_multi -g2012     -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/runs/test_float_multi_basic/run/sim_build/cmds.f  /workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/float_multi/verified_float_multi.v
+rm -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/runs/test_float_multi_basic/run/junit/results.xml
+COCOTB_TEST_MODULES=cocotb_tests.test_float_multi_basic COCOTB_TESTCASE= COCOTB_TEST_FILTER= COCOTB_TOPLEVEL=float_multi TOPLEVEL_LANG=verilog \
+         /workspace/I/qimeng6/miniconda3/bin/vvp -M /workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb/libs -m libcocotbvpi_icarus    /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/runs/test_float_multi_basic/run/sim_build/sim.vvp -none  
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.0rc1 interpreter at /workspace/I/qimeng6/miniconda3/bin/python
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 10.2 (stable)
+     0.00ns WARNING  gpi                                vpi_iterate returned NULL for type vpiInstance for object NULL
+     0.00ns INFO     cocotb                             Seeding Python random module with 1774764809
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running cocotb_tests.test_float_multi_basic.test_reset_001 (1/6)
+                                                            Establish a stable post-reset baseline before functional checking. Note: Reset polarity may still be heuristic if the contract marks it ambiguous.
+    35.00ns WARNING  py.warnings                        /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/render/cocotb_tests/float_multi_runtime.py:92: DeprecationWarning: `logic_array.binstr` getter is deprecated. Use `str(logic_array)` instead.
+                                                          if hasattr(value, "binstr"):
+    35.00ns WARNING  py.warnings                        /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/render/cocotb_tests/float_multi_runtime.py:93: DeprecationWarning: `logic_array.binstr` getter is deprecated. Use `str(logic_array)` instead.
+                                                          return str(value.binstr)
+    55.00ns INFO     cocotb.regression                  cocotb_tests.test_float_multi_basic.test_reset_001 passed
+    55.00ns INFO     cocotb.regression                  running cocotb_tests.test_float_multi_basic.test_basic_001 (2/6)
+                                                            Apply a representative legal input pattern and verify stable post‑operation output. Note: Case intent is conservative when the contract is weak or timing is unresolved. Note: Stimulus uses a typical normal operand pair (e.g., 1.0 * 2.0).
+   190.00ns INFO     cocotb.regression                  cocotb_tests.test_float_multi_basic.test_basic_001 passed
+   190.00ns INFO     cocotb.regression                  running cocotb_tests.test_float_multi_basic.test_back_to_back_001 (3/6)
+                                                            Observe repeated or back-to-back legal operations under conservative timing assumptions. Note: When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior.
+   235.00ns INFO     cocotb.regression                  cocotb_tests.test_float_multi_basic.test_back_to_back_001 passed
+   235.00ns INFO     cocotb.regression                  skipping cocotb_tests.test_float_multi_basic.test_negative_001 (4/6)
+                                                            Validate handling of illegal/exceptional floating‑point inputs per IEEE‑754. Note: Uses known IEEE‑754 bit patterns for NaN, infinity, zero. Note: Negative cases require stronger structured illegal-input semantics than the current contract provides.
+   235.00ns INFO     cocotb.regression                  skipping cocotb_tests.test_float_multi_basic.test_regression_001 (5/6)
+                                                            Detect hidden state retention across back‑to‑back operations. Note: Repeats a basic multiplication pattern after edge patterns. Note: Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.
+   235.00ns INFO     cocotb.regression                  skipping cocotb_tests.test_float_multi_basic.test_metamorphic_001 (6/6)
+                                                            Verify commutativity of floating‑point multiplication under conservative timing. Note: Uses a set of diverse operand pairs. Note: Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.
+   235.00ns INFO     cocotb.regression                  *******************************************************************************************************************
+                                                        ** TEST                                                       STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        *******************************************************************************************************************
+                                                        ** cocotb_tests.test_float_multi_basic.test_reset_001          PASS          55.00           0.00      31330.53  **
+                                                        ** cocotb_tests.test_float_multi_basic.test_basic_001          PASS         135.00           0.00      87206.38  **
+                                                        ** cocotb_tests.test_float_multi_basic.test_back_to_back_001   PASS          45.00           0.00      64527.75  **
+                                                        ** cocotb_tests.test_float_multi_basic.test_negative_001       SKIP           0.00           0.00          -.--  **
+                                                        ** cocotb_tests.test_float_multi_basic.test_regression_001     SKIP           0.00           0.00          -.--  **
+                                                        ** cocotb_tests.test_float_multi_basic.test_metamorphic_001    SKIP           0.00           0.00          -.--  **
+                                                        *******************************************************************************************************************
+                                                        ** TESTS=6 PASS=3 FAIL=0 SKIP=3                                             235.00           0.01      35651.96  **
+                                                        *******************************************************************************************************************
+make[1]: Leaving directory '/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round4_llm_full/float_multi/render/cocotb_tests'

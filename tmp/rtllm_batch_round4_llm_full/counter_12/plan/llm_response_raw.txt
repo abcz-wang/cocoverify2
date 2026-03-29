@@ -1,0 +1,117 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "negative_001",
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_input",
+        "stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When valid_count is low (0), the output 'out' must remain unchanged across observed clock cycles."
+      ],
+      "goal": "Verify that the counter does not advance when the enable signal is inactive.",
+      "notes": [
+        "Ensures that a paused state is correctly maintained."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post‑reset state."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Deassert reset, then drive valid_count=0 for at least three consecutive clock cycles."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Conservative observation over multiple clock edges; no exact‑cycle latency is assumed."
+      ]
+    },
+    {
+      "draft_id": "regression_001",
+      "category": "regression",
+      "coverage_tags": [
+        "wrap_around",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When the counter reaches the maximum value 4'd11 while valid_count=1, it wraps to 0 on the next observable cycle."
+      ],
+      "goal": "Confirm correct wrap‑around behavior at the defined maximum count.",
+      "notes": [
+        "Covers the specified counting range 0‑11 and the wrap condition."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Design is reset and then enabled (valid_count=1) for enough cycles to reach the maximum count."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "After reset release, keep valid_count asserted high for a sequence of cycles sufficient to observe out transition from 4'd11 back to 4'd0."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Observe over a conservative window of at least 13 clock cycles; do not rely on a fixed latency for the wrap event."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "count_increment"
+      ],
+      "expected_properties": [
+        "A legal operation (valid_count=1) causes the observable output 'out' to increment by one modulo 12 after a conservative observation period.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "goal": "Apply one legal enable pulse and verify that the counter increments correctly.",
+      "notes": [
+        "Adds explicit increment expectation while preserving ambiguity about exact cycle latency."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a single active valid_count pulse (1) after reset release and observe the resulting change on 'out'."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations; allow at least one clock edge after the stimulus before checking 'out'.",
+        "Do not assume exact‑cycle latency for the increment."
+      ]
+    }
+  ]
+}

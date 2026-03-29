@@ -1,0 +1,79 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "oracle_class": "functional",
+      "linked_plan_case_id": "basic_001",
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "basic_001_functional_stability_001",
+          "check_type": "functional",
+          "description": "Stability: when all inputs (a, b, aluc) remain unchanged across a sampling interval, observable outputs must remain unchanged.",
+          "notes": [
+            "Conservative check preserving ambiguity; does not assume exact latency."
+          ],
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "If a, b, aluc are stable for at least two consecutive observation points, then r, zero, carry, negative, overflow, flag must not change between those points.",
+          "semantic_tags": [
+            "stability",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a, b, aluc have not changed between two successive sampling events."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    },
+    {
+      "oracle_class": "property",
+      "linked_plan_case_id": "basic_001",
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "basic_001_property_defined_r_001",
+          "check_type": "property",
+          "description": "Guarded definedness: for any legal opcode (as defined in spec), the primary result output r must not be high‑impedance or unknown.",
+          "notes": [
+            "Uses contract's observable output list; does not assume internal state."
+          ],
+          "observed_signals": [
+            "r"
+          ],
+          "pass_condition": "If aluc matches one of the defined opcodes (ADD, ADDU, SUB, SUBU, AND, OR, XOR, NOR, SLT, SLTU, SLL, SRL, SRA, SLLV, SRLV, SRAV, LUI), then r must be a 32‑bit defined value (no 'z' or 'x').",
+          "semantic_tags": [
+            "definedness",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When aluc is within the set of known opcodes."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

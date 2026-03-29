@@ -1,0 +1,167 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input",
+        "stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When valid_in is deasserted between two valid data inputs, valid_out must not be asserted and data_out must remain unchanged.",
+        "The module must not produce spurious output for isolated valid_in pulses."
+      ],
+      "goal": "Confirm that the module does not emit an output unless two consecutive valid inputs are received.",
+      "notes": [
+        "Tests the handling of missing second input, preserving ambiguity about exact latency."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a single valid input (valid_in=1, data_in=any) followed by a period where valid_in=0 before a second valid input arrives."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe that valid_out remains low throughout the gap and after the second input if the gap violates the required consecutive\u2011valid pattern."
+      ]
+    },
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "handshake_ambiguity",
+        "valid_ready_like"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "protocol_001",
+      "expected_properties": [
+        "The design does not require an explicit ready signal; it must tolerate back\u2011to\u2011back valid_in assertions without deadlock.",
+        "valid_out is eventually asserted after two valid_in cycles regardless of any missing ready handshake."
+      ],
+      "goal": "Explore the module's behavior under the ambiguous valid_ready\u2011like interface where only valid signals are present.",
+      "notes": [
+        "The contract flags missing ready signals; this case verifies that operation proceeds safely under that ambiguity."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Reset released; module idle."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert valid_in continuously for several cycles with varying data_in values, ensuring the design does not stall and eventually produces valid_out after each pair of inputs."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed number of cycles between the two inputs; monitor for eventual valid_out assertion."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "width_conversion_basic"
+      ],
+      "expected_properties": [
+        "A legal operation (valid_in asserted with an 8\u2011bit data_in) eventually causes a change on valid_out and data_out after the module has received two such operations.",
+        "valid_out must not toggle spuriously when valid_in is low."
+      ],
+      "goal": "Verify that a single valid input is accepted and that the module eventually produces a valid output after the required second input, without assuming a fixed number of clock cycles.",
+      "notes": [
+        "The contract does not specify exact latency; the check observes eventual stability of outputs."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a single legal input (valid_in=1, data_in=random) and then a second legal input after a few clock cycles."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe outputs over multiple clock cycles after the second valid_in; do not assume a single\u2011cycle latency."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Boundary\u2011value inputs (0x00 and 0xFF) are correctly placed in the high and low halves of data_out after two valid inputs.",
+        "The module does not rely on undocumented internal state to produce correct concatenation."
+      ],
+      "goal": "Exercise the extreme 8\u2011bit values to confirm correct width conversion behavior under conservative timing.",
+      "notes": [
+        "Both low (0x00) and high (0xFF) patterns are used for the first and second valid inputs."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply two consecutive valid inputs where data_in takes the values 0x00 and 0xFF in all possible orderings."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Allow an indeterminate number of clock cycles between the two inputs and before observing the output."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "All enrichments and new cases respect the contract's listed ports and avoid inventing signals.",
+    "Timing assumptions remain conservative due to the contract's unknown latency model."
+  ],
+  "unresolved_items": [
+    "The contract notes missing ready signals for both input and output groups; cases treat this as an ambiguity rather than defining a ready protocol."
+  ]
+}

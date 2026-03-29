@@ -1,0 +1,138 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "state_retention"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When fetch is set to an undefined value (00 or 11), the stored instruction registers retain their previous contents.",
+        "Outputs ins, ad1, and ad2 remain unchanged across the clock edge despite changes on the data input."
+      ],
+      "goal": "Confirm that illegal fetch codes do not corrupt internal state or alter observable outputs.",
+      "notes": [
+        "The case tests the module's robustness to undefined control codes while keeping timing assumptions conservative."
+      ],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "preconditions": [
+        "The module has been initialized by reset_001 and a known instruction value has been loaded via a prior legal fetch."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply fetch values 2'b00 and 2'b11 with varying data while monitoring that outputs do not change."
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after at least one rising edge of clk following each illegal fetch stimulus.",
+        "Do not assume any hidden latency; rely on external output stability."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "random_sequence",
+        "state_consistency"
+      ],
+      "dependencies": [
+        "basic_001",
+        "edge_001"
+      ],
+      "draft_id": "regression_001",
+      "expected_properties": [
+        "A random sequence of legal fetch values and data inputs results in outputs that always correspond to the most recently captured instruction according to the fetch code.",
+        "No spurious output glitches appear when transitioning between fetch sources."
+      ],
+      "goal": "Stress the instruction register with a mixed pattern of fetch sources to ensure consistent behavior across multiple captures.",
+      "notes": [
+        "The sequence length is kept modest to stay within simulation time while still exercising back\u2011to\u2011back captures."
+      ],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "preconditions": [
+        "Module is out of reset and has completed at least one successful capture."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Generate a pseudo\u2011random series of fetch values (01 or 10) and corresponding data bytes, applying each on successive clock cycles."
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Each stimulus is applied on a rising edge of clk; outputs are sampled on the following rising edge.",
+        "No fixed-cycle latency is assumed beyond the observable one\u2011cycle capture."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "opcode_extraction"
+      ],
+      "expected_properties": [
+        "A legal fetch value (01 or 10) causes the corresponding stored instruction register to capture the 8\u2011bit data input on the next rising edge of clk.",
+        "The output 'ins' reflects bits[7:5] of the captured instruction after the capture event.",
+        "The output 'ad1' reflects bits[4:0] of the captured instruction when fetch=01.",
+        "The output 'ad2' reflects the full 8\u2011bit instruction when fetch=10.",
+        "No change is observed on outputs when fetch holds an undefined value."
+      ],
+      "goal": "Validate that a single legal fetch operation correctly updates the appropriate output fields and that the mapping from stored instruction to outputs follows the specification.",
+      "notes": [
+        "The case remains conservative with respect to latency; observation is performed after at least one clock cycle following the stimulus.",
+        "The reset condition is assumed to have been satisfied by reset_001."
+      ],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a legal fetch pattern (01 or 10) together with a representative data byte and verify that the corresponding output fields update accordingly."
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after at least one rising edge of clk following the stimulus.",
+        "Do not assume a fixed-cycle latency; rely on externally visible output change."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

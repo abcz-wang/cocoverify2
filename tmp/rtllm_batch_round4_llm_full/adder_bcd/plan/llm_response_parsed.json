@@ -1,0 +1,157 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When A or B contain values outside the legal BCD range (10-15), the module must not raise an assertion or simulation error.",
+        "Outputs Sum and Cout may assume any value; the case records observed behavior for regression reference."
+      ],
+      "goal": "Verify that the design tolerates out\u2011of\u2011range BCD inputs without causing illegal simulation conditions.",
+      "notes": [
+        "The contract does not define behavior for illegal BCD values; this case documents the observed response."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [
+        "Use only ports defined in the contract."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive A and B with each value from 4'b1010 to 4'b1111 while toggling Cin."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs have settled; no specific latency is assumed."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "Each combinational evaluation of Sum and Cout reflects the most recent stable values of A, B, and Cin.",
+        "No spurious glitches persist beyond input transition windows."
+      ],
+      "goal": "Stress the combinational path with rapid successive legal input vectors to confirm stable, immediate output response.",
+      "notes": [
+        "Since the design is combinational, outputs should follow inputs without latch\u2011like delay."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [
+        "Inputs must be driven within the legal BCD range (0\u20119)."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a sequence of legal A/B/Cin vectors (e.g., 0/0/0 \u2192 9/9/1 \u2192 5/3/0 ...) with minimal inter\u2011vector delay."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Outputs are sampled after a short stabilization window (e.g., a few ns) following each input change."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific",
+        "sanity",
+        "comb"
+      ],
+      "expected_properties": [
+        "Sum equals the BCD\u2011corrected result of A + B + Cin.",
+        "Cout is asserted iff the binary sum before correction exceeds 9."
+      ],
+      "goal": "Exercise all legal BCD digit combinations (0\u20119) for A and B with both Cin=0 and Cin=1, confirming correct BCD correction and carry generation.",
+      "notes": [
+        "Ensures basic functional correctness across the full legal input space."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive exhaustive legal BCD values on A and B (0\u20119) while toggling Cin, observing the resulting Sum and Cout."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Outputs are sampled after inputs have settled; no fixed-cycle latency is assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Boundary values (0 and 9) on A and B produce correct BCD correction and carry behavior.",
+        "When Cin toggles at boundary conditions, Cout reflects the correct overflow."
+      ],
+      "goal": "Target extreme legal values and transitions to verify correct handling of BCD limits and carry propagation.",
+      "notes": [
+        "Focuses on min/max digit values and the effect of Cin on overflow."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply patterns: A=0, B=0; A=9, B=0; A=0, B=9; A=9, B=9 with Cin=0 and Cin=1."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization; no internal state assumptions."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

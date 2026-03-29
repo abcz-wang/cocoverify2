@@ -1,0 +1,139 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_deassertion",
+        "feedback_transition"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "Output 'out' is zero immediately after reset release and changes on subsequent clock edges",
+        "No X or Z values appear on 'out' during observation"
+      ],
+      "goal": "Validate correct LFSR behavior on reset release and first shift operation",
+      "notes": [
+        "Conservative observation; does not assume exact feedback polynomial sequence"
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset signal 'rst' is available"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset high for one clock, then deassert and observe out over several rising edges"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe at least 4 rising edges after reset deassertion"
+      ]
+    },
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "progression",
+        "stability"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "basic_002",
+      "expected_properties": [
+        "Out remains defined (no X) across observed cycles",
+        "Out exhibits change over at least 4 consecutive clock cycles (unless LFSR repeats an earlier state)"
+      ],
+      "goal": "Confirm that LFSR produces defined, varying outputs over a short observation window",
+      "notes": [
+        "Does not assume specific sequence values"
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Release reset, then sample 'out' on successive rising edges for 8 cycles"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe 8 consecutive rising edges after reset release"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "progression",
+        "stability"
+      ],
+      "expected_properties": [
+        "out remains defined (no X) across observed clock windows",
+        "out may change on successive clock edges"
+      ],
+      "goal": "Confirm that LFSR produces defined outputs after reset over a few cycles",
+      "notes": [
+        "Conservative observation; does not assume exact sequence"
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe at least 3 rising edges after reset release."
+      ]
+    },
+    {
+      "case_id": "reset_001",
+      "coverage_tags": [
+        "reset_polarity",
+        "initialization"
+      ],
+      "expected_properties": [
+        "out is zero after reset is asserted and remains zero while reset is held",
+        "No X or Z appear on out during reset assertion"
+      ],
+      "goal": "Verify that reset forces out to zero and stabilizes the module",
+      "notes": [
+        "Reset polarity inferred as active-high per contract."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert rst high for at least one clock cycle, then deassert and observe out."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe out after deassertion on the next rising edge."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

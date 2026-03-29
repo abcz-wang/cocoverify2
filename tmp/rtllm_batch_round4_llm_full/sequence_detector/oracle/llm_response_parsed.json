@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Overlapping sequence detection must assert sequence_detected for each valid 1001 occurrence without spurious asserts.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "sequence_detected asserts only when a full 1001 pattern is observed, including overlapping occurrences, and remains low otherwise.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus bitstream contains overlapping 1001 patterns."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that sequence_detected remains low until a full 1001 pattern is presented and then asserts.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "sequence_detected stays low for any input pattern not containing 1001 and transitions to high at some clock after the fourth bit of a 1001 pattern, without requiring a fixed cycle count.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When data_in is driven with a test pattern containing a single 1001 sequence."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

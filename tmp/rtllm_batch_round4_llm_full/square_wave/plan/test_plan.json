@@ -1,0 +1,243 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "square_wave",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.785,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "freq_variation"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "wave_out toggles after approximately freq clock cycles when freq > 0."
+      ],
+      "goal": "Apply a representative mid\u2011range freq value and verify a stable toggle of wave_out.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Conservative timing: observe for at least 2 * freq cycles to see a full toggle cycle."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['freq']",
+        "Drive freq = 0x20 (32) and monitor wave_out for a full toggle period."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Advance through conservative clocked observations; do not assume completion before wave_out changes."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.735,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "freq_min_max"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "wave_out toggles correctly when freq is at its minimum (0) and maximum (255) values."
+      ],
+      "goal": "Exercise boundary\u2011value freq patterns without relying on hidden latency.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Edge coverage remains value\u2011oriented; the design should handle both extremes safely."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['freq']",
+        "Apply freq = 0 and freq = 255 sequentially, observing wave_out for each case."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Conservative observation over multiple clock cycles for each boundary value."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7050000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation",
+        "freq_repeat"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change.",
+        "Two successive legal operations (freq changes) are observed via external wave_out behavior without assuming hidden fixed latency."
+      ],
+      "goal": "Observe repeated toggling behavior when freq is changed back\u2011to\u2011back with minimal idle spacing.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior.",
+        "When timing is unresolved, this case stays unresolved\u2011safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength.",
+        "Apply freq = 0x10, then after observing a toggle, immediately change freq to 0x08 and continue observation."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Advance through conservative clocked observations; do not assume completion before wave_out changes."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.795,
+      "coverage_tags": [
+        "illegal_input",
+        "boundary"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "No undefined or illegal behavior is observed when freq is driven to its minimum value (0)."
+      ],
+      "goal": "Verify module stability and safe observation when freq = 0.",
+      "notes": [
+        "The spec does not forbid freq = 0; this case checks that the design does not assert, crash, or produce X/Z values under this condition.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [
+        "freq input can be driven to 0."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive freq = 0 and monitor wave_out for at least 2 * 255 clock cycles to ensure a toggle eventually occurs."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Conservative observation over multiple clock cycles; do not assume a fixed latency for the toggle."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "confidence": 0.795,
+      "coverage_tags": [
+        "metamorphic",
+        "repeatability"
+      ],
+      "defer_reason": "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Identical freq values produce identical wave_out sequences over the same observation window across independent runs."
+      ],
+      "goal": "Confirm deterministic output pattern for a given freq across separate simulation runs.",
+      "notes": [
+        "Runs are reset between repetitions; only external inputs and observable outputs are considered.",
+        "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [
+        "Ability to reset the simulation between runs."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply freq = 0x10, capture wave_out for N cycles, reset simulation, repeat the same stimulus, and compare the two captured sequences."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Observe for a conservative number of cycles (e.g., 4 * freq) to capture at least two toggles."
+      ]
+    }
+  ],
+  "module_name": "square_wave",
+  "plan_confidence": 0.925,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: When count reaches (freq - 1), the count is reset to 0 and wave_out is toggled (i.e., flipped from 0 to 1 or from 1 to 0).",
+    "Spec/reset hint could not be mapped to a known reset port: When count reaches (freq - 1), the count is reset to 0 and wave_out is toggled."
+  ]
+}

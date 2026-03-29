@@ -1,0 +1,105 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "basic_001_property_arith_001",
+          "check_type": "property",
+          "confidence": 0.75,
+          "description": "Arithmetic correctness: sum equals (a + b + cin) modulo 256 and cout is the carry‑out.",
+          "notes": [],
+          "observed_signals": [
+            "sum",
+            "cout"
+          ],
+          "pass_condition": "sum == ((a + b + cin) & 8'hFF) && cout == ((a + b + cin) >> 8)",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "sum": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            },
+            "cout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "derived_from_spec",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When basic_001 case stimulus is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_id": "edge_001_property_overflow_001",
+          "check_type": "property",
+          "confidence": 0.73,
+          "description": "Overflow verification for boundary inputs: a=0xFF, b=0x01, cin=1 yields sum=0x01 and cout=1.",
+          "notes": [],
+          "observed_signals": [
+            "sum",
+            "cout"
+          ],
+          "pass_condition": "a == 8'hFF && b == 8'h01 && cin == 1'b1 => sum == 8'h01 && cout == 1'b1",
+          "semantic_tags": [
+            "edge",
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "sum": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            },
+            "cout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "source": "derived_from_plan",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge_001 case applies the specified boundary pattern."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

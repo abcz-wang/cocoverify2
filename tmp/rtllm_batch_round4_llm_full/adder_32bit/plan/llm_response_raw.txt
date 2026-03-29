@@ -1,0 +1,160 @@
+{
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 reflects overflow of the 32‑bit addition"
+      ],
+      "goal": "Validate combinational correctness of the adder across representative and edge operand values.",
+      "notes": [
+        "Includes edge patterns such as all‑zeros, all‑ones, and alternating bits while preserving ambiguity about timing.",
+        "Case intent remains conservative given the weak timing contract."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a representative set of legal input patterns on ports A and B, covering typical and boundary values."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Outputs are expected to stabilize within a delta cycle after inputs settle; no explicit clock or latency is assumed."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "edge_001",
+      "category": "edge",
+      "coverage_tags": [
+        "edge",
+        "overflow",
+        "carry"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 is asserted when addition overflows 32 bits"
+      ],
+      "goal": "Verify correct generation of the carry‑out for maximum operand values.",
+      "notes": [
+        "A = 0xFFFFFFFF, B = 0x00000001 produces a sum of 0x00000000 with C32 = 1."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Drive max operand values to provoke a carry‑out."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle; combinational latency is assumed negligible."
+      ]
+    },
+    {
+      "draft_id": "basic_002",
+      "category": "basic",
+      "coverage_tags": [
+        "basic",
+        "alternating"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 reflects overflow correctly"
+      ],
+      "goal": "Check sum for alternating bit patterns.",
+      "notes": [
+        "A = 0xAAAAAAAA, B = 0x55555555 yields S = 0xFFFFFFFF with C32 = 0."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive alternating bit patterns on A and B."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Outputs should be stable after inputs settle; no clock is required."
+      ]
+    },
+    {
+      "draft_id": "back_to_back_001",
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32 for each stimulus vector",
+        "Carry-out C32 correctly reflects overflow for each vector"
+      ],
+      "goal": "Validate output stability across rapid successive input changes.",
+      "notes": [
+        "Applies a sequence of legal vectors without idle cycles to ensure combinational behavior is consistent."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a series of legal input vectors on A and B back‑to‑back."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Each new vector is presented after the previous outputs have been observed; combinational latency is assumed negligible."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "assumptions": [],
+  "oracle_notes": [],
+  "unresolved_items": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure clk_div does not toggle while reset is asserted and resumes correct toggling after reset release without spurious pulses.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "During reset assertion clk_div remains stable; after deassertion clk_div begins regular toggling with no extra edges.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset signal changes from asserted to deasserted."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that clk_div exhibits a fractional toggling pattern consistent with a 3.5 division ratio over multiple periods.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "Within a conservative observation window, the number of clk_div rising edges approximates the expected count for a 3.5 division ratio relative to the input clock edges.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 14,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After reset has been released and a sufficient number of input clock cycles have elapsed."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ]
+}

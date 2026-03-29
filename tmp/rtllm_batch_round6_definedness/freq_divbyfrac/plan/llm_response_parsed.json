@@ -1,0 +1,109 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_edge",
+        "asynchronous"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "clk_div remains stable (no toggling) while reset is asserted",
+        "clk_div resumes correct toggling after reset release without spurious pulses"
+      ],
+      "goal": "Check correct handling of reset release relative to clock edges.",
+      "notes": [],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset signal rst_n is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset for a few cycles, then deassert on a rising edge of clk."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Hold reset for at least 2 clock cycles before release.",
+        "Release reset on a rising edge of clk."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "glitch",
+        "illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "clk_div does not enter X or undefined states when clk experiences a short glitch",
+        "Module does not latch the glitch as a valid clock edge"
+      ],
+      "goal": "Validate robustness of the divider to brief clock glitches.",
+      "notes": [],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Inject a short pulse (glitch) on clk shorter than half the nominal clock period."
+      ],
+      "stimulus_signals": [
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Glitch duration is less than half of the nominal clk period."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "fractional_division",
+        "duty_cycle"
+      ],
+      "expected_properties": [
+        "clk_div toggles with an average period corresponding to 3.5 input clock cycles",
+        "No glitches or X states appear on clk_div during observation"
+      ],
+      "goal": "Validate the fractional division behavior and duty\u2011cycle correctness of clk_div over multiple periods.",
+      "notes": [
+        "Observes average frequency and duty cycle after reset stabilization."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Observe clk_div behavior after reset over an extended observation window."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over at least 14 input clock cycles to capture two full division periods."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

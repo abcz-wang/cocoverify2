@@ -1,0 +1,124 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "metamorphic",
+      "coverage_tags": [
+        "commutativity",
+        "functional_equivalence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "The output z is identical for operand pairs (a, b) and (b, a) when both are valid IEEE‑754 numbers."
+      ],
+      "goal": "Verify that the multiplier respects the commutative property of multiplication under conservative timing.",
+      "notes": [
+        "Uses two distinct stimulus phases; second phase swaps a and b while keeping other conditions identical."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Both a and b can be driven with any 32‑bit pattern representing a normal floating‑point number."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a set of representative operand values to a and b, capture z, then swap a and b and capture z again."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe z after a conservative number of clock cycles following each stimulus change.",
+        "Do not assume a fixed latency; wait until z stabilizes."
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "negative",
+      "coverage_tags": [
+        "unknown_inputs",
+        "robustness"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When inputs contain X or Z bits, the output z does not become X unexpectedly; it either remains stable or reflects a defined error encoding."
+      ],
+      "goal": "Assess module behavior under undefined or partially unknown input conditions.",
+      "notes": [
+        "Even though the contract does not specify illegal input handling, this case checks for safe degradation."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "The simulator permits driving X/Z on input ports a and b."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Apply patterns with X/Z bits to a and/or b and monitor z for unexpected X propagation."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Allow sufficient clock cycles for any internal resolution or masking logic to settle."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operand_variation"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "Resulting z reflects the IEEE‑754 multiplication of the driven a and b values."
+      ],
+      "goal": "Apply one legal operation and observe stable post‑operation behavior, including verification of correct floating‑point result.",
+      "notes": [
+        "Stimulus includes a mix of normal numbers, zeros, and sign variations to broaden basic coverage."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: ['a', 'b']",
+        "Include variations such as zero, positive, and negative operands."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

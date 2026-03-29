@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: outputs must satisfy division relationship for all legal inputs without assuming fixed latency.",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "For any stable input pair (A,B) with B != 0, result must equal floor(A/B) and odd must equal A - result*B. When B == 0, no specific numeric relationship is required, but outputs must remain defined per contract.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge case stimulus applies boundary values to A and B."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "odd"
+          ],
+          "pass_condition": "After inputs A and B settle, the combinational outputs result and odd reflect the division of A by B: result = floor(A/B) for B != 0, odd = A - result*B. For B == 0, outputs may be any defined value but must not toggle unpredictably.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When basic stimulus drives representative legal A and B values."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

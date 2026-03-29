@@ -99,6 +99,13 @@ class AssertionStrength(str, Enum):
     UNRESOLVED = "unresolved"
 
 
+class DefinednessMode(str, Enum):
+    """When a rendered runtime should require an observed signal to be defined."""
+
+    NOT_REQUIRED = "not_required"
+    AT_OBSERVATION = "at_observation"
+
+
 class GenerationMode(str, Enum):
     """Supported generation modes for plan/oracle stages."""
 

@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "c must equal (a - b) modulo 2^N for boundary inputs",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "For each stimulus where a and b are at their minimum or maximum N\u2011bit values, the observed c matches the expected wrap\u2011around subtraction result (i.e., (a - b) mod 2^N).",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the edge_001 stimulus applies zero\u2011like, one\u2011like, or extreme boundary patterns to a and b."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "c must reflect combinational subtraction of a and b for typical random inputs",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "After inputs a and b stabilize, c equals (a - b) modulo 2^N for the applied random N\u2011bit operand values.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 stimulus drives random legal values to a and b."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

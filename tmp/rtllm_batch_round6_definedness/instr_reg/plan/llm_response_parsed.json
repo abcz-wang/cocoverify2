@@ -1,0 +1,161 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input",
+        "negative"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_fetch_invalid_001",
+      "expected_properties": [
+        "When fetch is an illegal value (e.g., 2'b00 or 2'b11), the module should not alter stored instruction registers and outputs remain unchanged."
+      ],
+      "goal": "Verify module's robustness to illegal fetch control values.",
+      "notes": [
+        "Spec does not define behavior for other fetch values; conservative expectation is no state change."
+      ],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "preconditions": [
+        "Module is in a known state after a valid fetch operation."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive fetch with illegal patterns while providing data and ensure outputs do not change."
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "metamorphic",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_fetch_equivalence_001",
+      "expected_properties": [
+        "Fetching the same data with fetch=01 then fetch=10 results in outputs where ins/ad1 reflect the first fetch and ad2 reflects the second fetch, matching the spec mapping."
+      ],
+      "goal": "Check consistency of output mapping across different fetch sources for identical data.",
+      "notes": [],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "preconditions": [
+        "Module reset and then perform two sequential fetches with the same data value."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "First apply fetch=01 with data X, observe outputs; then apply fetch=10 with the same data X, observe that ad2 updates to X while ins/ad1 retain the previous values."
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "edge",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_data_extremes_001",
+      "expected_properties": [
+        "Data values at the minimum (0x00) and maximum (0xFF) are correctly decoded into output fields without overflow or X."
+      ],
+      "goal": "Validate handling of extreme data values.",
+      "notes": [],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "preconditions": [
+        "Reset applied."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Drive fetch=01 with data=0x00 and fetch=01 with data=0xFF, observe outputs."
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Outputs reflect fetched instruction fields after one conservative observation cycle."
+      ],
+      "goal": "Validate correct decoding of instruction fields for a single fetch operation.",
+      "notes": [
+        "Assumes unknown latency; observe after a few clock cycles to see stable outputs."
+      ],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive fetch=01 with a representative data pattern and verify that ins, ad1, and ad2 correspond to the high, low, and full instruction bits respectively."
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

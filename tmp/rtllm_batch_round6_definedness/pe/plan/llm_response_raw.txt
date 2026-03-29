@@ -1,0 +1,119 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "additional"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_basic_001",
+      "expected_properties": [
+        "c increments by a*b each cycle under stable conditions",
+        "Accumulated value matches the sum of all prior a*b products"
+      ],
+      "goal": "Validate cumulative accumulation over multiple clock cycles with varying inputs",
+      "notes": [],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "reset_001 completed"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a sequence of varying a and b values across several clock cycles"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after each rising edge of clk without assuming fixed latency"
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "additional"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "new_edge_001",
+      "expected_properties": [
+        "c correctly accumulates when a and b are at their maximum unsigned values",
+        "No overflow behavior is observed beyond 32‑bit wrap‑around semantics"
+      ],
+      "goal": "Exercise accumulator with extreme operand values to verify width‑sensitive behavior",
+      "notes": [],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "reset_001 completed"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply max (0xFFFFFFFF) and min (0x0) patterns to a and b over consecutive cycles"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clock edge; no fixed‑cycle latency assumed"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "additional"
+      ],
+      "expected_properties": [
+        "c reflects sum of products of all prior inputs",
+        "Accumulator updates are observable after each clock edge"
+      ],
+      "goal": "Confirm that accumulator correctly sums across multiple operations",
+      "notes": [
+        "Ensures no hidden state beyond the visible register c"
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a series of random a,b pairs over several cycles"
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each rising edge of clk"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

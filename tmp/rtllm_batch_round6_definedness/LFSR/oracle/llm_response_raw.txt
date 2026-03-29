@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "After a one‑cycle reset pulse, the output must return to a defined non‑X, non‑Z value within a few clock cycles.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "No X or Z appears on out for at least three consecutive cycles following the reset glitch.",
+          "semantic_tags": [
+            "invalid_illegal_input",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "glitch_release",
+            "max_cycles": 5,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a single‑cycle high pulse on rst is detected."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Require that the LFSR output changes at least once after reset release, demonstrating progress.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The value of out differs from its initial post‑reset value on at least one sampled clock edge within five cycles.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted and the clock is running."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,143 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "valid_timing",
+        "pulse_width"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "valid_pulse_width_001",
+      "expected_properties": [
+        "valid_out remains high for four consecutive clock cycles after a parallel load"
+      ],
+      "goal": "Confirm that the valid_out pulse duration matches the four-bit serialization period",
+      "notes": [],
+      "observed_signals": [
+        "valid_out"
+      ],
+      "preconditions": [
+        "module is out of reset"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a single parallel word and monitor the duration of valid_out"
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; do not assume exact cycle alignment, only that the high period spans at least four cycles"
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "output_order"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "serial_order_001",
+      "expected_properties": [
+        "dout outputs the bits of d in MSB\u2011to\u2011LSB order over successive cycles"
+      ],
+      "goal": "Validate correct bit ordering of the serial output stream",
+      "notes": [],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [
+        "module is out of reset"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Load a distinct pattern (e.g., 4'b1010) and verify the observed dout sequence"
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe over at least four clock cycles after valid_out becomes asserted"
+      ]
+    },
+    {
+      "category": "reset",
+      "coverage_tags": [
+        "reset",
+        "stability"
+      ],
+      "dependencies": [],
+      "draft_id": "reset_behavior_001",
+      "expected_properties": [
+        "After deasserting rst_n, valid_out and dout settle to a known idle state (e.g., 0)"
+      ],
+      "goal": "Ensure the module initializes to a defined state after reset release",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst_n low for several cycles then release and observe output stabilization"
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe for at least two clock cycles after reset release"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "valid_pulse",
+        "serial_sequence"
+      ],
+      "expected_properties": [
+        "valid_out asserts for exactly four consecutive cycles after a new parallel load",
+        "dout follows the MSB\u2011to\u2011LSB order of the loaded d"
+      ],
+      "goal": "Verify that a single parallel load produces the correct serial stream and associated valid_out timing",
+      "notes": [
+        "Assumes the internal counter resets on load; does not rely on exact cycle numbers beyond observable valid_out high period"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Load a representative parallel word and observe the resulting serial output and valid_out behavior"
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe over at least five clock cycles after stimulus to capture the full serial sequence"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

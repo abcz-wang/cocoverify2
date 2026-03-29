@@ -1,0 +1,379 @@
+{
+  "assumptions": [
+    "If the input data is valid (valid_in) and the flag signal is active, the data_out register is updated by concatenating the contents of the data_lock register (8 bits) and the data_in register (8 bits) to form a 16-bit output. The first valid data is temporarily stored, and when the second valid data is inputted, they are concatenated to produce the output valid_out and data_out.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_width_8to16",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.8350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "width_sensitive"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "A single valid input does not immediately produce valid_out; output appears only after a second valid input.",
+        "Data_out reflects concatenation of first and second data_in values with first in high bits."
+      ],
+      "goal": "Validate that a single legal operation (first valid data) is stored and that output is produced after the second valid data.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Conservative observation window of up to three cycles after second valid_in."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['valid_in', 'data_in']",
+        "Drive a valid first data_in, then a second valid data_in, and monitor outputs."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Do not assume exact cycle latency; allow up to three cycles for output."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['data_in', 'valid_in']"
+      ],
+      "stimulus_signals": [
+        "data_in",
+        "valid_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "invalid_input",
+        "no_output"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "When valid_in is deasserted, valid_out remains unchanged and data_out does not update."
+      ],
+      "goal": "Verify that the module does not produce output when input validity is low.",
+      "notes": [
+        "Ensures no spurious output on idle cycles.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Module is out of reset and stable."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive valid_in=0 while toggling data_in values."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe for at least two clock cycles after stimulus."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "handshake",
+        "sequencing"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "valid_out is asserted only after two consecutive cycles where valid_in=1, and data_out reflects concatenation of the first then second data_in values (first in high bits).",
+        "No output is generated after a single valid_in without a following valid_in."
+      ],
+      "goal": "Confirm correct sequencing of two\u2011cycle width conversion under conservative timing.",
+      "notes": [
+        "The exact latency between second valid_in and valid_out is not assumed; observation window spans up to three cycles."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Reset released, module idle."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply valid_in=1 with data_in=0xAA, next cycle valid_in=1 with data_in=0x55, then deassert valid_in."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Allow up to three clock cycles after second valid_in to see valid_out."
+      ]
+    },
+    {
+      "case_id": "back_to_back_002",
+      "category": "back_to_back",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "repeated",
+        "overlap"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Two pairs of valid inputs back\u2011to\u2011back produce two distinct output events without loss."
+      ],
+      "goal": "Validate handling of consecutive pairs without idle cycles.",
+      "notes": [
+        "Conservative: ensure at least one idle cycle between pairs to avoid hidden timing assumptions."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Module idle after reset."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive sequence: valid_in=1 data_in=0x11, next cycle valid_in=1 data_in=0x22, then one idle cycle (valid_in=0), then valid_in=1 data_in=0x33, next cycle valid_in=1 data_in=0x44."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe for up to four cycles after each pair."
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "reset_during_operation"
+      ],
+      "defer_reason": "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "If reset is asserted during accumulation of the first data, the stored partial data is cleared and no output is produced after reset release."
+      ],
+      "goal": "Check robustness of reset handling mid\u2011operation.",
+      "notes": [
+        "Ensures that reset clears internal lock register.",
+        "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Module out of reset, then apply first valid_in, assert reset before second valid_in."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply valid_in=1 data_in=0xAA, then assert rst_n=0 before next valid_in, release reset, then provide second valid_in=1 data_in=0x55."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe that valid_out does not assert after reset release."
+      ]
+    }
+  ],
+  "module_name": "verified_width_8to16",
+  "plan_confidence": 0.9250000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['valid_in'] without matching role(s) ['ready'] in group 'in'.",
+    "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'."
+  ]
+}

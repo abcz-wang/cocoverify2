@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from cocoverify2.core.types import (
     AssertionStrength,
+    DefinednessMode,
     ExecutionStatus,
     LatencyModel,
     OracleCheckType,
@@ -157,6 +158,7 @@ class SignalAssertionPolicy(ModelBase):
     """Structured observability policy for one signal inside an oracle check."""
 
     strength: AssertionStrength = AssertionStrength.UNRESOLVED
+    definedness_mode: DefinednessMode = DefinednessMode.NOT_REQUIRED
     allow_unknown: bool = True
     allow_high_impedance: bool = True
     rationale: str = ""

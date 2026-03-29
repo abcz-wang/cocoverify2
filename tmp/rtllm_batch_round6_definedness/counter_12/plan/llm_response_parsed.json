@@ -1,0 +1,106 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "pause_behavior",
+        "stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "When valid_count is deasserted (0), out remains stable across subsequent clock cycles."
+      ],
+      "goal": "Verify that the counter holds its value when counting is disabled.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "After the counter has advanced to a non\u2011zero value, drive valid_count low and observe out stability."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Observe out over at least two clock cycles after valid_count is low."
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "wrap_around",
+        "boundary"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "When out reaches the maximum count value 4'd11 and valid_count stays asserted, the next observed out value is 4'b0000."
+      ],
+      "goal": "Confirm correct wrap\u2011around behavior at the counting limit.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Drive valid_count high continuously until out reaches 4'd11, then continue one more clock to observe wrap\u2011around."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Conservatively observe out after each clock edge without assuming exact cycle latency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "pause_behavior",
+        "increment"
+      ],
+      "expected_properties": [
+        "When valid_count is asserted, out increments by one on each clock cycle until it reaches 4'd11.",
+        "When out reaches 4'd11 and valid_count remains asserted, the next increment wraps out to 4'b0000."
+      ],
+      "goal": "Validate normal counting progression and wrap\u2011around behavior under conservative timing.",
+      "notes": [
+        "Assumes synchronous reset as indicated by the contract."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive valid_count high for a sequence of clock cycles to observe counting and wrap\u2011around."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Observe out after each clock edge; do not assume a fixed latency for wrap\u2011around."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

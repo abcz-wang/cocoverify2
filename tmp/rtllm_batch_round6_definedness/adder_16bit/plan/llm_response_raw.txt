@@ -1,0 +1,122 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back",
+        "comb"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Output y and Co reflect the most recent input vector after combinational propagation."
+      ],
+      "goal": "Validate that rapid successive input changes do not cause glitches beyond combinational propagation.",
+      "notes": [
+        "Since the adder is combinational, outputs should settle to each new input without internal state."
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [
+        "Inputs a, b, Cin are driven with valid binary values."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply two distinct input vectors back-to-back without intervening idle cycles."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input vector stabilizes; no clock needed."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "commutative",
+        "property"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "y and Co are identical when inputs a and b are swapped while Cin unchanged."
+      ],
+      "goal": "Check commutative property of addition.",
+      "notes": [
+        "Ensures functional correctness independent of operand ordering."
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [
+        "Same Cin value for both stimulus vectors."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive vector (a,b,Cin) then vector (b,a,Cin) and compare outputs."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each vector stabilizes."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "y equals (a + b + Cin) modulo 2^16",
+        "Co is the carry-out of the 16-bit addition"
+      ],
+      "goal": "Confirm basic functional mapping for random legal inputs.",
+      "notes": [
+        "Randomized stimulus covers typical usage across the full operand range."
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Randomly generate a, b, Cin values across their full ranges."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization; no explicit latency assumed."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

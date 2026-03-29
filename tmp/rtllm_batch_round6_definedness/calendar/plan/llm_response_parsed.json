@@ -1,0 +1,79 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "hour_wrap",
+        "day_boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "When Hours=23, Mins=59, Secs=59, the next rising edge of CLK should produce Hours=0, Mins=0, Secs=0."
+      ],
+      "goal": "Confirm correct wrap\u2011around of the calendar at the 24\u2011hour boundary.",
+      "notes": [
+        "The case relies on reaching the boundary condition through natural progression; no forced stimulus other than the clock is required."
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "preconditions": [
+        "Module is out of reset and has progressed to the state Hours=23, Mins=59, Secs=59."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Observe the behavior of the design at the day rollover point."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "One clock edge after the boundary condition is sufficient to verify the wrap\u2011around."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "minute_increment",
+        "second_progress"
+      ],
+      "expected_properties": [
+        "After observing 60 consecutive clock edges where Secs wraps from 59 to 0, Mins should increment by 1 while Hours remains unchanged.",
+        "Secs should cycle through values 0 to 59 repeatedly without X or Z states."
+      ],
+      "goal": "Validate correct second counting and minute rollover behavior under conservative clock observation.",
+      "notes": [
+        "No assumption about exact latency; only relies on observable output changes across clock edges."
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Allow the design to run freely after reset and monitor natural progression of time counters."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe at least 120 clock cycles to capture multiple second and minute transitions."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

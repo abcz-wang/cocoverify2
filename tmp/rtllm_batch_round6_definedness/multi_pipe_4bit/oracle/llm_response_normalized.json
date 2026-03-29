@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guard against assuming fixed latency for edge case; the design must eventually produce a stable product after edge stimulus without requiring a specific cycle count.",
+          "notes": [],
+          "observed_signals": [
+            "mul_out"
+          ],
+          "pass_condition": "No fixed-cycle latency is assumed; mul_out must reach a stable, non-X value consistent with the arithmetic result after the edge stimulus.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge stimulus is applied to mul_a and mul_b."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that mul_out eventually reflects the product of mul_a and mul_b after a legal operation.",
+          "notes": [],
+          "observed_signals": [
+            "mul_out"
+          ],
+          "pass_condition": "mul_out stabilizes to a value equal to the arithmetic product of the driven inputs, after an unspecified but finite number of clock cycles.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When basic stimulus is applied to mul_a and mul_b."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

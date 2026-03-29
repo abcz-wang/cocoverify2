@@ -1,0 +1,172 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "zero_freq"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "The design should not produce undefined toggling when freq is 0"
+      ],
+      "goal": "Check behavior when freq is set to zero.",
+      "notes": [
+        "Zero frequency may cause immediate toggle or stall; verify conservative behavior."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [
+        "freq input can be driven to 0"
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive freq=0 and monitor wave_out for any toggle."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Observe for at least 2 clock cycles after stimulus."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "frequency_change"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "reg_001",
+      "expected_properties": [
+        "Changing freq during operation should eventually reflect new toggle period."
+      ],
+      "goal": "Validate dynamic frequency update handling.",
+      "notes": [
+        "Freq is changed after some toggles; ensure wave_out adapts."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Set freq=10, allow toggles, then change freq to 20 and continue observation."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Allow sufficient cycles after each change (e.g., 30 cycles)."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "initial_state"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_001",
+      "expected_properties": [
+        "Different initial wave_out states should not affect eventual toggle pattern given same freq."
+      ],
+      "goal": "Confirm invariance to initial output state.",
+      "notes": [
+        "Reset simulation with wave_out initialized to 0 vs 1."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Initialize wave_out to 0, drive freq=5; repeat with wave_out=1."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Observe for at least 2*freq cycles."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "toggle_behavior"
+      ],
+      "expected_properties": [
+        "When freq > 0, wave_out toggles after at most freq clock cycles."
+      ],
+      "goal": "Verify that a non‑zero freq eventually causes a toggle of wave_out under conservative latency.",
+      "notes": [
+        "Observes that toggle may occur after a variable number of cycles up to freq."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Set freq to a representative non‑zero value and monitor wave_out for a toggle."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Wait for at least freq+1 clock cycles after stimulus to allow possible toggle."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "zero_one_boundary"
+      ],
+      "expected_properties": [
+        "wave_out does not toggle when freq=0 within the conservative observation window."
+      ],
+      "goal": "Exercise zero, minimum, and maximum freq values to confirm boundary handling.",
+      "notes": [
+        "Maximum freq is 255 for the 8‑bit width."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply freq=0, freq=1, and freq=255 patterns."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Observe for up to 256 clock cycles after each stimulus."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

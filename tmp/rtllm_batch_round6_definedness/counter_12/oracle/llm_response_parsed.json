@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When the counter reaches its maximum value (4'd11) while valid_count remains asserted, the next observed output must wrap to 0 within a conservative observation window.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "If out == 4'd11 and valid_count == 1, then within the next two clock cycles out must be 4'b0000 and not X or Z.",
+          "semantic_tags": [
+            "wrap_around",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "out equals 4'd11 while valid_count is high"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When valid_count is asserted, the counter output must eventually change to reflect counting progress.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "If valid_count == 1, then out must change (increment modulo 12) within at most two clock cycles, unless it is already at the maximum value where wrap\u2011around is expected.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "valid_count transitions high or remains high"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

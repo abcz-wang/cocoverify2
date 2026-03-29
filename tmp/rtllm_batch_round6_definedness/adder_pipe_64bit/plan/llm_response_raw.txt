@@ -1,0 +1,121 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "protocol",
+        "enable_flow"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "protocol_001",
+      "expected_properties": [
+        "o_en transitions high only after result becomes valid",
+        "o_en returns low after a subsequent i_en deassertion or reset"
+      ],
+      "goal": "Validate ordering between input enable (i_en) and output enable (o_en) under unknown pipeline latency.",
+      "notes": [
+        "Latency is unspecified; the check only requires correct ordering, not a fixed cycle count."
+      ],
+      "observed_signals": [
+        "o_en",
+        "result"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert i_en for a single cycle with random operands, then deassert, and monitor o_en and result ordering."
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed number of cycles between i_en assertion and o_en high; allow any non‑negative latency."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "negative",
+        "disable_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "When i_en is low, result and o_en remain unchanged regardless of operand values."
+      ],
+      "goal": "Confirm that the adder does not produce a new result when disabled.",
+      "notes": [
+        "Ensures that the enable gating is functional even with varying inputs."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Hold i_en low while toggling adda and addb across a range of values."
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Observe for several cycles after stimulus to ensure no spurious output changes."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "pipeline",
+        "enable_flow"
+      ],
+      "expected_properties": [
+        "Result updates only when i_en is asserted",
+        "Observed outputs stabilize after an unknown but finite number of clock cycles"
+      ],
+      "goal": "Apply a single enabled addition and verify that result and o_en become stable after conservative observation.",
+      "notes": [
+        "Because latency is unknown, the test watches for stability rather than a fixed cycle count."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive i_en high for one cycle with random 64‑bit operands on adda and addb."
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations for several cycles after stimulus."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

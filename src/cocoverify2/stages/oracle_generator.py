@@ -21,7 +21,9 @@ from cocoverify2.core.models import (
 )
 from cocoverify2.core.types import (
     AssertionStrength,
+    DefinednessMode,
     GenerationMode,
+    LatencyModel,
     OracleCheckType,
     OracleStrictness,
     PortDirection,
@@ -1322,46 +1324,86 @@ def _build_signal_policies(
     )
     for signal in check.observed_signals:
         if signal in allowed_unknowns:
-            policies[signal] = SignalAssertionPolicy(
+            policy = SignalAssertionPolicy(
                 strength=AssertionStrength.GUARDED,
                 allow_unknown=True,
                 allow_high_impedance=True,
                 rationale="contract_allowed_unknown",
             )
+            policies[signal] = _finalize_signal_policy(
+                policy=policy,
+                contract=contract,
+                plan_case=plan_case,
+                check=check,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
+            )
             continue
         if signal in handshake_signals:
-            policies[signal] = SignalAssertionPolicy(
+            policy = SignalAssertionPolicy(
                 strength=AssertionStrength.GUARDED,
                 allow_unknown=False,
                 allow_high_impedance=False,
                 rationale="protocol_visible_signal",
             )
+            policies[signal] = _finalize_signal_policy(
+                policy=policy,
+                contract=contract,
+                plan_case=plan_case,
+                check=check,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
+            )
             continue
         if property_check and signal in _primary_data_outputs(contract):
-            policies[signal] = SignalAssertionPolicy(
+            policy = SignalAssertionPolicy(
                 strength=AssertionStrength.UNRESOLVED,
                 allow_unknown=True,
                 allow_high_impedance=True,
                 rationale="property_guardrail_preserves_value_ambiguity",
+            )
+            policies[signal] = _finalize_signal_policy(
+                policy=policy,
+                contract=contract,
+                plan_case=plan_case,
+                check=check,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
             )
             continue
         if property_check and signal in _scalar_status_outputs(contract) and _should_preserve_protocol_status_output_ambiguity(
             contract=contract,
             plan_case=plan_case,
         ):
-            policies[signal] = SignalAssertionPolicy(
+            policy = SignalAssertionPolicy(
                 strength=AssertionStrength.UNRESOLVED,
                 allow_unknown=True,
                 allow_high_impedance=True,
                 rationale="property_guardrail_preserves_status_ambiguity",
             )
+            policies[signal] = _finalize_signal_policy(
+                policy=policy,
+                contract=contract,
+                plan_case=plan_case,
+                check=check,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
+            )
             continue
         if negative_like:
-            policies[signal] = SignalAssertionPolicy(
+            policy = SignalAssertionPolicy(
                 strength=AssertionStrength.UNRESOLVED,
                 allow_unknown=True,
                 allow_high_impedance=True,
                 rationale="negative_or_illegal_case_preserves_ambiguity",
+            )
+            policies[signal] = _finalize_signal_policy(
+                policy=policy,
+                contract=contract,
+                plan_case=plan_case,
+                check=check,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
             )
             continue
 
@@ -1403,7 +1445,14 @@ def _build_signal_policies(
                         "rationale": f"{policy.rationale}_downgraded_for_status_edge_ambiguity",
                     }
                 )
-            policies[signal] = policy
+            policies[signal] = _finalize_signal_policy(
+                policy=policy,
+                contract=contract,
+                plan_case=plan_case,
+                check=check,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
+            )
             continue
 
         if signal in _primary_data_outputs(contract) and not ambiguity_preserving:
@@ -1413,50 +1462,199 @@ def _build_signal_policies(
                 signal=signal,
                 control_heavy_case=control_heavy_case,
             ):
-                policies[signal] = SignalAssertionPolicy(
+                policy = SignalAssertionPolicy(
                     strength=AssertionStrength.UNRESOLVED,
                     allow_unknown=True,
                     allow_high_impedance=True,
                     rationale="primary_data_output_case_ambiguity",
                 )
+                policies[signal] = _finalize_signal_policy(
+                    policy=policy,
+                    contract=contract,
+                    plan_case=plan_case,
+                    check=check,
+                    signal=signal,
+                    control_heavy_case=control_heavy_case,
+                )
                 continue
-            policies[signal] = SignalAssertionPolicy(
+            policy = SignalAssertionPolicy(
                 strength=AssertionStrength.GUARDED,
                 allow_unknown=False,
                 allow_high_impedance=False,
                 rationale="primary_data_output_guarded_definedness",
             )
+            policies[signal] = _finalize_signal_policy(
+                policy=policy,
+                contract=contract,
+                plan_case=plan_case,
+                check=check,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
+            )
             continue
 
-        policies[signal] = SignalAssertionPolicy(
+        policy = SignalAssertionPolicy(
             strength=AssertionStrength.UNRESOLVED,
             allow_unknown=True,
             allow_high_impedance=True,
             rationale="insufficient_structured_evidence",
         )
+        policies[signal] = _finalize_signal_policy(
+            policy=policy,
+            contract=contract,
+            plan_case=plan_case,
+            check=check,
+            signal=signal,
+            control_heavy_case=control_heavy_case,
+        )
     return policies
 
 
-def _explicit_output_semantic_hints(contract: DUTContract) -> dict[str, SignalAssertionPolicy]:
-    strong_behavior_tokens = (
-        " is set to ",
-        " are set to ",
-        " is determined ",
-        " are determined ",
-        " assign ",
-        " assigns ",
-        " assigned ",
-        " concatenated ",
-        " formed ",
-        " lower 32 bits ",
+def _finalize_signal_policy(
+    *,
+    policy: SignalAssertionPolicy,
+    contract: DUTContract,
+    plan_case: TestCasePlan | None,
+    check: OracleCheck,
+    signal: str,
+    control_heavy_case: bool,
+) -> SignalAssertionPolicy:
+    return policy.model_copy(
+        update={
+            "definedness_mode": _select_definedness_mode(
+                policy=policy,
+                contract=contract,
+                plan_case=plan_case,
+                check=check,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
+            ),
+        }
     )
+
+
+def _select_definedness_mode(
+    *,
+    policy: SignalAssertionPolicy,
+    contract: DUTContract,
+    plan_case: TestCasePlan | None,
+    check: OracleCheck,
+    signal: str,
+    control_heavy_case: bool,
+) -> DefinednessMode:
+    if policy.strength == AssertionStrength.UNRESOLVED:
+        return DefinednessMode.NOT_REQUIRED
+    if policy.allow_unknown or policy.allow_high_impedance:
+        return DefinednessMode.NOT_REQUIRED
+    if check.check_type == OracleCheckType.PROPERTY:
+        return DefinednessMode.NOT_REQUIRED
+    if plan_case is None:
+        return DefinednessMode.NOT_REQUIRED
+
+    category = str(plan_case.category)
+    if category in {"protocol", "back_to_back", "negative", "metamorphic", "regression"}:
+        return DefinednessMode.NOT_REQUIRED
+
+    if signal in set(contract.handshake_signals):
+        return DefinednessMode.NOT_REQUIRED
+
+    if signal in _scalar_status_outputs(contract):
+        if _should_require_status_definedness(
+            contract=contract,
+            plan_case=plan_case,
+            check=check,
+            signal=signal,
+        ):
+            return DefinednessMode.AT_OBSERVATION
+        return DefinednessMode.NOT_REQUIRED
+
+    if signal in _primary_data_outputs(contract):
+        if _should_require_primary_data_definedness(
+            contract=contract,
+            plan_case=plan_case,
+            check=check,
+            signal=signal,
+            control_heavy_case=control_heavy_case,
+        ):
+            return DefinednessMode.AT_OBSERVATION
+        return DefinednessMode.NOT_REQUIRED
+
+    return DefinednessMode.NOT_REQUIRED
+
+
+def _should_require_primary_data_definedness(
+    *,
+    contract: DUTContract,
+    plan_case: TestCasePlan,
+    check: OracleCheck,
+    signal: str,
+    control_heavy_case: bool,
+) -> bool:
+    if signal not in _primary_data_outputs(contract):
+        return False
+    if check.check_type != OracleCheckType.FUNCTIONAL:
+        return False
+    if str(plan_case.category) == "reset":
+        return False
+    if contract.timing.sequential_kind == SequentialKind.SEQ:
+        if contract.timing.latency_model != LatencyModel.FIXED:
+            return False
+        semantic_tags = set(plan_case.semantic_tags)
+        return bool(
+            str(plan_case.category) == "basic"
+            and not control_heavy_case
+            and "operation_specific" in semantic_tags
+            and _case_covers_all_business_inputs(contract=contract, plan_case=plan_case)
+        )
+    if str(plan_case.category) == "basic":
+        return _case_covers_all_business_inputs(contract=contract, plan_case=plan_case)
+    if str(plan_case.category) == "edge":
+        return _case_covers_all_business_inputs(contract=contract, plan_case=plan_case) and "operation_specific" in set(
+            plan_case.semantic_tags
+        )
+    return False
+
+
+def _should_require_status_definedness(
+    *,
+    contract: DUTContract,
+    plan_case: TestCasePlan,
+    check: OracleCheck,
+    signal: str,
+) -> bool:
+    if signal not in _scalar_status_outputs(contract):
+        return False
+    if check.check_type != OracleCheckType.FUNCTIONAL:
+        return False
+    if str(plan_case.category) == "reset":
+        return _signal_has_explicit_reset_behavior(contract=contract, signal=signal)
+    if contract.timing.sequential_kind == SequentialKind.SEQ:
+        return False
+    return str(plan_case.category) == "basic" and _case_covers_all_business_inputs(contract=contract, plan_case=plan_case)
+
+
+def _case_covers_all_business_inputs(*, contract: DUTContract, plan_case: TestCasePlan) -> bool:
+    business_inputs = {
+        port.name
+        for port in contract.ports
+        if port.direction == PortDirection.INPUT
+        and port.name not in {clock.name for clock in contract.clocks}
+        and port.name not in {reset.name for reset in contract.resets}
+    }
+    if not business_inputs:
+        return False
+    return business_inputs.issubset(set(plan_case.stimulus_signals))
+
+
+def _explicit_output_semantic_hints(contract: DUTContract) -> dict[str, SignalAssertionPolicy]:
     hints: dict[str, SignalAssertionPolicy] = {}
     for signal in _output_signal_names(contract):
         matching_lines = _assumption_lines_for_signal(contract, signal)
         if not matching_lines:
             continue
-        has_explicit_behavior = any(any(token in line for token in strong_behavior_tokens) for line in matching_lines)
-        has_high_impedance = any("high-impedance" in line or "'z'" in line or " 1'bz" in line for line in matching_lines)
+        behavior_lines = [line for line in matching_lines if _line_explicitly_targets_signal_behavior(line=line, signal=signal)]
+        has_explicit_behavior = bool(behavior_lines)
+        has_high_impedance = any("high-impedance" in line or "'z'" in line or " 1'bz" in line for line in behavior_lines)
         if has_explicit_behavior and has_high_impedance:
             hints[signal] = SignalAssertionPolicy(
                 strength=AssertionStrength.GUARDED,
@@ -1472,6 +1670,28 @@ def _explicit_output_semantic_hints(contract: DUTContract) -> dict[str, SignalAs
                 rationale="explicit_output_behavior",
             )
     return hints
+
+
+def _line_explicitly_targets_signal_behavior(*, line: str, signal: str) -> bool:
+    normalized = re.sub(r"\s+", " ", str(line or "").strip().lower())
+    normalized = normalized.replace("(", " ").replace(")", " ")
+    signal_lower = signal.lower()
+    target_patterns = (
+        rf"\b{re.escape(signal_lower)}\b(?:\s+(?:output|flag|register|reg|signal))?\s+(?:is|are)\s+(?:set|assigned|determined|updated)\b",
+        rf"\b{re.escape(signal_lower)}\b\s*(?:<=|=)\s*",
+        rf"\b(?:assigned|assigns|driven|drives|set|sets|updated|updates|written)\b.+\bto\b.+\b{re.escape(signal_lower)}\b",
+    )
+    return any(re.search(pattern, normalized) for pattern in target_patterns)
+
+
+def _signal_has_explicit_reset_behavior(*, contract: DUTContract, signal: str) -> bool:
+    for line in _assumption_lines_for_signal(contract, signal):
+        normalized = str(line or "").lower()
+        if "reset" not in normalized and "rst" not in normalized:
+            continue
+        if _line_explicitly_targets_signal_behavior(line=normalized, signal=signal):
+            return True
+    return False
 
 
 def _assumption_lines_for_signal(contract: DUTContract, signal: str) -> list[str]:

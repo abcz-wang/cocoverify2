@@ -1,0 +1,80 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_release_edge",
+        "wave_wrap"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "After reset deassertion, wave increments from 0 to 31 without skipping values",
+        "When wave reaches 31, subsequent increment causes direction change and wave decrements",
+        "When wave reaches 0, subsequent decrement causes direction change and wave increments"
+      ],
+      "goal": "Validate correct direction change of the wave at its upper and lower bounds.",
+      "notes": [
+        "Covers the edge behavior of the state machine controlling the triangle wave."
+      ],
+      "observed_signals": [
+        "wave"
+      ],
+      "preconditions": [
+        "Reset has been asserted and then released."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Release reset and observe wave over at least 64 clock cycles to capture a full up/down cycle."
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Observe over a conservative window of 64 clock edges after reset release."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "wave_progress",
+        "basic",
+        "sanity"
+      ],
+      "expected_properties": [
+        "wave output remains defined and changes only by +/-1 per clock edge after reset release",
+        "no X or Z values appear on wave during observation window"
+      ],
+      "goal": "Observe that the wave output evolves deterministically under clock control after reset.",
+      "notes": [
+        "Conservative observation of a small number of clock cycles to confirm basic functionality."
+      ],
+      "observed_signals": [
+        "wave"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset if present and observe a few clock edges for externally visible progress."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

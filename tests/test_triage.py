@@ -213,6 +213,29 @@ def test_runtime_failure_with_weak_render_stays_conservative(tmp_path: Path) -> 
     assert any(item.startswith("failed_tests_count=1") for item in result.evidence)
 
 
+def test_runtime_failure_due_to_structured_definedness_policy_stays_honestly_runtime_failure(tmp_path: Path) -> None:
+    root = _write_run_fixture(
+        tmp_path / "definedness_case",
+        status=ExecutionStatus.RUNTIME_ERROR,
+        build_log=(
+            "FAILED cocotb_tests.test_demo_basic.test_basic_001\n"
+            "AssertionError: out_data must not be unknown under structured oracle policy\n"
+        ),
+        failed_tests=["cocotb_tests.test_demo_basic.test_basic_001"],
+        discovered_tests=["cocotb_tests.test_demo_basic.test_basic_001"],
+        return_code=1,
+        render_warnings=[
+            "Structured oracle policies preserve ambiguity where timing evidence is weak.",
+        ],
+        render_confidence=0.72,
+    )
+
+    result = TriageStage().run_from_dir(in_dir=root, out_dir=tmp_path / "triage_definedness")
+
+    assert result.primary_category == "runtime_test_failure"
+    assert any("structured oracle policy" in fragment for fragment in result.matched_log_fragments)
+
+
 def test_success_with_only_skipped_tests_triages_as_insufficient_stimulus(tmp_path: Path) -> None:
     root = _write_run_fixture(
         tmp_path / "skipped_case",

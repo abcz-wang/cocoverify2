@@ -1,0 +1,163 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "write_disable",
+        "data_stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "When wenc is deasserted, changes on wdata do not affect stored memory contents.",
+        "Subsequent read after enabling write reflects only data written when wenc was asserted."
+      ],
+      "goal": "Verify that write enable gating prevents memory updates.",
+      "notes": [
+        "Conservative timing: observe after at least one clock edge of wclk."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [
+        "Basic write/read functionality is operational (basic_001)."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Toggle wdata while wenc=0, then assert wenc for a single write and read back the value."
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "simultaneous_rw",
+        "address_collision"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "proto_001",
+      "expected_properties": [
+        "When wenc and renc are asserted in the same cycle with identical address, the read data is either the old value or the newly written value, but not undefined.",
+        "The module does not produce glitches on rdata under concurrent access."
+      ],
+      "goal": "Observe behavior under concurrent write and read to the same address.",
+      "notes": [
+        "No exact latency assumed; observation is after a conservative number of clock cycles."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [
+        "Write and read ports are functional (basic_001)."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert wenc and renc together with the same waddr/raddr, provide wdata, and capture rdata."
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "write_read_basic"
+      ],
+      "expected_properties": [
+        "Write operation stores data that becomes observable on a subsequent read after at least one write-clock edge."
+      ],
+      "goal": "Write a single word and verify it can be read back conservatively.",
+      "notes": [
+        "Latency is unknown; observation occurs after a safe number of cycles."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Write one data word with wenc=1, then read it with renc=1 after a conservative delay."
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "address_boundary"
+      ],
+      "expected_properties": [
+        "Extreme address values (0 and maximum) are correctly written and read."
+      ],
+      "goal": "Exercise lowest and highest address locations and verify data integrity.",
+      "notes": [
+        "Boundary testing respects unknown width; uses symbolic min/max based on DEPTH."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Write distinct patterns to address 0 and the maximum address, then read them back."
+      ],
+      "stimulus_signals": [
+        "waddr",
+        "wdata",
+        "raddr",
+        "wenc",
+        "renc"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

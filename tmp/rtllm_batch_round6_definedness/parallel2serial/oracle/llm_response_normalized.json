@@ -1,0 +1,87 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "valid_out pulse width must not exceed four clock cycles after it rises",
+          "notes": [],
+          "observed_signals": [
+            "valid_out"
+          ],
+          "pass_condition": "When valid_out rises, it must return to 0 within four subsequent clock cycles",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "valid_out_rise",
+            "max_cycles": 4,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On each rising edge of valid_out"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "dout must emit the bits of d in MSB\u2011to\u2011LSB order over successive cycles after a load",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "The four\u2011cycle sequence of dout values after valid_out asserts matches d[3], d[2], d[1], d[0] respectively",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "valid_out_assert",
+            "max_cycles": 4,
+            "min_cycles": 4,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When valid_out becomes high following a parallel load"
+        },
+        {
+          "check_type": "functional",
+          "description": "valid_out must remain high for at least four consecutive cycles after a parallel load",
+          "notes": [],
+          "observed_signals": [
+            "valid_out"
+          ],
+          "pass_condition": "valid_out stays asserted for a minimum of four clock cycles after it first rises",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "valid_out_rise",
+            "max_cycles": 5,
+            "min_cycles": 4,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On the rising edge of valid_out following a load"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

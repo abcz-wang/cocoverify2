@@ -1,0 +1,121 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "functional_behavior",
+        "odd_division"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "basic_002",
+      "expected_properties": [
+        "clk_div toggles at a rate consistent with dividing clk by an odd number (parameter NUM_DIV) without assuming a fixed cycle count",
+        "No X or Z values appear on clk_div during steady\u2011state operation"
+      ],
+      "goal": "Validate that the module produces a divided clock whose frequency corresponds to an odd divisor of the input clock.",
+      "notes": [
+        "Exact latency is unknown; observation window is chosen conservatively large."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset and let the design run for many clock cycles while monitoring clk_div"
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe over a window of at least several multiples of the expected division period"
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_polarity",
+        "edge"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "clk_div remains stable (no toggling) while rst_n is asserted low",
+        "After deasserting rst_n, clk_div resumes toggling according to the odd division rule"
+      ],
+      "goal": "Confirm correct handling of the active\u2011low reset and that reset polarity ambiguity does not cause unintended clk_div activity.",
+      "notes": [
+        "Reset polarity for rst_n is known (active low); the other reset entry is ignored."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "rst_n input is available"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst_n low for a few cycles, then release it while clocking clk, and observe clk_div behavior"
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Monitor clk_div for several cycles before, during, and after reset release"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "frequency_division",
+        "odd_divisor"
+      ],
+      "expected_properties": [
+        "clk_div exhibits a periodic toggling pattern whose period is an odd multiple of the input clock period (parameter NUM_DIV)",
+        "No X/Z values appear on clk_div during observation"
+      ],
+      "goal": "Validate functional odd\u2011division behavior after a stable post\u2011reset initialization.",
+      "notes": [
+        "Exact cycle count is not assumed due to unknown latency model."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset if present and observe a conservative number of clock edges for externally visible progress."
+      ],
+      "stimulus_signals": [
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

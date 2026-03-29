@@ -1,0 +1,144 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "result equals floor(A/B) for B != 0",
+        "odd contains the remainder of the division"
+      ],
+      "goal": "Validate typical division operation for legal inputs",
+      "notes": [
+        "Ensures combinational mapping correctness",
+        "Preserves ambiguity when B may be zero"
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a mid‑range dividend and divisor"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization",
+        "No cycle‑accurate timing assumed"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary"
+      ],
+      "expected_properties": [
+        "result is zero when dividend < divisor",
+        "result is max (0xFFFF) when divisor = 1 and dividend is max"
+      ],
+      "goal": "Validate boundary conditions where dividend is less than divisor and divisor extremes",
+      "notes": [
+        "Covers min/max values for both inputs"
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Test zero dividend, maximum dividend, divisor = 1, divisor = 255"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization",
+        "No reliance on internal state"
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Module should produce a defined output (e.g., result = 0, odd = 0) when divisor B is zero"
+      ],
+      "goal": "Observe behavior on illegal divisor zero",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive divisor B to zero while varying dividend A across representative values"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle"
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "back_to_back",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Result and remainder update correctly for rapid successive changes of A and B"
+      ],
+      "goal": "Test combinational responsiveness to back‑to‑back input changes",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a sequence of diverse A/B pairs without idle cycles"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "No clock required; observe outputs immediately after each input change"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

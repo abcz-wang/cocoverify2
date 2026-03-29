@@ -1,0 +1,153 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "sanity",
+        "comb",
+        "unsigned_subtraction"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_basic_001",
+      "expected_properties": [
+        "c equals (a - b) modulo 2^N for all legal a and b"
+      ],
+      "goal": "Validate functional correctness of unsigned subtraction across a broad random set of operand values.",
+      "notes": [
+        "Random stimulus covers typical operating points without assuming any internal latency."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Inputs a and b are driven within their declared N‑bit range."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Generate random N‑bit values for a and b and apply them simultaneously."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after inputs have stabilized (combinational propagation)."
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "boundary",
+        "wrap",
+        "unsigned_subtraction"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "new_edge_001",
+      "expected_properties": [
+        "c correctly wraps on underflow when a < b, yielding 2^N + a - b"
+      ],
+      "goal": "Exercise extreme operand values to verify wrap‑around behavior of unsigned subtraction.",
+      "notes": [
+        "Focus on min/max patterns: a=0, b=0; a=0, b=2^N-1; a=2^N-1, b=0; a=2^N-1, b=2^N-1."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Inputs a and b are driven with boundary values defined by the N‑bit width."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply deterministic boundary patterns to a and b to provoke underflow and zero results."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after inputs settle; no sequential timing assumptions required."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "unsigned_subtraction"
+      ],
+      "expected_properties": [
+        "c equals (a - b) modulo 2^N for all legal a and b"
+      ],
+      "goal": "Confirm functional correctness for typical operand values.",
+      "notes": [
+        "Uses random stimulus within full N‑bit range."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Randomly generate a and b within their legal N‑bit range."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Allow one delta cycle for combinational propagation after inputs change."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "wrap",
+        "unsigned_subtraction"
+      ],
+      "expected_properties": [
+        "c correctly wraps on underflow when a < b, yielding 2^N + a - b"
+      ],
+      "goal": "Validate behavior at numeric limits and wrap‑around conditions.",
+      "notes": [
+        "Test min and max values, including zero and maximum N‑bit value."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply zero‑like, one‑like, and extreme boundary patterns to a and b."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after inputs have stabilized; no sequential timing assumptions."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

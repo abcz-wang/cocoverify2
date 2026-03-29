@@ -1,0 +1,82 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "basic_sanity"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The output mul_out eventually reflects the product of mul_a and mul_b once the pipeline has flushed, without assuming a fixed number of cycles."
+      ],
+      "goal": "Apply one legal operation and observe stable post‑operation behavior, establishing a reference product value for later comparison.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Serves as the reference run for metamorphic consistency checks."
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: mul_a and mul_b."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "metamorphic",
+        "determinism"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_001",
+      "expected_properties": [
+        "Identical stimulus sequences produce identical mul_out values across independent runs, confirming deterministic functional behavior despite unknown latency."
+      ],
+      "goal": "Verify that the design yields consistent outputs for repeated identical input sequences, ensuring functional determinism under ambiguous timing.",
+      "notes": [
+        "Runs are separated by a full reset to clear internal pipeline state.",
+        "Observations are made after a conservative number of clock cycles sufficient for pipeline flush."
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply identical input patterns to mul_a and mul_b in two separate executions and compare the resulting mul_out values."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Observe mul_out after enough cycles for the pipeline to settle, without assuming a fixed latency."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

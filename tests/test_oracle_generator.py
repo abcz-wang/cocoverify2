@@ -10,7 +10,14 @@ from pathlib import Path
 
 from cocoverify2.core.config import LLMConfig
 from cocoverify2.core.models import DUTContract, PortSpec, TestCasePlan as PlanCaseModel, TestPlan as PlanModel, TimingSpec
-from cocoverify2.core.types import AssertionStrength, GenerationMode, PortDirection, SequentialKind, TestCategory as PlanCategory
+from cocoverify2.core.types import (
+    AssertionStrength,
+    DefinednessMode,
+    GenerationMode,
+    PortDirection,
+    SequentialKind,
+    TestCategory as PlanCategory,
+)
 from cocoverify2.stages.contract_extractor import ContractExtractor
 from cocoverify2.stages.oracle_generator import OracleGenerator
 from cocoverify2.stages.test_plan_generator import TestPlanGenerator
@@ -304,9 +311,12 @@ def test_oracle_artifact_marks_weak_side_outputs_as_unresolved(tmp_path: Path) -
 
     assert check.signal_policies["r"].strength == AssertionStrength.EXACT
     assert check.signal_policies["zero"].strength == AssertionStrength.EXACT
+    assert check.signal_policies["r"].definedness_mode == DefinednessMode.AT_OBSERVATION
+    assert check.signal_policies["zero"].definedness_mode == DefinednessMode.AT_OBSERVATION
     assert check.signal_policies["flag"].strength == AssertionStrength.GUARDED
     assert check.signal_policies["flag"].allow_unknown is True
     assert check.signal_policies["flag"].allow_high_impedance is True
+    assert check.signal_policies["flag"].definedness_mode == DefinednessMode.NOT_REQUIRED
     assert check.signal_policies["carry"].strength == AssertionStrength.UNRESOLVED
     assert check.signal_policies["negative"].strength == AssertionStrength.UNRESOLVED
     assert check.signal_policies["overflow"].strength == AssertionStrength.UNRESOLVED
@@ -361,6 +371,65 @@ def test_oracle_preserves_primary_output_ambiguity_for_control_heavy_edge_cases(
     functional_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "edge_001")
     check = functional_case.checks[0]
     assert check.signal_policies["r"].strength == AssertionStrength.UNRESOLVED
+
+
+def test_oracle_protocol_status_outputs_do_not_require_immediate_definedness(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="demo_protocol_status",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="start", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="done", direction=PortDirection.OUTPUT, width=1),
+        ],
+        handshake_signals=["start", "done"],
+        observable_outputs=["done"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.82),
+        contract_confidence=0.84,
+    )
+    plan = PlanModel(
+        module_name="demo_protocol_status",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.8,
+        cases=[
+            PlanCaseModel(
+                case_id="protocol_001",
+                goal="Check that completion eventually becomes externally visible.",
+                category=PlanCategory.PROTOCOL,
+                stimulus_intent=["Assert start and observe done conservatively."],
+                stimulus_signals=["start"],
+                expected_properties=["Completion remains externally visible when it occurs."],
+                observed_signals=["done"],
+                timing_assumptions=["Observe around protocol events without fixed latency assumptions."],
+                coverage_tags=["sequence", "persistence"],
+                semantic_tags=["ambiguity_preserving"],
+                confidence=0.8,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    checks = [
+        check
+        for oracle_case in [*oracle.protocol_oracles, *oracle.functional_oracles, *oracle.property_oracles]
+        if oracle_case.linked_plan_case_id == "protocol_001"
+        for check in oracle_case.checks
+        if "done" in check.signal_policies
+    ]
+
+    assert checks
+    assert all(check.signal_policies["done"].strength == AssertionStrength.GUARDED for check in checks)
+    assert all(check.signal_policies["done"].definedness_mode == DefinednessMode.NOT_REQUIRED for check in checks)
 
 
 def test_oracle_treats_valid_driven_edge_cases_as_control_heavy_for_primary_outputs(tmp_path: Path) -> None:
@@ -481,6 +550,62 @@ def test_oracle_preserves_scalar_status_output_ambiguity_for_width_sensitive_seq
     assert check.signal_policies["FULL"].strength == AssertionStrength.UNRESOLVED
 
 
+def test_oracle_reset_data_outputs_do_not_require_immediate_definedness_without_reset_specific_evidence(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="demo_seq_ram",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="read_en", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="read_addr", direction=PortDirection.INPUT, width=4),
+            PortSpec(name="read_data", direction=PortDirection.OUTPUT, width=8),
+        ],
+        observable_outputs=["read_data"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.85),
+        assumptions=[
+            "If the read enable signal (read_en) is active, the data at the specified address is assigned to the read_data register.",
+        ],
+        contract_confidence=0.86,
+    )
+    plan = PlanModel(
+        module_name="demo_seq_ram",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.8,
+        cases=[
+            PlanCaseModel(
+                case_id="reset_001",
+                goal="Establish a post-reset baseline.",
+                category=PlanCategory.RESET,
+                stimulus_intent=["Apply reset and observe outputs conservatively."],
+                stimulus_signals=["rst_n"],
+                expected_properties=["Post-reset behavior remains externally visible."],
+                observed_signals=["read_data"],
+                timing_assumptions=["Observe after reset release without fixed read latency assumptions."],
+                coverage_tags=["reset"],
+                semantic_tags=["ambiguity_preserving"],
+                confidence=0.8,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    reset_functional = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "reset_001")
+    check = reset_functional.checks[0]
+
+    assert check.signal_policies["read_data"].strength == AssertionStrength.EXACT
+    assert check.signal_policies["read_data"].definedness_mode == DefinednessMode.NOT_REQUIRED
+
+
 def test_oracle_preserves_scalar_status_output_ambiguity_for_seq_protocol_guardrails(tmp_path: Path) -> None:
     contract = DUTContract(
         module_name="demo_lifo_protocol",
@@ -539,6 +664,59 @@ def test_oracle_preserves_scalar_status_output_ambiguity_for_seq_protocol_guardr
 
     assert check.signal_policies["EMPTY"].strength == AssertionStrength.UNRESOLVED
     assert check.signal_policies["FULL"].strength == AssertionStrength.UNRESOLVED
+
+
+def test_oracle_ignores_incidental_signal_mentions_when_building_explicit_output_hints(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="demo_traffic",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="red", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="counter", direction=PortDirection.OUTPUT, width=8),
+        ],
+        observable_outputs=["red", "counter"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.82),
+        assumptions=[
+            "If the red signal is inactive and the previous red signal was active, the counter is set to 10.",
+        ],
+        contract_confidence=0.82,
+    )
+    plan = PlanModel(
+        module_name="demo_traffic",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.79,
+        cases=[
+            PlanCaseModel(
+                case_id="protocol_001",
+                goal="Observe protocol-safe visible progress.",
+                category=PlanCategory.PROTOCOL,
+                stimulus_intent=["Observe red conservatively."],
+                stimulus_signals=[],
+                expected_properties=["Visibility remains conservative."],
+                observed_signals=["red"],
+                timing_assumptions=["Event-based observation only."],
+                coverage_tags=["sequence"],
+                semantic_tags=["ambiguity_preserving"],
+                confidence=0.79,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    property_case = next(case for case in oracle.property_oracles if case.linked_plan_case_id == "protocol_001")
+    check = property_case.checks[0]
+
+    assert check.signal_policies["red"].strength == AssertionStrength.UNRESOLVED
 
 
 def test_stage_oracle_cli_smoke(tmp_path: Path) -> None:

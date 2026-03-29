@@ -1,0 +1,40 @@
+module_name: verified_synchronizer
+based_on_contract: verified_synchronizer
+plan_strategy: hybrid_rule_based_plus_llm
+case_count: 7
+categories:
+- reset
+- basic
+- edge
+- back_to_back
+- negative
+- regression
+- edge
+unresolved_items:
+- 'Spec/reset hint could not be mapped to a known reset port: On the positive edge
+  of clock signal A (clk_a) or the falling edge of reset signal A (arstn), the module
+  updates the register. If the reset signal A (arstn) is low, indicating a reset condition,
+  the register (data_reg) is set to 0. If the reset signal A (arstn) is high, the
+  register (data_reg) is updated with the input data signal (data_in).'
+- 'Spec/reset hint could not be mapped to a known reset port: On the positive edge
+  of clock signal A (clk_a) or the falling edge of reset signal A (arstn), the module
+  updates the register. If the reset signal A (arstn) is low, the register (en_data_reg)
+  is set to 0. If the reset signal A (arstn) is high, the register (en_data_reg) is
+  updated with the input enable signal (data_en).'
+- 'Spec/reset hint could not be mapped to a known reset port: The module includes
+  two registers, en_clap_one and en_clap_two, to control the selection of the input
+  data. On the positive edge of clock signal B (clk_b) or the falling edge of reset
+  signal B (brstn), the module updates the registers. If the reset signal B (brstn)
+  is low, indicating a reset condition, both registers (en_clap_one and en_clap_two)
+  are set to 0.'
+- 'Spec/reset hint could not be mapped to a known reset port: On the positive edge
+  of clock signal B (clk_b) or the falling edge of reset signal B (brstn), the module
+  assigns the output data value. If the reset signal B (brstn) is low, indicating
+  a reset condition, the output data (dataout) is set to 0. If the reset signal B
+  (brstn) is high and the control signal (en_clap_two) is active, the output data
+  (dataout) is assigned the value of the data register (data_reg). If the control
+  signal (en_clap_two) is inactive, the output data (dataout) retains its previous
+  value.'
+- Contract strength is limited; generated cases favor safe observation over precise
+  timing assumptions.
+plan_confidence: 0.5750000000000001

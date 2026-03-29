@@ -1,0 +1,78 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "reset_during_pulse",
+        "reset_behavior"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "If reset is asserted while a pulse is in progress, data_out is forced to 0 and no pulse indication is generated until a new complete pulse occurs after reset release."
+      ],
+      "goal": "Validate that asynchronous reset clears any pending pulse detection and prevents spurious output.",
+      "notes": [
+        "Uses only signals defined in the contract; timing remains conservative."
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "preconditions": [
+        "System is in a stable post‑reset state (reset_001)."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a valid pulse pattern on data_in, assert rst_n low for one clock cycle during the middle of the pulse, then release reset and continue observation."
+      ],
+      "stimulus_signals": [
+        "clk",
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe data_out on each rising edge of clk after reset release; do not assume any fixed latency for pulse detection."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "pulse_detection_basic"
+      ],
+      "expected_properties": [
+        "A single isolated pulse (0→1→0 over three cycles) causes data_out to assert high for exactly one cycle at the pulse's final 0.",
+        "No other transitions of data_in generate a data_out pulse."
+      ],
+      "goal": "Confirm correct detection of a minimal valid pulse using the simplest legal input sequence.",
+      "notes": [
+        "Stimulus respects the unknown latency model; observation is performed on each clock edge after the input pattern is applied."
+      ],
+      "observed_signals": [
+        "data_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply the pattern 0,1,0 on data_in over three consecutive clock cycles while keeping reset deasserted."
+      ],
+      "stimulus_signals": [
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Sample data_out on every rising edge of clk after the third input cycle; do not assume a fixed number of cycles for output assertion."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

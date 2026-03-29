@@ -1,0 +1,159 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_basic",
+        "pipeline_progress"
+      ],
+      "expected_properties": [
+        "When mul_en_in is asserted, mul_en_out eventually asserts and mul_out reflects the product of the sampled mul_a and mul_b.",
+        "If mul_en_in is deasserted, mul_en_out remains deasserted and mul_out stays zero."
+      ],
+      "goal": "Validate that a single legal multiplication request propagates through the pipeline and produces a correct, observable product.",
+      "notes": [
+        "Enrichment adds explicit expectation of eventual output enable without fixing exact latency."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a single enable pulse with non‑zero operands and monitor for a later enable pulse on mul_en_out together with the correct product."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed number of cycles; observe until mul_en_out toggles or a reasonable timeout expires."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary_values",
+        "width_exploration"
+      ],
+      "expected_properties": [
+        "Zero and maximum operand values propagate correctly through the pipeline.",
+        "Output enable behavior remains consistent for extreme input patterns."
+      ],
+      "goal": "Confirm correct handling of operand extremes and verify that output enable reflects pipeline activity for these cases.",
+      "notes": [
+        "Retains original edge intent while clarifying expected properties."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply patterns: both operands zero, both operands max (0xFF), and mixed extremes while asserting mul_en_in."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Conservative observation until mul_en_out asserts for each stimulus."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "If mul_en_in is deasserted while mul_a or mul_b change, mul_en_out must not assert and mul_out must remain zero."
+      ],
+      "goal": "Verify that the design ignores operand changes when the input enable is inactive.",
+      "notes": [
+        "Tests robustness against illegal input timing without assuming internal gating."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "Design is in a stable post‑reset state."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Toggle mul_a and mul_b while keeping mul_en_in low, then assert mul_en_in and verify no spurious output."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Observe for several cycles after each stimulus; do not assume a fixed latency for detection of illegal activity."
+      ]
+    },
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "handshake_like"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "proto_001",
+      "expected_properties": [
+        "A rising edge on mul_en_in eventually leads to a rising edge on mul_en_out, preserving order of operations.",
+        "Multiple successive mul_en_in pulses result in mul_en_out pulses in the same order, without reordering."
+      ],
+      "goal": "Check that the pipeline maintains input‑to‑output ordering under consecutive enable pulses.",
+      "notes": [
+        "No fixed latency is assumed; ordering is the key property."
+      ],
+      "observed_signals": [
+        "mul_en_out"
+      ],
+      "preconditions": [
+        "System is out of reset."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Issue a short burst of three mul_en_in pulses with distinct operand pairs and monitor the sequence of mul_en_out pulses."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Allow an unspecified number of cycles between input and output pulses; verify ordering rather than exact timing."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

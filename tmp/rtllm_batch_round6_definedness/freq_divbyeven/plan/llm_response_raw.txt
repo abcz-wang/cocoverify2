@@ -1,0 +1,111 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "clk_div toggles at least once within a conservative observation window after reset release"
+      ],
+      "goal": "Confirm basic functional progress of clk_div after reset without assuming exact cycle counts",
+      "notes": [
+        "Observation window is chosen conservatively (e.g., 20 clock edges) to accommodate unknown division factor"
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset and observe clk_div over several clock cycles"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over a conservative number of clock edges (e.g., 20) after reset deassertion"
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "basic_002",
+      "category": "basic",
+      "coverage_tags": [
+        "toggle_frequency",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "clk_div toggles at least twice within a larger observation window, demonstrating continued operation"
+      ],
+      "goal": "Demonstrate that the divided clock continues to toggle repeatedly after initial observation",
+      "notes": [
+        "Window size is conservative (e.g., 40 clock edges) to avoid reliance on exact NUM_DIV value"
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset has been released and system is stable"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Maintain reset deasserted and let the design run for a longer period"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Monitor clk_div for at least 40 consecutive clk cycles"
+      ]
+    },
+    {
+      "draft_id": "edge_001",
+      "category": "edge",
+      "coverage_tags": [
+        "reset_during_operation",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Asserting reset while clk_div is toggling forces clk_div to return to a known post‑reset state"
+      ],
+      "goal": "Verify correct reset behavior when asserted asynchronously during normal operation",
+      "notes": [
+        "Reset is asserted after a few observed toggles of clk_div, then released; output should stabilize without X or glitches"
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "System has observed at least one toggle of clk_div"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst_n low asynchronously during operation, then release it and observe clk_div stabilization"
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Allow a few clock cycles after reset release before checking stable state"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

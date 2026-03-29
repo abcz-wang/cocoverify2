@@ -1,0 +1,73 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Outputs must be mutually exclusive: at most one of A_greater, A_equal, A_less is high for any stable input combination.",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "For each observation after inputs stabilize, the sum of the three output bits is exactly 1.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When any stimulus from the linked edge case is applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that the comparator outputs correctly reflect the relational result for a representative set of legal inputs.",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "For each driven pair (A,B), exactly one output is high and it matches the mathematical comparison (A>B => A_greater, A==B => A_equal, A<B => A_less).",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 stimulus applies a legal input pattern."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

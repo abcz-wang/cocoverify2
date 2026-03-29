@@ -1,0 +1,163 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "bcd",
+        "correction",
+        "basic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "bcd_correction_001",
+      "expected_properties": [
+        "When binary sum of A, B, and Cin exceeds 9, Sum reflects (binary_sum + 6) modulo 16 and Cout is 1",
+        "When binary sum of A, B, and Cin is 9 or less, Sum equals the binary sum and Cout is 0"
+      ],
+      "goal": "Validate BCD correction logic for sums that cross the decimal boundary and verify proper carry generation.",
+      "notes": [
+        "Focuses on the core BCD adjustment without assuming any clocked behavior."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Drive inputs to produce both binary sums <=9 and >9, checking correction and carry output."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization; no cycle-accurate timing assumed."
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "bcd",
+        "boundary",
+        "edge"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "bcd_boundary_001",
+      "expected_properties": [
+        "All extreme BCD digit values (0 and 9) are exercised without violating the BCD range",
+        "Sum and Cout correctly reflect addition of min/max digit combinations"
+      ],
+      "goal": "Exercise extreme BCD digit values and verify correct handling at numeric limits.",
+      "notes": [
+        "Ensures that the adder behaves correctly for the smallest and largest valid BCD inputs."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply A and B values of 0x0 and 0x9 with varying Cin to test edge behavior."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle; no reliance on internal state."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_input",
+        "negative",
+        "basic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "bcd_negative_001",
+      "expected_properties": [
+        "When A or B contain values outside the BCD range (0xA-0xF), the module's output behavior is unspecified per contract",
+        "The test records observed Sum and Cout for out\u2011of\u2011range inputs without asserting correctness"
+      ],
+      "goal": "Probe module response to illegal BCD inputs, confirming that no contract\u2011defined guarantees exist.",
+      "notes": [
+        "Contract does not define illegal input constraints; this case documents observed behavior."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive A and B with values 0xA\u20110xF while varying Cin to capture module response."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs stabilize; no timing guarantees assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "bcd_basic"
+      ],
+      "expected_properties": [
+        "Sum and Cout reflect combinational BCD addition for typical, non\u2011boundary values"
+      ],
+      "goal": "Exercise representative legal input combinations and observe output mapping, focusing on typical BCD digits.",
+      "notes": [
+        "Baseline case does not target correction edge; it validates normal combinational behavior."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Cover typical non\u2011boundary BCD values for A, B, and Cin."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "No clock required; observe after input stabilization."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

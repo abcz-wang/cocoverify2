@@ -1,0 +1,75 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that boundary-value fetch inputs do not cause X or overflow in outputs.",
+          "notes": [],
+          "observed_signals": [
+            "ins",
+            "ad1",
+            "ad2"
+          ],
+          "pass_condition": "For fetch values at extremes (01 and 10) with data 0x00 or 0xFF, outputs remain defined (no X) and respect width constraints.",
+          "semantic_tags": [
+            "edge",
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge_001 plan case is executed."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Validate that after a legal fetch operation, the high bits (ins) and low bits (ad1) reflect the stored instruction without assuming a fixed latency.",
+          "notes": [],
+          "observed_signals": [
+            "ins",
+            "ad1",
+            "ad2"
+          ],
+          "pass_condition": "After applying fetch=01 with a data pattern, eventually ins and ad1 update to the high and low bits of the data, while ad2 remains unchanged, without requiring a specific cycle count.",
+          "semantic_tags": [
+            "basic",
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When basic_001 plan case is executed."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,79 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "dout must reflect the ROM data at the address presented on addr combinationally",
+          "notes": [],
+          "observed_signals": [
+            "dout",
+            "addr"
+          ],
+          "pass_condition": "Whenever addr changes, dout updates to the corresponding memory content without requiring a fixed number of cycles",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On any change of addr"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "dout must output correct data for boundary addresses 0x00 and 0xFF",
+          "notes": [],
+          "observed_signals": [
+            "dout",
+            "addr"
+          ],
+          "pass_condition": "When addr is set to 0x00 or 0xFF, dout must match the initialized ROM content for those locations",
+          "semantic_tags": [
+            "width_sensitive",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When addr equals 0x00 or 0xFF"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

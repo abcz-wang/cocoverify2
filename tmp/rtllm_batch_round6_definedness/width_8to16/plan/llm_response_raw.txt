@@ -1,0 +1,202 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_input",
+        "no_output"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "When valid_in is deasserted, valid_out remains unchanged and data_out does not update."
+      ],
+      "goal": "Verify that the module does not produce output when input validity is low.",
+      "notes": [
+        "Ensures no spurious output on idle cycles."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Module is out of reset and stable."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive valid_in=0 while toggling data_in values."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe for at least two clock cycles after stimulus."
+      ]
+    },
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "handshake",
+        "sequencing"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "proto_001",
+      "expected_properties": [
+        "valid_out is asserted only after two consecutive cycles where valid_in=1, and data_out reflects concatenation of the first then second data_in values (first in high bits).",
+        "No output is generated after a single valid_in without a following valid_in."
+      ],
+      "goal": "Confirm correct sequencing of two‑cycle width conversion under conservative timing.",
+      "notes": [
+        "The exact latency between second valid_in and valid_out is not assumed; observation window spans up to three cycles."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Reset released, module idle."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply valid_in=1 with data_in=0xAA, next cycle valid_in=1 with data_in=0x55, then deassert valid_in."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Allow up to three clock cycles after second valid_in to see valid_out."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "repeated",
+        "overlap"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "b2b_001",
+      "expected_properties": [
+        "Two pairs of valid inputs back‑to‑back produce two distinct output events without loss."
+      ],
+      "goal": "Validate handling of consecutive pairs without idle cycles.",
+      "notes": [
+        "Conservative: ensure at least one idle cycle between pairs to avoid hidden timing assumptions."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Module idle after reset."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive sequence: valid_in=1 data_in=0x11, next cycle valid_in=1 data_in=0x22, then one idle cycle (valid_in=0), then valid_in=1 data_in=0x33, next cycle valid_in=1 data_in=0x44."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe for up to four cycles after each pair."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "reset_during_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "reg_001",
+      "expected_properties": [
+        "If reset is asserted during accumulation of the first data, the stored partial data is cleared and no output is produced after reset release."
+      ],
+      "goal": "Check robustness of reset handling mid‑operation.",
+      "notes": [
+        "Ensures that reset clears internal lock register."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Module out of reset, then apply first valid_in, assert reset before second valid_in."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply valid_in=1 data_in=0xAA, then assert rst_n=0 before next valid_in, release reset, then provide second valid_in=1 data_in=0x55."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe that valid_out does not assert after reset release."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "A single valid input does not immediately produce valid_out; output appears only after a second valid input.",
+        "Data_out reflects concatenation of first and second data_in values with first in high bits."
+      ],
+      "goal": "Validate that a single legal operation (first valid data) is stored and that output is produced after the second valid data.",
+      "notes": [
+        "Conservative observation window of up to three cycles after second valid_in."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Drive a valid first data_in, then a second valid data_in, and monitor outputs."
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Do not assume exact cycle latency; allow up to three cycles for output."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,114 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "negative",
+        "sanity"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "MATCH remains 0 for any input sequence that does not contain the pattern 10011."
+      ],
+      "goal": "Confirm that MATCH does not assert for non‑matching input streams.",
+      "notes": [
+        "Sequence 0,0,1,0,1,0 does not contain 10011."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "Reset has been released and system is stable."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive a long input stream that lacks the 10011 pattern."
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Observe MATCH after each clock edge; no fixed latency assumed."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "overlap",
+        "sequence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_001",
+      "expected_properties": [
+        "When the pattern 10011 appears back‑to‑back, MATCH asserts on each last '1' without missing."
+      ],
+      "goal": "Validate overlapping detection of consecutive patterns.",
+      "notes": [
+        "Input: 1,0,0,1,1,0,0,1,1 yields MATCH=1 at positions 5 and 9 as per contract."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "System reset released."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive the exact sequence 1,0,0,1,1,0,0,1,1."
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Check MATCH after each clock; no exact cycle latency assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "pattern_detection",
+        "basic_functionality"
+      ],
+      "expected_properties": [
+        "MATCH becomes 1 exactly when the last bit of a 10011 sequence is observed.",
+        "MATCH returns to 0 otherwise."
+      ],
+      "goal": "Verify primary detection behavior of the FSM.",
+      "notes": [
+        "Uses a minimal representative pattern 1,0,0,1,1."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply the input sequence 1,0,0,1,1 while monitoring MATCH."
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Observe MATCH on the same clock cycle as the final '1' of the pattern; no fixed latency assumed."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

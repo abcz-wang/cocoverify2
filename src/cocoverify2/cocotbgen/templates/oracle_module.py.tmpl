@@ -51,13 +51,14 @@ async def _apply_structured_signal_policy(
     for signal_name in observed_signals:
         policy = _signal_policy(check, signal_name)
         strength = str(policy.get("strength", "unresolved") or "unresolved")
+        definedness_mode = str(policy.get("definedness_mode", "not_required") or "not_required")
         value = sampled_outputs.get(signal_name)
         if value is None or strength == "unresolved":
             skipped_signals.append(signal_name)
             continue
-        if not bool(policy.get("allow_unknown", True)):
+        if definedness_mode == "at_observation" and not bool(policy.get("allow_unknown", True)):
             assert_true(not is_unknown(value), f"{signal_name} must not be unknown under structured oracle policy")
-        if not bool(policy.get("allow_high_impedance", True)):
+        if definedness_mode == "at_observation" and not bool(policy.get("allow_high_impedance", True)):
             assert_true(
                 not is_high_impedance(value),
                 f"{signal_name} must not be high-impedance under structured oracle policy",
@@ -65,7 +66,10 @@ async def _apply_structured_signal_policy(
         checked_signals.append(signal_name)
 
     return {
-        "status": "policy_checked" if checked_signals else "policy_guarded_only",
+        "status": "policy_checked" if any(
+            str(_signal_policy(check, signal_name).get("definedness_mode", "not_required") or "not_required") == "at_observation"
+            for signal_name in checked_signals
+        ) else "policy_observed_only" if checked_signals else "policy_guarded_only",
         "checked_signals": checked_signals,
         "skipped_signals": skipped_signals,
         "sampled_outputs": sampled_outputs,

@@ -1,0 +1,153 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "toggle_edge",
+        "counter_boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "CLK_10 changes state after the internal counter reaches its terminal count (4) within a conservative observation window."
+      ],
+      "expected_transition": "",
+      "goal": "Validate that CLK_10 toggles when its counter wraps, confirming correct divide-by-10 behavior.",
+      "notes": [
+        "Conservative timing: allow up to 6 input clock cycles for the toggle to become visible."
+      ],
+      "observed_signals": [
+        "CLK_10"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release reset, then wait for a period sufficient for the cnt_10 counter to reach its terminal value and observe a CLK_10 toggle."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "RST": 1
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": 0
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 6,
+          "signals": {},
+          "text": "Wait for potential CLK_10 toggle"
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Do not assume exact toggle cycle; allow up to 6 input cycles after reset release."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "progress_observation"
+      ],
+      "expected_properties": [
+        "CLK_50 toggles regularly under normal operation",
+        "CLK_10 toggles after approximately five input clock cycles",
+        "CLK_1 toggles after approximately fifty input clock cycles"
+      ],
+      "expected_transition": "",
+      "goal": "Observe regular toggling behavior of divided clocks after reset release.",
+      "notes": [
+        "Conservative observation without assuming exact cycle counts."
+      ],
+      "observed_signals": [
+        "CLK_50",
+        "CLK_10",
+        "CLK_1"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release reset and allow the divider to run for a few input clock cycles."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "RST": 1
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": 0
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "Observe clock division behavior"
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Observe without assuming exact latency; allow up to 2 cycles for output stabilization after reset release."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

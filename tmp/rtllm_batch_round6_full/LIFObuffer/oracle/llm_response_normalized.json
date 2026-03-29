@@ -1,0 +1,73 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When EMPTY flag is asserted, a read operation must not alter dataOut and must keep EMPTY asserted.",
+          "notes": [
+            "Conservative guardrail for illegal read on empty buffer."
+          ],
+          "observed_signals": [
+            "EMPTY",
+            "dataOut"
+          ],
+          "pass_condition": "If EMPTY=1 before a read (RW=1, EN=1), then after the operation EMPTY remains 1 and dataOut does not change.",
+          "semantic_tags": [
+            "invalid_illegal_input",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When EN=1, RW=1 (read) and EMPTY is observed high."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "After a legal write (EN=1, RW=0) the EMPTY flag must eventually become 0 and FULL may become 1 when capacity is reached; the change need not be immediate but must be observable within a bounded number of clock cycles.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 3,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a write stimulus is applied in case basic_001."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

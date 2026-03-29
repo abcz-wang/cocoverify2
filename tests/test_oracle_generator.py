@@ -490,6 +490,61 @@ def test_oracle_treats_valid_driven_edge_cases_as_control_heavy_for_primary_outp
     assert check.signal_policies["dout_valid"].strength == AssertionStrength.UNRESOLVED
 
 
+def test_oracle_reset_scalar_data_like_output_does_not_require_immediate_definedness(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="demo_parallel2serial",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="d", direction=PortDirection.INPUT, width=4),
+            PortSpec(name="dout", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="valid_out", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["dout", "valid_out"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.86),
+        assumptions=[
+            "dout is assigned from serialized data.",
+            "During reset, dout behavior may be implementation dependent until normal operation resumes.",
+        ],
+        contract_confidence=0.85,
+    )
+    plan = PlanModel(
+        module_name="demo_parallel2serial",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.82,
+        cases=[
+            PlanCaseModel(
+                case_id="reset_001",
+                goal="reset baseline",
+                category=PlanCategory.RESET,
+                stimulus_intent=["assert reset"],
+                stimulus_signals=["rst_n"],
+                expected_properties=["stable baseline"],
+                observed_signals=["dout", "valid_out"],
+                timing_assumptions=["conservative"],
+                coverage_tags=["reset"],
+                semantic_tags=["ambiguity_preserving"],
+                confidence=0.8,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    reset_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "reset_001")
+    check = reset_case.checks[0]
+    assert check.signal_policies["dout"].definedness_mode == DefinednessMode.NOT_REQUIRED
+
+
 def test_oracle_preserves_scalar_status_output_ambiguity_for_width_sensitive_seq_edges(tmp_path: Path) -> None:
     contract = DUTContract(
         module_name="demo_lifo",

@@ -1,0 +1,91 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "After a 0→1 transition on input a, the rise output must become 1 within a bounded number of clock cycles and then return to 0 before the next edge.",
+          "notes": [],
+          "observed_signals": [
+            "rise"
+          ],
+          "pass_condition": "rise is asserted for at most one cycle within 2 cycles after the input transition and deasserted thereafter.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_transition",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a rising edge on a is detected."
+        },
+        {
+          "check_type": "property",
+          "description": "After a 1→0 transition on input a, the down output must become 1 within a bounded number of clock cycles and then return to 0 before the next edge.",
+          "notes": [],
+          "observed_signals": [
+            "down"
+          ],
+          "pass_condition": "down is asserted for at most one cycle within 2 cycles after the input transition and deasserted thereafter.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_transition",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a falling edge on a is detected."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Require that rise and down outputs reflect input edges within a conservative bounded latency.",
+          "notes": [],
+          "observed_signals": [
+            "rise",
+            "down"
+          ],
+          "pass_condition": "For each detected edge on a, the corresponding output is asserted within 2 cycles and deasserted before the next edge.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the plan applies a legal input transition on a."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

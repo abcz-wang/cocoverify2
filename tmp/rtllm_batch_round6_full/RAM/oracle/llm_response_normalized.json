@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that during edge case stimulation, read_data does not become X or Z when read_en is asserted with boundary address values.",
+          "notes": [],
+          "observed_signals": [
+            "read_data"
+          ],
+          "pass_condition": "read_data must be a defined 6-bit value (no X/Z) after the settle period following each boundary stimulus.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge_001 plan applies boundary address and data patterns."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "read_data"
+          ],
+          "pass_condition": "read_data must reflect the written value after at least one clock cycle when read_en is asserted for the same address.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When basic_001 plan performs a write followed by a read to the same address."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,244 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "consecutive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Two successive pass_request activations produce correct counter adjustments observable via the clock output."
+      ],
+      "expected_transition": "",
+      "goal": "Verify that back‑to‑back pass_request assertions are handled without hidden latency assumptions.",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "preconditions": [
+        "The design is in a stable post‑reset state."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply two pass_request pulses with minimal idle spacing while the traffic light is in green state."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": 1
+          },
+          "text": "first request"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow one clock for counter update"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": 1
+          },
+          "text": "second request"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "observe stable outputs"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "clock": 1,
+            "red": 1,
+            "yellow": 1,
+            "green": 1
+          },
+          "text": "capture observable state"
+        }
+      ],
+      "stimulus_signals": [
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "When pass_request is asserted while green is high, the internal counter is set to 10 and this is reflected on the clock output."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post‑operation behavior.",
+      "notes": [
+        "Conservative timing; no hidden latency assumed."
+      ],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: ['pass_request']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": 1
+          },
+          "text": "assert pass_request"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "allow counter update and output stabilization"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "clock": 1,
+            "red": 1,
+            "yellow": 1,
+            "green": 1
+          },
+          "text": "capture observable state after operation"
+        }
+      ],
+      "stimulus_signals": [
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Zero and one values of pass_request do not cause illegal behavior and produce the expected counter updates."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary‑value and width‑sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value‑oriented and avoids fixed‑latency assumptions."
+      ],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero‑like, one‑like, and boundary patterns on ['pass_request']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": 0
+          },
+          "text": "zero pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow observation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": 1
+          },
+          "text": "one pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "stabilize outputs"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "clock": 1,
+            "red": 1,
+            "yellow": 1,
+            "green": 1
+          },
+          "text": "capture state for both boundary values"
+        }
+      ],
+      "stimulus_signals": [
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

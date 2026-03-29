@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that the counter does not exceed the maximum value 4'd11 and wraps correctly under conservative observation.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "out never exceeds 4'd11; when out reaches 4'd11 and valid_count remains asserted, the next observed stable value must be 0.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When valid_count is asserted and the counter is observed to change."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that after each increment the output stabilizes for at least one clock cycle.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "out remains unchanged for one full clock period after any observed transition.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a legal increment operation is applied (valid_count=1)."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

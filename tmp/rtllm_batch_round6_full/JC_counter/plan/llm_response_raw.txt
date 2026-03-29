@@ -1,0 +1,187 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "edge_wrap_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "wrap_around",
+        "boundary"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "After 64 clock cycles post‑reset, Q returns to the initial value 0, confirming correct Johnson‑counter wrap‑around."
+      ],
+      "expected_transition": "",
+      "goal": "Validate that the 64‑bit Johnson counter cycles back to zero after a full period.",
+      "notes": [
+        "The case does not assume a fixed latency per transition; it observes the natural progression over many cycles."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is stable."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert reset, release it, then generate 65 clock edges while recording Q at the start and after the final edge."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "assert active‑low reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "ensure post‑reset stability"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Q": null
+          },
+          "text": "capture initial Q (should be 0)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 65,
+          "signals": {},
+          "text": "run 65 clock cycles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Q": null
+          },
+          "text": "capture final Q (should be 0 again)"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "Q"
+      ],
+      "timing_assumptions": [
+        "Observations are made on rising edges of clk; exact cycle count is not assumed beyond the 65‑cycle window."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "counter_progress"
+      ],
+      "expected_properties": [
+        "Q follows the Johnson‑counter rule: if Q[0]==0 then Q shifts right with a leading 1, else shifts right with a leading 0."
+      ],
+      "expected_transition": "",
+      "goal": "Observe deterministic Johnson‑counter progression over several clock cycles after reset.",
+      "notes": [
+        "The case remains conservative; it does not assume a fixed number of cycles per transition."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release reset, then apply a sequence of clock edges while recording Q each cycle."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "ensure post‑reset stability"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 8,
+          "signals": {},
+          "text": "run eight clock cycles to observe progression"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Q": null
+          },
+          "text": "capture Q after progression"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "Q"
+      ],
+      "timing_assumptions": [
+        "Observe over at least eight clock cycles to cover a representative portion of the 64‑state sequence."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

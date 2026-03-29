@@ -1,0 +1,67 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: avoid fixed-cycle expectations; ensure clk exhibits progress",
+          "observed_signals": [
+            "clk"
+          ],
+          "pass_condition": "clk must toggle at least once during the observation window",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "observed_signals": [
+            "clk"
+          ],
+          "pass_condition": "clk toggles at least twice within the observation window",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "At start of observation after settle."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

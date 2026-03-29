@@ -1,0 +1,47 @@
+rm -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/runs/test_verified_pe_basic/run/junit/results.xml
+"make" -f Makefile /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/runs/test_verified_pe_basic/run/junit/results.xml
+make[1]: Entering directory '/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/render/cocotb_tests'
+mkdir -p /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/runs/test_verified_pe_basic/run/sim_build
+/workspace/I/qimeng6/wangchuanhao/iverilog-local/bin/iverilog -o /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/runs/test_verified_pe_basic/run/sim_build/sim.vvp -s verified_pe -g2012     -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/runs/test_verified_pe_basic/run/sim_build/cmds.f  /workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/pe/verified_pe.v
+rm -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/runs/test_verified_pe_basic/run/junit/results.xml
+COCOTB_TEST_MODULES=cocotb_tests.test_verified_pe_basic COCOTB_TESTCASE= COCOTB_TEST_FILTER= COCOTB_TOPLEVEL=verified_pe TOPLEVEL_LANG=verilog \
+         /workspace/I/qimeng6/wangchuanhao/iverilog-local/bin/vvp -M /workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb/libs -m libcocotbvpi_icarus    /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/runs/test_verified_pe_basic/run/sim_build/sim.vvp -none  
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.0rc1 interpreter at /workspace/I/qimeng6/miniconda3/bin/python
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 12.0 (stable)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1774787929
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_pe_basic.test_reset_001 (1/5)
+                                                            Establish a stable post-reset baseline before functional checking. Note: Reset polarity may still be heuristic if the contract marks it ambiguous.
+    35.00ns WARNING  py.warnings                        /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/render/cocotb_tests/verified_pe_runtime.py:97: DeprecationWarning: `logic_array.binstr` getter is deprecated. Use `str(logic_array)` instead.
+                                                          if hasattr(value, "binstr"):
+    35.00ns WARNING  py.warnings                        /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/render/cocotb_tests/verified_pe_runtime.py:98: DeprecationWarning: `logic_array.binstr` getter is deprecated. Use `str(logic_array)` instead.
+                                                          return str(value.binstr)
+    55.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_pe_basic.test_reset_001 passed
+    55.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_pe_basic.test_basic_001 (2/5)
+                                                            Apply one legal operation and observe stable post‑operation behavior with explicit expectation of accumulation. Note: Case intent is conservative when the contract is weak or timing is unresolved. Note: Assumes at least one clock cycle latency for the accumulation, consistent with unknown timing.
+   130.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_pe_basic.test_basic_001 passed
+   130.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_pe_basic.test_back_to_back_001 (3/5)
+                                                            Observe repeated or back-to-back legal operations under conservative timing assumptions. Note: When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior.
+   175.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_pe_basic.test_back_to_back_001 passed
+   175.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_pe_basic.test_basic_002 (4/5)
+                                                            Write a known operand pair, wait a few cycles, and verify that c holds the expected accumulated value. Note: Uses a conservative one‑cycle observation window because latency is unspecified.
+   210.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_pe_basic.test_basic_002 passed
+   210.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_pe_basic.test_metamorphic_001 (5/5)
+                                                            Demonstrate that multiplication is commutative by applying two operations with swapped operands and comparing c. Note: Relies only on observable output; no internal state assumptions.
+   245.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_pe_basic.test_metamorphic_001 passed
+   245.00ns INFO     cocotb.regression                  *******************************************************************************************************************
+                                                        ** TEST                                                       STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        *******************************************************************************************************************
+                                                        ** cocotb_tests.test_verified_pe_basic.test_reset_001          PASS          55.00           0.00      32254.85  **
+                                                        ** cocotb_tests.test_verified_pe_basic.test_basic_001          PASS          75.00           0.00      59634.65  **
+                                                        ** cocotb_tests.test_verified_pe_basic.test_back_to_back_001   PASS          45.00           0.00      67529.04  **
+                                                        ** cocotb_tests.test_verified_pe_basic.test_basic_002          PASS          35.00           0.00      64869.92  **
+                                                        ** cocotb_tests.test_verified_pe_basic.test_metamorphic_001    PASS          35.00           0.00      63303.42  **
+                                                        *******************************************************************************************************************
+                                                        ** TESTS=5 PASS=5 FAIL=0 SKIP=0                                             245.00           0.01      33691.40  **
+                                                        *******************************************************************************************************************
+make[1]: Leaving directory '/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round6_full/pe/render/cocotb_tests'
+
+/workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb_tools/makefiles/simulators/Makefile.icarus:66: Using MODULE is deprecated, please use COCOTB_TEST_MODULES instead.

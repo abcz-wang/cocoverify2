@@ -1,0 +1,99 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Carry-out must be 1 when the sum of maximum operands exceeds the 16\u2011bit range.",
+          "notes": [],
+          "observed_signals": [
+            "Co"
+          ],
+          "pass_condition": "When a=0xFFFF, b=0xFFFF, Cin=1, Co must be 1.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "output_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge stimulus drives maximum values."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "y",
+            "Co"
+          ],
+          "pass_condition": "Output y equals (a + b + Cin) modulo 2^16 and Co reflects overflow.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When basic stimulus applies random inputs."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "y",
+            "Co"
+          ],
+          "pass_condition": "Each successive input vector yields correct combinational output independent of the previous vector.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When back\u2011to\u2011back stimulus applies two vectors without idle cycles."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

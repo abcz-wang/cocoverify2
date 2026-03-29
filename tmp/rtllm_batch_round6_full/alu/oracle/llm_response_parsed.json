@@ -1,0 +1,107 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Overflow flag must be asserted when signed addition of two maximum positive values overflows.",
+          "notes": [],
+          "observed_signals": [
+            "overflow"
+          ],
+          "pass_condition": "When aluc corresponds to ADD and inputs a=0x7FFFFFFF, b=0x00000001, overflow output is '1'.",
+          "semantic_tags": [
+            "operation_specific",
+            "overflow"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus for case edge_002 is applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Flag output must be asserted for signed less\u2011than (SLT) when a < b.",
+          "notes": [],
+          "observed_signals": [
+            "flag"
+          ],
+          "pass_condition": "When aluc corresponds to SLT and a is a signed negative value less than b, flag is '1'.",
+          "semantic_tags": [
+            "operation_specific",
+            "flag"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus for case basic_002 is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Result r must reflect logical left shift of b by amount specified in lower 5 bits of a for SLL operation.",
+          "notes": [],
+          "observed_signals": [
+            "r"
+          ],
+          "pass_condition": "When aluc corresponds to SLL, r equals b << (a[4:0]).",
+          "semantic_tags": [
+            "operation_specific",
+            "shift"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus for case basic_004 is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_004",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

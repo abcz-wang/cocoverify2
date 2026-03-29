@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When wave reaches its maximum value 31, it must subsequently decrement on a later observed clock edge.",
+          "notes": [],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "After observing wave == 31, a later observation must show wave < 31, indicating a decrement direction.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "wave_max_observed",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When wave equals 31 for the first time after reset."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that wave changes by at most +/-1 between consecutive observed cycles after reset.",
+          "notes": [],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "Each successive observed value of wave differs by no more than one step, ensuring monotonic stepwise progression without jumps.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "post_reset_observation",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After reset release, during the observation window defined in the plan."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

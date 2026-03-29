@@ -1,0 +1,392 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "stimulus_intent": [
+        "Drive a low-to-high transition on 'a' to generate a rising edge and verify that 'rise' pulses for one clock cycle while 'down' stays low."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0
+          },
+          "text": "Initialize a to 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow module to settle after reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 1
+          },
+          "text": "Create rising edge on a"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe outputs after edge detection"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rise": "?",
+            "down": "?"
+          },
+          "text": "Capture pulse on rise"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Advance one more clock to see pulse return to 0"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rise": "?",
+            "down": "?"
+          },
+          "text": "Confirm rise returned to 0"
+        }
+      ],
+      "expected_properties": [
+        "rise output becomes 1 for exactly one clock cycle after a rising edge on 'a' and then returns to 0",
+        "down output remains 0 when only a rising edge occurs"
+      ],
+      "coverage_tags": [
+        "basic",
+        "pulse_width",
+        "single_edge"
+      ],
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "scenario_kind": "single_operation",
+      "priority": 1
+    },
+    {
+      "case_id": "edge_001",
+      "stimulus_intent": [
+        "Apply a falling edge on 'a' and verify that 'down' pulses for one clock cycle while 'rise' stays low."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 1
+          },
+          "text": "Initialize a to 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Stabilize before edge"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0
+          },
+          "text": "Create falling edge on a"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe outputs after edge detection"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rise": "?",
+            "down": "?"
+          },
+          "text": "Capture pulse on down"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Advance one more clock to see pulse return to 0"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rise": "?",
+            "down": "?"
+          },
+          "text": "Confirm down returned to 0"
+        }
+      ],
+      "expected_properties": [
+        "down output becomes 1 for exactly one clock cycle after a falling edge on 'a' and then returns to 0",
+        "rise output remains 0 when only a falling edge occurs"
+      ],
+      "coverage_tags": [
+        "edge",
+        "pulse_width",
+        "single_edge"
+      ],
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "scenario_kind": "single_operation",
+      "priority": 2
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "pulse_width",
+        "back_to_back"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Two consecutive rising edges on 'a' generate two separate one‑cycle pulses on 'rise' without merging",
+        "Each pulse on 'rise' is isolated to a single clock cycle"
+      ],
+      "expected_transition": "",
+      "goal": "Validate that back‑to‑back rising edges produce distinct one‑cycle rise pulses.",
+      "notes": [],
+      "observed_signals": [
+        "rise",
+        "down"
+      ],
+      "preconditions": [
+        "Module is out of reset and stable"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Generate two rising edges on 'a' with minimal idle cycles and observe separate rise pulses."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0
+          },
+          "text": "Start with a low"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Stabilize"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 1
+          },
+          "text": "First rising edge"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe first rise pulse"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rise": "?",
+            "down": "?"
+          },
+          "text": "Capture first pulse"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One idle cycle"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0
+          },
+          "text": "Return low to prepare second edge"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow low to settle"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 1
+          },
+          "text": "Second rising edge"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe second rise pulse"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rise": "?",
+            "down": "?"
+          },
+          "text": "Capture second pulse"
+        }
+      ],
+      "stimulus_signals": [
+        "a"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each edge only after a full clock cycle has elapsed."
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "simultaneous"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "expected_properties": [
+        "When 'a' toggles from 0 to 1 and back to 0 within two consecutive clock cycles, both 'rise' and 'down' generate one‑cycle pulses in the correct order."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise a rapid toggle of 'a' to verify correct sequencing of rise then down pulses.",
+      "notes": [],
+      "observed_signals": [
+        "rise",
+        "down"
+      ],
+      "preconditions": [
+        "Module is out of reset and stable"
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Toggle 'a' 0→1→0 across three clock cycles and verify ordered pulse generation."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0
+          },
+          "text": "Initialize low"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Stabilize"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 1
+          },
+          "text": "Rising edge"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe rise pulse"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rise": "?",
+            "down": "?"
+          },
+          "text": "Capture rise"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0
+          },
+          "text": "Falling edge"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe down pulse"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rise": "?",
+            "down": "?"
+          },
+          "text": "Capture down"
+        }
+      ],
+      "stimulus_signals": [
+        "a"
+      ],
+      "timing_assumptions": [
+        "Each pulse is observed after the corresponding edge's clock cycle."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

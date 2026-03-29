@@ -1,0 +1,448 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "Outputs should be high-impedance (z) or undefined when aluc does not match any defined operation"
+      ],
+      "goal": "Verify ALU behavior for an unsupported opcode value.",
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "Use only ports defined in the contract."
+      ],
+      "priority": 3,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive an illegal opcode while providing valid operand values."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h12345678",
+            "b": "32'h9ABCDEF0",
+            "aluc": "6'b111111"
+          },
+          "text": "Apply unsupported opcode"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture output states for analysis"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Outputs reflect inputs combinationally; no clock required."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_003",
+      "expected_properties": [
+        "Each operation should produce correct outputs independent of previous input values."
+      ],
+      "goal": "Exercise two consecutive ALU operations without intervening idle time.",
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "Combinational ALU with no internal state."
+      ],
+      "priority": 4,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply two different opcodes back‑to‑back and verify independent results."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000005",
+            "b": "32'h00000003",
+            "aluc": "6'b100000"
+          },
+          "text": "First operation: ADD"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow first result to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture first operation outputs"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFFFFFF",
+            "b": "32'h00000001",
+            "aluc": "6'b100010"
+          },
+          "text": "Second operation: SUB"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow second result to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture second operation outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Combinational path; each drive reflects immediately after settle."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_004",
+      "expected_properties": [
+        "Commutative operations (AND, OR, XOR) should yield identical results when operands are swapped."
+      ],
+      "goal": "Validate commutative property of bitwise logical operations.",
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "Use only defined opcodes."
+      ],
+      "priority": 4,
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive operand pair (a,b) for AND, then swap and drive (b,a) and compare outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hA5A5A5A5",
+            "b": "32'h5A5A5A5A",
+            "aluc": "6'b100100"
+          },
+          "text": "First AND with original order"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle first result"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture result of first AND"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h5A5A5A5A",
+            "b": "32'hA5A5A5A5",
+            "aluc": "6'b100100"
+          },
+          "text": "Second AND with swapped operands"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle second result"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture result of second AND"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Outputs are combinational; each drive reflects after settle."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb"
+      ],
+      "expected_properties": [
+        "Combinational mapping of inputs to outputs for supported opcodes."
+      ],
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "notes": [
+        "Enriched with explicit stimulus steps and settle requirement."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "Observe after inputs settle (no clock).",
+      "stimulus_intent": [
+        "Drive typical values for a, b, aluc covering several opcodes."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000001",
+            "b": "32'h00000002",
+            "aluc": "6'b100000"
+          },
+          "text": "ADD operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture output for ADD"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFFFFFF",
+            "b": "32'h00000001",
+            "aluc": "6'b100010"
+          },
+          "text": "SUB operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture output for SUB"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Outputs reflect inputs combinationally; no internal state or clock required."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Boundary‑value stimulation does not rely on hidden state or undocumented latency."
+      ],
+      "goal": "Exercise boundary‑value and width‑sensitive input patterns.",
+      "notes": [
+        "Enriched with explicit edge patterns for operands and opcodes."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 2,
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Use zero‑like, one‑like, and extreme patterns on a, b, aluc."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000000",
+            "b": "32'h00000000",
+            "aluc": "6'b100000"
+          },
+          "text": "ADD with both operands zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture zero result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFFFFFF",
+            "b": "32'hFFFFFFFF",
+            "aluc": "6'b100001"
+          },
+          "text": "ADDU overflow case"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture overflow result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h80000000",
+            "b": "32'h80000000",
+            "aluc": "6'b100010"
+          },
+          "text": "SUB causing overflow"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture overflow flag"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Combinational behavior; observe after each drive."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

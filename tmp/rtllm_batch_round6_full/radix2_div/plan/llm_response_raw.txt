@@ -1,0 +1,530 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "illegal_input",
+        "zero_divisor"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "neg_divisor_zero_001",
+      "expected_properties": [
+        "When divisor is zero, res_valid must remain low and result must not become valid even if opn_valid is asserted."
+      ],
+      "expected_transition": "",
+      "goal": "Verify safe handling of divisor zero without producing a valid result.",
+      "notes": [
+        "Divisor zero is not defined by the spec; the design should guard against it."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "divisor can be driven to 0"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert opn_valid with divisor=0 and any dividend, then observe that res_valid never asserts."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": 1,
+            "dividend": 8,
+            "divisor": 0,
+            "sign": 0,
+            "res_ready": 0
+          },
+          "text": "Apply illegal zero divisor"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "Allow any internal processing"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "res_valid": 1,
+            "result": 16
+          },
+          "text": "Capture output stability"
+        }
+      ],
+      "stimulus_signals": [
+        "opn_valid",
+        "dividend",
+        "divisor",
+        "sign",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; no fixed latency assumed."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "opn_valid"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "opn_valid_handshake_001",
+      "expected_properties": [
+        "When opn_valid is asserted while res_valid is low, the module begins processing and eventually asserts res_valid."
+      ],
+      "expected_transition": "",
+      "goal": "Confirm that opn_valid correctly initiates a division operation.",
+      "notes": [],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "res_valid is low at stimulus start"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "protocol_acceptance",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive opn_valid high with valid dividend/divisor and monitor res_valid transition."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": 1,
+            "dividend": 42,
+            "divisor": 7,
+            "sign": 0,
+            "res_ready": 0
+          },
+          "text": "Start operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow inputs to settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": "Observe eventual result"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "res_valid": 1,
+            "result": 16
+          },
+          "text": "Capture result when valid"
+        }
+      ],
+      "stimulus_signals": [
+        "opn_valid",
+        "dividend",
+        "divisor",
+        "sign",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation; no exact cycle count required."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "metamorphic",
+        "signed_unsigned"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "signed_unsigned_metamorphic_001",
+      "expected_properties": [
+        "Result for signed operation with positive operands matches the unsigned result for the same operands."
+      ],
+      "expected_transition": "",
+      "goal": "Validate consistency between signed and unsigned modes for positive inputs.",
+      "notes": [],
+      "observed_signals": [
+        "result"
+      ],
+      "preconditions": [
+        "Both signed and unsigned modes are supported"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Perform two operations: first unsigned (sign=0), then signed (sign=1) with identical dividend/divisor, compare results."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": 1,
+            "dividend": 85,
+            "divisor": 5,
+            "sign": 0,
+            "res_ready": 0
+          },
+          "text": "Unsigned operation"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": "Allow result to become valid"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "result_unsigned": 16
+          },
+          "text": "Capture unsigned result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": 1,
+            "dividend": 85,
+            "divisor": 5,
+            "sign": 1,
+            "res_ready": 0
+          },
+          "text": "Signed operation (positive operands)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": "Allow signed result"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "result_signed": 16
+          },
+          "text": "Capture signed result"
+        }
+      ],
+      "stimulus_signals": [
+        "opn_valid",
+        "dividend",
+        "divisor",
+        "sign",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Conservative timing; no fixed latency required."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "opn_valid"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_opn_001",
+      "expected_properties": [
+        "A second opn_valid asserted before the first result is consumed does not corrupt the first result; both results become valid in order."
+      ],
+      "expected_transition": "",
+      "goal": "Verify correct handling of overlapping operation requests via opn_valid.",
+      "notes": [],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "First operation has not yet been consumed (res_ready low)"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Issue first operation, then assert opn_valid for a second operation before the first result is accepted, and observe both results appear correctly."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": 1,
+            "dividend": 60,
+            "divisor": 3,
+            "sign": 0,
+            "res_ready": 0
+          },
+          "text": "First operation"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Overlap window before first result ready"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": 1,
+            "dividend": 45,
+            "divisor": 5,
+            "sign": 0,
+            "res_ready": 0
+          },
+          "text": "Second operation issued early"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 15,
+          "signals": {},
+          "text": "Allow both results to become valid"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "res_valid": 1,
+            "result": 16
+          },
+          "text": "Capture sequential results"
+        }
+      ],
+      "stimulus_signals": [
+        "opn_valid",
+        "dividend",
+        "divisor",
+        "sign",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; no exact latency assumptions."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "enhanced_stimulus"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [
+        "Added explicit stimulus program for deterministic driving and observation."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['dividend', 'divisor', 'sign', 'opn_valid', 'res_ready']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": 1,
+            "dividend": 25,
+            "divisor": 5,
+            "sign": 0,
+            "res_ready": 0
+          },
+          "text": "Apply basic legal operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow inputs to settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": "Observe result emergence"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "res_valid": 1,
+            "result": 16
+          },
+          "text": "Capture output when valid"
+        }
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "enhanced_vectors"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Added explicit boundary vectors for dividend and divisor."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['dividend', 'divisor', 'opn_valid', 'res_ready']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": 1,
+            "dividend": 0,
+            "divisor": 1,
+            "sign": 0,
+            "res_ready": 0
+          },
+          "text": "Zero dividend, minimal divisor"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": "Observe result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": 1,
+            "dividend": 255,
+            "divisor": 255,
+            "sign": 0,
+            "res_ready": 0
+          },
+          "text": "Maximum values"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": "Observe result"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "res_valid": 1,
+            "result": 16
+          },
+          "text": "Capture final output"
+        }
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

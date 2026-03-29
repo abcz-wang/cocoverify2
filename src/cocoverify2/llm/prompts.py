@@ -56,11 +56,37 @@ def build_plan_user_prompt(
                     "expected_properties",
                     "coverage_tags",
                     "semantic_tags",
+                        "scenario_kind",
+                        "stimulus_program",
+                        "settle_requirement",
+                        "comparison_operands",
+                        "relation_kind",
+                        "expected_transition",
+                        "reference_domain",
                     "notes",
                     "priority",
                 ],
                 "additional_cases": "coarse category only; use semantic_tags for richer subtypes",
             },
+                "structured_scenarios": {
+                    "scenario_kind_allowed": [
+                        "single_operation",
+                        "boundary_vector",
+                        "write_then_readback",
+                        "fsm_transition_path",
+                        "protocol_acceptance",
+                        "backpressure_wait",
+                        "back_to_back_pair",
+                        "metamorphic_pair",
+                        "reference_model_lite",
+                    ],
+                    "stimulus_program_rules": [
+                        "Use ordered structured steps only: drive, wait_for_settle, wait_cycles, record_inputs, record_note.",
+                        "Never emit cocotb/Python code in stimulus_program.",
+                        "Drive only known input signals from contract ports.",
+                        "For edge/back_to_back/protocol/fsm/metamorphic/reference-like cases, stimulus_program must reflect the case label.",
+                    ],
+                },
             "forbidden": [
                 "inventing unknown signals",
                 "removing baseline cases",
@@ -82,6 +108,20 @@ def build_plan_user_prompt(
                     "expected_properties": ["optional strings"],
                     "coverage_tags": ["optional strings"],
                     "semantic_tags": ["snake_case tags"],
+                    "scenario_kind": "single_operation|boundary_vector|write_then_readback|fsm_transition_path|protocol_acceptance|backpressure_wait|back_to_back_pair|metamorphic_pair|reference_model_lite",
+                    "stimulus_program": [
+                        {
+                            "action": "drive|wait_for_settle|wait_cycles|record_inputs|record_note",
+                            "signals": {"known_input": 1},
+                            "cycles": 1,
+                            "text": "optional note"
+                        }
+                    ],
+                    "settle_requirement": "optional string",
+                    "comparison_operands": ["optional strings"],
+                    "relation_kind": "optional string",
+                    "expected_transition": "optional string",
+                    "reference_domain": "optional string",
                     "notes": ["optional strings"],
                     "priority": 1,
                 }
@@ -100,6 +140,20 @@ def build_plan_user_prompt(
                     "dependencies": ["baseline case_id or another draft_id"],
                     "coverage_tags": [],
                     "semantic_tags": [],
+                    "scenario_kind": "single_operation|boundary_vector|write_then_readback|fsm_transition_path|protocol_acceptance|backpressure_wait|back_to_back_pair|metamorphic_pair|reference_model_lite",
+                    "stimulus_program": [
+                        {
+                            "action": "drive|wait_for_settle|wait_cycles|record_inputs|record_note",
+                            "signals": {"known_input": 1},
+                            "cycles": 1,
+                            "text": "optional note"
+                        }
+                    ],
+                    "settle_requirement": "optional string",
+                    "comparison_operands": [],
+                    "relation_kind": "optional string",
+                    "expected_transition": "optional string",
+                    "reference_domain": "optional string",
                     "notes": [],
                     "priority": 5,
                 }

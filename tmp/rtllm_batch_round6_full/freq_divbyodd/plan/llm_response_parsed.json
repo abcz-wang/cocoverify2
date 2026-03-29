@@ -1,0 +1,167 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset_asynchronous",
+        "stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "After deassertion of rst_n, clk_div resumes a stable periodic waveform without spurious glitches.",
+        "The module reinitializes its internal counters on the active low edge of rst_n."
+      ],
+      "expected_transition": "",
+      "goal": "Validate correct handling of an asynchronous active\u2011low reset asserted during normal operation.",
+      "notes": [
+        "Reset polarity for rst_n is known (active low) from the contract; the reset for clk is ambiguous and therefore not used."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "System has been running for at least 10 clk cycles after a prior reset release."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert rst_n low for a single clock cycle while clk_div is observed.",
+        "Release rst_n and verify that clk_div stabilizes to a regular divided clock pattern."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Assert active\u2011low reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One clock cycle under reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 0,
+          "signals": {
+            "clk_div": 1
+          },
+          "text": "Observe clk_div until it stabilizes"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "clk_div": 1
+          },
+          "text": "Capture waveform for analysis"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe at least 10 clk cycles after reset release before concluding stability."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset_release",
+        "odd_division_progress"
+      ],
+      "expected_properties": [
+        "clk_div produces a periodic waveform after reset release, indicating that the divider is operational.",
+        "The period of clk_div is consistent across multiple observation windows, reflecting the odd divisor behavior (exact period unspecified)."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock\u2011driven state progress after reset or conservative initialization.",
+      "notes": [
+        "The case remains conservative; no fixed\u2011cycle latency is assumed due to unknown timing model."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release rst_n (active low) after an initial reset assertion.",
+        "Observe clk_div for a small number of clock cycles to confirm that it transitions from an undefined to a defined state."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Assert reset for two cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "Allow the divider to run for ten clock cycles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "clk_div": 1
+          },
+          "text": "Capture clk_div waveform for sanity check"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

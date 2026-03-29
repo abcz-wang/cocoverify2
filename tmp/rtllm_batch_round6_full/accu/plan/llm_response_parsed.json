@@ -1,0 +1,503 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "valid_out_pulse"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "proto_001",
+      "expected_properties": [
+        "valid_out is asserted for exactly one clock cycle after accumulation of four valid inputs",
+        "valid_out deasserts before the next accumulation begins"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that valid_out generates a single-cycle pulse aligned with the accumulation completion.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "protocol_acceptance",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a sequence of four valid inputs, then keep valid_in low and monitor that valid_out stays high for only one cycle"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 8,
+            "valid_in": 1
+          },
+          "text": "first valid data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "next clock"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 15,
+            "valid_in": 1
+          },
+          "text": "second valid data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 20,
+            "valid_in": 1
+          },
+          "text": "third valid data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 30,
+            "valid_in": 1
+          },
+          "text": "fourth valid data"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "observe valid_out pulse"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 0,
+            "valid_in": 0
+          },
+          "text": "disable further inputs"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "ensure valid_out deasserts"
+        }
+      ],
+      "stimulus_signals": [
+        "clk",
+        "data_in",
+        "valid_in"
+      ],
+      "timing_assumptions": [
+        "Observe over multiple clock cycles without assuming fixed latency"
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "When valid_in is 0, changes on data_in are ignored by the accumulator",
+        "No spurious valid_out is generated while valid_in remains low"
+      ],
+      "expected_transition": "",
+      "goal": "Check that data_in changes without valid_in do not affect accumulation or output.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Toggle data_in values while valid_in=0 and verify accumulator state remains unchanged"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 5,
+            "valid_in": 0
+          },
+          "text": "first ignored data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 12,
+            "valid_in": 0
+          },
+          "text": "second ignored data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "allow any internal state to settle"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 7,
+            "valid_in": 1
+          },
+          "text": "resume normal operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "observe that accumulator started from zero"
+        }
+      ],
+      "stimulus_signals": [
+        "clk",
+        "data_in",
+        "valid_in"
+      ],
+      "timing_assumptions": [
+        "Conservative observation across clock edges"
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "metamorphic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_001",
+      "expected_properties": [
+        "Two different input orders with identical total sum produce identical data_out and valid_out timing"
+      ],
+      "expected_transition": "",
+      "goal": "Validate that accumulator output depends only on the sum of inputs, not on their order.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply two sequences of four valid inputs with different orders but same total sum, compare outputs"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 10,
+            "valid_in": 1
+          },
+          "text": "Seq A - first value"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 20,
+            "valid_in": 1
+          },
+          "text": "Seq A - second value"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 30,
+            "valid_in": 1
+          },
+          "text": "Seq A - third value"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 40,
+            "valid_in": 1
+          },
+          "text": "Seq A - fourth value"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "capture output A"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 0,
+            "valid_in": 0
+          },
+          "text": "reset between sequences"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 40,
+            "valid_in": 1
+          },
+          "text": "Seq B - first value (order changed)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 30,
+            "valid_in": 1
+          },
+          "text": "Seq B - second value"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 20,
+            "valid_in": 1
+          },
+          "text": "Seq B - third value"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 10,
+            "valid_in": 1
+          },
+          "text": "Seq B - fourth value"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "capture output B"
+        }
+      ],
+      "stimulus_signals": [
+        "clk",
+        "data_in",
+        "valid_in"
+      ],
+      "timing_assumptions": [
+        "Observe until valid_out pulse for each sequence without assuming fixed latency"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "conservative"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation",
+        "valid_out toggles only after four valid inputs have been accumulated"
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior, confirming accumulation of four inputs before valid_out asserts.",
+      "notes": [
+        "Extended stimulus to explicitly drive four valid inputs to trigger the accumulation"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a sequence of four valid inputs on data_in while valid_in=1, then observe data_out and valid_out"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 5,
+            "valid_in": 1
+          },
+          "text": "first valid data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 12,
+            "valid_in": 1
+          },
+          "text": "second valid data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 7,
+            "valid_in": 1
+          },
+          "text": "third valid data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 9,
+            "valid_in": 1
+          },
+          "text": "fourth valid data"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "observe accumulation result"
+        }
+      ],
+      "stimulus_signals": [
+        "clk",
+        "data_in",
+        "valid_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations",
+        "Do not assume completion before it becomes externally visible"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

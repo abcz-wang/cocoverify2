@@ -1,0 +1,163 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "c after the second operation equals the sum of the two products (a0*b0 + a1*b1) added to the post‑reset value",
+        "No hidden fixed‑latency assumptions are required; the second operation is observed only after external visibility of c"
+      ],
+      "expected_transition": "",
+      "goal": "Observe two consecutive MAC operations with minimal idle spacing under conservative timing assumptions.",
+      "notes": [
+        "The case uses the same clock and reset semantics as the contract; no exact cycle latency is assumed."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Reset has been released and c is stable"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive first operand pair (a0, b0)",
+        "Wait a minimal number of cycles",
+        "Drive second operand pair (a1, b1)",
+        "Observe c after both operations"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 123,
+            "b": 456
+          },
+          "text": "first MAC operation inputs"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow one clock cycle for accumulation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 789,
+            "b": 321
+          },
+          "text": "second MAC operation inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "observe stable c after second operation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "c": null
+          },
+          "text": "capture c for verification"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "c increments by a*b for each legal operation",
+        "The module does not produce X or Z values after a stable operation"
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post‑operation behavior.",
+      "notes": [
+        "Enrichment adds explicit stimulus steps while preserving original intent."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: ['a', 'b']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 42,
+            "b": 17
+          },
+          "text": "single MAC operation inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "allow accumulation to become visible"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "c": null
+          },
+          "text": "capture c after operation"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

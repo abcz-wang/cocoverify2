@@ -1,0 +1,424 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "up_down_counter",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "comparison_operands": [],
+      "confidence": 0.9350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery.",
+        "After reset deassertion, count settles to a defined stable value (expected zero per spec).",
+        "No X or Z values appear on count during or after reset recovery."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization.",
+        "Assert reset synchronously, hold for a few cycles, then deassert and observe count stabilization."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "reset": 1,
+            "up_down": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "reset": 0
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "count": null
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observations are made on rising edges of clk; reset is assumed synchronous."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "count_progress"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access.",
+        "With up_down=1, count increments by one each clock cycle.",
+        "With up_down=0, count decrements by one each clock cycle.",
+        "Count remains within 16\u2011bit range without X/Z during observation."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock-driven state progress after reset or conservative initialization.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress.",
+        "Release reset, drive up_down high for a few cycles, then low, and monitor count progression."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "reset": 0,
+            "up_down": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "up_down": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "count": null
+          }
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Progress is observed on each rising edge of clk; no fixed latency is assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.9,
+      "coverage_tags": [
+        "overflow",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "When count reaches its maximum representable value (0xFFFF) and up_down remains high, the counter either wraps to 0 or saturates; the observed behavior must be consistent across runs."
+      ],
+      "expected_transition": "",
+      "goal": "Validate counter behavior at the upper boundary and detect potential overflow handling.",
+      "notes": [],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Initialize counter to zero, count up to maximum value, then apply one additional increment and observe the resulting count."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "reset": 1,
+            "up_down": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "reset": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 65535
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "count": null
+          }
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observations are made on rising edges of clk; no fixed latency is assumed."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "confidence": 0.9,
+      "coverage_tags": [
+        "toggle",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "The counter correctly follows rapid direction changes without glitches."
+      ],
+      "expected_transition": "",
+      "goal": "Assess stability when up_down toggles every clock cycle.",
+      "notes": [],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Toggle up_down each cycle after reset and verify count follows the alternating increment/decrement pattern."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "reset": 1,
+            "up_down": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "reset": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "up_down": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "up_down": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "count": null
+          }
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Each drive/wait step aligns with a rising edge of clk."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "confidence": 0.9,
+      "coverage_tags": [
+        "reversibility",
+        "symmetry"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A sequence of up-counting followed by down-counting returns the counter to its original value, assuming no wrap occurs."
+      ],
+      "expected_transition": "",
+      "goal": "Demonstrate reversible counting behavior under symmetric up/down operations.",
+      "notes": [],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Count up for N cycles, then count down for N cycles, and verify the final count matches the initial count."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "reset": 1,
+            "up_down": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "reset": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "up_down": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "count": null
+          }
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observations are aligned with clk rising edges; no exact latency is assumed."
+      ]
+    }
+  ],
+  "module_name": "up_down_counter",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

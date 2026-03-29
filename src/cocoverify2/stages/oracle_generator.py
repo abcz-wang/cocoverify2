@@ -1627,10 +1627,31 @@ def _should_require_status_definedness(
     if check.check_type != OracleCheckType.FUNCTIONAL:
         return False
     if str(plan_case.category) == "reset":
+        if _is_scalar_data_like_output_signal(contract=contract, signal=signal):
+            return False
         return _signal_has_explicit_reset_behavior(contract=contract, signal=signal)
     if contract.timing.sequential_kind == SequentialKind.SEQ:
         return False
     return str(plan_case.category) == "basic" and _case_covers_all_business_inputs(contract=contract, plan_case=plan_case)
+
+
+def _is_scalar_data_like_output_signal(*, contract: DUTContract, signal: str) -> bool:
+    signal_width = None
+    for port in contract.ports:
+        if port.name == signal and port.direction in {PortDirection.OUTPUT, PortDirection.INOUT}:
+            signal_width = port.width if isinstance(port.width, int) else None
+            break
+    if signal_width != 1:
+        return False
+    lowered = signal.lower()
+    data_like_tokens = {"data", "dout", "stream", "serial", "value", "payload", "out"}
+    status_like_tokens = {"valid", "ready", "empty", "full", "done", "busy", "flag", "err", "error", "zero", "overflow", "carry", "negative"}
+    tokens = {token for token in re.split(r"[^a-z0-9]+", lowered) if token}
+    if any(token in status_like_tokens for token in tokens):
+        return False
+    if lowered in {"dout", "data_out", "q", "o"}:
+        return True
+    return any(token in data_like_tokens for token in tokens)
 
 
 def _case_covers_all_business_inputs(*, contract: DUTContract, plan_case: TestCasePlan) -> bool:

@@ -1,0 +1,121 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "clock_toggle"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "clk toggles at least twice within an observation window of ~20 cycles"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the generated clock exhibits multiple toggles within a reasonable observation window, without assuming an exact period.",
+      "notes": [
+        "Observation window is chosen based on the spec's PERIOD hint but does not enforce exact cycle counts."
+      ],
+      "observed_signals": [
+        "clk"
+      ],
+      "preconditions": [
+        "Module is instantiated and allowed to run from time 0."
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Observe periodic behavior of clk without driving any inputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow initial state to settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": "Observe clk for multiple toggles"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture clk waveform characteristics"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Do not assume fixed latency; use a generous observation window."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "clock_toggle"
+      ],
+      "expected_properties": [
+        "clk is observed to transition from 0 to 1 and back, indicating toggle activity"
+      ],
+      "expected_transition": "",
+      "goal": "Observe any externally visible clock activity without imposing exact timing constraints.",
+      "notes": [
+        "Conservative case preserving ambiguity; no deterministic stimulus required."
+      ],
+      "observed_signals": [
+        "clk"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Only deterministic, contract\u2011supported stimulus is used; otherwise the case is downgraded."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow initial clock value to settle"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe clk waveform"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset\u2011safe or protocol\u2011safe observation windows only."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

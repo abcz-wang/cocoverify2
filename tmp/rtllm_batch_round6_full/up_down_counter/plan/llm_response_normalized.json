@@ -1,0 +1,466 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "direction_change",
+        "wraparound"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "When up_down=1, count increments by 1 on the next rising edge of clk.",
+        "When up_down=0, count decrements by 1 on the next rising edge of clk.",
+        "Counter wraps from 0xFFFF to 0x0000 on increment and from 0x0000 to 0xFFFF on decrement."
+      ],
+      "expected_transition": "",
+      "goal": "Validate single\u2011cycle up/down behavior and wrap\u2011around handling.",
+      "notes": [],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "Counter is initialized to a known value after reset."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive up_down=1, wait one clock edge, record count.",
+        "Drive up_down=0, wait one clock edge, record count."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 0,
+            "up_down": 1
+          },
+          "text": "Set direction to up after reset deasserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe increment"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture count after increment"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "up_down": 0
+          },
+          "text": "Set direction to down"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe decrement"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture count after decrement"
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "One clock cycle is sufficient for count to update after up_down change."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "fsm_path",
+        "sequence"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "protocol_001",
+      "expected_properties": [
+        "A deterministic sequence of up/down toggles produces the expected count trajectory.",
+        "No unexpected glitches appear on count during the sequence."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise a multi\u2011cycle up/down pattern to verify consistent FSM\u2011like behavior.",
+      "notes": [],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "Counter is stable after reset."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply a predefined up/down pattern over several clock cycles and monitor count."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 0,
+            "up_down": 1
+          },
+          "text": "Start with increment direction"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Three increments"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "up_down": 0
+          },
+          "text": "Switch to decrement direction"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Two decrements"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture final count"
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Each up/down setting takes effect on the next rising edge of clk."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "negative",
+        "reset_assertion"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "While reset is asserted, count remains zero regardless of up_down value.",
+        "Deasserting reset restores normal counting behavior."
+      ],
+      "expected_transition": "",
+      "goal": "Confirm that reset dominates over up/down control and prevents count changes.",
+      "notes": [],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert reset while toggling up_down and verify count stays at zero."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 1,
+            "up_down": 1
+          },
+          "text": "Assert reset with up direction"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "up_down": 0
+          },
+          "text": "Toggle up_down while reset still asserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Continue holding reset"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture count during reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 0
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe first count update after reset release"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture count after reset release"
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Reset takes precedence over up_down on the same clock edge."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "rapid_toggle"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "Count updates correctly when up_down toggles every clock cycle.",
+        "No missed or extra increments/decrements occur."
+      ],
+      "expected_transition": "",
+      "goal": "Stress test the counter with alternating up/down each cycle.",
+      "notes": [],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Toggle up_down on consecutive clock edges and verify count follows the toggle pattern."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 0,
+            "up_down": 1
+          },
+          "text": "Start with increment direction"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "First increment"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "up_down": 0
+          },
+          "text": "Toggle to decrement"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "First decrement"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "up_down": 1
+          },
+          "text": "Toggle back to increment"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Second increment"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture count after rapid toggles"
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "up_down value is sampled on the rising edge of clk."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "direction_variation"
+      ],
+      "expected_properties": [
+        "count increments when up_down=1",
+        "count decrements when up_down=0"
+      ],
+      "expected_transition": "",
+      "goal": "Observe basic counting direction behavior after reset.",
+      "notes": [
+        "Adds explicit direction checks to the original basic case."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release reset, set up_down=1, observe count increase.",
+        "Set up_down=0, observe count decrease."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 0,
+            "up_down": 1
+          },
+          "text": "Initialize counting up"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow two increments"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "up_down": 0
+          },
+          "text": "Switch to counting down"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow two decrements"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture final count"
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "One clock cycle per count change is assumed."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

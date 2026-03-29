@@ -1,0 +1,173 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "write_readback_001",
+      "category": "basic",
+      "dependencies": [
+        "basic_001"
+      ],
+      "scenario_kind": "write_then_readback",
+      "goal": "Verify that when data_en is asserted for ≥3 clk_b cycles, dataout reflects the latched data_in after the two‑stage enable delay.",
+      "stimulus_intent": [
+        "Drive data_in with a pattern, assert data_en for 3+ clk_b cycles, then deassert and observe dataout."
+      ],
+      "stimulus_signals": [
+        "data_in",
+        "data_en",
+        "clk_a",
+        "clk_b"
+      ],
+      "observed_signals": [
+        "dataout"
+      ],
+      "expected_properties": [
+        "dataout updates to the data_in value after en_clap_two becomes high",
+        "dataout holds its previous value while en_clap_two is low"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clk_b edge; no fixed latency assumed beyond protocol behavior."
+      ],
+      "priority": 2,
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 0,
+            "data_en": 0
+          },
+          "text": "Initialize inputs low"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset release"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 10,
+            "data_en": 1
+          },
+          "text": "Apply data and enable"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Maintain enable for ≥3 clk_b cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": 0
+          },
+          "text": "Deassert enable"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe dataout stabilization"
+        }
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "scenario_kind": "single_operation",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 5,
+            "data_en": 0
+          },
+          "text": "Set data_in to 5, enable low"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe stable output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": 1
+          },
+          "text": "Assert enable"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Maintain enable for ≥3 clk_b cycles"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe dataout update"
+        }
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clk_b edge; no fixed‑cycle latency assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "scenario_kind": "boundary_vector",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 0,
+            "data_en": 0
+          },
+          "text": "Zero pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 15,
+            "data_en": 1
+          },
+          "text": "Max pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Maintain enable"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe dataout"
+        }
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clk_b edge."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,135 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "barrel_shifter",
+  "based_on_plan": "barrel_shifter",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.37,
+          "description": "required",
+          "expected_transition": "",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The output 'out' must reflect the deterministic barrel shift of 'in' according to 'ctrl' after inputs have settled, without assuming a fixed latency.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When inputs 'in' and 'ctrl' are applied and stable."
+        }
+      ],
+      "confidence": 0.37,
+      "linked_plan_case_id": "basic_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'basic_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    }
+  ],
+  "module_name": "barrel_shifter",
+  "oracle_confidence": {
+    "functional_confidence": 0.37,
+    "overall_confidence": 0.135,
+    "property_confidence": 0.33999999999999997,
+    "protocol_confidence": 0.0
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.33999999999999997,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.33999999999999997,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [],
+  "unresolved_items": [
+    "Timing model is unresolved; generated cases avoid fixed-latency checks.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Negative or illegal-input behavior is not planned because the contract does not provide reliable constraints.",
+    "Timing remains unresolved; oracle checks avoid exact-cycle requirements and prefer event-based or safety-style windows.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks."
+  ]
+}

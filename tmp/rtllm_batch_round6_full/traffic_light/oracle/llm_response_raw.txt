@@ -1,0 +1,104 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "After a pass_request activation while green is high, the clock output must reflect a counter value ≤ 10 within a bounded number of cycles, preserving ambiguity about exact latency.",
+          "notes": [],
+          "observed_signals": [
+            "clock"
+          ],
+          "pass_condition": "Clock value observed to be ≤ 10 within the temporal window.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When pass_request is driven high and green is observed high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "During edge stimulation, outputs must never enter an X or Z state regardless of input values.",
+          "notes": [],
+          "observed_signals": [
+            "red",
+            "yellow",
+            "green",
+            "clock"
+          ],
+          "pass_condition": "All observed signals remain 0 or 1 (no unknown or high‑impedance) throughout the edge case execution.",
+          "semantic_tags": [
+            "invalid_illegal_input",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "During edge_001 stimulus program."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "At least one traffic‑light output must transition after a legal operation.",
+          "notes": [],
+          "observed_signals": [
+            "red",
+            "yellow",
+            "green"
+          ],
+          "pass_condition": "Observed a change in any of the three output signals within the temporal window.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 3,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the plan applies the basic_001 stimulus."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

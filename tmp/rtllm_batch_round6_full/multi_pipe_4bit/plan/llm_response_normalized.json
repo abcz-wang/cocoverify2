@@ -1,0 +1,440 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_basic_001",
+      "expected_properties": [
+        "A legal operation causes an observable change on mul_out after a conservative observation window.",
+        "The case does not assume a fixed-cycle latency before the output becomes visible."
+      ],
+      "expected_transition": "",
+      "goal": "Validate normal multiplication of a representative operand pair under conservative timing.",
+      "notes": [
+        "Uses a mid\u2011range operand pair to exercise typical datapath behavior."
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive mul_a = 5 (0b0101) and mul_b = 3 (0b0011) on a single clock cycle."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "mul_a": 5,
+            "mul_b": 3
+          },
+          "text": "apply operand pair"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "allow pipeline to produce output"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "mul_out": null
+          },
+          "text": "capture product"
+        }
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Observe on rising edge of clk after reset deassertion.",
+        "Do not assume exact latency; wait for observable stability."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_edge_001",
+      "expected_properties": [
+        "Boundary values (0 and max) produce correct products without relying on hidden state.",
+        "Conservative observation is used; no fixed latency is assumed."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise extreme operand values to verify width\u2011sensitive behavior.",
+      "notes": [
+        "Covers both zero multiplication and maximum\u2011value multiplication for a 4\u2011bit operand."
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "preconditions": [
+        "Design is out of reset and stable."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply min (0) and max (0xF) patterns on mul_a and mul_b."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "mul_a": 0,
+            "mul_b": 0
+          },
+          "text": "zero * zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "observe zero product"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "mul_out": null
+          },
+          "text": "capture product"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "mul_a": 15,
+            "mul_b": 15
+          },
+          "text": "max * max"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "observe max product"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "mul_out": null
+          },
+          "text": "capture product"
+        }
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation after each drive."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_back_to_back_001",
+      "expected_properties": [
+        "Two successive legal operations produce two distinct observable outputs without hidden timing assumptions.",
+        "The second operation's effect is visible after the first operation has settled."
+      ],
+      "expected_transition": "",
+      "goal": "Validate back\u2011to\u2011back multiplication operations under conservative timing.",
+      "notes": [
+        "Uses distinct operand pairs to ensure output differentiation."
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "preconditions": [
+        "Design is out of reset and stable."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply two legal operand pairs with minimal idle cycles."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "mul_a": 2,
+            "mul_b": 7
+          },
+          "text": "first operation"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "minimal spacing"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "mul_a": 9,
+            "mul_b": 4
+          },
+          "text": "second operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": "allow pipeline to settle both results"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "mul_out": null
+          },
+          "text": "capture final product after second operation"
+        }
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Do not assume exact cycle latency; rely on observable stability."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['mul_a', 'mul_b']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "mul_a": 3,
+            "mul_b": 6
+          },
+          "text": "apply simple operand pair"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "allow pipeline to produce output"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "mul_out": null
+          },
+          "text": "capture product"
+        }
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['mul_a', 'mul_b']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "mul_a": 0,
+            "mul_b": 0
+          },
+          "text": "zero * zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "observe zero product"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "mul_out": null
+          },
+          "text": "capture product"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "mul_a": 1,
+            "mul_b": 1
+          },
+          "text": "one * one"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "observe minimal non\u2011zero product"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "mul_out": null
+          },
+          "text": "capture product"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "mul_a": 15,
+            "mul_b": 15
+          },
+          "text": "max * max"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "observe max product"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "mul_out": null
+          },
+          "text": "capture product"
+        }
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,479 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "negative",
+        "disabled_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "When EN is low, changes to RW or dataIn do not affect EMPTY, FULL, or dataOut."
+      ],
+      "expected_transition": "",
+      "goal": "Confirm that the buffer remains idle when disabled.",
+      "notes": [],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive EN low while toggling RW and dataIn, then observe that outputs stay unchanged."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 0,
+            "RW": 0,
+            "dataIn": 4
+          },
+          "text": "Initial disabled state"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow any internal propagation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RW": 1
+          },
+          "text": "Toggle RW while EN low"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe outputs"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EMPTY": 0,
+            "FULL": 0,
+            "dataOut": 0
+          },
+          "text": "Capture output stability"
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe after each clock edge conservatively."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "write_readback",
+        "functional"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "write_readback_001",
+      "expected_properties": [
+        "Data written when RW=0 and EN=1 appears on dataOut after a subsequent read (RW=1) when EN=1.",
+        "EMPTY and FULL flags update consistently with push/pop operations."
+      ],
+      "expected_transition": "",
+      "goal": "Validate correct LIFO ordering across a write followed by a read.",
+      "notes": [],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Write a known pattern, then read it back and verify LIFO behavior."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 9
+          },
+          "text": "Push value 9"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow write to settle"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 1
+          },
+          "text": "Pop value"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe dataOut"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataOut": 9
+          },
+          "text": "Capture readback"
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clock edge."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "expected_properties": [
+        "EMPTY=1, FULL=0, dataOut=0 after reset deassertion."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity confirmed as active high from contract."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert Rst high for two cycles, then deassert and observe outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "Rst": 1
+          },
+          "text": "Apply reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow reset propagation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Rst": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe stable post-reset state"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EMPTY": 1,
+            "FULL": 0,
+            "dataOut": 0
+          },
+          "text": "Capture reset outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "Rst"
+      ],
+      "timing_assumptions": [
+        "Observe after one clock edge following reset release."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "After a single write operation, EMPTY deasserts and dataOut remains unchanged until a read."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a write (RW=0) with EN=1 and a sample data pattern."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 5
+          },
+          "text": "Push value 5"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe flags"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EMPTY": 0
+          },
+          "text": "Capture EMPTY after write"
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clock edge."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Writing minimum (0) and maximum (15) data values does not cause illegal states."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Write 0x0 and 0xF sequentially while EN=1."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 0
+          },
+          "text": "Push minimum value"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "dataIn": 15
+          },
+          "text": "Push maximum value"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "FULL": 0
+          },
+          "text": "Capture flags after boundary writes"
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe after each write conservatively."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "expected_properties": [
+        "Two consecutive writes update buffer depth accordingly without intermediate illegal states."
+      ],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply two write operations back-to-back with minimal idle cycles."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 3
+          },
+          "text": "First push"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "dataIn": 7
+          },
+          "text": "Second push"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "FULL": 0
+          },
+          "text": "Capture buffer state after back-to-back writes"
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clock edge."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

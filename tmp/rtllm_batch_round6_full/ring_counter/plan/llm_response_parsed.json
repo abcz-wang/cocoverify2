@@ -1,0 +1,229 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "wrap_around",
+        "fsm_transition"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "wrap_001",
+      "expected_properties": [
+        "When out equals 8'b1000_0000, the next rising edge of clk produces out = 8'b0000_0001"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the ring counter correctly wraps from the most\u2011significant bit back to the least\u2011significant bit.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a sequence of clock cycles to reach the MSB state, then check the wrap\u2011around on the next edge."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 7,
+          "signals": {},
+          "text": "Advance to state where out = 8'b1000_0000"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Capture out value before wrap"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One clock edge to cause wrap"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Capture out value after wrap"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe on rising edges of clk; no fixed\u2011cycle latency assumed."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset_behavior",
+        "asynchronous_reset"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "reset_deassert_001",
+      "expected_properties": [
+        "Asserting reset forces out to 8'b0000_0001 regardless of prior state."
+      ],
+      "expected_transition": "",
+      "goal": "Confirm that an active reset overrides the current count and initializes the counter to the LSB.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Run the counter for a few cycles, then assert reset and verify out returns to the initial state."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Allow counter to advance before reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 1
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 0
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe one cycle after reset release"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Capture out value post\u2011reset"
+        }
+      ],
+      "stimulus_signals": [
+        "reset"
+      ],
+      "timing_assumptions": [
+        "Reset is assumed to be synchronous or asynchronous as per contract; observation is conservative."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "single_bit_integrity",
+        "cyclic_progress"
+      ],
+      "expected_properties": [
+        "Exactly one bit of out is high at any observed cycle.",
+        "out cycles through all eight positions in order after reset release."
+      ],
+      "expected_transition": "",
+      "goal": "Observe the full cyclic progression of the ring counter after a clean reset.",
+      "notes": [
+        "Enrichment adds explicit integrity and ordering checks while preserving the original conservative intent."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert reset to initialize the counter, release it, then record out on successive clock edges to verify the expected sequence."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 1
+          },
+          "text": "Initialize counter"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow reset to take effect"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "reset": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 8,
+          "signals": {},
+          "text": "Observe eight consecutive clock edges"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Capture out values each cycle"
+        }
+      ],
+      "stimulus_signals": [
+        "reset"
+      ],
+      "timing_assumptions": [
+        "Conservative observation on each rising edge of clk; no fixed latency assumed."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

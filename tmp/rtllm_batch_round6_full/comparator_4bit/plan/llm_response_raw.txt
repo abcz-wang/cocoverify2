@@ -1,0 +1,399 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "draft_id": "new_case_001",
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Outputs update immediately to reflect the second input vector, confirming pure combinational behavior."
+      ],
+      "goal": "Verify that consecutive input vectors produce correct output changes without any hidden state or latency.",
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 3,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply two distinct input vectors sequentially and observe output transitions."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0011",
+            "B": "4'b0001"
+          },
+          "text": "First vector: A > B"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 1,
+            "A_equal": 0,
+            "A_less": 0
+          },
+          "text": "Capture expected outputs for first vector"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0010",
+            "B": "4'b0100"
+          },
+          "text": "Second vector: A < B"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 0,
+            "A_equal": 0,
+            "A_less": 1
+          },
+          "text": "Capture expected outputs for second vector"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle step."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "draft_id": "new_case_002",
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Swapping A and B inverts the relational outputs, confirming symmetry."
+      ],
+      "goal": "Demonstrate metamorphic relationship: swapping inputs should toggle greater/less signals while equal remains unchanged.",
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 4,
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a vector, then drive its swapped counterpart, and compare output patterns."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0110",
+            "B": "4'b0011"
+          },
+          "text": "Original vector: A > B"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle outputs"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 1,
+            "A_equal": 0,
+            "A_less": 0
+          },
+          "text": "Capture outputs for original vector"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0011",
+            "B": "4'b0110"
+          },
+          "text": "Swapped vector: A < B"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle outputs"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 0,
+            "A_equal": 0,
+            "A_less": 1
+          },
+          "text": "Capture outputs for swapped vector"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Outputs are sampled after each wait_for_settle."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['A', 'B']"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing."
+      ],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb"
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "scenario_kind": "single_operation",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0000",
+            "B": "4'b0000"
+          },
+          "text": "Equal case"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 0,
+            "A_equal": 1,
+            "A_less": 0
+          },
+          "text": "Capture equal output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b1010",
+            "B": "4'b0101"
+          },
+          "text": "A greater than B"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 1,
+            "A_equal": 0,
+            "A_less": 0
+          },
+          "text": "Capture greater output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0011",
+            "B": "4'b0110"
+          },
+          "text": "A less than B"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 0,
+            "A_equal": 0,
+            "A_less": 1
+          },
+          "text": "Capture less output"
+        }
+      ],
+      "settle_requirement": "Outputs must be stable within one combinational propagation delay after inputs settle."
+    },
+    {
+      "case_id": "edge_001",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['A', 'B']"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "scenario_kind": "boundary_vector",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0000",
+            "B": "4'b1111"
+          },
+          "text": "Minimum A vs maximum B"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 0,
+            "A_equal": 0,
+            "A_less": 1
+          },
+          "text": "Capture less output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b1111",
+            "B": "4'b0000"
+          },
+          "text": "Maximum A vs minimum B"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 1,
+            "A_equal": 0,
+            "A_less": 0
+          },
+          "text": "Capture greater output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b1010",
+            "B": "4'b1010"
+          },
+          "text": "Equal boundary pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A_greater": 0,
+            "A_equal": 1,
+            "A_less": 0
+          },
+          "text": "Capture equal output"
+        }
+      ],
+      "settle_requirement": "Outputs must be stable after each wait_for_settle step."
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

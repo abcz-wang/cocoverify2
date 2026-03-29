@@ -1,0 +1,141 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "feedback_logic",
+        "state_progression"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "After deasserting reset, the 4‑bit output 'out' changes on each rising edge of clk following the LFSR recurrence: new_bit = ~ (out[3] ^ out[2]); the register shifts left and inserts new_bit at LSB.",
+        "The output never enters an X or Z state during the observed window."
+      ],
+      "expected_transition": "",
+      "goal": "Validate the deterministic feedback and shift behavior of the LFSR across multiple clock cycles.",
+      "notes": [
+        "The case does not assume a fixed number of cycles to reach a particular pattern; it only checks the relational update rule."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is clocked."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert reset high for a few cycles to initialize the LFSR to zero.",
+        "Release reset and drive a sequence of clock edges while recording 'out' each cycle."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "rst": 1
+          },
+          "text": "Initialize LFSR"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Ensure combinational feedback settles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 4,
+          "signals": {
+            "out": null
+          },
+          "text": "Capture output over four clock cycles"
+        }
+      ],
+      "stimulus_signals": [
+        "rst"
+      ],
+      "timing_assumptions": [
+        "One clock period is sufficient for the feedback XOR and inversion to settle before the next rising edge."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "The output 'out' remains defined (non‑X) after reset release.",
+        "Across successive clock edges, 'out' may change according to the LFSR feedback rule."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock‑driven state progress after reset or conservative initialization.",
+      "notes": [
+        "Case intent remains conservative; it does not rely on a fixed latency model."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release reset if present and observe at least three consecutive clock cycles for externally visible progress."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Observe three clock cycles after reset release"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

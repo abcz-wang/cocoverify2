@@ -1,0 +1,67 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that clk_div does not exhibit undefined (X) values after reset release, preserving safety without assuming fixed latency.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div remains defined (0 or 1) after reset deassertion; no X or Z values appear.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the reset signal is deasserted."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that clk_div eventually toggles, indicating the divider is operational after reset release.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div transitions from a stable value to the opposite value at least once within a conservative observation window.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the plan applies the basic operation after reset."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

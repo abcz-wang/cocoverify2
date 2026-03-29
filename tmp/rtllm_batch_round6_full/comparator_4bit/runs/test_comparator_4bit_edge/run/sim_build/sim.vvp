@@ -1,0 +1,55 @@
+#! /workspace/I/qimeng6/wangchuanhao/iverilog-local/bin/vvp
+:ivl_version "12.0 (stable)" "(v12_0)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "/workspace/I/qimeng6/wangchuanhao/iverilog-local/lib/ivl/system.vpi";
+:vpi_module "/workspace/I/qimeng6/wangchuanhao/iverilog-local/lib/ivl/vhdl_sys.vpi";
+:vpi_module "/workspace/I/qimeng6/wangchuanhao/iverilog-local/lib/ivl/vhdl_textio.vpi";
+:vpi_module "/workspace/I/qimeng6/wangchuanhao/iverilog-local/lib/ivl/v2005_math.vpi";
+:vpi_module "/workspace/I/qimeng6/wangchuanhao/iverilog-local/lib/ivl/va_math.vpi";
+:vpi_module "/workspace/I/qimeng6/wangchuanhao/iverilog-local/lib/ivl/v2009.vpi";
+S_0x55da8fafbbc0 .scope package, "$unit" "$unit" 2 1;
+ .timescale -9 -12;
+S_0x55da8fafbd50 .scope module, "comparator_4bit" "comparator_4bit" 3 1;
+ .timescale -9 -12;
+    .port_info 0 /INPUT 4 "A";
+    .port_info 1 /INPUT 4 "B";
+    .port_info 2 /OUTPUT 1 "A_greater";
+    .port_info 3 /OUTPUT 1 "A_equal";
+    .port_info 4 /OUTPUT 1 "A_less";
+L_0x55da8fb36ea0 .functor NOT 1, L_0x55da8fb369f0, C4<0>, C4<0>, C4<0>;
+L_0x55da8fb37180 .functor AND 1, L_0x55da8fb36ea0, L_0x55da8fb37000, C4<1>, C4<1>;
+L_0x55da8fb373d0 .functor BUFZ 1, L_0x55da8fb369f0, C4<0>, C4<0>, C4<0>;
+o0x7f068491a018 .functor BUFZ 4, C4<zzzz>; HiZ drive
+v0x55da8fb149a0_0 .net "A", 3 0, o0x7f068491a018;  0 drivers
+v0x55da8fb35d40_0 .net "A_equal", 0 0, L_0x55da8fb37290;  1 drivers
+v0x55da8fb35e00_0 .net "A_greater", 0 0, L_0x55da8fb37180;  1 drivers
+v0x55da8fb35ea0_0 .net "A_less", 0 0, L_0x55da8fb373d0;  1 drivers
+o0x7f068491a0d8 .functor BUFZ 4, C4<zzzz>; HiZ drive
+v0x55da8fb35f60_0 .net "B", 3 0, o0x7f068491a0d8;  0 drivers
+L_0x7f06848d1060 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0x55da8fb36040_0 .net *"_ivl_10", 0 0, L_0x7f06848d1060;  1 drivers
+v0x55da8fb36120_0 .net *"_ivl_11", 4 0, L_0x55da8fb36e00;  1 drivers
+v0x55da8fb36200_0 .net *"_ivl_13", 0 0, L_0x55da8fb36ea0;  1 drivers
+L_0x7f06848d10a8 .functor BUFT 1, C4<0000>, C4<0>, C4<0>, C4<0>;
+v0x55da8fb362e0_0 .net/2u *"_ivl_15", 3 0, L_0x7f06848d10a8;  1 drivers
+v0x55da8fb36450_0 .net *"_ivl_17", 0 0, L_0x55da8fb37000;  1 drivers
+v0x55da8fb36510_0 .net *"_ivl_3", 4 0, L_0x55da8fb36b30;  1 drivers
+L_0x7f06848d1018 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0x55da8fb365f0_0 .net *"_ivl_6", 0 0, L_0x7f06848d1018;  1 drivers
+v0x55da8fb366d0_0 .net *"_ivl_7", 4 0, L_0x55da8fb36c80;  1 drivers
+v0x55da8fb367b0_0 .net "cout", 0 0, L_0x55da8fb369f0;  1 drivers
+v0x55da8fb36870_0 .net "diff", 3 0, L_0x55da8fb36a90;  1 drivers
+L_0x55da8fb369f0 .part L_0x55da8fb36e00, 4, 1;
+L_0x55da8fb36a90 .part L_0x55da8fb36e00, 0, 4;
+L_0x55da8fb36b30 .concat [ 4 1 0 0], o0x7f068491a018, L_0x7f06848d1018;
+L_0x55da8fb36c80 .concat [ 4 1 0 0], o0x7f068491a0d8, L_0x7f06848d1060;
+L_0x55da8fb36e00 .arith/sub 5, L_0x55da8fb36b30, L_0x55da8fb36c80;
+L_0x55da8fb37000 .cmp/ne 4, L_0x55da8fb36a90, L_0x7f06848d10a8;
+L_0x55da8fb37290 .cmp/eq 4, o0x7f068491a018, o0x7f068491a0d8;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "-";
+    "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/comparator_4bit/verified_comparator_4bit.v";

@@ -1,0 +1,390 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "seq_match_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "fsm_transition_path",
+        "match_detection"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "MATCH becomes 1 exactly when the fifth input of a 1,0,0,1,1 pattern is observed, and returns to 0 otherwise."
+      ],
+      "expected_transition": "",
+      "goal": "Validate that the FSM asserts MATCH on the correct pattern occurrence in a continuous stream.",
+      "notes": [],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "Reset has been released and the FSM is in idle state."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a stream of IN bits containing the pattern 1,0,0,1,1 and verify MATCH toggles at the correct cycle."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 1
+          },
+          "text": "Start pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "next cycle"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 0
+          },
+          "text": "second bit"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 0
+          },
+          "text": "third bit"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 1
+          },
+          "text": "fourth bit"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 1
+          },
+          "text": "fifth bit, expect MATCH=1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "observe MATCH"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 0
+          },
+          "text": "continue stream"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "observe MATCH returns to 0"
+        }
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Observe MATCH after one clock cycle following the last pattern bit."
+      ]
+    },
+    {
+      "draft_id": "edge_all_zeros_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "boundary",
+        "zero_vector"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "expected_properties": [
+        "MATCH remains 0 for a long sequence of zeros."
+      ],
+      "expected_transition": "",
+      "goal": "Confirm that no false MATCH is generated for zero‑only input.",
+      "notes": [],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive IN=0 for many cycles."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 0
+          },
+          "text": "initial zero"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "hold zeros"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "check MATCH stays 0"
+        }
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "No MATCH asserted during zero stream."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post‑operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: ['IN']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 1
+          },
+          "text": "first bit of pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 0
+          },
+          "text": "second bit"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 0
+          },
+          "text": "third bit"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 1
+          },
+          "text": "fourth bit"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 1
+          },
+          "text": "fifth bit, expect MATCH=1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "observe MATCH"
+        }
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Boundary‑value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max‑style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary‑value and width‑sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value‑oriented and avoids fixed‑latency assumptions."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero‑like, one‑like, and boundary patterns on ['IN']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 0
+          },
+          "text": "zero pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "observe MATCH stays 0"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 1
+          },
+          "text": "one pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "observe MATCH stays 0"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "IN": 1
+          },
+          "text": "boundary pattern (single 1)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "observe MATCH stays 0"
+        }
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

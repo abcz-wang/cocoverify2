@@ -12,10 +12,10 @@ from cocoverify2.core.models import DUTContract, HandshakeGroup, TestCasePlan, T
 from cocoverify2.core.types import GenerationMode, PortDirection, SequentialKind, TestCategory
 from cocoverify2.llm.client import LLMClient
 from cocoverify2.llm.prompts import build_plan_system_prompt, build_plan_user_prompt
+from cocoverify2.llm.schemas import PlanAugmentation
 from cocoverify2.llm.validators import (
     extract_json_payload,
     normalize_plan_augmentation_payload,
-    parse_plan_augmentation,
     validate_plan_augmentation,
 )
 from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_text, write_yaml
@@ -246,7 +246,7 @@ class TestPlanGenerator:
             raw_response = client.complete(system_prompt=system_prompt, user_prompt=user_prompt)
             parsed_payload = extract_json_payload(raw_response)
             normalized_payload, normalization_report = normalize_plan_augmentation_payload(parsed_payload)
-            parsed = parse_plan_augmentation(raw_response)
+            parsed = PlanAugmentation.model_validate(normalized_payload)
             validated, validation_report = validate_plan_augmentation(
                 parsed,
                 contract=contract,
@@ -311,6 +311,19 @@ class TestPlanGenerator:
             case.expected_properties = _append_unique(case.expected_properties, enrichment.expected_properties)
             case.coverage_tags = _append_unique(case.coverage_tags, enrichment.coverage_tags)
             case.semantic_tags = _append_unique(case.semantic_tags, enrichment.semantic_tags)
+            if enrichment.scenario_kind:
+                case.scenario_kind = enrichment.scenario_kind
+            if enrichment.stimulus_program:
+                case.stimulus_program = list(enrichment.stimulus_program)
+            if enrichment.settle_requirement:
+                case.settle_requirement = enrichment.settle_requirement
+            case.comparison_operands = _append_unique(case.comparison_operands, enrichment.comparison_operands)
+            if enrichment.relation_kind:
+                case.relation_kind = enrichment.relation_kind
+            if enrichment.expected_transition:
+                case.expected_transition = enrichment.expected_transition
+            if enrichment.reference_domain:
+                case.reference_domain = enrichment.reference_domain
             case.notes = _append_unique(case.notes, enrichment.notes)
             if enrichment.priority is not None:
                 case.priority = enrichment.priority
@@ -344,6 +357,13 @@ class TestPlanGenerator:
                 dependencies=mapped_dependencies,
                 coverage_tags=list(additional_case.coverage_tags),
                 semantic_tags=list(additional_case.semantic_tags),
+                scenario_kind=additional_case.scenario_kind,
+                stimulus_program=list(additional_case.stimulus_program),
+                settle_requirement=additional_case.settle_requirement,
+                comparison_operands=list(additional_case.comparison_operands),
+                relation_kind=additional_case.relation_kind,
+                expected_transition=additional_case.expected_transition,
+                reference_domain=additional_case.reference_domain,
                 priority=additional_case.priority,
                 confidence=_hybrid_case_confidence(contract=contract, baseline_plan=baseline_plan),
                 source="hybrid_llm_generated",
@@ -815,6 +835,11 @@ def _calibrate_case_execution_policy(*, contract: DUTContract, case: TestCasePla
         calibrated.defer_reason = "" if contract.resets else "No resolved reset signal was available."
         if calibrated.defer_reason:
             calibrated.notes = _append_unique(calibrated.notes, [calibrated.defer_reason])
+        return calibrated
+
+    if calibrated.stimulus_program:
+        calibrated.execution_policy = "deterministic"
+        calibrated.defer_reason = ""
         return calibrated
 
     if calibrated.category == TestCategory.NEGATIVE:

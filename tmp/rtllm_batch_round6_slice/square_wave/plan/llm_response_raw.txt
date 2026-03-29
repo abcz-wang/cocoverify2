@@ -1,0 +1,334 @@
+{
+  "additional_cases": [
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "metamorphic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Changing freq mid-operation results in wave_out period adapting after the next toggle."
+      ],
+      "expected_transition": "wave_out toggle interval changes after freq update.",
+      "goal": "Validate that updating freq during operation changes the toggle interval appropriately.",
+      "notes": [],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [
+        "basic_001 executed"
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive an initial freq, observe toggles, then change freq and verify new toggle period."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 4
+          },
+          "text": "initial frequency"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "observe several toggles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "capture wave_out state"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 8
+          },
+          "text": "change frequency"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "observe toggles with new frequency"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "capture wave_out after frequency change"
+        }
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "wave_out toggles after freq clock cycles."
+      ],
+      "expected_transition": "wave_out toggles from 0 to 1 or 1 to 0 after the count reaches (freq-1).",
+      "goal": "Drive a single freq value and verify that wave_out toggles after the expected number of clock cycles.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "No exact-cycle timing assumptions are made."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "wait_for_settle 1 cycle after toggle",
+      "stimulus_intent": [
+        "Apply a constant freq value and monitor wave_out."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 16
+          },
+          "text": "set frequency"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow counter to start"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "capture initial wave_out"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "ensure output stabilizes"
+        }
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "boundary_test"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "wave_out toggles correctly for min (0) and max (255) freq values."
+      ],
+      "expected_transition": "wave_out toggles at count wrap for extreme freq values.",
+      "goal": "Exercise boundary-value and width-sensitive input patterns on freq.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on freq."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 0
+          },
+          "text": "minimum frequency"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "observe immediate toggles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "capture wave_out at min freq"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 255
+          },
+          "text": "maximum frequency"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "observe toggles at max freq"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "capture wave_out at max freq"
+        }
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation",
+        "repeated_op"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change.",
+        "Two successive freq changes are observed without intermediate idle cycles."
+      ],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 5
+          },
+          "text": "first frequency"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "minimal spacing"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 7
+          },
+          "text": "second frequency"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow toggles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "capture wave_out after back-to-back ops"
+        }
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

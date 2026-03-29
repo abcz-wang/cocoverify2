@@ -1,0 +1,107 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "z"
+          ],
+          "pass_condition": "z becomes a defined non-X value reflecting the product of a and b within a conservative observation window after the operation is applied.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a legal multiplication operation is applied to inputs a and b."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "z"
+          ],
+          "pass_condition": "For boundary inputs (zero, one, max finite, NaN) the output z conforms to IEEE-754 expectations without assuming a fixed latency.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When boundary-value patterns are driven on inputs a and b."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "z"
+          ],
+          "pass_condition": "After reset deassertion, z settles to a stable, non-X value within a conservative number of cycles.",
+          "semantic_tags": [
+            "reset",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is released following the reset assertion period."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

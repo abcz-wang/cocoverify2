@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "c must remain stable while inputs a and b are unchanged",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c does not toggle unless a or b changes",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When inputs a and b remain constant for at least one cycle"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "c must reflect the combinational subtraction of a and b",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c updates immediately after any change on a or b, representing (a - b) modulo 2^N",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a or b changes"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

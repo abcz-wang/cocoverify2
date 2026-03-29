@@ -1,0 +1,503 @@
+{
+  "assumptions": [
+    "EMPTY: Flag indicating whether the buffer is empty.",
+    "FULL: Flag indicating whether the buffer is full.",
+    "If the reset (Rst) signal is high, the stack is cleared, the stack pointer is set to 4 (indicating an empty buffer), and all memory locations are initialized to 0.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "LIFObuffer",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "comparison_operands": [],
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery.",
+        "EMPTY=1, FULL=0, dataOut=0 after reset deassertion."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous.",
+        "Reset polarity confirmed as active high from contract."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization.",
+        "Assert Rst high for two cycles, then deassert and observe outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "Rst": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "Rst": 0
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "EMPTY": 1,
+            "FULL": 0,
+            "dataOut": 0
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "Rst"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe after one clock edge following reset release."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.8350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "After a single write operation, EMPTY deasserts and dataOut remains unchanged until a read."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['dataIn', 'RW', 'EN']",
+        "Drive a write (RW=0) with EN=1 and a sample data pattern."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 5
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "EMPTY": 0
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Conservative observation after each clock edge."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.785,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Writing minimum (0) and maximum (15) data values does not cause illegal states."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['dataIn', 'EN']",
+        "Write 0x0 and 0xF sequentially while EN=1."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 0
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "dataIn": 15
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "FULL": 0
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "EN",
+        "RW"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe after each write conservatively."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "confidence": 0.7550000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change.",
+        "Two consecutive writes update buffer depth accordingly without intermediate illegal states."
+      ],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength.",
+        "Apply two write operations back-to-back with minimal idle cycles."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 3
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "dataIn": 7
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "FULL": 0
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Conservative observation after each clock edge."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "comparison_operands": [],
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "negative",
+        "disabled_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "When EN is low, changes to RW or dataIn do not affect EMPTY, FULL, or dataOut."
+      ],
+      "expected_transition": "",
+      "goal": "Confirm that the buffer remains idle when disabled.",
+      "notes": [],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive EN low while toggling RW and dataIn, then observe that outputs stay unchanged."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "EN": 0,
+            "RW": 0,
+            "dataIn": 4
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "RW": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "EMPTY": 0,
+            "FULL": 0,
+            "dataOut": 0
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe after each clock edge conservatively."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "comparison_operands": [],
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "write_readback",
+        "functional"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Data written when RW=0 and EN=1 appears on dataOut after a subsequent read (RW=1) when EN=1.",
+        "EMPTY and FULL flags update consistently with push/pop operations."
+      ],
+      "expected_transition": "",
+      "goal": "Validate correct LIFO ordering across a write followed by a read.",
+      "notes": [],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Write a known pattern, then read it back and verify LIFO behavior."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 9
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "EN": 1,
+            "RW": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "dataOut": 9
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clock edge."
+      ]
+    }
+  ],
+  "module_name": "LIFObuffer",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: If the reset signal is low, the buffer checks if it is full or empty and processes data accordingly:"
+  ]
+}

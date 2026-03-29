@@ -1,0 +1,311 @@
+{
+  "assumptions": [
+    "The most significant bit (q[7]) of the register is assigned the value of the input signal (d): q[7] <= d.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_right_shifter",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [
+        "q_observed",
+        "expected_q"
+      ],
+      "confidence": 0.685,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "single_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "After one rising edge, q[7] equals the driven d and other bits shift right."
+      ],
+      "expected_transition": "q updates on rising edge of clk",
+      "goal": "Validate a single shift operation with a representative input.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Conservative observation: wait one clock cycle before checking q."
+      ],
+      "observed_signals": [
+        "q"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['d']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "q": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [
+        "q_observed_zero",
+        "expected_zero"
+      ],
+      "confidence": 0.635,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "boundary_vector"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Boundary values of d (0 and 1) correctly affect the MSB of q after a shift."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "q"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['d']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "q": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "q": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [
+        "q_after_first",
+        "q_after_second"
+      ],
+      "confidence": 0.6050000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation",
+        "back_to_back_pair"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change.",
+        "Two consecutive shifts produce correct sequential updates to q without hidden latency assumptions."
+      ],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "q"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "q": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "q": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "comparison_operands": [
+        "final_q_sequence_A",
+        "final_q_sequence_B"
+      ],
+      "confidence": 0.7100000000000001,
+      "coverage_tags": [
+        "metamorphic",
+        "functional_equivalence"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Different input sequences that are functionally equivalent produce identical observable q after the same number of clock cycles."
+      ],
+      "expected_transition": "",
+      "goal": "Validate that the shifter's behavior is deterministic and order-independent for equivalent input patterns.",
+      "notes": [
+        "Uses two distinct input vectors that should result in the same final register state."
+      ],
+      "observed_signals": [
+        "q"
+      ],
+      "preconditions": [
+        "The module operates under the same clock and no external resets."
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive two different input sequences and compare final q values."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "q": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "q": 1
+          }
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe q after each rising edge of clk."
+      ]
+    }
+  ],
+  "module_name": "verified_right_shifter",
+  "plan_confidence": 0.8250000000000001,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

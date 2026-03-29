@@ -1,0 +1,197 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "edge",
+        "max_shift"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_shift_max",
+      "goal": "Verify correct output when the control signal requests the maximum shift (ctrl = 111, shift by 7 positions).",
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 2,
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a deterministic input vector with maximum shift control and observe the resulting output."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "ctrl": "0b111",
+            "in": "0b10101010"
+          },
+          "text": "Apply input and maximum shift control"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow output to stabilize"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "out": null
+          },
+          "text": "Capture output after settle"
+        }
+      ],
+      "stimulus_signals": [
+        "in",
+        "ctrl"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed latency; rely on settle period."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back",
+        "sequential_shift"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "b2b_shift_sequence",
+      "goal": "Check that consecutive shift operations with different control values produce correct successive outputs without intermediate reset.",
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 3,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive two back\u2011to\u2011back input vectors with distinct ctrl values and verify each output."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "ctrl": "0b001",
+            "in": "0b11001100"
+          },
+          "text": "First operation: shift by 1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow first output to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "out": null
+          },
+          "text": "Capture first output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "ctrl": "0b100",
+            "in": "0b11001100"
+          },
+          "text": "Second operation: shift by 4"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow second output to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "out": null
+          },
+          "text": "Capture second output"
+        }
+      ],
+      "stimulus_signals": [
+        "in",
+        "ctrl"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency between operations; each operation uses its own settle window."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "operation_specific"
+      ],
+      "goal": "Observe that the output 'out' reflects the deterministic shift of 'in' according to the control vector 'ctrl' without relying on a fixed latency model.",
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a single, deterministic input vector and control value, then observe the stable output."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "ctrl": "0b010",
+            "in": "0b00001111"
+          },
+          "text": "Apply input and shift\u2011by\u20112 control"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow output to stabilize"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "out": null
+          },
+          "text": "Capture output after settle"
+        }
+      ],
+      "stimulus_signals": [
+        "in",
+        "ctrl"
+      ],
+      "timing_assumptions": [
+        "Assume output stabilizes within a few cycles after inputs settle; no fixed latency is required."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

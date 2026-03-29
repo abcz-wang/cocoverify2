@@ -1,0 +1,428 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "overflow",
+        "boundary"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "When count reaches its maximum representable value (0xFFFF) and up_down remains high, the counter either wraps to 0 or saturates; the observed behavior must be consistent across runs."
+      ],
+      "expected_transition": "",
+      "goal": "Validate counter behavior at the upper boundary and detect potential overflow handling.",
+      "observed_signals": [
+        "count"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Initialize counter to zero, count up to maximum value, then apply one additional increment and observe the resulting count."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 1,
+            "up_down": 1
+          },
+          "text": "Apply synchronous reset and set direction to up"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 65535,
+          "signals": {},
+          "text": "Count up to maximum value (0xFFFF)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Ensure count stabilizes at max"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One extra increment cycle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture count after overflow attempt"
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Observations are made on rising edges of clk; no fixed latency is assumed."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "toggle",
+        "stability"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "The counter correctly follows rapid direction changes without glitches."
+      ],
+      "expected_transition": "",
+      "goal": "Assess stability when up_down toggles every clock cycle.",
+      "observed_signals": [
+        "count"
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Toggle up_down each cycle after reset and verify count follows the alternating increment/decrement pattern."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 1,
+            "up_down": 1
+          },
+          "text": "Apply reset and set initial direction up"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset to settle"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "First counting cycle (up)"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "up_down": 0
+          },
+          "text": "Toggle direction to down"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Second counting cycle (down)"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "up_down": 1
+          },
+          "text": "Toggle back to up"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Third counting cycle (up)"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture count after three toggles"
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Each drive/wait step aligns with a rising edge of clk."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reversibility",
+        "symmetry"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "A sequence of up-counting followed by down-counting returns the counter to its original value, assuming no wrap occurs."
+      ],
+      "expected_transition": "",
+      "goal": "Demonstrate reversible counting behavior under symmetric up/down operations.",
+      "observed_signals": [
+        "count"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Count up for N cycles, then count down for N cycles, and verify the final count matches the initial count."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 1,
+            "up_down": 1
+          },
+          "text": "Apply reset and set direction up"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "Count up for 10 cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "up_down": 0
+          },
+          "text": "Switch direction to down"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "Count down for 10 cycles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture final count to compare with initial post\u2011reset value"
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Observations are aligned with clk rising edges; no exact latency is assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "expected_properties": [
+        "After reset deassertion, count settles to a defined stable value (expected zero per spec).",
+        "No X or Z values appear on count during or after reset recovery."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset synchronously, hold for a few cycles, then deassert and observe count stabilization."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 1,
+            "up_down": 0
+          },
+          "text": "Apply synchronous reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Hold reset for three clock cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow count to settle after reset"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture post\u2011reset count"
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Observations are made on rising edges of clk; reset is assumed synchronous."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "count_progress"
+      ],
+      "expected_properties": [
+        "With up_down=1, count increments by one each clock cycle.",
+        "With up_down=0, count decrements by one each clock cycle.",
+        "Count remains within 16\u2011bit range without X/Z during observation."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset, drive up_down high for a few cycles, then low, and monitor count progression."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 0,
+            "up_down": 1
+          },
+          "text": "Start counting up"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe five increment cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "up_down": 0
+          },
+          "text": "Switch direction to down"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Observe three decrement cycles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "count": null
+          },
+          "text": "Capture final count value"
+        }
+      ],
+      "stimulus_signals": [
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Progress is observed on each rising edge of clk; no fixed latency is assumed."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

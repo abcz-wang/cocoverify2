@@ -1,0 +1,632 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "input_stability",
+        "disable_operation"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "neg_input_change_001",
+      "expected_properties": [
+        "When i_en is deasserted, changes on adda or addb do not cause observable changes on result or o_en."
+      ],
+      "expected_transition": "",
+      "goal": "Confirm that the adder remains quiescent while disabled, preserving output stability despite input toggles.",
+      "notes": [
+        "Uses the contract's i_en enable semantics; no timing assumptions beyond conservative observation."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "i_en, adda, addb ports are present."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive i_en low, then toggle operands while monitoring that result/o_en stay unchanged."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": 0,
+            "addb": 0,
+            "i_en": 0
+          },
+          "text": "Initialize disabled state with zero operands."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'hFFFFFFFFFFFFFFFF",
+            "addb": "64'h1"
+          },
+          "text": "Toggle operands while i_en remains low."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe that result and o_en do not change."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture output stability."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation; no fixed latency assumed."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "functional_equivalence",
+        "output_consistency"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "Different operand pairs that yield the same arithmetic sum must produce identical result and o_en values."
+      ],
+      "expected_transition": "",
+      "goal": "Validate that the adder's output depends solely on the arithmetic sum, not on specific operand values.",
+      "notes": [
+        "Demonstrates functional correctness under operand permutation."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "i_en, adda, addb ports are present."
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply two distinct operand pairs that sum to the same value and compare outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0001",
+            "addb": "64'h0000_0000_0000_0002",
+            "i_en": 1
+          },
+          "text": "First operand pair (1 + 2 = 3)."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow result to become visible."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture first output."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0000",
+            "addb": "64'h0000_0000_0000_0003",
+            "i_en": 1
+          },
+          "text": "Second operand pair (0 + 3 = 3)."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow second result to become visible."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture second output for comparison."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each operation without assuming a fixed latency."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "pipeline_throughput",
+        "consecutive_operations"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_pair_001",
+      "expected_properties": [
+        "Two back-to-back enabled additions should each produce a valid result and o_en, with the second result appearing after the first without loss."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise consecutive addition operations with minimal idle cycles, confirming pipeline progression.",
+      "notes": [
+        "No fixed-cycle latency is assumed; observation relies on external output changes."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "i_en, adda, addb ports are present."
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Issue two addition commands back-to-back and verify both results appear in order."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h1111_1111_1111_1111",
+            "addb": "64'h2222_2222_2222_2222",
+            "i_en": 1
+          },
+          "text": "First addition."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Minimal spacing before second operation."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h3333_3333_3333_3333",
+            "addb": "64'h4444_4444_4444_4444",
+            "i_en": 1
+          },
+          "text": "Second addition."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe both results as they become valid."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture sequential outputs."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; no assumption of exact pipeline depth."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "boundary_vector",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "width_boundary_001",
+      "expected_properties": [
+        "Zero and maximum operand values must be handled without overflow errors beyond the defined 65\u2011bit result width."
+      ],
+      "expected_transition": "",
+      "goal": "Validate correct handling of operand extremes for the 64\u2011bit data width.",
+      "notes": [
+        "Uses the contract's DATA_WIDTH symbolic width; concrete 64\u2011bit values are applied."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "adda and addb ports with width DATA_WIDTH."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive minimum (0) and maximum (all 1s) operand values and verify correct result and enable signaling."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0",
+            "addb": "64'h0",
+            "i_en": 1
+          },
+          "text": "Zero operands."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe result = 0."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture zero result."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'hFFFF_FFFF_FFFF_FFFF",
+            "addb": "64'hFFFF_FFFF_FFFF_FFFF",
+            "i_en": 1
+          },
+          "text": "Maximum operands (all ones)."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe result = 0x1_FFFF_FFFF_FFFF_FFFE (65\u2011bit)."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture max\u2011value result."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation; no fixed latency assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['i_en', 'adda', 'addb']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h1234_5678_9ABC_DEF0",
+            "addb": "64'h0FED_CBA9_8765_4321",
+            "i_en": 1
+          },
+          "text": "Typical addition operation."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow result and o_en to stabilize."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture output after operation."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['adda', 'addb', 'i_en']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0",
+            "addb": "64'h0",
+            "i_en": 1
+          },
+          "text": "Zero operands."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe result = 0."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture zero result."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'hFFFF_FFFF_FFFF_FFFF",
+            "addb": "64'hFFFF_FFFF_FFFF_FFFF",
+            "i_en": 1
+          },
+          "text": "Maximum operands (all ones)."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe 65\u2011bit max result."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture max result."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'hAAAA_AAAA_AAAA_AAAA",
+            "addb": "64'h5555_5555_5555_5555",
+            "i_en": 1
+          },
+          "text": "First addition."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Minimal gap before second operation."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h1111_1111_1111_1111",
+            "addb": "64'h2222_2222_2222_2222",
+            "i_en": 1
+          },
+          "text": "Second addition."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe both results as they become valid."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "o_en": 1,
+            "result": 1
+          },
+          "text": "Capture sequential outputs."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -332,3 +332,71 @@ def test_deterministic_stimulus_uses_available_inputs_for_stack_buffer_edge_case
     assert len(drive_steps) >= 2
     assert drive_steps[0]["signals"]["RW"] == 0
     assert drive_steps[1]["signals"]["RW"] == 1
+
+
+def test_deterministic_stimulus_prefers_structured_program_and_records_inputs() -> None:
+    contract = DUTContract(
+        module_name="demo_structured",
+        ports=[
+            PortSpec(name="a", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="b", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="y", direction=PortDirection.OUTPUT, width=8),
+        ],
+        timing=TimingSpec(sequential_kind=SequentialKind.COMB, latency_model="unknown", confidence=0.7),
+    )
+    case = TestCasePlan(
+        case_id="edge_001",
+        goal="structured",
+        category=TestCategory.EDGE,
+        stimulus_intent=["structured"],
+        stimulus_signals=["a", "b"],
+        stimulus_program=[
+            {"action": "drive", "signals": {"a": 1, "b": 2, "ghost": 9}},
+            {"action": "wait_cycles", "cycles": 2},
+        ],
+        expected_properties=["observe"],
+        observed_signals=["y"],
+        timing_assumptions=["settle"],
+        coverage_tags=["edge"],
+        semantic_tags=["width_sensitive"],
+        confidence=0.8,
+    )
+
+    steps = _build_deterministic_stimulus_steps(contract=contract, case=case)
+
+    assert steps[0] == {"action": "drive", "signals": {"a": 1, "b": 2}}
+    assert steps[1] == {"action": "wait_cycles", "cycles": 2}
+    assert steps[2] == {"action": "record_inputs", "signals": {"a": 1, "b": 2}}
+
+
+def test_deterministic_stimulus_keeps_explicit_record_inputs_from_structured_program() -> None:
+    contract = DUTContract(
+        module_name="demo_structured_record",
+        ports=[
+            PortSpec(name="din", direction=PortDirection.INPUT, width=4),
+            PortSpec(name="dout", direction=PortDirection.OUTPUT, width=4),
+        ],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.7),
+    )
+    case = TestCasePlan(
+        case_id="basic_001",
+        goal="structured record",
+        category=TestCategory.BASIC,
+        stimulus_intent=["structured"],
+        stimulus_signals=["din"],
+        stimulus_program=[
+            {"action": "drive", "signals": {"din": 10}},
+            {"action": "record_inputs", "signals": {"din": 10}},
+            {"action": "wait_cycles", "cycles": 1},
+        ],
+        expected_properties=["observe"],
+        observed_signals=["dout"],
+        timing_assumptions=["clock"],
+        coverage_tags=["basic"],
+        semantic_tags=["operation_specific"],
+        confidence=0.8,
+    )
+
+    steps = _build_deterministic_stimulus_steps(contract=contract, case=case)
+
+    assert steps.count({"action": "record_inputs", "signals": {"din": 10}}) == 1

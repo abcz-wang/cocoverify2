@@ -1,0 +1,112 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "edge",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "clk changes state at least once during observation"
+      ],
+      "goal": "Detect if clk remains constant (stuck) over an extended observation window, indicating a failure to generate a clock.",
+      "observed_signals": [
+        "clk"
+      ],
+      "priority": 5,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Passive observation of clk without driving any inputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 50,
+          "signals": {},
+          "text": "Long observation to catch stuck behavior"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {}
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "No timing guarantee; rely on any state change within window"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "clk toggles at least twice within observation window",
+        "no glitches observed"
+      ],
+      "goal": "Observe that the output clk toggles periodically after simulation start, without assuming exact period.",
+      "observed_signals": [
+        "clk"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Observe natural behavior of the clock generator without external stimulus."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow initial value to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture initial clk state"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": "Observe multiple toggles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture final clk state"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "No fixed latency assumed; observation window spans multiple periods"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -29,8 +29,10 @@ def render_env_module(
         case.case_id: {
             "goal": case.goal,
             "category": case.category,
+            "scenario_kind": getattr(case, "scenario_kind", ""),
             "stimulus_intent": case.stimulus_intent,
             "stimulus_signals": case.stimulus_signals,
+            "stimulus_program": getattr(case, "stimulus_program", []),
             "execution_policy": case.execution_policy,
             "defer_reason": case.defer_reason,
             "timing_assumptions": case.timing_assumptions,
@@ -216,6 +218,13 @@ def _build_deterministic_stimulus_steps(*, contract: DUTContract, case) -> list[
         and port.name not in {reset.name for reset in contract.resets}
     ]
 
+    structured_program = _validate_stimulus_program(
+        getattr(case, "stimulus_program", []) or [],
+        available_input_names=set(available_input_names),
+    )
+    if structured_program:
+        return _ensure_recorded_inputs(structured_program)
+
     if case_category == "reset":
         return [{"action": "record_inputs", "signals": {"__reset_only__": True}}]
 
@@ -248,10 +257,10 @@ def _build_deterministic_stimulus_steps(*, contract: DUTContract, case) -> list[
 
     if signal_names:
         profile = "edge" if case_category == "edge" else "basic"
-        return [
+        return _ensure_recorded_inputs([
             {"action": "drive", "signals": _deterministic_drive_pattern(signal_names=signal_names, widths=widths, profile=profile)},
             {"action": "wait_cycles" if contract.timing.sequential_kind == "seq" and contract.clocks else "wait_for_settle"},
-        ]
+        ])
 
     if contract.timing.sequential_kind == "seq" and contract.clocks:
         return [
@@ -264,6 +273,69 @@ def _build_deterministic_stimulus_steps(*, contract: DUTContract, case) -> list[
         ]
 
     return []
+
+
+def _validate_stimulus_program(
+    steps: list[dict[str, object]],
+    *,
+    available_input_names: set[str],
+) -> list[dict[str, object]]:
+    if not isinstance(steps, list):
+        return []
+    normalized: list[dict[str, object]] = []
+    for step in steps:
+        if not isinstance(step, dict):
+            continue
+        action = str(step.get("action") or "").strip()
+        if action == "drive":
+            raw_signals = step.get("signals")
+            if not isinstance(raw_signals, dict):
+                continue
+            filtered_signals: dict[str, object] = {
+                str(signal_name): signal_value
+                for signal_name, signal_value in raw_signals.items()
+                if str(signal_name) in available_input_names
+            }
+            if not filtered_signals:
+                continue
+            normalized.append({"action": "drive", "signals": filtered_signals})
+            continue
+        if action == "wait_for_settle":
+            normalized.append({"action": "wait_for_settle"})
+            continue
+        if action == "wait_cycles":
+            try:
+                cycles = int(step.get("cycles") or 1)
+            except (TypeError, ValueError):
+                cycles = 1
+            normalized.append({"action": "wait_cycles", "cycles": max(1, cycles)})
+            continue
+        if action == "record_inputs":
+            raw_signals = step.get("signals")
+            if isinstance(raw_signals, dict) and raw_signals:
+                normalized.append({"action": "record_inputs", "signals": dict(raw_signals)})
+            continue
+        if action == "record_note":
+            text = str(step.get("text") or "").strip()
+            if text:
+                normalized.append({"action": "record_note", "text": text})
+            continue
+    return normalized
+
+
+def _ensure_recorded_inputs(steps: list[dict[str, object]]) -> list[dict[str, object]]:
+    has_record_inputs = any(step.get("action") == "record_inputs" for step in steps)
+    if has_record_inputs:
+        return steps
+    last_drive_signals: dict[str, object] = {}
+    for step in steps:
+        if step.get("action") == "drive":
+            raw_signals = step.get("signals")
+            if isinstance(raw_signals, dict):
+                last_drive_signals = dict(raw_signals)
+    if last_drive_signals:
+        return [*steps, {"action": "record_inputs", "signals": last_drive_signals}]
+    return steps
 
 
 def _memory_style_steps(*, signal_names: list[str], widths: dict[str, int | None]) -> list[dict[str, object]]:

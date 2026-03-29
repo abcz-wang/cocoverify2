@@ -124,6 +124,42 @@ def test_validate_plan_augmentation_filters_unknown_signals_and_normalizes_tags(
     assert report["signal_normalization_warnings"]
 
 
+def test_validate_plan_augmentation_normalizes_structured_stimulus_program() -> None:
+    augmentation = parse_plan_augmentation(
+        """
+        {
+          "baseline_case_enrichments": [
+            {
+              "case_id": "basic_001",
+              "scenario_kind": "Boundary Vector",
+              "stimulus_program": [
+                {"action": "drive", "signals": {"a": 7, "unknown": 1}},
+                {"action": "wait_cycles", "cycles": "2"},
+                {"action": "record_note", "text": "step"},
+                {"action": "unsupported", "foo": 1}
+              ]
+            }
+          ],
+          "additional_cases": [],
+          "assumptions": [],
+          "unresolved_items": [],
+          "planning_notes": []
+        }
+        """
+    )
+
+    validated, report = validate_plan_augmentation(augmentation, contract=_demo_contract(), baseline_plan=_demo_plan())
+
+    enrichment = validated.baseline_case_enrichments[0]
+    assert enrichment.scenario_kind == "boundary_vector"
+    assert enrichment.stimulus_program == [
+        {"action": "drive", "signals": {"a": 7}},
+        {"action": "wait_cycles", "cycles": 2},
+        {"action": "record_note", "text": "step"},
+    ]
+    assert report["signal_normalization_warnings"]
+
+
 def test_normalize_plan_augmentation_repairs_case_id_to_draft_id() -> None:
     payload = extract_json_payload(
         """

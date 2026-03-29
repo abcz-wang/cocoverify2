@@ -160,6 +160,11 @@ def test_hybrid_plan_merges_llm_enrichment_and_additional_cases(tmp_path: Path) 
                     "case_id": "basic_001",
                     "stimulus_signals": ["a", "b"],
                     "semantic_tags": ["operation_specific"],
+                    "scenario_kind": "single_operation",
+                    "stimulus_program": [
+                        {"action": "drive", "signals": {"a": 3, "b": 4}},
+                        {"action": "wait_for_settle"}
+                    ],
                     "notes": ["Exercise add/sub partitions conservatively."],
                 }
             ],
@@ -177,6 +182,11 @@ def test_hybrid_plan_merges_llm_enrichment_and_additional_cases(tmp_path: Path) 
                     "dependencies": ["basic_001"],
                     "coverage_tags": ["basic", "operation_partition"],
                     "semantic_tags": ["operation_specific"],
+                    "scenario_kind": "boundary_vector",
+                    "stimulus_program": [
+                        {"action": "drive", "signals": {"a": 0, "b": 1}},
+                        {"action": "wait_for_settle"}
+                    ],
                     "notes": ["Stay conservative when opcode semantics are partial."],
                     "priority": 2,
                 }
@@ -205,7 +215,11 @@ def test_hybrid_plan_merges_llm_enrichment_and_additional_cases(tmp_path: Path) 
     added_case = next(case for case in plan.cases if case.case_id == "basic_002")
     assert "operation_specific" in basic_case.semantic_tags
     assert basic_case.stimulus_signals == ["a", "b"]
+    assert basic_case.scenario_kind == "single_operation"
+    assert basic_case.stimulus_program
     assert added_case.stimulus_signals == ["a", "b"]
+    assert added_case.scenario_kind == "boundary_vector"
+    assert added_case.stimulus_program
     assert "LLM planning note: Do not overcommit to exact opcode semantics." in plan.assumptions
     assert (tmp_path / "plan" / "llm_request.json").exists()
     assert (tmp_path / "plan" / "llm_response_raw.txt").exists()
@@ -233,6 +247,41 @@ def test_hybrid_plan_falls_back_cleanly_on_invalid_llm_response(tmp_path: Path) 
     assert any("fallback" in item.lower() for item in plan.assumptions)
     payload = json.loads((tmp_path / "plan" / "llm_merge_report.json").read_text(encoding="utf-8"))
     assert payload["status"] == "fallback"
+
+
+def test_hybrid_plan_uses_normalized_payload_for_validation(tmp_path: Path) -> None:
+    _, contract_path = _extract_contract(tmp_path, "simple_comb.v")
+    llm_response = json.dumps(
+        {
+            "baseline_case_enrichments": [
+                {
+                    "case_id": "basic_001",
+                    "stimulus_signals": ["a", "b"],
+                    "preconditions": ["This extra field should be stripped by normalization."],
+                    "notes": ["Keep this enrichment valid after normalization."],
+                }
+            ],
+            "additional_cases": [],
+            "assumptions": [],
+            "unresolved_items": [],
+            "planning_notes": [],
+        }
+    )
+    generator = TestPlanGenerator(llm_client=_StaticLLMClient(llm_response))
+    plan = generator.run_from_artifact(
+        contract_path=contract_path,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        generation_mode=GenerationMode.HYBRID,
+        llm_config=LLMConfig(),
+    )
+
+    assert plan.plan_strategy == "hybrid_rule_based_plus_llm"
+    merge_report = json.loads((tmp_path / "plan" / "llm_merge_report.json").read_text(encoding="utf-8"))
+    assert merge_report["status"] == "merged"
+    stripped = merge_report["validation_report"]["normalization_report"]["stripped_fields"]
+    assert any(item.get("field") == "preconditions" for item in stripped)
 
 
 def test_seq_without_business_inputs_keeps_clock_driven_basic_case_deterministic(tmp_path: Path) -> None:

@@ -1,0 +1,369 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "metamorphic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "result matches software reference A - B modulo 2^64",
+        "overflow flag follows signed overflow rule based on sign bits of A, B, and result"
+      ],
+      "expected_transition": "",
+      "goal": "Validate functional correctness against a reference model for a variety of operand pairs.",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [
+        "A and B are driven with any 64-bit values"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive random operand pairs, wait for outputs to settle, and compare against reference model"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "random_64bit",
+            "B": "random_64bit"
+          },
+          "text": "Apply random inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow combinational path to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "result": 1,
+            "overflow": 1
+          },
+          "text": "Capture inputs and outputs for comparison"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; use settle window after driving inputs"
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "back_to_back"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Each subtraction operation produces independent correct result and overflow",
+        "No residual state from first operation affects second operation"
+      ],
+      "expected_transition": "",
+      "goal": "Exercise two consecutive subtractions without intervening reset to ensure stateless behavior.",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [
+        "A and B can be re-driven after previous operation"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive first operand pair, observe outputs, then immediately drive second operand pair"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x0000000000000001",
+            "B": "0x0000000000000000"
+          },
+          "text": "First operation: 1 - 0"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow first operation to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "result": 1,
+            "overflow": 1
+          },
+          "text": "Capture first result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0xFFFFFFFFFFFFFFFF",
+            "B": "0x0000000000000001"
+          },
+          "text": "Second operation: -1 - 1 (signed overflow expected)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow second operation to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "result": 1,
+            "overflow": 1
+          },
+          "text": "Capture second result"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; use explicit settle waits between operations"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "sanity"
+      ],
+      "expected_properties": [
+        "result equals A - B modulo 2^64",
+        "overflow flag follows signed overflow detection rule"
+      ],
+      "expected_transition": "",
+      "goal": "Validate basic subtraction functionality without assuming timing specifics.",
+      "notes": [
+        "Conservative case preserving ambiguity; focuses on observable outputs."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a nominal random pair of operands and observe outputs"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "random_64bit",
+            "B": "random_64bit"
+          },
+          "text": "Apply random inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "result": 1,
+            "overflow": 1
+          },
+          "text": "Capture inputs and outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; observe outputs after a settle window"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Overflow flag correctly indicates signed overflow for boundary operand values",
+        "Result matches expected arithmetic for min/max signed inputs"
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value patterns to verify overflow detection at signed limits.",
+      "notes": [
+        "Focuses on signed min/max values without assuming latency."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive A and B with zero, max positive, max negative, and mixed sign patterns"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x0000000000000000",
+            "B": "0x0000000000000000"
+          },
+          "text": "Zero - Zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Settle after first pattern"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "result": 1,
+            "overflow": 1
+          },
+          "text": "Capture zero case"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x7FFFFFFFFFFFFFFF",
+            "B": "0xFFFFFFFFFFFFFFFF"
+          },
+          "text": "Max positive - (-1) => expect overflow"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Settle after second pattern"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "result": 1,
+            "overflow": 1
+          },
+          "text": "Capture max positive case"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x8000000000000000",
+            "B": "0x0000000000000001"
+          },
+          "text": "Min negative - 1 => expect overflow"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Settle after third pattern"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "result": 1,
+            "overflow": 1
+          },
+          "text": "Capture min negative case"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; use explicit settle waits after each drive"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

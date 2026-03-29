@@ -1,0 +1,70 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "CLK_10 toggles after its internal counter wraps.",
+          "notes": [],
+          "observed_signals": [
+            "CLK_10"
+          ],
+          "pass_condition": "CLK_10 changes value within up to 6 input clock cycles after reset release.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 6,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When observing post‑reset operation for edge_001."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "All observed signals remain defined (0 or 1) and do not become X during the observation window.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 10,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "During basic_001 observation after reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

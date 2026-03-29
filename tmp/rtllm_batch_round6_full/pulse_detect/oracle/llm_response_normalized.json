@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "data_out must remain low for edge stimulus patterns that do not constitute a valid pulse.",
+          "notes": [],
+          "observed_signals": [
+            "data_out"
+          ],
+          "pass_condition": "During edge case execution, data_out never transitions to 1 unless a valid 0\u20111\u20110 three\u2011cycle pulse is observed.",
+          "semantic_tags": [
+            "edge",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge case stimuli are applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "data_out should assert high after a valid pulse and return low thereafter, observed within a bounded window.",
+          "notes": [],
+          "observed_signals": [
+            "data_out"
+          ],
+          "pass_condition": "Following the basic pulse stimulus, data_out becomes 1 at some cycle within 5 cycles and later returns to 0, without requiring exact-cycle timing.",
+          "semantic_tags": [
+            "basic",
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the basic pulse stimulus is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

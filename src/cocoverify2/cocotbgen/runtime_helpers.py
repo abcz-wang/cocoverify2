@@ -9,6 +9,8 @@ def render_runtime_helpers_module(module_name: str) -> tuple[str, dict[str, obje
 
 from __future__ import annotations
 
+import re
+
 from typing import Any
 
 
@@ -88,10 +90,13 @@ def normalize_driven_value(value: Any, width: int | None = None) -> Any:
     text = str(value).strip()
     if not text:
         raise AssertionError("Drive value must not be empty.")
-    lowered = text.lower()
-    if any(ch in lowered for ch in ("x", "z")):
-        return lowered
-    parsed = int(text, 0)
+    try:
+        parsed = _parse_numeric_literal(text)
+    except ValueError:
+        lowered = text.lower()
+        if any(ch in lowered for ch in ("x", "z")):
+            return lowered
+        raise
     return parsed & mask_width(width) if width is not None else parsed
 
 
@@ -108,6 +113,18 @@ def _extract_logic_text(value: Any) -> str:
 def _contains_unknown(text: str) -> bool:
     lowered = str(text or "").strip().lower()
     return any(ch in lowered for ch in ("x", "z", "u", "w", "-"))
+
+
+def _parse_numeric_literal(text: str) -> int:
+    literal = str(text or "").strip().replace("_", "")
+    match = re.fullmatch(r"(?i)(\\d+)?'([s]?)([bodh])([0-9a-fxz]+)", literal)
+    if match:
+        _, _, base_code, digits = match.groups()
+        base = {{"b": 2, "o": 8, "d": 10, "h": 16}}[base_code.lower()]
+        if any(ch in digits.lower() for ch in ("x", "z")):
+            raise ValueError(f"Unsupported unknown/high-z drive literal: {{text!r}}")
+        return int(digits, base)
+    return int(literal, 0)
 '''
     return content, {
         "module_name": module_name,

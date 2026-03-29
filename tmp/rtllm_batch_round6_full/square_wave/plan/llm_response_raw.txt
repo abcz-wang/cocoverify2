@@ -1,0 +1,282 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "metamorphic",
+        "frequency_change"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Changing the freq input should alter the interval between subsequent wave_out toggles without requiring a reset."
+      ],
+      "expected_transition": "",
+      "goal": "Validate that the square wave generator adapts to a new frequency value after it has been operating.",
+      "notes": [
+        "The case does not assume a fixed number of cycles for the toggle; it only checks that a change in freq eventually influences wave_out behavior."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [
+        "The design is already clocked and producing toggles for an initial freq value."
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive an initial freq value, observe wave_out toggling, then change freq and verify that the toggle period adjusts."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 16
+          },
+          "text": "Initial frequency value"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Allow several toggles at initial frequency"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "Capture wave_out state after initial period"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 64
+          },
+          "text": "Change frequency to a higher value"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Observe toggles at new frequency"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "Capture wave_out state after frequency change"
+        }
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Observations are made after conservative clocked intervals; no exact-cycle latency is assumed."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "scenario_kind": "single_operation",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 32
+          },
+          "text": "Apply a nominal frequency value"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow the design to register the input"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Observe a few clock cycles for wave_out to potentially toggle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "Capture wave_out after operation"
+        }
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "ambiguity_preserving"
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['freq']"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "scenario_kind": "boundary_vector",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 0
+          },
+          "text": "Zero boundary value"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after zero drive"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "Capture wave_out with zero freq"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 255
+          },
+          "text": "Maximum boundary value (8'hFF)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after max drive"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "Capture wave_out with max freq"
+        }
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['freq']"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "scenario_kind": "back_to_back_pair",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 48
+          },
+          "text": "First legal operation"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Minimal idle spacing"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": 48
+          },
+          "text": "Second back-to-back operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow design to process both operations"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "wave_out": 1
+          },
+          "text": "Capture wave_out after back-to-back ops"
+        }
+      ],
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation",
+        "operation_specific"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

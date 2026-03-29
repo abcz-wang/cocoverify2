@@ -125,6 +125,13 @@ class TestCasePlan(ModelBase):
     dependencies: list[str] = Field(default_factory=list)
     coverage_tags: list[str] = Field(default_factory=list)
     semantic_tags: list[str] = Field(default_factory=list)
+    scenario_kind: str = ""
+    stimulus_program: list[dict[str, Any]] = Field(default_factory=list)
+    settle_requirement: str = ""
+    comparison_operands: list[str] = Field(default_factory=list)
+    relation_kind: str = ""
+    expected_transition: str = ""
+    reference_domain: str = ""
     execution_policy: str = "deterministic"
     defer_reason: str = ""
     priority: int = Field(default=5, ge=1, le=10)
@@ -175,6 +182,11 @@ class OracleCheck(ModelBase):
     pass_condition: str = ""
     temporal_window: TemporalWindow = Field(default_factory=TemporalWindow)
     strictness: OracleStrictness = OracleStrictness.CONSERVATIVE
+    oracle_pattern: str = ""
+    relation_kind: str = ""
+    expected_transition: str = ""
+    comparison_operands: list[str] = Field(default_factory=list)
+    reference_domain: str = ""
     signal_policies: dict[str, SignalAssertionPolicy] = Field(default_factory=dict)
     semantic_tags: list[str] = Field(default_factory=list)
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)

@@ -1,0 +1,383 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "valid_out_behavior"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When a new parallel input is presented before the previous 4‑bit word has finished serializing, the module does not latch the new data until the current word is fully emitted (cnt == 3).",
+        "valid_out remains asserted only for the bits belonging to the latched word."
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the module respects back‑pressure on the parallel input and does not corrupt ongoing serialization.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "backpressure_wait",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a first parallel word, start its serialization, then present a second word before the first completes, and observe that the second word is not taken until the first finishes."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1,
+            "clk": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1010"
+          },
+          "text": "Load first word"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow first two bits to serialize"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0101"
+          },
+          "text": "Present second word before first finishes"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe behavior"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "valid_out": null,
+            "dout": null
+          },
+          "text": "Capture valid_out and dout over remaining cycles"
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; do not assume exact latency for word capture."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "stimulus_intent": [
+        "Assert rst_n low to reset the design, then release it and observe that all outputs settle to a known stable state."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Apply active low reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset for a few cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow outputs to stabilize after reset"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "valid_out": null,
+            "dout": null
+          },
+          "text": "Capture post‑reset output values"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "expected_properties": [
+        "valid_out and dout are X‑free and stable after reset deassertion.",
+        "No spurious valid_out pulses are generated during reset release."
+      ],
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "scenario_kind": "single_operation",
+      "timing_assumptions": [
+        "Do not assume any fixed latency for reset recovery; observe until signals settle."
+      ],
+      "priority": 1
+    },
+    {
+      "case_id": "basic_001",
+      "stimulus_intent": [
+        "Provide a single legal parallel word and verify that a valid serial stream is produced over four cycles."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1,
+            "d": "4'b1101"
+          },
+          "text": "Load a parallel word after reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow the design to latch the input"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe the four serial bits and valid_out"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "valid_out": null,
+            "dout": null
+          },
+          "text": "Capture the serial output sequence"
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "expected_properties": [
+        "valid_out asserts for exactly four consecutive cycles after a new word is loaded.",
+        "dout outputs the bits of d from MSB to LSB in order."
+      ],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "scenario_kind": "single_operation",
+      "timing_assumptions": [
+        "Do not assume the exact cycle of valid_out assertion; monitor until it becomes visible."
+      ],
+      "priority": 1
+    },
+    {
+      "case_id": "edge_001",
+      "stimulus_intent": [
+        "Apply boundary and extreme parallel inputs to verify correct serialization across edge values."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0000"
+          },
+          "text": "All‑zero input"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe serialization"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1111"
+          },
+          "text": "All‑one input"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe serialization"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1000"
+          },
+          "text": "MSB‑only set"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe serialization"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0111"
+          },
+          "text": "LSB‑only cleared"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe serialization"
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "expected_properties": [
+        "For each boundary pattern, valid_out asserts for four cycles and dout follows the exact bit pattern of the input."
+      ],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "scenario_kind": "boundary_vector",
+      "timing_assumptions": [
+        "Conservative waiting; do not rely on a fixed latency between input drive and first valid_out."
+      ],
+      "priority": 2
+    },
+    {
+      "case_id": "back_to_back_001",
+      "stimulus_intent": [
+        "Issue two back‑to‑back parallel words with minimal idle cycles and verify that the second word is serialized only after the first completes."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1010"
+          },
+          "text": "First word"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Allow first word to finish serialization"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0101"
+          },
+          "text": "Second word immediately after first"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe second word serialization"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "valid_out": null,
+            "dout": null
+          },
+          "text": "Capture full output sequence for both words"
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "expected_properties": [
+        "valid_out does not overlap between the two words; there is a clear separation of four‑cycle valid periods.",
+        "The second word's bits appear in order after the first word's bits."
+      ],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "scenario_kind": "back_to_back_pair",
+      "timing_assumptions": [
+        "Do not assume any hidden pipeline; rely only on observed valid_out transitions."
+      ],
+      "priority": 3
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,203 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "freq_divbyeven",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "comparison_operands": [],
+      "confidence": 0.6850000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.6350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "post_reset_progress"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock\u2011driven state progress after reset, confirming that clk_div becomes a stable, toggling output.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved.",
+        "Case intent remains conservative; additional steps ensure reset release is explicitly exercised."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress.",
+        "Assert reset low for a few cycles",
+        "Release reset",
+        "Observe clk_div for a small number of clock edges to confirm non\u2011X behavior and potential toggling"
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "clk_div": 1
+          }
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.6200000000000001,
+      "coverage_tags": [
+        "toggle_edge",
+        "frequency_division",
+        "even_divisor"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "clk_div toggles exactly once after NUM_DIV/2 input clock cycles following a reset release",
+        "counter resets to zero when toggle occurs",
+        "output remains stable (no X) between toggles"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the divided clock output toggles at the correct interval dictated by the even NUM_DIV parameter and that the internal counter resets on each toggle.",
+      "notes": [
+        "NUM_DIV is a parameter; the test assumes a concrete even value (e.g., 8) to make the observation concrete while preserving parameter\u2011agnostic intent."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "NUM_DIV is an even positive integer",
+        "rst_n is active\u2011low reset"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert reset low to initialize the divider",
+        "Release reset and allow the design to run for at least NUM_DIV clock cycles",
+        "Observe that clk_div toggles once at the expected cycle count"
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 9
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "clk_div": 1
+          }
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative observation window spanning at least NUM_DIV cycles after reset release"
+      ]
+    }
+  ],
+  "module_name": "freq_divbyeven",
+  "plan_confidence": 0.6550000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Golden interface described clock 'clk_div', but the RTL port is not a scalar input-like signal.",
+    "Spec/reset hint could not be mapped to a known reset port: - When the counter reaches the specified limit, it resets to zero and toggles the `clk_div` output signal, effectively dividing the frequency of the input clock by the even number specified by `NUM_DIV`."
+  ]
+}

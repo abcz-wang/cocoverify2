@@ -1,0 +1,415 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "ready_signal"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "protocol_001",
+      "expected_properties": [
+        "rdy is asserted after the multiplication completes and remains stable until new inputs are presented",
+        "p reflects the correct product when rdy is high"
+      ],
+      "expected_transition": "",
+      "goal": "Verify correct ready-handshake behavior without assuming exact latency.",
+      "notes": [],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [
+        "reset has been deasserted and module is in normal operation"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "protocol_acceptance",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a valid input pair, then wait for rdy to assert and verify product stability"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 8,
+            "b": 12
+          },
+          "text": "apply sample inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow combinational paths to settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 30,
+          "signals": {},
+          "text": "conservative observation window for rdy"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "p": null,
+            "rdy": null
+          },
+          "text": "capture product and ready status"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed number of cycles for rdy; observe until it becomes high"
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "Outputs remain X or stable when inputs contain unknown values"
+      ],
+      "expected_transition": "",
+      "goal": "Ensure the design does not produce defined outputs for illegal/unknown inputs.",
+      "notes": [],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [
+        "reset deasserted"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive unknown (X) on one operand and observe that outputs do not become defined"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "X",
+            "b": 0
+          },
+          "text": "apply illegal input pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow any internal propagation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "p": null,
+            "rdy": null
+          },
+          "text": "capture outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe outputs without assuming completion latency"
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [
+        "p"
+      ],
+      "coverage_tags": [
+        "commutative_property"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "Product is identical for (a,b) and (b,a) permutations"
+      ],
+      "expected_transition": "",
+      "goal": "Validate commutative property of multiplication under conservative timing.",
+      "notes": [],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [
+        "reset deasserted"
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply two permutations of the same operand pair and compare the resulting products"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0x12,
+            "b": 0x34
+          },
+          "text": "first permutation"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 30,
+          "signals": {},
+          "text": "wait for completion"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "p": null,
+            "rdy": null
+          },
+          "text": "capture first product"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0x34,
+            "b": 0x12
+          },
+          "text": "second permutation"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 30,
+          "signals": {},
+          "text": "wait for completion"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "p": null,
+            "rdy": null
+          },
+          "text": "capture second product"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Do not assume exact cycle count; use a generous wait window"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Product output reflects the multiplication of driven inputs after rdy asserts"
+      ],
+      "goal": "Apply a representative legal input pattern and observe correct product and ready signaling.",
+      "stimulus_intent": [
+        "Drive a typical non‑edge input pair and monitor for completion"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0x55,
+            "b": 0xAA
+          },
+          "text": "sample inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow internal paths to settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 32,
+          "signals": {},
+          "text": "conservative observation window for rdy"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "p": null,
+            "rdy": null
+          },
+          "text": "capture product and ready status"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed latency; observe until rdy becomes high"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "scenario_kind": "single_operation",
+      "priority": 1,
+      "observed_signals": [
+        "p",
+        "rdy"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Multiplier correctly handles zero, all‑ones, and mixed boundary patterns"
+      ],
+      "goal": "Exercise boundary‑value vectors on inputs a and b.",
+      "stimulus_intent": [
+        "Apply zero, max, and mixed edge patterns to verify width‑sensitive behavior"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0x00,
+            "b": 0x00
+          },
+          "text": "both inputs zero"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 30,
+          "signals": {},
+          "text": "wait for completion"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "p": null,
+            "rdy": null
+          },
+          "text": "capture result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0xFF,
+            "b": 0xFF
+          },
+          "text": "both inputs max"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 30,
+          "signals": {},
+          "text": "wait for completion"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "p": null,
+            "rdy": null
+          },
+          "text": "capture result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": 0x01,
+            "b": 0xFE
+          },
+          "text": "mixed edge pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 30,
+          "signals": {},
+          "text": "wait for completion"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "p": null,
+            "rdy": null
+          },
+          "text": "capture result"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Conservative wait window of up to 30 cycles after each drive"
+      ],
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "scenario_kind": "boundary_vector",
+      "priority": 2,
+      "observed_signals": [
+        "p",
+        "rdy"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

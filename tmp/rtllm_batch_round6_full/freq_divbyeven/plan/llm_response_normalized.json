@@ -1,0 +1,180 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "toggle_edge",
+        "frequency_division",
+        "even_divisor"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_edge_001",
+      "expected_properties": [
+        "clk_div toggles exactly once after NUM_DIV/2 input clock cycles following a reset release",
+        "counter resets to zero when toggle occurs",
+        "output remains stable (no X) between toggles"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the divided clock output toggles at the correct interval dictated by the even NUM_DIV parameter and that the internal counter resets on each toggle.",
+      "notes": [
+        "NUM_DIV is a parameter; the test assumes a concrete even value (e.g., 8) to make the observation concrete while preserving parameter\u2011agnostic intent."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "NUM_DIV is an even positive integer",
+        "rst_n is active\u2011low reset"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert reset low to initialize the divider",
+        "Release reset and allow the design to run for at least NUM_DIV clock cycles",
+        "Observe that clk_div toggles once at the expected cycle count"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Initialize design"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow reset propagation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 9,
+          "signals": {},
+          "text": "Observe over > NUM_DIV/2 cycles (assuming NUM_DIV=8)"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "clk_div": 1
+          },
+          "text": "Capture toggle event"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Conservative observation window spanning at least NUM_DIV cycles after reset release"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "post_reset_progress"
+      ],
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock\u2011driven state progress after reset, confirming that clk_div becomes a stable, toggling output.",
+      "notes": [
+        "Case intent remains conservative; additional steps ensure reset release is explicitly exercised."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert reset low for a few cycles",
+        "Release reset",
+        "Observe clk_div for a small number of clock edges to confirm non\u2011X behavior and potential toggling"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Apply active\u2011low reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Observe a few clock cycles post\u2011reset"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "clk_div": 1
+          },
+          "text": "Capture output stability"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

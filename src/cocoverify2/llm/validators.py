@@ -175,6 +175,13 @@ def normalize_plan_augmentation_payload(payload: dict[str, Any]) -> tuple[dict[s
                 "dependencies",
                 "coverage_tags",
                 "semantic_tags",
+                "scenario_kind",
+                "stimulus_program",
+                "settle_requirement",
+                "comparison_operands",
+                "relation_kind",
+                "expected_transition",
+                "reference_domain",
                 "notes",
                 "priority",
             },
@@ -196,6 +203,13 @@ def normalize_plan_augmentation_payload(payload: dict[str, Any]) -> tuple[dict[s
                 "expected_properties",
                 "coverage_tags",
                 "semantic_tags",
+                "scenario_kind",
+                "stimulus_program",
+                "settle_requirement",
+                "comparison_operands",
+                "relation_kind",
+                "expected_transition",
+                "reference_domain",
                 "notes",
                 "priority",
             },
@@ -302,7 +316,7 @@ def _strip_known_extras(
     for extra_key in list(item.keys()):
         if extra_key in allowed:
             continue
-        if extra_key in safe_extras:
+        if extra_key in safe_extras or extra_key not in allowed:
             item.pop(extra_key)
             report["stripped_fields"].append({"location": location, "field": extra_key})
 
@@ -341,16 +355,33 @@ def validate_plan_augmentation(
         normalized.coverage_tags = _normalize_tag_list(normalized.coverage_tags)
         normalized.semantic_tags = _normalize_tag_list(normalized.semantic_tags)
         normalized.notes = _normalize_text_list(normalized.notes)
+        normalized.comparison_operands = _normalize_text_list(normalized.comparison_operands)
+        normalized.scenario_kind = _normalize_identifier(normalized.scenario_kind)
+        normalized.relation_kind = _normalize_identifier(normalized.relation_kind)
+        normalized.reference_domain = _normalize_identifier(normalized.reference_domain)
+        normalized.settle_requirement = _normalize_text(normalized.settle_requirement)
+        normalized.expected_transition = _normalize_text(normalized.expected_transition)
         observed, observed_dropped = _filter_known_signals(normalized.observed_signals, known_observed_signals)
         stimulus, stimulus_dropped = _filter_known_signals(normalized.stimulus_signals, known_input_signals)
         normalized.observed_signals = observed
         normalized.stimulus_signals = stimulus
+        normalized.stimulus_program, program_warnings = _normalize_stimulus_program(
+            normalized.stimulus_program,
+            known_input_signals=known_input_signals,
+        )
         if observed_dropped or stimulus_dropped:
             report["signal_normalization_warnings"].append(
                 {
                     "case_id": enrichment.case_id,
                     "dropped_observed_signals": observed_dropped,
                     "dropped_stimulus_signals": stimulus_dropped,
+                }
+            )
+        if program_warnings:
+            report["signal_normalization_warnings"].append(
+                {
+                    "case_id": enrichment.case_id,
+                    "stimulus_program_warnings": program_warnings,
                 }
             )
         valid_enrichments.append(normalized)
@@ -366,10 +397,20 @@ def validate_plan_augmentation(
         normalized.coverage_tags = _normalize_tag_list(normalized.coverage_tags)
         normalized.semantic_tags = _normalize_tag_list(normalized.semantic_tags)
         normalized.notes = _normalize_text_list(normalized.notes)
+        normalized.comparison_operands = _normalize_text_list(normalized.comparison_operands)
+        normalized.scenario_kind = _normalize_identifier(normalized.scenario_kind)
+        normalized.relation_kind = _normalize_identifier(normalized.relation_kind)
+        normalized.reference_domain = _normalize_identifier(normalized.reference_domain)
+        normalized.settle_requirement = _normalize_text(normalized.settle_requirement)
+        normalized.expected_transition = _normalize_text(normalized.expected_transition)
         observed, observed_dropped = _filter_known_signals(normalized.observed_signals, known_observed_signals)
         stimulus, stimulus_dropped = _filter_known_signals(normalized.stimulus_signals, known_input_signals)
         normalized.observed_signals = observed
         normalized.stimulus_signals = stimulus
+        normalized.stimulus_program, program_warnings = _normalize_stimulus_program(
+            normalized.stimulus_program,
+            known_input_signals=known_input_signals,
+        )
         normalized.dependencies = [
             dependency
             for dependency in _normalize_text_list(normalized.dependencies)
@@ -386,6 +427,13 @@ def validate_plan_augmentation(
                     "draft_id": case.draft_id,
                     "dropped_observed_signals": observed_dropped,
                     "dropped_stimulus_signals": stimulus_dropped,
+                }
+            )
+        if program_warnings:
+            report["signal_normalization_warnings"].append(
+                {
+                    "draft_id": case.draft_id,
+                    "stimulus_program_warnings": program_warnings,
                 }
             )
         valid_additional_cases.append(normalized)
@@ -628,6 +676,83 @@ def _normalize_tag_list(values: list[str]) -> list[str]:
         seen.add(tag)
         normalized.append(tag)
     return normalized
+
+
+def _normalize_text(value: str) -> str:
+    return str(value or "").strip()
+
+
+def _normalize_identifier(value: str) -> str:
+    return normalize_tag(value)
+
+
+def _normalize_stimulus_program(
+    values: list[dict[str, Any]],
+    *,
+    known_input_signals: set[str],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    if not isinstance(values, list):
+        return [], [{"reason": "stimulus_program_not_list"}]
+
+    normalized: list[dict[str, Any]] = []
+    warnings: list[dict[str, Any]] = []
+    allowed_actions = {"drive", "wait_for_settle", "wait_cycles", "record_inputs", "record_note"}
+
+    for index, raw_step in enumerate(values):
+        if not isinstance(raw_step, dict):
+            warnings.append({"index": index, "reason": "step_not_object"})
+            continue
+        action = str(raw_step.get("action") or "").strip()
+        if action not in allowed_actions:
+            warnings.append({"index": index, "reason": "unsupported_action", "action": action})
+            continue
+        if action == "drive":
+            raw_signals = raw_step.get("signals")
+            if not isinstance(raw_signals, dict):
+                warnings.append({"index": index, "reason": "drive_without_signals"})
+                continue
+            kept_signals: dict[str, Any] = {}
+            dropped_signals: list[str] = []
+            for signal_name, signal_value in raw_signals.items():
+                normalized_name = str(signal_name or "").strip()
+                if not normalized_name:
+                    continue
+                if normalized_name in known_input_signals:
+                    kept_signals[normalized_name] = signal_value
+                else:
+                    dropped_signals.append(normalized_name)
+            if dropped_signals:
+                warnings.append({"index": index, "reason": "unknown_drive_signals", "signals": dropped_signals})
+            if not kept_signals:
+                continue
+            normalized.append({"action": "drive", "signals": kept_signals})
+            continue
+        if action == "wait_cycles":
+            cycles_raw = raw_step.get("cycles")
+            try:
+                cycles = int(cycles_raw)
+            except (TypeError, ValueError):
+                cycles = 1
+                warnings.append({"index": index, "reason": "invalid_cycles", "cycles": cycles_raw})
+            normalized.append({"action": "wait_cycles", "cycles": max(1, cycles)})
+            continue
+        if action == "record_inputs":
+            raw_signals = raw_step.get("signals")
+            if isinstance(raw_signals, dict) and raw_signals:
+                normalized.append({"action": "record_inputs", "signals": dict(raw_signals)})
+            else:
+                warnings.append({"index": index, "reason": "record_inputs_without_signals"})
+            continue
+        if action == "record_note":
+            text = _normalize_text(str(raw_step.get("text") or ""))
+            if text:
+                normalized.append({"action": "record_note", "text": text})
+            else:
+                warnings.append({"index": index, "reason": "record_note_without_text"})
+            continue
+        normalized.append({"action": "wait_for_settle"})
+
+    return normalized, warnings
 
 
 def normalize_tag(value: str) -> str:

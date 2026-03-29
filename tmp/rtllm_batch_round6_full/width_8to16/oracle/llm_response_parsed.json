@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: do not assume a fixed latency for the concatenation; only require that after a finite number of clock cycles following two valid inputs, valid_out becomes asserted and data_out stabilizes.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "There exists some non-zero number of clock cycles after the second valid_in where valid_out=1 and data_out holds a stable 16-bit value without X/Z.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "second_valid_in",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "After detecting two consecutive cycles with valid_in=1."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "After two valid_in cycles, valid_out asserts and data_out equals {first_data_in, second_data_in} with no X/Z.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When a rising edge of clk occurs with valid_in asserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

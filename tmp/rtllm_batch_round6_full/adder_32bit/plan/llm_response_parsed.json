@@ -1,0 +1,243 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary_vector"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "S equals A+B modulo 2^32 for extreme vectors",
+        "C32 reflects correct carry for extreme vectors"
+      ],
+      "expected_transition": "",
+      "goal": "Validate adder behavior on all-zero and all-one inputs (boundary conditions).",
+      "notes": [],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "boundary_vector"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply all-zero vector then all-one vector to inputs A and B and observe outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": 0,
+            "B": 0
+          },
+          "text": "All zeros"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture zero result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1
+          },
+          "text": "All ones"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture ones result"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": []
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "metamorphic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "b2b_001",
+      "expected_properties": [
+        "Each successive output matches sum of corresponding inputs."
+      ],
+      "expected_transition": "",
+      "goal": "Check adder response to rapid successive input changes without intermediate idle cycles.",
+      "notes": [],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "metamorphic_pair"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive two distinct input vectors back-to-back and record outputs for each."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1
+          },
+          "text": "First vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture first result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1
+          },
+          "text": "Second vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture second result"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": []
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "S equals A plus B modulo 2^32",
+        "C32 equals carry out of addition"
+      ],
+      "expected_transition": "",
+      "goal": "Exercise representative legal input combinations and observe output mapping with explicit property checks.",
+      "notes": [
+        "Added explicit property verification for sum and carry.",
+        "Preserve ambiguity where timing is unknown."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "Observe after inputs settle (no specific cycle count).",
+      "stimulus_intent": [
+        "Drive random legal values to A and B, then record S and C32."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1
+          },
+          "text": "Initial random pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

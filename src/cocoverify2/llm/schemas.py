@@ -25,6 +25,13 @@ class PlanCaseEnrichment(LLMModelBase):
     expected_properties: list[str] = Field(default_factory=list)
     coverage_tags: list[str] = Field(default_factory=list)
     semantic_tags: list[str] = Field(default_factory=list)
+    scenario_kind: str = ""
+    stimulus_program: list[dict[str, object]] = Field(default_factory=list)
+    settle_requirement: str = ""
+    comparison_operands: list[str] = Field(default_factory=list)
+    relation_kind: str = ""
+    expected_transition: str = ""
+    reference_domain: str = ""
     notes: list[str] = Field(default_factory=list)
     priority: int | None = Field(default=None, ge=1, le=10)
 
@@ -44,6 +51,13 @@ class AdditionalPlanCase(LLMModelBase):
     dependencies: list[str] = Field(default_factory=list)
     coverage_tags: list[str] = Field(default_factory=list)
     semantic_tags: list[str] = Field(default_factory=list)
+    scenario_kind: str = ""
+    stimulus_program: list[dict[str, object]] = Field(default_factory=list)
+    settle_requirement: str = ""
+    comparison_operands: list[str] = Field(default_factory=list)
+    relation_kind: str = ""
+    expected_transition: str = ""
+    reference_domain: str = ""
     notes: list[str] = Field(default_factory=list)
     priority: int = Field(default=5, ge=1, le=10)
 

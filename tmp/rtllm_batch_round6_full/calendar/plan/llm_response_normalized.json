@@ -1,0 +1,252 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "boundary",
+        "wrap_around",
+        "increment"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_wrap_001",
+      "expected_properties": [
+        "When Secs reaches 59, the next clock edge sets Secs to 0 and increments Mins by 1.",
+        "If Mins is also 59 when Secs wraps, Hours increments by 1 while Secs and Mins reset to 0.",
+        "Hours does not change when only Secs wraps and Mins < 59."
+      ],
+      "expected_transition": "",
+      "goal": "Validate correct boundary behavior for seconds, minutes, and hour roll\u2011over without assuming exact cycle counts.",
+      "notes": [
+        "Uses observed values of Hours, Mins, Secs to detect the transition.",
+        "Conservative observation: wait until Secs==59 is seen, then capture the next state."
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive the clock until Secs reports 59.",
+        "Observe the next clock edge to verify wrap\u2011around and minute increment."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow any post\u2011reset transients to settle."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 0,
+          "signals": {
+            "CLK": 1
+          },
+          "text": "Clock runs continuously; monitor Secs."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "CLK": 1
+          },
+          "text": "Capture Hours, Mins, Secs when Secs==59."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {
+            "CLK": 1
+          },
+          "text": "Advance one clock edge to see wrap\u2011around."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "CLK": 1
+          },
+          "text": "Capture post\u2011wrap values."
+        }
+      ],
+      "stimulus_signals": [
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed number of cycles to reach 59; rely on observed Secs value."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post\u2011reset state.",
+        "No fixed\u2011cycle completion is assumed during reset recovery."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post\u2011reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "RST": 1
+          },
+          "text": "Assert reset for two clock cycles."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow reset de\u2011assertion to propagate."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": 0
+          },
+          "text": "De\u2011assert reset."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {
+            "CLK": 1
+          },
+          "text": "Observe a few clock edges for output stabilization."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "CLK": 1
+          },
+          "text": "Capture Hours, Mins, Secs after reset."
+        }
+      ],
+      "stimulus_signals": [
+        "RST",
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed\u2011cycle protocol or hidden internal state access."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock\u2011driven state progress after reset or conservative initialization.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Case relies on deterministic clock\u2011driven observation because no non\u2011control inputs were resolved."
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Ensure post\u2011reset signals are stable."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {
+            "CLK": 1
+          },
+          "text": "Observe five clock cycles to see any change in Hours, Mins, Secs."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "CLK": 1
+          },
+          "text": "Capture output values after observation window."
+        }
+      ],
+      "stimulus_signals": [
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "Added edge case to verify wrap\u2011around behavior at 59 seconds/minutes.",
+    "Enriched reset and basic cases with explicit stimulus programs and additional notes."
+  ],
+  "unresolved_items": []
+}

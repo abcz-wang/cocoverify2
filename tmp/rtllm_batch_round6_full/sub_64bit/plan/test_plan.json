@@ -1,0 +1,372 @@
+{
+  "assumptions": [
+    "overflow: 1-bit output indicating whether an overflow occurred during the subtraction operation.",
+    "The overflow flag is set to 1 if an overflow condition is detected; otherwise, it is set to 0.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "sub_64bit",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.55,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "unknown",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Checks are limited to reset-safe, protocol-safe, or output-visible behavior.",
+        "No fixed latency or exact cycle count is assumed.",
+        "result equals A - B modulo 2^64",
+        "overflow flag follows signed overflow detection rule"
+      ],
+      "expected_transition": "",
+      "goal": "Validate basic subtraction functionality without assuming timing specifics.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Conservative case preserving ambiguity; focuses on observable outputs."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Only deterministic, contract-supported stimulus is used; otherwise the case is downgraded.",
+        "Drive a nominal random pair of operands and observe outputs"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": "random_64bit",
+            "B": "random_64bit"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "overflow": 1,
+            "result": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only.",
+        "Do not assume fixed latency; observe outputs after a settle window"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.5,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Overflow flag correctly indicates signed overflow for boundary operand values",
+        "Result matches expected arithmetic for min/max signed inputs"
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value patterns to verify overflow detection at signed limits.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Focuses on signed min/max values without assuming latency."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['A', 'B']",
+        "Drive A and B with zero, max positive, max negative, and mixed sign patterns"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": "0x0000000000000000",
+            "B": "0x0000000000000000"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "overflow": 1,
+            "result": 1
+          }
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "A": "0x7FFFFFFFFFFFFFFF",
+            "B": "0xFFFFFFFFFFFFFFFF"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "overflow": 1,
+            "result": 1
+          }
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "A": "0x8000000000000000",
+            "B": "0x0000000000000001"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "overflow": 1,
+            "result": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only.",
+        "Do not assume fixed latency; use explicit settle waits after each drive"
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "confidence": 0.43000000000000005,
+      "coverage_tags": [
+        "operation_specific",
+        "metamorphic"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "result matches software reference A - B modulo 2^64",
+        "overflow flag follows signed overflow rule based on sign bits of A, B, and result"
+      ],
+      "expected_transition": "",
+      "goal": "Validate functional correctness against a reference model for a variety of operand pairs.",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [
+        "A and B are driven with any 64-bit values"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive random operand pairs, wait for outputs to settle, and compare against reference model"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": "random_64bit",
+            "B": "random_64bit"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "overflow": 1,
+            "result": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; use settle window after driving inputs"
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "confidence": 0.43000000000000005,
+      "coverage_tags": [
+        "operation_specific",
+        "back_to_back"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Each subtraction operation produces independent correct result and overflow",
+        "No residual state from first operation affects second operation"
+      ],
+      "expected_transition": "",
+      "goal": "Exercise two consecutive subtractions without intervening reset to ensure stateless behavior.",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [
+        "A and B can be re-driven after previous operation"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive first operand pair, observe outputs, then immediately drive second operand pair"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": "0x0000000000000001",
+            "B": "0x0000000000000000"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "overflow": 1,
+            "result": 1
+          }
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "A": "0xFFFFFFFFFFFFFFFF",
+            "B": "0x0000000000000001"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 1,
+            "B": 1,
+            "overflow": 1,
+            "result": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; use explicit settle waits between operations"
+      ]
+    }
+  ],
+  "module_name": "sub_64bit",
+  "plan_confidence": 0.41000000000000003,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Timing model is unresolved; generated cases avoid fixed-latency checks.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Negative or illegal-input behavior is not planned because the contract does not provide reliable constraints."
+  ]
+}

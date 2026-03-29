@@ -19,7 +19,9 @@ def build_plan_system_prompt() -> str:
         "Return JSON only. Do not include markdown, prose outside JSON, or code fences. "
         "Never invent ports, protocols, clocks, resets, outputs, or timing guarantees that are not present in the provided contract. "
         "Preserve ambiguity when behavior is underspecified. "
-        "Always keep baseline basic and edge coverage intact; enrich or add cases without deleting baseline coverage."
+        "Always keep baseline basic and edge coverage intact; enrich or add cases without deleting baseline coverage. "
+        "Follow the schema exactly. In additional_cases, use 'draft_id' and never emit 'case_id'. "
+        "Do not emit confidence, source, or other bookkeeping fields."
     )
 
 
@@ -64,6 +66,8 @@ def build_plan_user_prompt(
                 "removing baseline cases",
                 "changing baseline case category",
                 "assuming exact-cycle timing when contract timing is weak or unknown",
+                "emitting case_id inside additional_cases",
+                "emitting confidence or source bookkeeping fields",
             ],
         },
         "output_schema": {
@@ -115,7 +119,8 @@ def build_oracle_system_prompt() -> str:
         "Return JSON only. Do not include markdown, prose outside JSON, or code fences. "
         "Keep protocol, functional, and property checks separate. "
         "Never invent signals or reference-model semantics not grounded in the provided contract, plan, or spec. "
-        "Prefer ambiguity-preserving checks when the spec or timing is uncertain."
+        "Prefer ambiguity-preserving checks when the spec or timing is uncertain. "
+        "Follow the schema exactly. Do not emit check_id, confidence, signal_policies, source, case_id, or oracle_group fields; the merge layer owns those fields."
     )
 
 
@@ -145,6 +150,8 @@ def build_oracle_user_prompt(
                 "inventing unknown signals",
                 "using exact_cycle windows when timing is weak or unknown",
                 "pretending spec certainty where ambiguity remains",
+                "emitting check_id, confidence, signal_policies, or source fields",
+                "emitting case_id or oracle_group for oracle cases",
             ],
         },
         "output_schema": {

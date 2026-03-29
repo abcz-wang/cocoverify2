@@ -1,0 +1,112 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back",
+        "throughput"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "product updates reflect each new (A,B) pair after an unknown but finite latency",
+        "no spurious glitches appear on product between successive updates"
+      ],
+      "goal": "Verify correct operation when multiple input vectors are presented consecutively without intervening reset.",
+      "notes": [
+        "Stimulus is deterministic; observation windows are sized conservatively to avoid fixed\u2011latency assumptions."
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "preconditions": [
+        "A and B are driven with valid 8\u2011bit values for each stimulus cycle"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a sequence of distinct (A,B) vectors back\u2011to\u2011back and monitor product after each vector"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Use a reset\u2011safe or protocol\u2011safe observation window that is long enough to capture the product after each stimulus, without assuming a fixed number of cycles"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "product eventually equals A * B for any single stimulus pair",
+        "no illegal state transitions are observed"
+      ],
+      "goal": "Observe that the multiplier produces the correct product for a single deterministic input pair, respecting reset\u2011safe observation windows.",
+      "notes": [
+        "Conservative case due to unknown timing; only external visibility is checked."
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive A and B with a single deterministic vector and monitor product"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; use a window of several cycles after stimulus"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "product equals expected value for boundary inputs (0, 1, 0xFF) on A and B",
+        "no overflow or truncation errors appear for extreme values"
+      ],
+      "goal": "Exercise boundary\u2011value patterns on A and B to ensure correct handling of min/max cases.",
+      "notes": [
+        "Covers zero, one, and maximum 8\u2011bit values for both operands."
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply zero\u2011like, one\u2011like, and max\u2011value patterns on A and B"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; observe product over a safe window after each stimulus"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

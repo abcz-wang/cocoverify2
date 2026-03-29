@@ -1,0 +1,76 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: overlapping sequence detections must be reported as distinct assertions.",
+          "notes": [
+            "Ensures that the detector does not merge overlapping 1001 patterns into a single output event."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "For each occurrence of the 4\u2011bit pattern 1001 in the input stream, including overlapping occurrences, sequence_detected must assert at least once; separate occurrences must cause separate assertions.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 12,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the linked plan case edge_001 drives the overlapping bitstream."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Validate that sequence_detected remains low until the full 1001 pattern is observed and then asserts for at least one clock cycle.",
+          "notes": [
+            "Conservative observation window; does not assume exact latency from the last input bit."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "After reset release, sequence_detected must stay low while the input stream does not contain the complete 1001 pattern. Once the fourth bit of the pattern has been received, sequence_detected must become high within eight clock cycles and stay high for at least one cycle before returning low.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 8,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the basic_001 plan case drives a bitstream containing the target sequence after reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Golden interface mentioned port 'S4', but it was not found in the RTL header.",
+    "Spec/reset hint could not be mapped to a known reset port: -Reset Behavior: When reset is high, the state machine returns to the IDLE state, resetting the detection process."
+  ]
+}

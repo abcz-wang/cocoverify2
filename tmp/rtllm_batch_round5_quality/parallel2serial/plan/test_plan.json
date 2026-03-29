@@ -1,0 +1,290 @@
+{
+  "assumptions": [
+    "Implement a module for parallel-to-serial conversion, where every four input bits are converted to a serial one bit output (from MSB to LSB). The output signal valid_out is set to 1 to indicate the availability of valid serial output. When valid_out = 1, the most significant bit of d is output, and the remaining three bits are output sequentially in the following 3 cycles.",
+    "The most significant bit of the parallel input is assigned to the serial output (dout). On each clock cycle, if the counter (cnt) is 3, indicating the last bit of the parallel input, the module updates the data register (data) with the parallel input (d), resets the counter (cnt) to 0, and sets the valid signal (valid) to 1.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_parallel2serial",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.8350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "valid_out asserts high for exactly one cycle per loaded 4\u2011bit word",
+        "dout outputs the four bits of d in MSB\u2011to\u2011LSB order over four consecutive cycles"
+      ],
+      "goal": "Confirm that a single legal parallel word is serialized correctly and that valid_out signals the start of serialization.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Assumes the module asserts valid_out when the first bit of the new word is presented."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['d']",
+        "Provide a representative 4\u2011bit pattern on d and observe the resulting serial stream."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Wait for at least five clock cycles after driving d to capture the full serialization and the next idle period."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['d']"
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "idle_behavior",
+        "valid_stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "valid_out remains low when no new parallel word is presented after a completed serialization",
+        "dout does not change unexpectedly during idle periods"
+      ],
+      "goal": "Verify that the module does not assert valid_out or change dout when the input d is held constant after a full 4\u2011bit conversion.",
+      "notes": [
+        "Uses the same input d value that was previously serialized; no new load event is triggered."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "A full serialization of a previous 4\u2011bit word has completed (valid_out has been observed high for one cycle).",
+        "The input d is kept stable (no change) for at least four additional clock cycles."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Hold d constant after a completed conversion and monitor outputs."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe outputs for at least four clock cycles after the last valid_out assertion."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "illegal_input",
+        "x_propagation"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Outputs do not become X when the input d contains X or Z bits",
+        "valid_out does not assert spuriously for illegal input patterns"
+      ],
+      "goal": "Check robustness of the design when the parallel input contains unknown or high\u2011impedance values.",
+      "notes": [
+        "The contract does not forbid X/Z on d; this case ensures conservative handling.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "Drive d with at least one X or Z bit for a single clock cycle."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply an X/Z pattern to the parallel input and observe module response."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Capture output immediately after the clock edge that samples the X/Z input."
+      ]
+    }
+  ],
+  "module_name": "verified_parallel2serial",
+  "plan_confidence": 0.8850000000000001,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'.",
+    "Spec/reset hint could not be mapped to a known reset port: The most significant bit of the parallel input is assigned to the serial output (dout). On each clock cycle, if the counter (cnt) is 3, indicating the last bit of the parallel input, the module updates the data register (data) with the parallel input (d), resets the counter (cnt) to 0, and sets the valid signal (valid) to 1."
+  ]
+}

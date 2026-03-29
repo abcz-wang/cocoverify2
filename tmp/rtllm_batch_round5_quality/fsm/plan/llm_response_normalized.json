@@ -1,0 +1,109 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "negative",
+        "mismatch"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "MATCH remains 0 for non-matching sequences"
+      ],
+      "goal": "Confirm that MATCH does not assert for incorrect input patterns.",
+      "notes": [
+        "Test pattern 1,0,1,1,0 which is close but not matching"
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive IN with non-matching sequence 1,0,1,1,0"
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Observe MATCH after each clock edge; no assertion expected"
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "regression",
+        "long_sequence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "reg_001",
+      "expected_properties": [
+        "MATCH asserts only at correct positions in long mixed sequence"
+      ],
+      "goal": "Validate detection across a long random stream with multiple occurrences.",
+      "notes": [
+        "Stream includes 10011 at positions 5, 12, etc."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive IN with sequence: 0,0,1,0,0,1,1,0,1,0,0,1,1,0"
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Check MATCH at expected indices without assuming latency"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "seq_detection"
+      ],
+      "expected_properties": [
+        "MATCH asserted only when pattern 10011 completes"
+      ],
+      "goal": "Validate detection of a single occurrence of pattern 10011 in a continuous stream.",
+      "notes": [
+        "Ensures that overlapping patterns are handled correctly"
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive IN with pattern 1,0,0,1,1 followed by zeros"
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Check MATCH on same cycle as last input bit, without assuming extra latency"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

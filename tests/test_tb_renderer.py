@@ -9,6 +9,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from cocoverify2.cocotbgen.env import _build_deterministic_stimulus_steps
+from cocoverify2.core.models import DUTContract, PortSpec, TestCasePlan, TimingSpec
+from cocoverify2.core.types import PortDirection, SequentialKind, TestCategory
 from cocoverify2.stages.contract_extractor import ContractExtractor
 from cocoverify2.stages.oracle_generator import OracleGenerator
 from cocoverify2.stages.tb_renderer import TBRenderer
@@ -255,3 +258,75 @@ def test_stage_render_cli_smoke(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
     assert "Render package generated for module 'simple_comb'" in result.stdout
     assert (tmp_path / "cli_render" / "render" / "metadata.json").exists()
+
+
+def test_deterministic_stimulus_uses_available_inputs_for_serial_parallel_edge_case() -> None:
+    contract = DUTContract(
+        module_name="verified_serial2parallel",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="din_serial", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="din_valid", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="dout_parallel", direction=PortDirection.OUTPUT, width=8),
+            PortSpec(name="dout_valid", direction=PortDirection.OUTPUT, width=1),
+        ],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+    )
+    case = TestCasePlan(
+        case_id="edge_001",
+        goal="Exercise width-sensitive edges.",
+        category=TestCategory.EDGE,
+        stimulus_intent=["Use control boundary patterns."],
+        stimulus_signals=["din_valid"],
+        expected_properties=["Observe externally visible progress."],
+        observed_signals=["dout_parallel", "dout_valid"],
+        timing_assumptions=["Conservative clocked observation."],
+        coverage_tags=["edge"],
+        semantic_tags=["width_sensitive"],
+        confidence=0.8,
+    )
+
+    steps = _build_deterministic_stimulus_steps(contract=contract, case=case)
+    drive_steps = [step for step in steps if step["action"] == "drive"]
+
+    assert len(drive_steps) >= 9
+    assert all("din_serial" in step["signals"] and "din_valid" in step["signals"] for step in drive_steps[:-1])
+    assert drive_steps[-1]["signals"]["din_valid"] == 0
+
+
+def test_deterministic_stimulus_uses_available_inputs_for_stack_buffer_edge_case() -> None:
+    contract = DUTContract(
+        module_name="LIFObuffer",
+        ports=[
+            PortSpec(name="Clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="Rst", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="dataIn", direction=PortDirection.INPUT, width=4),
+            PortSpec(name="RW", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="EN", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="EMPTY", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="FULL", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="dataOut", direction=PortDirection.OUTPUT, width=4),
+        ],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+    )
+    case = TestCasePlan(
+        case_id="edge_001",
+        goal="Exercise boundary writes.",
+        category=TestCategory.EDGE,
+        stimulus_intent=["Use boundary data values."],
+        stimulus_signals=["dataIn", "EN"],
+        expected_properties=["Observe buffer status changes."],
+        observed_signals=["EMPTY", "FULL", "dataOut"],
+        timing_assumptions=["Conservative clocked observation."],
+        coverage_tags=["edge"],
+        semantic_tags=["width_sensitive"],
+        confidence=0.8,
+    )
+
+    steps = _build_deterministic_stimulus_steps(contract=contract, case=case)
+    drive_steps = [step for step in steps if step["action"] == "drive"]
+
+    assert len(drive_steps) >= 2
+    assert drive_steps[0]["signals"]["RW"] == 0
+    assert drive_steps[1]["signals"]["RW"] == 1

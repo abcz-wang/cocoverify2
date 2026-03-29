@@ -1,0 +1,65 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "No exact-cycle assumptions; dout must eventually stabilize after address change.",
+          "semantic_tags": [],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When address changes."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "dout must reflect the value stored at the addressed location after combinational propagation.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When addr is driven."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

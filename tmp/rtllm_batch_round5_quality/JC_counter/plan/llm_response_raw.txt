@@ -1,0 +1,107 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_edge",
+        "stability"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "draft_edge_001",
+      "expected_properties": [
+        "Q returns to 0 after reset deassertion regardless of prior state"
+      ],
+      "goal": "Verify that the asynchronous active‑low reset reliably forces Q to zero even when asserted mid‑cycle",
+      "notes": [
+        "Reset is active‑low and may be asserted for multiple clock cycles"
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst_n low for one clock, then release and observe Q stabilization"
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Allow at least one clock after reset release before checking Q"
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "reset_hold",
+        "no_progress"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "draft_negative_001",
+      "expected_properties": [
+        "Q remains 0 while rst_n is held low"
+      ],
+      "goal": "Confirm that no counting occurs while the reset is asserted",
+      "notes": [
+        "Ensures the design does not inadvertently toggle Q during reset"
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Hold rst_n low for several consecutive clock cycles"
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe Q across multiple clock edges while reset is asserted"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "counter_progress",
+        "clocked"
+      ],
+      "expected_properties": [
+        "Q follows the Johnson counter rule each rising edge of clk after reset release"
+      ],
+      "goal": "Validate correct Johnson counting behavior over multiple cycles",
+      "notes": [
+        "Observes both increment and decrement phases of the 64‑bit Johnson counter"
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Release reset and allow the counter to evolve for a conservative number of clock edges"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe at least 128 clock cycles to cover a full Johnson sequence"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

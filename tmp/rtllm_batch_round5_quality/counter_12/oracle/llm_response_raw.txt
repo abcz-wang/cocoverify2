@@ -1,0 +1,99 @@
+{
+  "assumptions": [],
+  "oracle_notes": [],
+  "unresolved_items": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "functional",
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When valid_count is asserted, the output 'out' must change by at most one count value per clock edge, reflecting a single increment or wrap.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "For each rising edge of clk while valid_count=1, the difference between successive out values is either +1 (mod 12) or 0 if a wrap occurs, and never exceeds one step.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When valid_count transitions to 1 and remains asserted."
+        }
+      ]
+    },
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "edge_001",
+      "oracle_class": "property",
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "The counter output must never exceed the maximum value 4'd11.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "At all observed times, out <= 4'd11.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously during any stimulus."
+        }
+      ]
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "basic_002",
+      "oracle_class": "property",
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When valid_count is deasserted, the output 'out' must remain stable (no change) across clock cycles.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "For each rising edge of clk while valid_count=0, out(t+1) == out(t).",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When valid_count is 0."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "freq_divbyodd",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.6850000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.6350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "basic_progress",
+        "clock_observation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access.",
+        "clk_div remains defined (no X) and exhibits regular toggling over the observation window"
+      ],
+      "goal": "Confirm functional progress of the frequency divider after reset without assuming exact latency.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved.",
+        "Conservative observation due to unknown exact division ratio and timing model."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress.",
+        "Release rst_n and monitor clk_div for several clock cycles"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe over at least 10 clock cycles to capture multiple periods of clk_div"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.6200000000000001,
+      "coverage_tags": [
+        "frequency_division",
+        "odd_divisor"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "clk_div toggles at a lower frequency than clk, maintaining a stable period ratio consistent with odd division",
+        "No glitches or X-propagation appear on clk_div during observation"
+      ],
+      "goal": "Validate that the divided clock exhibits the expected slower, regular toggling behavior without assuming exact cycle counts.",
+      "notes": [
+        "Observation window is conservative due to unknown exact divisor value.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Observe relative frequency of clk_div versus clk over multiple clock cycles"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over at least 20 clock cycles to capture several periods of clk_div"
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.6200000000000001,
+      "coverage_tags": [
+        "reset_behavior"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "clk_div returns to a stable, non-X state after each rapid reset release",
+        "No metastability or undefined behavior is observed on clk_div during quick reset toggling"
+      ],
+      "goal": "Confirm that rapid assert/deassert of the known reset (rst_n) does not corrupt the divider output.",
+      "notes": [
+        "Uses the resolved active-low reset rst_n; clk reset polarity remains ambiguous and is not exercised.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert rst_n low, release it, then reassert quickly while clk continues toggling"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Allow at least 2 clock cycles between reset release and reassert to observe stabilization"
+      ]
+    }
+  ],
+  "module_name": "freq_divbyodd",
+  "plan_confidence": 0.6850000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Golden interface described clock 'clk_div', but the RTL port is not a scalar input-like signal.",
+    "Reset polarity for 'clk' is unresolved."
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_edge",
+        "stability"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "out returns to the initial state (LSB = 1) after reset is deasserted",
+        "No metastability or X-propagation is observed on out after reset release"
+      ],
+      "goal": "Validate correct handling of an asynchronous reset assertion/deassertion relative to the clock.",
+      "notes": [
+        "Reset polarity is taken from contract (active high). Timing of deassertion is left ambiguous."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "reset signal is present in the contract"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset for a single clock cycle, then release it",
+        "Observe out for several cycles to confirm it stabilizes to the expected start state"
+      ],
+      "stimulus_signals": [
+        "reset"
+      ],
+      "timing_assumptions": [
+        "Allow at least two clock edges after reset release before checking out stability"
+      ]
+    },
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "full_cycle_observation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "basic_cycle_001",
+      "expected_properties": [
+        "out cycles through all eight positions exactly once before repeating",
+        "Only one bit of out is high at any clock edge"
+      ],
+      "goal": "Demonstrate the ring counter completes a full 8\u2011state cycle after reset.",
+      "notes": [
+        "Observation window is conservative; exact latency per transition is not assumed."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Run the design for at least nine clock cycles and record out values"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over a minimum of nine consecutive clock edges"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "ring_counter_progress",
+        "single_bit_assertion"
+      ],
+      "expected_properties": [
+        "Exactly one bit of out is high at any observed clock edge",
+        "The high bit moves to the next position on each clock edge without skipping"
+      ],
+      "goal": "Verify that the ring counter advances one position per clock after reset.",
+      "notes": [
+        "No assumption about fixed latency; progress is checked over a conservative number of cycles."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset and observe out for a few clock cycles to confirm deterministic progression"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over at least three consecutive clock edges after reset release"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail for edge case: avoid fixed-cycle expectations; any observable change after operation must be consistent with conservative progress.",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "o_en"
+          ],
+          "pass_condition": "No safety property is violated by assuming a specific latency; the design may update result and o_en at any cycle after the operation, but must eventually reflect a correct sum for boundary inputs.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the plan applies edge-case stimulus to adda and addb."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Functional correctness of a single enabled addition: result must eventually equal adda + addb and o_en must assert to indicate validity.",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "o_en"
+          ],
+          "pass_condition": "After i_en is asserted with a legal operand pair, result and o_en transition to a stable, non-X state that reflects the correct sum; the exact cycle of transition is not required.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 case drives i_en high with representative operands."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,327 @@
+{
+  "assumptions": [
+    "Implement a series-parallel conversion circuit. It receives a serial input signal \"din_serial\" along with a control signal \"din_valid\" indicating the validity of the input data. The module operates on the rising edge of the clock signal \"clk\" and uses a synchronous design. The input din_serial is a single-bit data, and when the module receives 8 input data, the output dout_parallel outputs the 8-bit data(The serial input values are sequentially placed in dout_parallel from the most significant bit to the least significant bit), and the dout_valid is set to 1.",
+    "The module utilizes a 4-bit counter (cnt) to keep track of the number of serial input data bits received. Every eight din_serial input, dout_parallel will output. When all 8 serial data bits have been received, the valid output signal is set to 1, indicating that the parallel output data is valid. Otherwise, the valid output signal is set to 0, indicating that the parallel output data is not valid.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_serial2parallel",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.8350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "valid_sequence",
+        "msb_lsb_order"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "dout_valid asserts exactly after eight consecutive din_valid=1 cycles.",
+        "dout_parallel reflects the eight serial bits in MSB\u2011to\u2011LSB order."
+      ],
+      "goal": "Verify that a full 8\u2011bit valid transfer produces the correct parallel word and asserts dout_valid.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Assumes synchronous reset clears the counter and output registers.",
+        "No fixed\u2011cycle latency is assumed beyond one clock per input bit."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['din_serial', 'din_valid']",
+        "Drive din_valid=1 and a known pattern on din_serial for eight consecutive clock cycles."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Check dout_parallel and dout_valid on the clock edge following the eighth input."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['din_valid']"
+      ],
+      "stimulus_signals": [
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "invalid_input"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "When din_valid is low, changes on din_serial do not affect dout_parallel or dout_valid."
+      ],
+      "goal": "Confirm that the module ignores serial data when din_valid is deasserted.",
+      "notes": [
+        "Tests handling of missing valid handshake without assuming any latency.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Toggle din_serial while keeping din_valid low for several clock cycles."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Observe outputs on each rising edge of clk after stimulus."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "valid_stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "After dout_valid becomes asserted, it remains asserted until a reset or a new valid sequence begins."
+      ],
+      "goal": "Verify that dout_valid does not deassert spontaneously after being asserted.",
+      "notes": [
+        "Preserves ambiguity about whether dout_valid stays high for one cycle or longer."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Provide a single eight\u2011bit valid sequence, then keep din_valid low and monitor dout_valid."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Check dout_valid on each subsequent clock edge after the eighth valid bit."
+      ]
+    },
+    {
+      "case_id": "edge_002",
+      "category": "edge",
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "boundary_valid"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "edge_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Transition of din_valid from 0 to 1 at the start of a sequence correctly initiates counting."
+      ],
+      "goal": "Exercise the edge case where din_valid is asserted exactly on the first clock of a new 8\u2011bit transfer.",
+      "notes": [
+        "Ensures correct handling of a rising edge on din_valid without assuming internal latency."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert din_valid for a single clock, then deassert, and repeat to form a full 8\u2011bit sequence."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each rising edge of clk."
+      ]
+    }
+  ],
+  "module_name": "verified_serial2parallel",
+  "plan_confidence": 0.9150000000000001,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['din_valid'] without matching role(s) ['ready'] in group 'din'.",
+    "Detected valid_ready-like signal(s) ['dout_valid'] without matching role(s) ['ready'] in group 'dout'."
+  ]
+}

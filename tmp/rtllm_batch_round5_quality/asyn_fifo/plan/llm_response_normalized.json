@@ -1,0 +1,130 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "no_write_when_disabled"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "When wenc is deasserted, changes to waddr or wdata do not affect stored memory, and rdata remains unchanged for reads of that address."
+      ],
+      "goal": "Verify that write enable gating prevents memory update.",
+      "notes": [
+        "Ensures that the RAM does not accept writes when wenc=0."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [
+        "Write enable is low (wenc=0) while a write address and data are presented."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Apply wenc=0, toggle waddr and wdata, then enable read to verify no data was written."
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Observe after at least one rising edge of wclk and rclk following stimulus."
+      ]
+    },
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "handshake",
+        "clock_crossing"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "Concurrent write and read enables on different clocks should not cause metastability; rdata reflects previously written data according to FIFO semantics."
+      ],
+      "goal": "Exercise simultaneous write and read operations on separate clock domains.",
+      "notes": [
+        "Tests cross\u2011clock interaction while keeping timing assumptions conservative."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [
+        "Both wenc and renc asserted in the same overall cycle (different clock edges)."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert wenc and renc together, provide waddr/wdata and raddr, then observe rdata after appropriate clock edges."
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Allow at least one wclk and one rclk cycle after stimulus before sampling rdata."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Write enable high causes memory write at waddr; read enable high returns data at raddr after at least one clock cycle."
+      ],
+      "goal": "Validate single write followed by read with conservative timing.",
+      "notes": [
+        "Enrichment adds explicit expectation of write gating."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Write a value, then read it back using the same address."
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Observe after one rising edge of wclk for write and one rising edge of rclk for read."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "Added negative case to verify write enable gating.",
+    "Added protocol case to exercise simultaneous write/read across clock domains."
+  ],
+  "unresolved_items": []
+}

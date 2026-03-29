@@ -1,0 +1,48 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Require that after applying a legal 4‑bit input, the module asserts valid_out for one cycle and outputs the four bits of d on dout in MSB‑to‑LSB order over the subsequent cycles.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "pass_condition": "valid_out goes high exactly once within a window of 5 cycles after d is presented, and the dout sequence matches the bits of d in order (MSB first).",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a new 4‑bit value is driven on d while reset is deasserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

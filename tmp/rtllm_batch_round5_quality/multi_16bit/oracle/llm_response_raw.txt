@@ -1,0 +1,73 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Done must not be asserted unless a start event has occurred earlier in the same operation.",
+          "notes": [],
+          "observed_signals": [
+            "done",
+            "start"
+          ],
+          "pass_condition": "A transition of done to 1 is allowed only after start has been asserted in a prior clock cycle; done must be 0 when start is 0.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When done transitions to 1."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "yout must reflect the product of ain and bin after a visible done transition.",
+          "notes": [],
+          "observed_signals": [
+            "yout",
+            "done",
+            "ain",
+            "bin"
+          ],
+          "pass_condition": "When done goes high, the value on yout equals the unsigned 16‑bit multiplication of the most recent ain and bin values.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When done transitions to 1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

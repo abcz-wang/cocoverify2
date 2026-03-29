@@ -1,0 +1,184 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "exhaustive"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "All 64 input combinations produce exactly one high output among A_greater, A_equal, A_less"
+      ],
+      "goal": "Full combinational truth table verification for the 3-bit comparator",
+      "notes": [
+        "Runs through every possible A and B value sequentially"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Iterate A and B over the range 0 to 7"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Sample outputs after each input change stabilizes"
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "min_max"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "Outputs are correct for the minimum and maximum operand values"
+      ],
+      "goal": "Validate extreme boundary conditions of the comparator",
+      "notes": [
+        "Test cases include A=0,B=0; A=7,B=7; A=0,B=7; A=7,B=0"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply extreme operand values"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle"
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "rapid_change"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_003",
+      "expected_properties": [
+        "Outputs track input changes without glitches or metastability"
+      ],
+      "goal": "Check output stability under rapid input toggling",
+      "notes": [
+        "Toggle A and B through a sequence of values to stress combinational paths"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a fast-changing sequence of A and B values"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Immediate observation after each input change"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "exhaustive_subset"
+      ],
+      "expected_properties": [
+        "All output combinations correspond to the comparator truth table"
+      ],
+      "goal": "Validate combinational mapping across a representative set of inputs",
+      "notes": [
+        "Ensures mutual exclusivity of A_greater, A_equal, and A_less"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive each possible A,B pair in a single test vector"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization (e.g., 1 ns delay)"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary_extremes"
+      ],
+      "expected_properties": [
+        "Outputs are correct for minimum and maximum operand values"
+      ],
+      "goal": "Validate edge behavior of the comparator",
+      "notes": [
+        "Covers min (0) and max (7) values for both operands"
+      ],
+      "observed_signals": [
+        "A_greater",
+        "A_equal",
+        "A_less"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply A=0,B=7 and A=7,B=0 along with equal extremes"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe after inputs settle"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

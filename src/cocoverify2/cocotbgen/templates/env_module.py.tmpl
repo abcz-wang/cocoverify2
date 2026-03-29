@@ -70,6 +70,11 @@ class ${class_name}:
             return None
         assert_values: dict[str, object] = {}
         release_values: dict[str, object] = {}
+        for signal_name in self.interface.business_input_names():
+            lowered = signal_name.lower()
+            if lowered in {"en", "enable", "ce"} or lowered.endswith("_en"):
+                assert_values[signal_name] = 1
+                release_values[signal_name] = 1
         for reset_name in reset_names:
             active_level = 0 if reset_name.endswith("n") or reset_name.endswith("_n") else 1
             assert_values[reset_name] = active_level

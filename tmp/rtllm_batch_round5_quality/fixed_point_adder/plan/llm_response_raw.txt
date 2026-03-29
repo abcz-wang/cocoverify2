@@ -1,0 +1,150 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Output c equals (a + b) modulo 2^N for all legal input combinations."
+      ],
+      "goal": "Validate functional correctness of the adder across the full input space without assuming timing.",
+      "notes": [
+        "Assumes purely combinational behavior as indicated by the contract.",
+        "No internal state or latency is inferred."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a wide variety of random legal values on inputs a and b, covering both typical and extreme patterns."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after inputs have settled; no fixed-cycle latency is assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "overflow_boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Output c correctly reflects overflow behavior (wrap‑around) when adding maximum operand values."
+      ],
+      "goal": "Exercise boundary conditions that may trigger overflow or sign‑bit changes.",
+      "notes": [
+        "Focuses on min/max patterns and zero/one patterns for inputs a and b."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply zero, one, maximum, and just‑below‑maximum values to a and b."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after inputs have stabilized; no latency assumptions are made."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "basic",
+      "coverage_tags": [
+        "overflow",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When a and b are both set to the maximum N‑bit value, c wraps around to (2^N‑2) modulo 2^N, demonstrating correct overflow handling."
+      ],
+      "goal": "Confirm that the adder truncates overflow bits and produces the expected modular result.",
+      "notes": [
+        "Uses the same combinational observation model as the contract."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Inputs a and b are driven with the maximum representable value (all bits = 1)."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive both a and b with the maximum N‑bit value to provoke overflow."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Check c after inputs settle; no fixed latency is assumed."
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "back_to_back",
+      "coverage_tags": [
+        "sequential",
+        "sanity"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Successive independent input vectors produce corresponding independent output values without residual effects."
+      ],
+      "goal": "Verify that rapid successive changes on a and b produce correct, independent outputs each time.",
+      "notes": [
+        "Even though the design is combinational, this case checks for any unintended latch or state retention."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "A sequence of distinct input pairs is applied with sufficient settling time between them."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a series of varied (a,b) pairs back‑to‑back and monitor c after each change."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Each output is observed after the corresponding inputs have stabilized."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

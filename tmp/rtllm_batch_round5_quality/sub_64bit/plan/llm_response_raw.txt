@@ -1,0 +1,192 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "functional_correctness",
+        "randomized"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "basic_random_001",
+      "expected_properties": [
+        "result equals A - B for a wide range of random operand pairs",
+        "overflow flag follows sign‑overflow rules defined in the contract"
+      ],
+      "goal": "Validate functional correctness of subtraction and overflow detection across a statistically significant set of random inputs.",
+      "notes": [
+        "Uses deterministic stimulus generation (pseudo‑random seed) to keep the case repeatable."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a series of random 64‑bit values to inputs A and B while keeping the design in a stable, reset‑safe state."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe result and overflow after inputs have been stable for at least one cycle; no fixed latency is assumed."
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "overflow_boundary",
+        "sign_edge"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "overflow_boundary_001",
+      "expected_properties": [
+        "overflow is asserted when A is positive max and B is negative min leading to a negative result",
+        "overflow is asserted when A is negative min and B is positive max leading to a positive result",
+        "overflow is de‑asserted for all non‑overflow sign combinations"
+      ],
+      "goal": "Exercise sign‑overflow boundary conditions to ensure overflow flag correctness at extreme operand values.",
+      "notes": [
+        "Focuses on the two classic overflow scenarios described in the spec."
+      ],
+      "observed_signals": [
+        "overflow"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive A and B with extreme signed values (e.g., 0x7FFFFFFFFFFFFFFF, 0x8000000000000000) that trigger sign overflow."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Result and overflow are sampled after inputs have settled; no exact cycle count is required."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "throughput",
+        "continuous_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "b2b_sequence_001",
+      "expected_properties": [
+        "Each result and overflow corresponds to the immediately preceding A/B pair",
+        "No spurious toggling of outputs occurs between consecutive operations"
+      ],
+      "goal": "Verify correct operation when multiple subtractions are issued back‑to‑back without idle cycles.",
+      "notes": [
+        "Ensures the design can handle a stream of operand pairs."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a rapid sequence of distinct A/B pairs, changing inputs every cycle."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Outputs are monitored continuously; latency is unknown but each output must eventually reflect its input pair."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "sanity",
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Result and overflow are observable after inputs are stable",
+        "No hidden state influences the immediate output"
+      ],
+      "goal": "Confirm that the module produces a deterministic output for arbitrary stable inputs.",
+      "notes": [
+        "Enrichment adds explicit functional expectations while preserving the original conservative intent."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Provide deterministic, contract‑compliant stimulus to A and B."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Use a reset‑safe observation window; do not rely on fixed latency."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Boundary values of A and B do not cause undefined behavior",
+        "Overflow detection is exercised at sign extremes"
+      ],
+      "goal": "Exercise boundary‑value and width‑sensitive input patterns while remaining timing‑agnostic.",
+      "notes": [
+        "Adds explicit mention of sign‑overflow boundaries to the edge case."
+      ],
+      "observed_signals": [
+        "result",
+        "overflow"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Use zero‑like, one‑like, max/min signed values on A and B."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; rely on reset‑safe observation."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

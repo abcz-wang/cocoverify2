@@ -1,0 +1,146 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_release",
+        "feedback_correctness"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "After reset deassertion, out updates on each rising clk edge following XOR(out[3], out[2]) inverted feedback rule.",
+        "out never becomes X during observation window."
+      ],
+      "goal": "Validate correct LFSR state transition on clock edges after reset.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset has been applied and released."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset high, then release it, then generate a sequence of rising clock edges."
+      ],
+      "stimulus_signals": [
+        "rst",
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Observe at least 4 consecutive rising edges after reset release."
+      ]
+    },
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "clock_idle_stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "basic_002",
+      "expected_properties": [
+        "When clk remains low, out retains its value across observation cycles."
+      ],
+      "goal": "Confirm that LFSR does not change state without clock activity.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset has been released."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Hold clk low for multiple cycles after reset release."
+      ],
+      "stimulus_signals": [
+        "clk"
+      ],
+      "timing_assumptions": [
+        "No rising edge of clk occurs during the observation window."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_reset_timing"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "Out remains defined (no X) even if reset is asserted while clk toggles."
+      ],
+      "goal": "Assess robustness to potentially illegal reset timing.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst high while generating clock toggles."
+      ],
+      "stimulus_signals": [
+        "rst",
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Observe after deasserting rst."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "feedback_logic",
+        "state_progress"
+      ],
+      "expected_properties": [
+        "out changes on each rising clk edge after reset according to LFSR polynomial.",
+        "No X values appear on out during observation."
+      ],
+      "goal": "Observe deterministic LFSR progression after reset.",
+      "notes": [
+        "Conservative due to unknown latency; only external behavior is checked."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Release reset and observe several clock cycles."
+      ],
+      "stimulus_signals": [
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Observe at least 5 rising edges post-reset."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -12,7 +12,12 @@ from cocoverify2.core.models import DUTContract, HandshakeGroup, TestCasePlan, T
 from cocoverify2.core.types import GenerationMode, PortDirection, SequentialKind, TestCategory
 from cocoverify2.llm.client import LLMClient
 from cocoverify2.llm.prompts import build_plan_system_prompt, build_plan_user_prompt
-from cocoverify2.llm.validators import parse_plan_augmentation, validate_plan_augmentation
+from cocoverify2.llm.validators import (
+    extract_json_payload,
+    normalize_plan_augmentation_payload,
+    parse_plan_augmentation,
+    validate_plan_augmentation,
+)
 from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_text, write_yaml
 from cocoverify2.utils.logging import get_logger
 
@@ -234,25 +239,31 @@ class TestPlanGenerator:
 
         raw_response = ""
         parsed_payload: dict[str, object] = {}
+        normalized_payload: dict[str, object] = {}
         merge_report: dict[str, object] = {}
         try:
             client = self.llm_client or LLMClient(llm_config)
             raw_response = client.complete(system_prompt=system_prompt, user_prompt=user_prompt)
+            parsed_payload = extract_json_payload(raw_response)
+            normalized_payload, normalization_report = normalize_plan_augmentation_payload(parsed_payload)
             parsed = parse_plan_augmentation(raw_response)
             validated, validation_report = validate_plan_augmentation(
                 parsed,
                 contract=contract,
                 baseline_plan=baseline_plan,
             )
-            parsed_payload = validated.model_dump(mode="json")
             merged_plan, merge_report = self._merge_plan_augmentation(
                 contract=contract,
                 baseline_plan=baseline_plan,
                 augmentation=validated,
-                validation_report=validation_report,
+                validation_report={
+                    "normalization_report": normalization_report,
+                    **validation_report,
+                },
             )
             write_text(plan_dir / "llm_response_raw.txt", raw_response)
             write_json(plan_dir / "llm_response_parsed.json", parsed_payload)
+            write_json(plan_dir / "llm_response_normalized.json", normalized_payload)
             write_json(plan_dir / "llm_merge_report.json", merge_report)
             return merged_plan
         except Exception as exc:
@@ -274,6 +285,7 @@ class TestPlanGenerator:
             }
             write_text(plan_dir / "llm_response_raw.txt", raw_response)
             write_json(plan_dir / "llm_response_parsed.json", parsed_payload or {"error": _single_line(str(exc))})
+            write_json(plan_dir / "llm_response_normalized.json", normalized_payload or {"error": _single_line(str(exc))})
             write_json(plan_dir / "llm_merge_report.json", merge_report)
             return fallback
 

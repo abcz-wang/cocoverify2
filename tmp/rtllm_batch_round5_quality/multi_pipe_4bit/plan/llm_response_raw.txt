@@ -1,0 +1,114 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "functional"
+      ],
+      "expected_properties": [
+        "Output eventually reflects the product of mul_a and mul_b within a conservative observation window",
+        "No reliance on fixed-cycle latency; stability is observed before asserting correctness"
+      ],
+      "goal": "Validate functional correctness of the multiplier for a random legal input pair",
+      "notes": [
+        "Uses random stimulus within the defined input width",
+        "Observes mul_out until it stabilizes after the operation"
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive random values to mul_a and mul_b and monitor mul_out for correct product"
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Allow multiple clock cycles after stimulus before checking mul_out stability"
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "negative",
+        "robustness"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "If any input contains X or Z, mul_out should become X (unknown) or remain stable without causing simulation errors"
+      ],
+      "goal": "Check handling of unknown/invalid input values on mul_a and mul_b",
+      "notes": [
+        "Contract does not define illegal input behavior; this case probes implementation robustness"
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive X (unknown) to mul_a while providing a valid value to mul_b"
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Observe mul_out over several clock cycles to see if it reflects the unknown input"
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "metamorphic",
+        "commutative"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_001",
+      "expected_properties": [
+        "The product output mul_out for (a,b) equals mul_out for (b,a) when both pairs are applied sequentially"
+      ],
+      "goal": "Validate the commutative property of unsigned multiplication",
+      "notes": [
+        "Uses two input pairs that are permutations of each other"
+      ],
+      "observed_signals": [
+        "mul_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply (mul_a = A, mul_b = B), capture mul_out, then apply (mul_a = B, mul_b = A) and compare outputs"
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b"
+      ],
+      "timing_assumptions": [
+        "Allow sufficient clock cycles after each stimulus for mul_out to stabilize before comparison"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

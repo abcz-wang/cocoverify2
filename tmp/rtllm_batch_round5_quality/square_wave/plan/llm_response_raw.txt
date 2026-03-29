@@ -1,0 +1,144 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "frequency_variation"
+      ],
+      "expected_properties": [
+        "wave_out toggles after a number of clk cycles equal to freq (conservatively observed)"
+      ],
+      "goal": "Validate that wave_out toggles with period proportional to freq input.",
+      "notes": [
+        "Adds explicit expectation of toggle relationship while preserving ambiguity about exact cycle count."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a nominal freq value (e.g., 8) and observe wave_out behavior."
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Allow observation window of at least 2*freq clock cycles to capture a toggle."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "zero_freq"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "wave_out should not exhibit undefined toggling when freq=0"
+      ],
+      "goal": "Observe behavior when freq is set to zero, ensuring no spurious toggles or simulation errors.",
+      "notes": [
+        "Zero frequency may cause count wrap; this case checks robustness."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [
+        "freq input can be driven to 0"
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive freq=0 continuously"
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Observe over multiple clock cycles to detect any unexpected toggles."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "dynamic_freq_change"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_001",
+      "expected_properties": [
+        "Changing freq during operation should adjust toggle period accordingly without glitches."
+      ],
+      "goal": "Validate that wave_out adapts to a new freq value mid-operation.",
+      "notes": [
+        "Tests dynamic reconfiguration."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Start with freq=4, after several toggles switch to freq=8"
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Allow observation window covering both periods."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "rapid_ops"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_002",
+      "expected_properties": [
+        "Two successive freq changes with minimal idle time should still result in correct toggling."
+      ],
+      "goal": "Apply two different freq values back-to-back with minimal idle cycles.",
+      "notes": [
+        "Ensures no hidden state dependence on timing."
+      ],
+      "observed_signals": [
+        "wave_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive freq=3 for a few cycles, then immediately drive freq=5"
+      ],
+      "stimulus_signals": [
+        "freq"
+      ],
+      "timing_assumptions": [
+        "Observe after each change for at least 2*new_freq cycles."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

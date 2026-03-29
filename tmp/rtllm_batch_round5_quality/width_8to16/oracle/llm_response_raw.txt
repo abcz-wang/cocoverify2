@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that when two consecutive valid_in cycles occur, valid_out is asserted no earlier than the second cycle and data_out reflects concatenation, without assuming an exact cycle latency.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "valid_out becomes high after the second valid_in and data_out matches the expected 16-bit pattern; the assertion may occur any number of cycles ≥0 after the second input but must not precede it.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "second_valid_in",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a pair of back-to-back valid_in pulses are observed."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that after the first valid_in, the module stores the byte internally; after the second valid_in, valid_out toggles and data_out updates to the concatenated value.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "A transition of valid_out from low to high occurs after the second valid_in and data_out changes to reflect [first_byte, second_byte]; the exact cycle is not required.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "second_valid_in",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When two consecutive cycles have valid_in asserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

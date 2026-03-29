@@ -1,0 +1,171 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "full_condition"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "neg_full_write",
+      "expected_properties": [
+        "When FULL is asserted, a write request (RW=0, EN=1) does not alter stack contents or dataOut.",
+        "FULL remains asserted and no overflow occurs."
+      ],
+      "goal": "Verify that buffer rejects writes when full.",
+      "notes": [
+        "Uses the buffer filled by prior edge case."
+      ],
+      "observed_signals": [
+        "FULL",
+        "EMPTY",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer is full (FULL=1) before stimulus."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Attempt illegal write while buffer full."
+      ],
+      "stimulus_signals": [
+        "RW",
+        "EN",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe after at least one clock cycle post stimulus."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "push_pop_sequence",
+        "data_integrity"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_push_pop",
+      "expected_properties": [
+        "Data popped after a push sequence matches the last pushed value (LIFO behavior).",
+        "EMPTY flag reflects buffer emptiness after all pops."
+      ],
+      "goal": "Confirm LIFO ordering through push then pop sequence.",
+      "notes": [
+        "Sequence: write several values, then read them back in reverse order."
+      ],
+      "observed_signals": [
+        "dataOut",
+        "EMPTY",
+        "FULL"
+      ],
+      "preconditions": [
+        "Buffer starts empty after reset."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Push a series of distinct data values, then pop them, checking output order."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Allow conservative clock cycles between operations; no fixed latency assumed."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "rapid_ops",
+        "no_idle"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "bb_rapid_rw",
+      "expected_properties": [
+        "Consecutive read/write operations without idle cycles are correctly sequenced.",
+        "Flags and dataOut update appropriately after each operation."
+      ],
+      "goal": "Test back-to-back alternating read and write with minimal spacing.",
+      "notes": [
+        "Ensures state machine handles immediate successive commands."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer not full and not empty initially."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply write then immediate read, repeat for several cycles."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Observe after each clock edge; no assumption of internal pipeline latency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "write_path",
+        "read_path"
+      ],
+      "expected_properties": [
+        "A write (RW=0, EN=1) when not full stores dataIn and updates EMPTY/FULL flags.",
+        "A read (RW=1, EN=1) when not empty presents the most recent pushed value on dataOut and updates flags."
+      ],
+      "goal": "Validate basic write and read functionality under conservative timing.",
+      "notes": [
+        "Enforces that at least one clock cycle elapses before observing output changes."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Perform a single legal write or read operation."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Advance one clock cycle after stimulus before checking outputs."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,68 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: ensure output does not change unexpectedly after stimulus settles.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "If out changes, it must correspond to a change in ctrl or in; otherwise it must remain stable.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever a stimulus vector is applied in the linked case."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "out must equal the barrel‑shifted value of in according to ctrl within an observation window of up to 5 cycles after any input change.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When in or ctrl changes."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "MATCH must be asserted only when the input pattern 1-0-0-1-1 completes, and deasserted otherwise.",
+          "notes": [],
+          "observed_signals": [
+            "MATCH"
+          ],
+          "pass_condition": "For every clock cycle, MATCH == 1 iff the last five sampled IN bits equal 1,0,0,1,1; otherwise MATCH == 0. No assumption of additional latency beyond the same cycle as the final input bit.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 0,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a five\u2011bit window of IN ending on the current cycle matches 10011."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that MATCH transitions to 1 exactly on the clock cycle where the fifth bit of the pattern 10011 is presented, and returns to 0 otherwise.",
+          "notes": [],
+          "observed_signals": [
+            "MATCH"
+          ],
+          "pass_condition": "After reset release, when the input stream contains the subsequence 1,0,0,1,1, the MATCH output becomes 1 on the same cycle as the final '1' and stays 0 for all other cycles.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 0,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a five\u2011bit sliding window of IN matches 10011."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

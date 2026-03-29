@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure clk_div does not toggle while reset is asserted and begins regular fractional toggling only after reset deassertion, without assuming a fixed latency.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div remains stable (no transitions) during the asserted reset phase and, after reset release, exhibits regular toggling consistent with fractional division; the check does not require a specific cycle count for the first transition.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the reset deassertion edge occurs."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that clk_div toggles with an average period corresponding to a 3.5\u00d7 division of the input clock.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "Within a conservative observation window of at least 14 input clock cycles, count the number of clk_div edges; the average number of input cycles per two clk_div edges should be close to 7 (\u00b11 cycle), indicating the expected fractional division without requiring exact-cycle alignment.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 14,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset release and during steady\u2011state operation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

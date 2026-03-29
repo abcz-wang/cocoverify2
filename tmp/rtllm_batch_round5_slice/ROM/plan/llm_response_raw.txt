@@ -1,0 +1,151 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "sanity",
+        "basic",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "dout follows addr combinationally",
+        "output is defined (no X) for any valid addr"
+      ],
+      "goal": "Confirm that the ROM provides a combinational read of the stored data for arbitrary addresses.",
+      "notes": [
+        "Observes that the ROM outputs data without a clock or reset.",
+        "Ensures basic functional visibility of dout."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply a range of deterministic address values and monitor dout."
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "No fixed latency assumed; dout is expected to stabilize after combinational propagation."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "dout reflects the correct ROM content for minimum (0x00) and maximum (0xFF) address values",
+        "output remains defined for all address extremes"
+      ],
+      "goal": "Exercise address boundary values to verify correct decoding and data retrieval.",
+      "notes": [
+        "Targets potential off‑by‑one or decoding errors at address extremes."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply addr = 0x00 and addr = 0xFF (min and max) and observe dout."
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "No fixed latency assumed; observe dout after combinational stabilization."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "basic",
+      "coverage_tags": [
+        "value_correctness",
+        "initialization"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "dout matches the expected ROM content for the supplied addr values",
+        "dout updates without glitches when addr changes"
+      ],
+      "goal": "Validate that known initialized ROM entries are returned correctly for their addresses.",
+      "notes": [
+        "Uses the documented initial values for addresses 0 through 3."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [
+        "addr input is driven with deterministic values"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive addr with 0x00, 0x01, 0x02, 0x03 and verify dout equals 16'hA0A0, 16'hB1B1, 16'hC2C2, 16'hD3D3 respectively"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Observe dout after combinational propagation; no fixed cycle count required"
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "edge",
+      "coverage_tags": [
+        "boundary",
+        "address_range"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "expected_properties": [
+        "dout is defined (not X) for addr = 0x00 and addr = 0xFF",
+        "no address decoding errors at extremes"
+      ],
+      "goal": "Check ROM behavior at the extreme ends of the address space.",
+      "notes": [
+        "Ensures that the ROM correctly maps the full 8‑bit address range."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [
+        "addr can be driven to its minimum and maximum values"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply addr = 0x00 and addr = 0xFF and monitor dout stability"
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "No fixed latency; observe dout after combinational stabilization"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

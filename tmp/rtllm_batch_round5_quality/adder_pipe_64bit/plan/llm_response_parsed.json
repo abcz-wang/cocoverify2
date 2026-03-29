@@ -1,0 +1,83 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "control_disable",
+        "output_stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "When i_en is deasserted, changes on adda or addb do not affect result or o_en."
+      ],
+      "goal": "Confirm that the adder does not produce a new result while disabled.",
+      "notes": [
+        "Ensures that pipeline registers respect the enable control."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "i_en can be driven low after a reset."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Hold i_en low, toggle adda and addb across several cycles, and verify outputs remain unchanged."
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Observe outputs on each rising edge of clk without assuming a fixed latency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "pipeline_basic",
+        "functional_correctness"
+      ],
+      "expected_properties": [
+        "Result equals the arithmetic sum of adda and addb when i_en is asserted.",
+        "o_en asserts to indicate the availability of a valid result."
+      ],
+      "goal": "Validate that a single enabled addition produces the correct sum and proper output enable.",
+      "notes": [
+        "Assumes pipeline registers settle within a conservative observation window."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive i_en high with a representative operand pair and observe the resulting sum and o_en."
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations; do not assume a fixed-cycle latency."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

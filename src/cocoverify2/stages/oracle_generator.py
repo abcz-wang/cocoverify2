@@ -30,7 +30,12 @@ from cocoverify2.core.types import (
 )
 from cocoverify2.llm.client import LLMClient
 from cocoverify2.llm.prompts import build_oracle_system_prompt, build_oracle_user_prompt
-from cocoverify2.llm.validators import parse_oracle_augmentation, validate_oracle_augmentation
+from cocoverify2.llm.validators import (
+    extract_json_payload,
+    normalize_oracle_augmentation_payload,
+    parse_oracle_augmentation,
+    validate_oracle_augmentation,
+)
 from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_text, write_yaml
 from cocoverify2.utils.logging import get_logger
 
@@ -261,10 +266,13 @@ class OracleGenerator:
 
         raw_response = ""
         parsed_payload: dict[str, object] = {}
+        normalized_payload: dict[str, object] = {}
         merge_report: dict[str, object] = {}
         try:
             client = self.llm_client or LLMClient(llm_config)
             raw_response = client.complete(system_prompt=system_prompt, user_prompt=user_prompt)
+            parsed_payload = extract_json_payload(raw_response)
+            normalized_payload, normalization_report = normalize_oracle_augmentation_payload(parsed_payload)
             parsed = parse_oracle_augmentation(raw_response)
             validated, validation_report = validate_oracle_augmentation(
                 parsed,
@@ -272,16 +280,19 @@ class OracleGenerator:
                 plan=plan,
                 baseline_oracle=baseline_oracle,
             )
-            parsed_payload = validated.model_dump(mode="json")
             merged_oracle, merge_report = self._merge_oracle_augmentation(
                 contract=contract,
                 plan=plan,
                 baseline_oracle=baseline_oracle,
                 augmentation=validated,
-                validation_report=validation_report,
+                validation_report={
+                    "normalization_report": normalization_report,
+                    **validation_report,
+                },
             )
             write_text(oracle_dir / "llm_response_raw.txt", raw_response)
             write_json(oracle_dir / "llm_response_parsed.json", parsed_payload)
+            write_json(oracle_dir / "llm_response_normalized.json", normalized_payload)
             write_json(oracle_dir / "llm_merge_report.json", merge_report)
             return merged_oracle
         except Exception as exc:
@@ -304,6 +315,7 @@ class OracleGenerator:
             }
             write_text(oracle_dir / "llm_response_raw.txt", raw_response)
             write_json(oracle_dir / "llm_response_parsed.json", parsed_payload or {"error": _single_line(str(exc))})
+            write_json(oracle_dir / "llm_response_normalized.json", normalized_payload or {"error": _single_line(str(exc))})
             write_json(oracle_dir / "llm_merge_report.json", merge_report)
             return fallback
 
@@ -1299,6 +1311,8 @@ def _build_signal_policies(
     handshake_signals = set(contract.handshake_signals)
     allowed_unknowns = set(contract.allowed_unknowns)
     ambiguity_preserving = bool(plan_case and "ambiguity_preserving" in set(plan_case.semantic_tags))
+    control_heavy_case = bool(plan_case and any(signal in _control_like_input_names(contract) for signal in plan_case.stimulus_signals))
+    property_check = check.check_type == OracleCheckType.PROPERTY
     negative_like = bool(
         plan_case
         and (
@@ -1323,6 +1337,25 @@ def _build_signal_policies(
                 rationale="protocol_visible_signal",
             )
             continue
+        if property_check and signal in _primary_data_outputs(contract):
+            policies[signal] = SignalAssertionPolicy(
+                strength=AssertionStrength.UNRESOLVED,
+                allow_unknown=True,
+                allow_high_impedance=True,
+                rationale="property_guardrail_preserves_value_ambiguity",
+            )
+            continue
+        if property_check and signal in _scalar_status_outputs(contract) and _should_preserve_protocol_status_output_ambiguity(
+            contract=contract,
+            plan_case=plan_case,
+        ):
+            policies[signal] = SignalAssertionPolicy(
+                strength=AssertionStrength.UNRESOLVED,
+                allow_unknown=True,
+                allow_high_impedance=True,
+                rationale="property_guardrail_preserves_status_ambiguity",
+            )
+            continue
         if negative_like:
             policies[signal] = SignalAssertionPolicy(
                 strength=AssertionStrength.UNRESOLVED,
@@ -1342,10 +1375,51 @@ def _build_signal_policies(
                         "rationale": f"{policy.rationale}_downgraded_for_weak_contract",
                     }
                 )
+            if _should_preserve_primary_output_ambiguity(
+                contract=contract,
+                plan_case=plan_case,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
+            ):
+                policy = policy.model_copy(
+                    update={
+                        "strength": AssertionStrength.UNRESOLVED,
+                        "allow_unknown": True,
+                        "allow_high_impedance": True,
+                        "rationale": f"{policy.rationale}_downgraded_for_case_ambiguity",
+                    }
+                )
+            if _should_preserve_scalar_status_output_ambiguity(
+                contract=contract,
+                plan_case=plan_case,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
+            ):
+                policy = policy.model_copy(
+                    update={
+                        "strength": AssertionStrength.UNRESOLVED,
+                        "allow_unknown": True,
+                        "allow_high_impedance": True,
+                        "rationale": f"{policy.rationale}_downgraded_for_status_edge_ambiguity",
+                    }
+                )
             policies[signal] = policy
             continue
 
         if signal in _primary_data_outputs(contract) and not ambiguity_preserving:
+            if _should_preserve_primary_output_ambiguity(
+                contract=contract,
+                plan_case=plan_case,
+                signal=signal,
+                control_heavy_case=control_heavy_case,
+            ):
+                policies[signal] = SignalAssertionPolicy(
+                    strength=AssertionStrength.UNRESOLVED,
+                    allow_unknown=True,
+                    allow_high_impedance=True,
+                    rationale="primary_data_output_case_ambiguity",
+                )
+                continue
             policies[signal] = SignalAssertionPolicy(
                 strength=AssertionStrength.GUARDED,
                 allow_unknown=False,
@@ -1386,7 +1460,7 @@ def _explicit_output_semantic_hints(contract: DUTContract) -> dict[str, SignalAs
         if has_explicit_behavior and has_high_impedance:
             hints[signal] = SignalAssertionPolicy(
                 strength=AssertionStrength.GUARDED,
-                allow_unknown=False,
+                allow_unknown=True,
                 allow_high_impedance=True,
                 rationale="explicit_conditional_high_impedance_behavior",
             )
@@ -1422,6 +1496,108 @@ def _primary_data_outputs(contract: DUTContract) -> set[str]:
         and port.width > 1
         and port.name in set(contract.observable_outputs)
     }
+
+
+def _control_like_input_names(contract: DUTContract) -> set[str]:
+    control_tokens = {
+        "opcode",
+        "op",
+        "func",
+        "aluc",
+        "sel",
+        "mode",
+        "cmd",
+        "ctrl",
+        "control",
+        "rw",
+        "en",
+        "enable",
+        "valid",
+        "ready",
+        "start",
+        "req",
+        "ack",
+        "done",
+        "load",
+        "write",
+        "read",
+    }
+    names: set[str] = set()
+    for port in contract.ports:
+        if port.direction != PortDirection.INPUT:
+            continue
+        lower = port.name.lower()
+        tokens = [token for token in re.split(r"[^a-z0-9]+", lower) if token]
+        if lower in control_tokens or any(token in control_tokens for token in tokens):
+            names.add(port.name)
+    return names
+
+
+def _should_preserve_primary_output_ambiguity(
+    *,
+    contract: DUTContract,
+    plan_case: TestCasePlan | None,
+    signal: str,
+    control_heavy_case: bool,
+) -> bool:
+    if plan_case is None or signal not in _primary_data_outputs(contract):
+        return False
+    if plan_case.category in {"edge", "back_to_back"} and control_heavy_case:
+        return True
+    if contract.timing.sequential_kind == SequentialKind.SEQ and control_heavy_case:
+        return True
+    return False
+
+
+def _scalar_status_outputs(contract: DUTContract) -> set[str]:
+    handshake_signals = set(contract.handshake_signals)
+    return {
+        port.name
+        for port in contract.ports
+        if port.direction == PortDirection.OUTPUT
+        and isinstance(port.width, int)
+        and port.width == 1
+        and port.name in set(contract.observable_outputs)
+        and port.name not in handshake_signals
+    }
+
+
+def _should_preserve_scalar_status_output_ambiguity(
+    *,
+    contract: DUTContract,
+    plan_case: TestCasePlan | None,
+    signal: str,
+    control_heavy_case: bool,
+) -> bool:
+    if plan_case is None or signal not in _scalar_status_outputs(contract):
+        return False
+    if contract.timing.sequential_kind != SequentialKind.SEQ:
+        return False
+    if plan_case.category not in {"edge", "back_to_back"}:
+        return False
+    semantic_tags = set(plan_case.semantic_tags)
+    if "operation_specific" in semantic_tags:
+        return False
+    return "width_sensitive" in semantic_tags or control_heavy_case
+
+
+def _should_preserve_protocol_status_output_ambiguity(
+    *,
+    contract: DUTContract,
+    plan_case: TestCasePlan | None,
+) -> bool:
+    if plan_case is None or plan_case.category != "protocol":
+        return False
+    if contract.timing.sequential_kind != SequentialKind.SEQ:
+        return False
+    semantic_tags = set(plan_case.semantic_tags)
+    coverage_tags = set(plan_case.coverage_tags)
+    if "operation_specific" in semantic_tags:
+        return False
+    return bool(
+        "ambiguity_preserving" in semantic_tags
+        or {"sequence", "push_pop", "persistence", "stability", "reset_protocol"} & coverage_tags
+    )
 
 
 def _is_duplicate_oracle_check(candidate: OracleCheck, existing_checks: list[OracleCheck]) -> bool:

@@ -1,0 +1,126 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After a legal write operation (RW=0, EN=1) when not full, the EMPTY flag must deassert and dataOut may remain unchanged until a read occurs.",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "EMPTY transitions to 0 within a conservative observation window after the write stimulus; no X or Z values observed.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When stimulus drives a legal write with EN=1, RW=0 and buffer not full."
+        },
+        {
+          "check_type": "functional",
+          "description": "After a legal read operation (RW=1, EN=1) when not empty, dataOut must present the most recently written value.",
+          "notes": [],
+          "observed_signals": [
+            "dataOut",
+            "EMPTY",
+            "FULL"
+          ],
+          "pass_condition": "dataOut updates to the expected value within a conservative observation window; EMPTY may transition to 1 if buffer becomes empty.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When stimulus drives a legal read with EN=1, RW=1 and buffer not empty."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: No fixed-cycle latency is assumed for write or read completion; only externally visible flag changes are required.",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "The design never asserts X or Z on observed signals and respects the conservative timing model.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever a legal operation is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Boundary values for dataIn (all zeros and all ones) must not cause X or Z on any observed output.",
+          "notes": [],
+          "observed_signals": [
+            "dataOut",
+            "EMPTY",
+            "FULL"
+          ],
+          "pass_condition": "After applying zero or max dataIn with a legal write, outputs remain defined and stable.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When stimulus uses extreme dataIn patterns."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

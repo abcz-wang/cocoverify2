@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "After any minute or hour rollover event, the outputs Hours, Mins, and Secs must not contain X or Z values.",
+          "notes": [],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "When a wrap from 59 to 0 occurs on Secs (or on Mins/Hours), the resulting output values are fully defined (no X/Z).",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever a wrap condition is detected on Secs, Mins, or Hours."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Seconds increment by 1 each rising edge of CLK until reaching 59, then wrap to 0; when Secs wraps, Minutes increment by 1; when Minutes and Secs both wrap, Hours increment by 1; Hours wrap from 23 back to 0 after a full day cycle.",
+          "notes": [],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "Across consecutive clock edges, the relationship between Hours, Mins, and Secs follows the described counting and wrap behavior without violating defined value constraints.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On each rising edge of CLK after reset deassertion."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

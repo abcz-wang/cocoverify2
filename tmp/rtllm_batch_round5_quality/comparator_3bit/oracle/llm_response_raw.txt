@@ -1,0 +1,104 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that for each applied input pair the comparator outputs are mutually exclusive (only one of A_greater, A_equal, A_less is high).",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "Exactly one of the three output signals is 1 and the others are 0 for every stable input combination.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When any basic stimulus case applies a legal A,B pair."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guard against simultaneous high outputs; ensure no illegal combination appears even under rapid input changes.",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "At no observation point are two or more output signals high together.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "During back_to_back_001 rapid toggling sequence."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Edge case property: when A=0 and B=7, only A_less should be high; when A=7 and B=0, only A_greater should be high.",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "A_less=1, A_greater=0, A_equal=0 for (A=0,B=7) and A_greater=1, others 0 for (A=7,B=0).",
+          "semantic_tags": [
+            "edge",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge_001 stimulus applies the extreme boundary patterns."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

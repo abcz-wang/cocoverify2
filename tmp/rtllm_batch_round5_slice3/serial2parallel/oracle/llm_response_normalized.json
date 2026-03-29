@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure dout_valid does not toggle spuriously when din_valid is low.",
+          "notes": [],
+          "observed_signals": [
+            "dout_valid"
+          ],
+          "pass_condition": "dout_valid remains 0 while din_valid is 0, regardless of din_serial changes.",
+          "semantic_tags": [
+            "invalid_illegal_input",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "din_valid_deasserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When din_valid is low for consecutive cycles."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Validate that after eight consecutive din_valid=1 cycles, dout_parallel reflects the transmitted bits MSB first and dout_valid becomes 1.",
+          "notes": [],
+          "observed_signals": [
+            "dout_parallel",
+            "dout_valid"
+          ],
+          "pass_condition": "After the clock edge following the eighth valid input, dout_parallel equals the concatenated bits [din_serial_7 ... din_serial_0] and dout_valid is 1; before that dout_valid is 0.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "eighth_valid_input",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a sequence of eight din_valid=1 inputs has been applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

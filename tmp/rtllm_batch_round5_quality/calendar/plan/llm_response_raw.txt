@@ -1,0 +1,122 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "second_increment",
+        "second_wrap",
+        "minute_increment",
+        "hour_increment"
+      ],
+      "expected_properties": [
+        "Secs increments by 1 each rising edge of CLK until it reaches 59, then wraps to 0",
+        "When Secs wraps from 59 to 0, Mins increments by 1",
+        "When Mins and Secs both wrap from 59 to 0, Hours increments by 1",
+        "Hours wraps from 23 back to 0 after a full day cycle"
+      ],
+      "goal": "Verify correct counting, wrap, and rollover behavior of Hours, Mins, and Secs over multiple clock cycles.",
+      "notes": [
+        "Observes natural progression without injecting external stimulus beyond clock and reset.",
+        "Preserves ambiguity about exact latency; relies on observable output changes."
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Run the design after reset for enough clock cycles to see normal second counting, minute rollover, and hour rollover."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe over at least 70 clock cycles to capture a full minute wrap.",
+        "Observe over at least 3600 clock cycles to capture an hour increment."
+      ]
+    },
+    {
+      "case_id": "reset_001",
+      "coverage_tags": [
+        "reset_stability",
+        "initialization"
+      ],
+      "expected_properties": [
+        "Hours, Mins, and Secs become 0 after an active high RST pulse.",
+        "No X or undefined values appear on outputs after reset deassertion."
+      ],
+      "goal": "Confirm that the active‑high reset reliably initializes all time counters to zero.",
+      "notes": [
+        "Reset polarity is taken from contract (active high).",
+        "No timing guarantee on how many cycles reset needs to be held; observation is conservative."
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert RST high for a few clock cycles, then deassert and monitor outputs for stable zero values."
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Allow at least two clock edges after deasserting RST before checking stability."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "minute_wrap",
+        "hour_wrap"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "When Secs reaches 59 and the next clock edge occurs, Secs wraps to 0 and Mins increments by 1.",
+        "When both Mins and Secs are 59 and the next clock edge occurs, both wrap to 0 and Hours increments by 1.",
+        "When Hours reaches 23 with Mins and Secs at 59, the next wrap sets Hours back to 0."
+      ],
+      "goal": "Validate cross‑field rollover behavior for minutes and hours under normal operation.",
+      "notes": [
+        "Requires observing a long sequence of clock cycles after reset to reach the rollover points.",
+        "No assumptions about exact cycle counts; the test runs until the observed conditions occur."
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "preconditions": [
+        "basic_001 has demonstrated stable counting behavior."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Run the clock continuously after reset for enough cycles to encounter minute and hour wrap events."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative observation over many clock cycles; no fixed latency is assumed."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

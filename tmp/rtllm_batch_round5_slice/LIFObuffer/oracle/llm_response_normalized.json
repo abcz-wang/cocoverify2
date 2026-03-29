@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that after a write operation when the buffer is not full, the FULL flag does not transition to high until the write is externally observable.",
+          "notes": [],
+          "observed_signals": [
+            "FULL",
+            "EMPTY"
+          ],
+          "pass_condition": "FULL remains low immediately after the write enable edge and only becomes high after the next clocked observation if the buffer reaches capacity.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When EN=1, RW=0 (write) and FULL was low before the operation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that a write followed by a read returns the same data value, respecting LIFO ordering.",
+          "notes": [],
+          "observed_signals": [
+            "dataOut",
+            "EMPTY",
+            "FULL"
+          ],
+          "pass_condition": "After a write of a non-zero pattern and a subsequent read, dataOut equals the written pattern and EMPTY becomes high while FULL becomes low.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the plan executes a write (EN=1,RW=0) followed by a read (EN=1,RW=1) without intervening reset."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

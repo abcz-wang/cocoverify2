@@ -1,0 +1,99 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "c must not depend on hidden state; output must be stable after inputs settle",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c remains unchanged for a stable input pattern across consecutive observation cycles",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge stimulus applies boundary values to a and b"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "c reflects combinational subtraction of a and b for all legal unsigned inputs",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "For each stimulus application, after inputs stabilize, the value of c equals (a - b) modulo 2^N",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic stimulus drives a and b with any legal value"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "c must not depend on hidden state; output must be stable after inputs settle",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c remains unchanged for a stable input pattern across consecutive observation cycles",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge stimulus applies boundary values to a and b"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

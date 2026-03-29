@@ -1,0 +1,154 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back",
+        "stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "b2b_001",
+      "expected_properties": [
+        "Outputs reflect latest input values without glitches under rapid input changes"
+      ],
+      "goal": "Validate that combinational logic produces stable outputs for successive input patterns without intermediate transients",
+      "notes": [
+        "Sequence of legal vectors applied back-to-back to test combinational propagation"
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [
+        "Inputs A and B are driven with valid non\u2011zero divisor values"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a series of legal input vectors back\u2011to\u2011back"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input vector stabilizes; no clock required"
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "division_by_zero"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "Module should handle divisor zero gracefully, e.g., produce defined zero or constant pattern without X/Z"
+      ],
+      "goal": "Check behavior when divisor B is zero",
+      "notes": [
+        "Divisor zero is not defined in the contract; test for safe handling"
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive B=0 with various A values"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Quotient result matches expected integer division for random inputs",
+        "Observable outputs respond to legal input changes without assuming internal state"
+      ],
+      "goal": "Confirm functional correctness for typical values",
+      "notes": [
+        "Focus on combinational mapping and input/output consistency"
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Random legal inputs across full width of A and B"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization",
+        "Do not infer internal state or undocumented storage"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Division behavior at min/max operand values",
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency"
+      ],
+      "goal": "Validate edge numeric extremes",
+      "notes": [
+        "Include A=0, A=0xFFFF, B=1, B=0xFF and other extreme patterns"
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply zero-like, one-like, and max/min patterns on A and B"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization",
+        "Do not infer internal state or undocumented storage"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

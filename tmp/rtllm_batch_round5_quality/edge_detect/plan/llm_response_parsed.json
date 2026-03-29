@@ -1,0 +1,113 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "no_edge_stable"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "If input a remains constant, both rise and down stay 0"
+      ],
+      "goal": "Verify that no edge is reported when a does not toggle.",
+      "notes": [
+        "Confirms idle behavior"
+      ],
+      "observed_signals": [
+        "rise",
+        "down"
+      ],
+      "preconditions": [
+        "Reset deasserted and module stable"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Hold a at constant value (0) for multiple clock cycles"
+      ],
+      "stimulus_signals": [
+        "a"
+      ],
+      "timing_assumptions": [
+        "Observe over at least two clock cycles after stimulus"
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "rapid_toggle"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "Consecutive opposite edges are each reported on the following clock"
+      ],
+      "goal": "Test back-to-back rising then falling edge detection without idle cycles.",
+      "notes": [
+        "Ensures detection works for immediate successive edges"
+      ],
+      "observed_signals": [
+        "rise",
+        "down"
+      ],
+      "preconditions": [
+        "Module stable after reset"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Toggle a from 0 to 1 then back to 0 on successive clock cycles"
+      ],
+      "stimulus_signals": [
+        "a"
+      ],
+      "timing_assumptions": [
+        "Observe rise on cycle after first toggle and down on cycle after second toggle"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "stability"
+      ],
+      "expected_properties": [
+        "When input a does not change, rise and down remain 0"
+      ],
+      "goal": "Confirm that stable input yields no spurious edge signals.",
+      "notes": [
+        "Ensures idle behavior is correctly handled."
+      ],
+      "observed_signals": [
+        "rise",
+        "down"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a constant value (e.g., 0) for several clock cycles"
+      ],
+      "stimulus_signals": [
+        "a"
+      ],
+      "timing_assumptions": [
+        "Observe over multiple clock cycles after stimulus"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

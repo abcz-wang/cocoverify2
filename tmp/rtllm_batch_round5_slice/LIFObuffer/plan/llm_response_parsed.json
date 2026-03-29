@@ -1,0 +1,213 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "full_condition",
+        "illegal_write_attempt"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_full_write_001",
+      "expected_properties": [
+        "When FULL is asserted, asserting EN with RW=0 (write) does not alter internal memory or stack pointer.",
+        "FULL remains asserted after the illegal write attempt and no X propagation occurs on dataOut."
+      ],
+      "goal": "Verify that a write operation is safely ignored when the buffer is full.",
+      "notes": [
+        "Uses conservative observation after a single clock cycle; does not assume hidden latency."
+      ],
+      "observed_signals": [
+        "FULL",
+        "EMPTY",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer must be filled to capacity (FULL=1) before stimulus."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive EN high, RW low (write), and a non-zero dataIn while FULL is asserted."
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe signals after one rising edge of Clk; no fixed-cycle completion assumed."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "empty_condition",
+        "illegal_read_attempt"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_empty_read_001",
+      "expected_properties": [
+        "When EMPTY is asserted, asserting EN with RW=1 (read) does not change dataOut or internal state.",
+        "EMPTY remains asserted after the illegal read attempt."
+      ],
+      "goal": "Confirm that a read operation is ignored when the buffer is empty.",
+      "notes": [
+        "Ensures no unintended data appears on dataOut during underflow."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer must be empty (EMPTY=1) before stimulus."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive EN high, RW high (read), and any dataIn while EMPTY is asserted."
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe after one clock edge; no latency assumptions."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "reset_recovery",
+        "post_operation_stability"
+      ],
+      "dependencies": [
+        "reset_001",
+        "basic_001"
+      ],
+      "draft_id": "regress_post_reset_001",
+      "expected_properties": [
+        "After a reset, a sequence of legal push and pop operations behaves identically to the same sequence without a preceding reset."
+      ],
+      "goal": "Detect regressions in functional behavior after a reset cycle.",
+      "notes": [
+        "Re-executes basic write-read pattern following reset to ensure state re-initialization is correct."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Reset has been applied and released, confirming stable post-reset state."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Perform a write (EN=1, RW=0, dataIn=0xA) followed by a read (EN=1, RW=1) after reset."
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation after each operation; no fixed latency assumed."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "push_pop_sequence",
+        "order_independence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_push_pop_001",
+      "expected_properties": [
+        "Two sequences that are logical inverses (push A, push B, pop, pop) produce the same final EMPTY/FULL flags and dataOut values as the reverse sequence (push B, push A, pop, pop)."
+      ],
+      "goal": "Validate that LIFO ordering is preserved across different operation orderings.",
+      "notes": [
+        "Uses metamorphic relation to avoid needing exact latency details."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer starts empty."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Execute two push operations with distinct dataIn values, then two reads, and compare results to the same pushes in reversed order."
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe after each clock edge; no exact-cycle timing required."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "write_path",
+        "read_path",
+        "enable_active"
+      ],
+      "expected_properties": [
+        "A write (EN=1, RW=0) when not full stores dataIn into the buffer and updates FULL/EMPTY flags appropriately.",
+        "A subsequent read (EN=1, RW=1) when not empty outputs the most recently written data on dataOut and updates flags."
+      ],
+      "goal": "Demonstrate correct push and pop behavior under nominal conditions.",
+      "notes": [
+        "Both write and read are exercised in a single test to keep stimulus compact while still covering two functional paths."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Perform a write of a non-zero pattern (e.g., 0x5) followed by a read to retrieve it."
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe after each rising edge of Clk; do not assume hidden latency beyond external visibility."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

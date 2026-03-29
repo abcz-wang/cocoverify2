@@ -1,0 +1,212 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "negative",
+        "illegal_input",
+        "divisor_zero"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_divisor_zero_001",
+      "expected_properties": [
+        "When divisor is zero and opn_valid is asserted, res_valid must not be asserted within the observation window.",
+        "The design must not produce a spurious result value for a zero divisor."
+      ],
+      "goal": "Verify safe handling of a zero divisor (division\u2011by\u2011zero) condition.",
+      "notes": [
+        "The contract does not specify explicit error signalling, so the conservative expectation is that no valid result is presented."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Drive opn_valid high with a non\u2011zero dividend and divisor set to 0 while res_ready is high."
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Observe for a conservative number of clock cycles (e.g., 10) after opn_valid deassertion without assuming a fixed latency."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back",
+        "ready_flow"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "b2b_ready_stall_001",
+      "expected_properties": [
+        "The second operation must not cause res_valid to assert until the first result has been accepted (res_ready high).",
+        "Back\u2011to\u2011back requests with res_ready low should be safely stalled without violating handshake protocol."
+      ],
+      "goal": "Exercise back\u2011to\u2011back operation requests while deliberately stalling the consumer ready signal.",
+      "notes": [
+        "Ensures that internal state machines do not assume a fixed inter\u2011operation latency."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "preconditions": [
+        "First operation has completed and res_valid has been observed."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Issue a first legal operation, keep res_ready low to withhold acceptance, then raise res_ready and immediately issue a second legal operation."
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Conservatively monitor for at least twice the maximum observed latency of the first operation before checking the second."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "metamorphic",
+        "sign_variation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "sign_toggle_001",
+      "expected_properties": [
+        "Changing the sign control while keeping dividend and divisor constant must reflect in the sign of the quotient portion of result.",
+        "Remainder magnitude should remain unchanged irrespective of sign mode."
+      ],
+      "goal": "Validate signed vs unsigned division behavior by toggling the sign input.",
+      "notes": [
+        "The contract does not detail signed arithmetic; this case checks for consistent sign handling."
+      ],
+      "observed_signals": [
+        "result"
+      ],
+      "preconditions": [
+        "Design is out of reset and ready for new operations."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive opn_valid with a fixed dividend/divisor pair, first with sign=0 (unsigned) then with sign=1 (signed), observing the resulting quotient sign."
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Allow a conservative observation window after each opn_valid deassertion before checking result."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "A legal operation (opn_valid high) followed by res_ready high must eventually cause res_valid to assert.",
+        "Result must respect the 16\u2011bit format: upper 8 bits remainder, lower 8 bits quotient."
+      ],
+      "goal": "Apply one legal operation and verify that a correctly formatted result appears when the consumer is ready.",
+      "notes": [
+        "Enriches the basic sanity check with explicit format verification and handshake ordering."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive opn_valid high with a non\u2011zero dividend/divisor pair, set sign as needed, and keep res_ready high to allow acceptance."
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "sign",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed latency; monitor for a reasonable number of cycles (e.g., up to 12) after opn_valid deassertion."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Boundary values (0, 1, max 0xFF) for dividend and divisor must not cause undefined behavior.",
+        "When divisor is 1, quotient should equal dividend and remainder zero."
+      ],
+      "goal": "Exercise extreme operand values to confirm correct handling at data\u2011width limits.",
+      "notes": [
+        "Adds explicit checks for divisor\u2011one and max\u2011value scenarios while preserving the original edge intent."
+      ],
+      "observed_signals": [
+        "res_valid",
+        "result"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply patterns: dividend=0, divisor=1; dividend=0xFF, divisor=0xFF; dividend=0xFF, divisor=1; and also toggle opn_valid while keeping res_ready high."
+      ],
+      "stimulus_signals": [
+        "dividend",
+        "divisor",
+        "opn_valid",
+        "res_ready"
+      ],
+      "timing_assumptions": [
+        "Observe conservatively without assuming a fixed number of cycles for each boundary case."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,302 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "ROM",
+  "based_on_plan": "ROM",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.5700000000000001,
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "dout must reflect the value stored at the addressed location after combinational propagation.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When addr is driven."
+        }
+      ],
+      "confidence": 0.5700000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'basic_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_001",
+      "category": "edge",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "edge_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'edge_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_002",
+      "category": "basic",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "basic_002",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'basic_002' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_002",
+      "category": "edge",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "edge_002",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'edge_002' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    }
+  ],
+  "module_name": "ROM",
+  "oracle_confidence": {
+    "functional_confidence": 0.18000000000000002,
+    "overall_confidence": 0.10375000000000004,
+    "property_confidence": 0.4675,
+    "protocol_confidence": 0.0
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.54,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.54,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "confidence": 0.49,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.49,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "hybrid_llm_generated",
+      "unresolved_items": [
+        "Property oracle for case 'edge_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_002",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_002_property_001",
+          "check_type": "property",
+          "confidence": 0.42000000000000004,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.42000000000000004,
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_002' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_property_001",
+          "check_type": "property",
+          "confidence": 0.42000000000000004,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.42000000000000004,
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'edge_002' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [],
+  "unresolved_items": [
+    "Timing model is unresolved; generated cases avoid fixed-latency checks.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Negative or illegal-input behavior is not planned because the contract does not provide reliable constraints.",
+    "Timing remains unresolved; oracle checks avoid exact-cycle requirements and prefer event-based or safety-style windows.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks."
+  ]
+}

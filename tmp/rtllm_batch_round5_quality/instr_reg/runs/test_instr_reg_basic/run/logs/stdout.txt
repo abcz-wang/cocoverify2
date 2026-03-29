@@ -1,0 +1,41 @@
+rm -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/runs/test_instr_reg_basic/run/junit/results.xml
+"make" -f Makefile /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/runs/test_instr_reg_basic/run/junit/results.xml
+make[1]: Entering directory '/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/render/cocotb_tests'
+mkdir -p /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/runs/test_instr_reg_basic/run/sim_build
+/workspace/I/qimeng6/miniconda3/bin/iverilog -o /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/runs/test_instr_reg_basic/run/sim_build/sim.vvp -s instr_reg -g2012     -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/runs/test_instr_reg_basic/run/sim_build/cmds.f  /workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/instr_reg/verified_instr_reg.v
+rm -f /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/runs/test_instr_reg_basic/run/junit/results.xml
+COCOTB_TEST_MODULES=cocotb_tests.test_instr_reg_basic COCOTB_TESTCASE= COCOTB_TEST_FILTER= COCOTB_TOPLEVEL=instr_reg TOPLEVEL_LANG=verilog \
+         /workspace/I/qimeng6/miniconda3/bin/vvp -M /workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb/libs -m libcocotbvpi_icarus    /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/runs/test_instr_reg_basic/run/sim_build/sim.vvp -none  
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.0rc1 interpreter at /workspace/I/qimeng6/miniconda3/bin/python
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 10.2 (stable)
+     0.00ns WARNING  gpi                                vpi_iterate returned NULL for type vpiInstance for object NULL
+     0.00ns INFO     cocotb                             Seeding Python random module with 1774769720
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running cocotb_tests.test_instr_reg_basic.test_reset_001 (1/4)
+                                                            Establish a stable post-reset baseline before functional checking. Note: Reset polarity may still be heuristic if the contract marks it ambiguous.
+    35.00ns WARNING  py.warnings                        /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/render/cocotb_tests/instr_reg_runtime.py:92: DeprecationWarning: `logic_array.binstr` getter is deprecated. Use `str(logic_array)` instead.
+                                                          if hasattr(value, "binstr"):
+    35.00ns WARNING  py.warnings                        /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/render/cocotb_tests/instr_reg_runtime.py:93: DeprecationWarning: `logic_array.binstr` getter is deprecated. Use `str(logic_array)` instead.
+                                                          return str(value.binstr)
+    55.00ns INFO     cocotb.regression                  cocotb_tests.test_instr_reg_basic.test_reset_001 passed
+    55.00ns INFO     cocotb.regression                  running cocotb_tests.test_instr_reg_basic.test_basic_001 (2/4)
+                                                            Validate correct decoding of instruction fields for each fetch source Note: Case intent is conservative when the contract is weak or timing is unresolved. Note: Ensures that only the selected source updates its corresponding output fields
+   130.00ns INFO     cocotb.regression                  cocotb_tests.test_instr_reg_basic.test_basic_001 passed
+   130.00ns INFO     cocotb.regression                  running cocotb_tests.test_instr_reg_basic.test_back_to_back_001 (3/4)
+                                                            Observe repeated or back-to-back legal operations under conservative timing assumptions. Note: When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior.
+   175.00ns INFO     cocotb.regression                  cocotb_tests.test_instr_reg_basic.test_back_to_back_001 passed
+   175.00ns INFO     cocotb.regression                  skipping cocotb_tests.test_instr_reg_basic.test_negative_001 (4/4)
+                                                            Verify that the module safely ignores illegal fetch codes and preserves prior state Note: Observes that no unintended write occurs for undefined fetch encodings Note: Negative cases require stronger structured illegal-input semantics than the current contract provides.
+   175.00ns INFO     cocotb.regression                  *****************************************************************************************************************
+                                                        ** TEST                                                     STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        *****************************************************************************************************************
+                                                        ** cocotb_tests.test_instr_reg_basic.test_reset_001          PASS          55.00           0.00      29970.99  **
+                                                        ** cocotb_tests.test_instr_reg_basic.test_basic_001          PASS          75.00           0.00      61948.17  **
+                                                        ** cocotb_tests.test_instr_reg_basic.test_back_to_back_001   PASS          45.00           0.00      60552.99  **
+                                                        ** cocotb_tests.test_instr_reg_basic.test_negative_001       SKIP           0.00           0.00          -.--  **
+                                                        *****************************************************************************************************************
+                                                        ** TESTS=4 PASS=3 FAIL=0 SKIP=1                                           175.00           0.01      29623.52  **
+                                                        *****************************************************************************************************************
+make[1]: Leaving directory '/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_round5_quality/instr_reg/render/cocotb_tests'

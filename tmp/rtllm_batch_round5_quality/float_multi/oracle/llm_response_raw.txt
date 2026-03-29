@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: ensure that edge case stimuli do not rely on undocumented latency; only require observable output stability.",
+          "notes": [],
+          "observed_signals": [
+            "z"
+          ],
+          "pass_condition": "After applying edge stimulus, signal z must transition to a defined non-X value within a conservative observation window.",
+          "semantic_tags": [
+            "edge",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge case stimulus is applied as defined in plan case edge_001."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Require that after a basic operation, the output z becomes stable and non-X, without assuming a fixed cycle latency.",
+          "notes": [],
+          "observed_signals": [
+            "z"
+          ],
+          "pass_condition": "Signal z must settle to a consistent value that does not change on subsequent clocks unless new inputs are applied.",
+          "semantic_tags": [
+            "basic",
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When basic case stimulus is applied as defined in plan case basic_001."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

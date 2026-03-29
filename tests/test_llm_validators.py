@@ -5,6 +5,9 @@ from __future__ import annotations
 from cocoverify2.core.models import DUTContract, LLMTodoBlock, OracleSpec, PortSpec, TestCasePlan as CasePlanModel, TestPlan as PlanModel, TimingSpec
 from cocoverify2.core.types import LatencyModel, PortDirection, SequentialKind, TemporalWindowMode, TestCategory as PlanCategory
 from cocoverify2.llm.validators import (
+    extract_json_payload,
+    normalize_oracle_augmentation_payload,
+    normalize_plan_augmentation_payload,
     parse_plan_augmentation,
     parse_oracle_augmentation,
     parse_todo_fill_response,
@@ -119,6 +122,82 @@ def test_validate_plan_augmentation_filters_unknown_signals_and_normalizes_tags(
     assert extra_case.coverage_tags == ["basic"]
     assert extra_case.semantic_tags == ["operation_specific"]
     assert report["signal_normalization_warnings"]
+
+
+def test_normalize_plan_augmentation_repairs_case_id_to_draft_id() -> None:
+    payload = extract_json_payload(
+        """
+        {
+          "baseline_case_enrichments": [],
+          "additional_cases": [
+            {
+              "case_id": "negative_001",
+              "category": "negative",
+              "goal": "Probe an invalid input partition conservatively.",
+              "stimulus_intent": ["Drive a constrained invalid partition."],
+              "stimulus_signals": ["a"],
+              "expected_properties": ["Observe external safety only."],
+              "observed_signals": ["y"],
+              "confidence": 0.2,
+              "source": "llm"
+            }
+          ]
+        }
+        """
+    )
+
+    normalized, report = normalize_plan_augmentation_payload(payload)
+
+    assert normalized["additional_cases"][0]["draft_id"] == "negative_001"
+    assert "case_id" not in normalized["additional_cases"][0]
+    assert any(item["from"] == "case_id" and item["to"] == "draft_id" for item in report["renamed_fields"])
+    assert any(item["field"] == "confidence" for item in report["stripped_fields"])
+
+
+def test_normalize_oracle_augmentation_strips_safe_extra_check_fields() -> None:
+    payload = extract_json_payload(
+        """
+        {
+          "case_enrichments": [],
+          "additional_oracle_cases": [
+            {
+              "linked_plan_case_id": "basic_001",
+              "oracle_group": "property",
+              "checks": [
+                {
+                  "check_type": "property",
+                  "description": "Observe safety-style behavior.",
+                  "observed_signals": ["y"],
+                  "trigger_condition": "when driven",
+                  "pass_condition": "remain externally consistent",
+                  "temporal_window": {"mode": "event_based"},
+                  "strictness": "guarded",
+                  "semantic_tags": [],
+                  "notes": [],
+                  "check_id": "basic_001_property_002",
+                  "confidence": 0.2,
+                  "signal_policies": {"y": {"strength": "guarded"}},
+                  "source": "rule_based"
+                }
+              ],
+              "case_id": "property_basic_001",
+              "confidence": 0.2
+            }
+          ]
+        }
+        """
+    )
+
+    normalized, report = normalize_oracle_augmentation_payload(payload)
+
+    oracle_case = normalized["additional_oracle_cases"][0]
+    check = oracle_case["checks"][0]
+    assert oracle_case["oracle_class"] == "property"
+    assert "oracle_group" not in oracle_case
+    assert "case_id" not in oracle_case
+    assert "check_id" not in check
+    assert "signal_policies" not in check
+    assert any(item["field"] == "check_id" for item in report["stripped_fields"])
 
 
 def test_validate_oracle_augmentation_downgrades_exact_cycle_and_strict() -> None:

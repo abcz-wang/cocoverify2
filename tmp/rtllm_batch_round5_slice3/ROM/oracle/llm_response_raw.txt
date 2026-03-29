@@ -1,0 +1,69 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "dout must remain stable while addr is unchanged and must update only on addr changes",
+          "notes": [],
+          "observed_signals": [
+            "dout",
+            "addr"
+          ],
+          "pass_condition": "If addr does not change over a delta cycle, dout must not change; when addr changes, dout may change within one delta cycle",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever addr changes"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "dout must never be high-impedance (Z) during normal operation",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "At all times, dout != 'bz",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously during simulation"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

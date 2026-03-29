@@ -165,6 +165,7 @@ def test_hybrid_oracle_appends_llm_checks_and_downgrades_exact_cycle(tmp_path: P
                     "checks": [
                         {
                             "check_type": "functional",
+                            "check_id": "basic_001_functional_999",
                             "description": "Observe operation-specific output stability.",
                             "observed_signals": ["out_data", "done"],
                             "trigger_condition": "When the basic case drives legal input combinations.",
@@ -178,6 +179,9 @@ def test_hybrid_oracle_appends_llm_checks_and_downgrades_exact_cycle(tmp_path: P
                             "strictness": "strict",
                             "semantic_tags": ["operation_specific"],
                             "notes": ["Downgrade strict timing when confidence is weak."],
+                            "confidence": 0.25,
+                            "signal_policies": {"out_data": {"strength": "guarded"}},
+                            "source": "rule_based",
                         }
                     ],
                     "assumptions": ["LLM functional enrichment"],
@@ -212,7 +216,10 @@ def test_hybrid_oracle_appends_llm_checks_and_downgrades_exact_cycle(tmp_path: P
     assert (tmp_path / "oracle" / "llm_request.json").exists()
     assert (tmp_path / "oracle" / "llm_response_raw.txt").exists()
     assert (tmp_path / "oracle" / "llm_response_parsed.json").exists()
+    assert (tmp_path / "oracle" / "llm_response_normalized.json").exists()
     assert (tmp_path / "oracle" / "llm_merge_report.json").exists()
+    merge_report = json.loads((tmp_path / "oracle" / "llm_merge_report.json").read_text(encoding="utf-8"))
+    assert merge_report["validation_report"]["normalization_report"]["stripped_fields"]
 
 
 def test_hybrid_oracle_falls_back_cleanly_on_invalid_llm_response(tmp_path: Path) -> None:
@@ -298,10 +305,240 @@ def test_oracle_artifact_marks_weak_side_outputs_as_unresolved(tmp_path: Path) -
     assert check.signal_policies["r"].strength == AssertionStrength.EXACT
     assert check.signal_policies["zero"].strength == AssertionStrength.EXACT
     assert check.signal_policies["flag"].strength == AssertionStrength.GUARDED
+    assert check.signal_policies["flag"].allow_unknown is True
     assert check.signal_policies["flag"].allow_high_impedance is True
     assert check.signal_policies["carry"].strength == AssertionStrength.UNRESOLVED
     assert check.signal_policies["negative"].strength == AssertionStrength.UNRESOLVED
     assert check.signal_policies["overflow"].strength == AssertionStrength.UNRESOLVED
+
+
+def test_oracle_preserves_primary_output_ambiguity_for_control_heavy_edge_cases(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="demo_alu_edge",
+        ports=[
+            PortSpec(name="a", direction=PortDirection.INPUT, width=32),
+            PortSpec(name="b", direction=PortDirection.INPUT, width=32),
+            PortSpec(name="aluc", direction=PortDirection.INPUT, width=6),
+            PortSpec(name="r", direction=PortDirection.OUTPUT, width=32),
+            PortSpec(name="zero", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["r", "zero"],
+        timing=TimingSpec(sequential_kind=SequentialKind.COMB, latency_model="unknown", confidence=0.8),
+        contract_confidence=0.8,
+    )
+    plan = PlanModel(
+        module_name="demo_alu_edge",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.8,
+        cases=[
+            PlanCaseModel(
+                case_id="edge_001",
+                goal="Probe edge patterns conservatively.",
+                category=PlanCategory.EDGE,
+                stimulus_intent=["Drive data boundaries while holding a control opcode."],
+                stimulus_signals=["a", "b", "aluc"],
+                expected_properties=["Observe externally visible response."],
+                observed_signals=["r", "zero"],
+                timing_assumptions=["Observe after input stabilization."],
+                coverage_tags=["edge"],
+                semantic_tags=["width_sensitive"],
+                confidence=0.8,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    functional_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "edge_001")
+    check = functional_case.checks[0]
+    assert check.signal_policies["r"].strength == AssertionStrength.UNRESOLVED
+
+
+def test_oracle_treats_valid_driven_edge_cases_as_control_heavy_for_primary_outputs(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="demo_serial2parallel",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="din_serial", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="din_valid", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="dout_parallel", direction=PortDirection.OUTPUT, width=8),
+            PortSpec(name="dout_valid", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["dout_parallel", "dout_valid"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.85),
+        assumptions=[
+            "dout_parallel outputs the accumulated byte after a legal transfer.",
+            "dout_valid is set to '1' after a complete transfer.",
+        ],
+        contract_confidence=0.85,
+    )
+    plan = PlanModel(
+        module_name="demo_serial2parallel",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.82,
+        cases=[
+            PlanCaseModel(
+                case_id="edge_001",
+                goal="Probe valid-edge handling conservatively.",
+                category=PlanCategory.EDGE,
+                stimulus_intent=["Toggle din_valid at the transfer boundary."],
+                stimulus_signals=["din_valid"],
+                expected_properties=["Observe externally visible progress."],
+                observed_signals=["dout_parallel", "dout_valid"],
+                timing_assumptions=["Observe after rising edges of clk."],
+                coverage_tags=["edge"],
+                semantic_tags=["width_sensitive"],
+                confidence=0.82,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    functional_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "edge_001")
+    check = functional_case.checks[0]
+
+    assert check.signal_policies["dout_parallel"].strength == AssertionStrength.UNRESOLVED
+    assert check.signal_policies["dout_valid"].strength == AssertionStrength.UNRESOLVED
+
+
+def test_oracle_preserves_scalar_status_output_ambiguity_for_width_sensitive_seq_edges(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="demo_lifo",
+        ports=[
+            PortSpec(name="Clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="Rst", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="dataIn", direction=PortDirection.INPUT, width=4),
+            PortSpec(name="RW", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="EN", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="EMPTY", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="FULL", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="dataOut", direction=PortDirection.OUTPUT, width=4),
+        ],
+        observable_outputs=["EMPTY", "FULL", "dataOut"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.88),
+        assumptions=[
+            "EMPTY is set based on the stack pointer status.",
+            "FULL is set based on the stack pointer status.",
+        ],
+        contract_confidence=0.88,
+    )
+    plan = PlanModel(
+        module_name="demo_lifo",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.83,
+        cases=[
+            PlanCaseModel(
+                case_id="edge_001",
+                goal="Probe width-sensitive buffer boundaries.",
+                category=PlanCategory.EDGE,
+                stimulus_intent=["Exercise write/read behavior at a boundary value."],
+                stimulus_signals=["dataIn", "EN"],
+                expected_properties=["Observe externally visible flag progress."],
+                observed_signals=["EMPTY", "FULL", "dataOut"],
+                timing_assumptions=["Observe after rising edges of Clk."],
+                coverage_tags=["edge", "boundary"],
+                semantic_tags=["width_sensitive"],
+                confidence=0.83,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    functional_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "edge_001")
+    check = functional_case.checks[0]
+
+    assert check.signal_policies["EMPTY"].strength == AssertionStrength.UNRESOLVED
+    assert check.signal_policies["FULL"].strength == AssertionStrength.UNRESOLVED
+
+
+def test_oracle_preserves_scalar_status_output_ambiguity_for_seq_protocol_guardrails(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="demo_lifo_protocol",
+        ports=[
+            PortSpec(name="Clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="Rst", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="dataIn", direction=PortDirection.INPUT, width=4),
+            PortSpec(name="RW", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="EN", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="EMPTY", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="FULL", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="dataOut", direction=PortDirection.OUTPUT, width=4),
+        ],
+        observable_outputs=["EMPTY", "FULL", "dataOut"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.88),
+        assumptions=[
+            "EMPTY is set based on the stack pointer status.",
+            "FULL is set based on the stack pointer status.",
+        ],
+        contract_confidence=0.88,
+    )
+    plan = PlanModel(
+        module_name="demo_lifo_protocol",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.83,
+        cases=[
+            PlanCaseModel(
+                case_id="protocol_001",
+                goal="Validate push-pop ordering conservatively.",
+                category=PlanCategory.PROTOCOL,
+                stimulus_intent=["Push once, then pop once under enable."],
+                stimulus_signals=["dataIn", "RW", "EN"],
+                expected_properties=["Observe sequence-safe visible progress."],
+                observed_signals=["EMPTY", "FULL", "dataOut"],
+                timing_assumptions=["Observe after rising edges of Clk."],
+                coverage_tags=["sequence", "push_pop"],
+                semantic_tags=["ambiguity_preserving"],
+                confidence=0.83,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    property_case = next(case for case in oracle.property_oracles if case.linked_plan_case_id == "protocol_001")
+    check = property_case.checks[0]
+
+    assert check.signal_policies["EMPTY"].strength == AssertionStrength.UNRESOLVED
+    assert check.signal_policies["FULL"].strength == AssertionStrength.UNRESOLVED
 
 
 def test_stage_oracle_cli_smoke(tmp_path: Path) -> None:

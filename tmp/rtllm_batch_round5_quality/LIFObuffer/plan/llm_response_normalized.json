@@ -1,0 +1,246 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_operation",
+        "full_condition"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "neg_full_write_001",
+      "expected_properties": [
+        "When FULL is asserted, a write (RW=0) with EN=1 does not modify dataOut or internal memory, and FULL remains asserted."
+      ],
+      "goal": "Verify that write attempts on a full buffer are ignored.",
+      "notes": [
+        "Ensures buffer protects against overflow."
+      ],
+      "observed_signals": [
+        "FULL",
+        "EMPTY",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer must be in FULL state before stimulus."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Attempt a write operation while buffer is full."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Observe after at least one clock cycle post stimulus."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_operation",
+        "empty_condition"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "neg_empty_read_001",
+      "expected_properties": [
+        "When EMPTY is asserted, a read (RW=1) with EN=1 does not change dataOut and EMPTY remains asserted."
+      ],
+      "goal": "Verify that read attempts on an empty buffer are ignored.",
+      "notes": [
+        "Ensures buffer protects against underflow."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer must be in EMPTY state before stimulus."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Attempt a read operation while buffer is empty."
+      ],
+      "stimulus_signals": [
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Observe after at least one clock cycle post stimulus."
+      ]
+    },
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "enable_gating"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "prot_en_gate_001",
+      "expected_properties": [
+        "When EN is low, any RW and dataIn values do not affect EMPTY, FULL, or dataOut."
+      ],
+      "goal": "Confirm that operations are disabled when EN=0.",
+      "notes": [
+        "Validates enable gating behavior."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer in any state; EN low before stimulus."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive EN=0 with varying RW and dataIn values."
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe after one clock cycle."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "push_pop_sequence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "reg_push_pop_seq_001",
+      "expected_properties": [
+        "A write followed by a read returns the same data value on dataOut, and flags update accordingly."
+      ],
+      "goal": "Validate correct LIFO behavior over a push-pop pair.",
+      "notes": [
+        "Covers basic functional correctness."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer not full, not empty."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Write a known pattern, then read it back."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Observe after each operation's clock edge."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "lifo_order"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "meta_lifo_order_001",
+      "expected_properties": [
+        "Pushing values A then B and subsequently popping twice yields B then A on dataOut."
+      ],
+      "goal": "Check LIFO ordering property.",
+      "notes": [
+        "Ensures stack ordering semantics."
+      ],
+      "observed_signals": [
+        "dataOut",
+        "EMPTY",
+        "FULL"
+      ],
+      "preconditions": [
+        "Buffer empty initially."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Push two distinct data patterns, then perform two reads."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Observe after each clock cycle."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "push_operation",
+        "pop_operation"
+      ],
+      "expected_properties": [
+        "A write when not full sets FULL appropriately and clears EMPTY.",
+        "A read when not empty clears FULL appropriately and sets EMPTY when last element removed."
+      ],
+      "goal": "Demonstrate a single legal push or pop and verify flag updates.",
+      "notes": [
+        "Enriches basic case with both write and read scenarios via separate stimulus intents."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Perform a write (RW=0) with EN=1 and observe flags.",
+        "Perform a read (RW=1) with EN=1 and observe flags."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Observe after one clock edge for each operation."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

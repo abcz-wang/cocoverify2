@@ -244,6 +244,56 @@ The register captures d on the rising edge of clk.
     assert "spec_hint" in contract.source_map["resets.rst_n"]
 
 
+def test_spec_output_behavior_lines_are_preserved_as_assumptions(tmp_path: Path) -> None:
+    rtl_path = tmp_path / "alu_like.v"
+    rtl_path.write_text(
+        "\n".join(
+            [
+                "module alu_like(a, b, aluc, r, zero, flag);",
+                "input [31:0] a;",
+                "input [31:0] b;",
+                "input [5:0] aluc;",
+                "output [31:0] r;",
+                "output zero;",
+                "output flag;",
+                "endmodule",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    spec_text = """
+Module name:
+    alu
+
+Input ports:
+    a: operand
+    b: operand
+    aluc: opcode
+
+Output ports:
+    r: result output
+    zero: zero flag
+    flag: comparison flag
+
+Implementation:
+The output result (r) is assigned to the lower 32 bits of the register.
+The zero output is set to '1' when the result is all zeros, and '0' otherwise.
+The flag output is determined by the control signal and is set to '1' for SLT and 'z' otherwise.
+""".strip()
+    contract = ContractExtractor().run(
+        rtl_paths=[rtl_path],
+        task_description=None,
+        spec_text=spec_text,
+        golden_interface_text=extract_interface_hint_text(spec_text),
+        out_dir=tmp_path / "out",
+    )
+
+    assumptions_text = "\n".join(contract.assumptions)
+    assert "lower 32 bits" in assumptions_text
+    assert "zero output is set" in assumptions_text.lower()
+    assert "flag output is determined" in assumptions_text.lower()
+
+
 def test_ansi_ports_with_tabs_parse_without_placeholder_names(tmp_path: Path) -> None:
     rtl_path = tmp_path / "tabbed_ports.v"
     rtl_path.write_text(

@@ -1,0 +1,167 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "reset",
+        "start",
+        "illegal"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "neg_start_during_reset",
+      "expected_properties": [
+        "The design does not assert done while rst_n is asserted (active low)."
+      ],
+      "goal": "Verify that asserting start during an active reset does not cause premature completion.",
+      "notes": [
+        "Reset polarity is known for rst_n; start polarity remains ambiguous, so the case keeps the stimulus conservative."
+      ],
+      "observed_signals": [
+        "done",
+        "start"
+      ],
+      "preconditions": [
+        "Reset is asserted (rst_n = 0)."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert start while rst_n is low, then release reset and observe that done remains low until normal operation."
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Hold reset for at least two clock cycles, then deassert and continue observation for several cycles."
+      ]
+    },
+    {
+      "category": "regression",
+      "coverage_tags": [
+        "regression",
+        "commutative"
+      ],
+      "dependencies": [
+        "basic_001",
+        "edge_001"
+      ],
+      "draft_id": "regression_commutative",
+      "expected_properties": [
+        "Product output for (ain, bin) equals product for swapped inputs (bin, ain) across two sequential operations."
+      ],
+      "goal": "Validate multiplication commutativity by performing two back\u2011to\u2011back operations with swapped operands.",
+      "notes": [
+        "Uses only observable ports; no assumption on exact latency."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "Design is in a stable post\u2011reset state."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "First multiply A * B, capture yout after done; then multiply B * A and capture yout; compare the two results."
+      ],
+      "stimulus_signals": [
+        "ain",
+        "bin",
+        "start",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Allow sufficient clock cycles for each operation to reach done before starting the next."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "metamorphic",
+        "randomized"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_random_pairs",
+      "expected_properties": [
+        "For each random input pair, yout matches the reference 16\u2011bit unsigned multiplication result."
+      ],
+      "goal": "Apply multiple random input pairs and compare yout against a golden model.",
+      "notes": [
+        "Provides broader functional coverage without relying on fixed latency."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Generate random 16\u2011bit values for ain and bin, assert start, wait for done, capture yout, and check against software reference."
+      ],
+      "stimulus_signals": [
+        "ain",
+        "bin",
+        "start",
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe for up to 30 clock cycles after each start assertion."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "handshake",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Product output yout reflects the correct multiplication of the driven ain and bin after a visible done transition."
+      ],
+      "goal": "Drive ain and bin with a representative legal pattern, assert start, and verify that yout updates correctly once done is observed.",
+      "notes": [
+        "Adds explicit observation of the start handshake while keeping timing assumptions conservative."
+      ],
+      "observed_signals": [
+        "yout",
+        "done",
+        "start"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a random legal pattern to ain and bin, keep start low, then pulse start to initiate multiplication."
+      ],
+      "stimulus_signals": [
+        "ain",
+        "bin",
+        "start"
+      ],
+      "timing_assumptions": [
+        "After asserting start, monitor for done for up to 40 clock cycles; do not assume a fixed latency."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

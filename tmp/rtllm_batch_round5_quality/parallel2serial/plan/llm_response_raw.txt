@@ -1,0 +1,122 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "coverage_tags": [
+        "idle_behavior",
+        "valid_stability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "proto_idle_001",
+      "expected_properties": [
+        "valid_out remains low when no new parallel word is presented after a completed serialization",
+        "dout does not change unexpectedly during idle periods"
+      ],
+      "goal": "Verify that the module does not assert valid_out or change dout when the input d is held constant after a full 4‑bit conversion.",
+      "notes": [
+        "Uses the same input d value that was previously serialized; no new load event is triggered."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "A full serialization of a previous 4‑bit word has completed (valid_out has been observed high for one cycle).",
+        "The input d is kept stable (no change) for at least four additional clock cycles."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Hold d constant after a completed conversion and monitor outputs."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe outputs for at least four clock cycles after the last valid_out assertion."
+      ]
+    },
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "x_propagation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_x_001",
+      "expected_properties": [
+        "Outputs do not become X when the input d contains X or Z bits",
+        "valid_out does not assert spuriously for illegal input patterns"
+      ],
+      "goal": "Check robustness of the design when the parallel input contains unknown or high‑impedance values.",
+      "notes": [
+        "The contract does not forbid X/Z on d; this case ensures conservative handling."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [
+        "Drive d with at least one X or Z bit for a single clock cycle."
+      ],
+      "priority": 5,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Apply an X/Z pattern to the parallel input and observe module response."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Capture output immediately after the clock edge that samples the X/Z input."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "valid_out asserts high for exactly one cycle per loaded 4‑bit word",
+        "dout outputs the four bits of d in MSB‑to‑LSB order over four consecutive cycles"
+      ],
+      "goal": "Confirm that a single legal parallel word is serialized correctly and that valid_out signals the start of serialization.",
+      "notes": [
+        "Assumes the module asserts valid_out when the first bit of the new word is presented."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Provide a representative 4‑bit pattern on d and observe the resulting serial stream."
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Wait for at least five clock cycles after driving d to capture the full serialization and the next idle period."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

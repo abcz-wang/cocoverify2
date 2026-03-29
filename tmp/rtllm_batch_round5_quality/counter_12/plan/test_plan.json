@@ -1,0 +1,319 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_counter_12",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.8350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "count_increment"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "When valid_count is asserted, the output 'out' increments by one each clock cycle until it reaches the maximum value 4'd11.",
+        "The counter does not change when valid_count is deasserted."
+      ],
+      "goal": "Demonstrate normal counting behavior under a sustained valid_count assertion.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "The stimulus keeps valid_count high for several cycles to observe multiple increments."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['valid_count']",
+        "Assert valid_count for a sequence of clock cycles and monitor out for monotonic increment."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe out on successive rising edges of clk without assuming a fixed latency."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.785,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['valid_count']"
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7550000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "wrap_around",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "When out reaches 4'd11 and valid_count remains asserted, the counter wraps to 0 on the next clock edge."
+      ],
+      "goal": "Verify correct wrap\u2011around behavior at the maximum count value.",
+      "notes": [
+        "The test drives valid_count high continuously until the wrap point is observed."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Counter has been allowed to count up to its maximum value."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "edge"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Maintain valid_count=1 for enough cycles to see out transition from 11 to 0."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Conservative observation on each rising edge of clk."
+      ]
+    },
+    {
+      "case_id": "basic_002",
+      "category": "basic",
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "pause",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "When valid_count is deasserted, the output 'out' holds its current value across clock cycles."
+      ],
+      "goal": "Confirm that the counter pauses correctly when valid_count=0.",
+      "notes": [
+        "The test toggles valid_count low after a few increments and checks that out does not change."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Counter has been started with valid_count=1."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Deassert valid_count after a few increments and monitor out for stability."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Observe out on successive clock edges without assuming hidden latency."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "illegal_input",
+        "robustness"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Driving an undefined value (X) on valid_count does not cause the observable output 'out' to become X."
+      ],
+      "goal": "Assess robustness against illegal/unknown input values.",
+      "notes": [
+        "The contract does not define behavior for X on valid_count; the test checks for safe handling.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Simulation environment permits forcing X on a 1\u2011bit input."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Force valid_count to X for a few cycles and verify out remains a defined 4\u2011bit value."
+      ],
+      "stimulus_signals": [
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each clock edge."
+      ]
+    }
+  ],
+  "module_name": "verified_counter_12",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['valid_count'] without matching role(s) ['ready'] in group 'count'."
+  ]
+}

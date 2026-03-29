@@ -1,0 +1,249 @@
+{
+  "assumptions": [
+    "The output enable signal, mul_en_out, is derived from the most significant bit of mul_en_out_reg, indicating whether the multiplication operation is enabled.",
+    "If the output enable signal is active, indicating a valid product, the value in mul_out_reg is assigned to mul_out.",
+    "Otherwise, mul_out is set to 0.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_multi_pipe_8bit",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.6850000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.6350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "Output enable follows input enable after an observable but unspecified latency.",
+        "When mul_en_out becomes high, mul_out reflects the product of the latched mul_a and mul_b."
+      ],
+      "goal": "Validate that a single multiplication operation propagates correctly to mul_en_out and mul_out after a conservative observation window.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "No assumption on exact pipeline depth; observation window extended until mul_en_out toggles.",
+        "Preserve ambiguity about latency as contract does not specify fixed cycles."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['mul_a', 'mul_b', 'mul_en_in']",
+        "Drive a single valid multiplication request and monitor output enable and product."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe over multiple clock cycles until mul_en_out asserts, then capture mul_out."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.5850000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['mul_a', 'mul_b', 'mul_en_in']"
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.5550000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "mul_a",
+        "mul_b",
+        "mul_en_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.6750000000000002,
+      "coverage_tags": [
+        "illegal_input",
+        "output_stability"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "When mul_en_in is deasserted, changes to mul_a or mul_b do not affect mul_out or mul_en_out."
+      ],
+      "goal": "Confirm that disabling the input enable prevents any output activity despite input changes.",
+      "notes": [
+        "Ensures that the design correctly gates pipeline registers with mul_en_in.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "mul_en_out",
+        "mul_out"
+      ],
+      "preconditions": [
+        "Design is out of reset and any prior operation has completed."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Toggle mul_a and mul_b while mul_en_in=0 and verify outputs remain stable."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Allow sufficient cycles for any latent pipeline stages to settle after input changes."
+      ]
+    }
+  ],
+  "module_name": "verified_multi_pipe_8bit",
+  "plan_confidence": 0.7650000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

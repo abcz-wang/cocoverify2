@@ -1,0 +1,676 @@
+{
+  "assumptions": [
+    "- The outputs A_greater, A_equal, and A_less are determined based on the comparison of A and B.",
+    "- A_greater is set to 1 if A > B, A_equal is set to 1 if A == B, and A_less is set to 1 if A < B.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "comparator_3bit",
+  "based_on_plan": "comparator_3bit",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7475,
+          "description": "Observe that legal input changes are reflected on the observable outputs without state dependence.",
+          "notes": [
+            "Combinational functional oracle stays descriptive and avoids inventing a full truth table."
+          ],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "Observable outputs respond consistently to the applied inputs without relying on hidden state or exact-cycle timing.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked basic stimulus applies legal representative input patterns."
+        },
+        {
+          "check_id": "basic_001_functional_002",
+          "check_type": "functional",
+          "confidence": 0.7675000000000001,
+          "description": "Verify that for each applied input pair the comparator outputs are mutually exclusive (only one of A_greater, A_equal, A_less is high).",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "Exactly one of the three output signals is 1 and the others are 0 for every stable input combination.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When any basic stimulus case applies a legal A,B pair."
+        }
+      ],
+      "confidence": 0.7575000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_functional_001",
+          "check_type": "functional",
+          "confidence": 0.6775,
+          "description": "Observe stable, externally consistent response to boundary-value input patterns.",
+          "notes": [
+            "Boundary oracle is value-oriented but intentionally generic."
+          ],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "Boundary-value outputs remain externally consistent and do not require hidden state or fixed-latency interpretation.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked edge case applies zero-like, one-like, or width-boundary patterns."
+        }
+      ],
+      "confidence": 0.6775,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_002",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_002_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7475,
+          "description": "Observe that legal input changes are reflected on the observable outputs without state dependence.",
+          "notes": [
+            "Combinational functional oracle stays descriptive and avoids inventing a full truth table."
+          ],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "Observable outputs respond consistently to the applied inputs without relying on hidden state or exact-cycle timing.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked basic stimulus applies legal representative input patterns."
+        }
+      ],
+      "confidence": 0.7475,
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_functional_001",
+          "check_type": "functional",
+          "confidence": 0.7275,
+          "description": "Observe stable, externally consistent response to boundary-value input patterns.",
+          "notes": [
+            "Boundary oracle is value-oriented but intentionally generic."
+          ],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "Boundary-value outputs remain externally consistent and do not require hidden state or fixed-latency interpretation.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked edge case applies zero-like, one-like, or width-boundary patterns."
+        }
+      ],
+      "confidence": 0.7275,
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "module_name": "comparator_3bit",
+  "oracle_confidence": {
+    "functional_confidence": 0.7275,
+    "overall_confidence": 0.7295,
+    "property_confidence": 0.7315,
+    "protocol_confidence": 0.0
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7375,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7375,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "confidence": 0.6875,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "confidence": 0.7175,
+          "description": "Edge case property: when A=0 and B=7, only A_less should be high; when A=7 and B=0, only A_greater should be high.",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "A_less=1, A_greater=0, A_equal=0 for (A=0,B=7) and A_greater=1, others 0 for (A=7,B=0).",
+          "semantic_tags": [
+            "edge",
+            "width_sensitive"
+          ],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge_001 stimulus applies the extreme boundary patterns."
+        }
+      ],
+      "confidence": 0.7025,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "hybrid_llm_generated",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_002",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_002_property_001",
+          "check_type": "property",
+          "confidence": 0.7375,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7375,
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_property_001",
+          "check_type": "property",
+          "confidence": 0.7375,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7375,
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_back_to_back_001",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_001_property_001",
+          "check_type": "property",
+          "confidence": 0.7175,
+          "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+          "notes": [
+            "Stability-style property used instead of throughput-specific claims."
+          ],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        },
+        {
+          "check_id": "back_to_back_001_property_002",
+          "check_type": "property",
+          "confidence": 0.7675000000000001,
+          "description": "Guard against simultaneous high outputs; ensure no illegal combination appears even under rapid input changes.",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "At no observation point are two or more output signals high together.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "A_equal": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_greater": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "A_less": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "During back_to_back_001 rapid toggling sequence."
+        }
+      ],
+      "confidence": 0.7425,
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    }
+  ],
+  "protocol_oracles": [],
+  "unresolved_items": []
+}

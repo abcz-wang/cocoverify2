@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: avoid fixed-cycle expectations unless contract later proves them.",
+          "notes": [],
+          "observed_signals": [
+            "Sum",
+            "Cout"
+          ],
+          "pass_condition": "The oracle only requires externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "Whenever the linked edge case evaluates externally visible progress."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "Sum",
+            "Cout"
+          ],
+          "pass_condition": "Outputs reflect the applied legal input combination after stabilization without relying on hidden state.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the stimulus for basic_001 is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

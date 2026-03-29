@@ -1,0 +1,127 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "rapid_change"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "dout follows each addr change without glitches."
+      ],
+      "goal": "Verify combinational read stability under rapid address toggling.",
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Toggle addr through a sequence of values each cycle."
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Assume zero-cycle latency (combinational)."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "coverage_tags": [
+        "repeat_consistency"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "Repeated identical addr yields identical dout across observations."
+      ],
+      "goal": "Confirm deterministic output for same address.",
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply same addr value multiple times separated by idle cycles."
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Combinational read."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "read_operation"
+      ],
+      "expected_properties": [
+        "dout updates to reflect mem[addr] after any change in addr."
+      ],
+      "goal": "Validate that any address change results in correct data output without assuming latency.",
+      "notes": [
+        "Since ROM is combinational, output should follow input changes."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive addr with a set of arbitrary values and monitor dout."
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "No clock edge required; combinational propagation."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary_addr"
+      ],
+      "expected_properties": [
+        "dout reflects correct data for min (0x00) and max (0xFF) address values."
+      ],
+      "goal": "Check boundary address handling.",
+      "notes": [
+        "Edge case focuses on address extremes."
+      ],
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply addr = 0x00 and 0xFF."
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Combinational behavior assumed."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

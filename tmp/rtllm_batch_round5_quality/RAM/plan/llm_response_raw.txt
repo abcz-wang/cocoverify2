@@ -1,0 +1,114 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "basic",
+      "coverage_tags": [
+        "write_then_read"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Data written to an address is later read back correctly when read_en is asserted"
+      ],
+      "goal": "Validate that a write followed by a read of the same address returns the written data.",
+      "notes": [],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [
+        "Reset has been released and RAM is initialized"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Write a value to a chosen address, then enable read of the same address on a subsequent cycle"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Observe read_data after at least one clock cycle following the write operation"
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "protocol",
+      "coverage_tags": [
+        "simultaneous_rw"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When read_en and write_en are asserted in the same cycle to the same address, read_data remains stable and reflects a deterministic value (pre‑write or post‑write) observable externally"
+      ],
+      "goal": "Observe behavior of concurrent read and write to the same address under conservative timing.",
+      "notes": [],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Assert write_en and read_en together with identical address, provide write_data, and monitor read_data"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Observe read_data in the same cycle or the next cycle as per conservative observation"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic_operation"
+      ],
+      "expected_properties": [
+        "Read after a write yields the written data when read_en is asserted after at least one clock cycle"
+      ],
+      "goal": "Confirm basic read/write functionality.",
+      "notes": [],
+      "observed_signals": [
+        "read_data"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Perform a single write followed by a read"
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Allow at least one clock cycle between write and read"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

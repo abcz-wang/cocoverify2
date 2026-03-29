@@ -1,0 +1,338 @@
+{
+  "assumptions": [
+    "EMPTY: Flag indicating whether the buffer is empty.",
+    "FULL: Flag indicating whether the buffer is full.",
+    "If the reset (Rst) signal is high, the stack is cleared, the stack pointer is set to 4 (indicating an empty buffer), and all memory locations are initialized to 0.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "LIFObuffer",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "Rst"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.8350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "write_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "A single legal write (EN=1, RW=0) when buffer is not full clears EMPTY, may set FULL if capacity reached, and updates dataOut only on subsequent read."
+      ],
+      "goal": "Perform one legal write operation and verify flag transitions.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Adds explicit expectation for EMPTY flag clearing after the write."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['dataIn', 'RW', 'EN']",
+        "Apply EN=1, RW=0 with a non\u2011zero dataIn value for one clock cycle."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.785,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['dataIn', 'EN']"
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.7550000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "dataIn",
+        "RW",
+        "EN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "illegal_input",
+        "full_condition"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "edge_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "When FULL is asserted, a write attempt (EN=1, RW=0) does not modify the stack pointer or stored data; FULL remains 1, EMPTY remains 0, and dataOut is unchanged."
+      ],
+      "goal": "Verify that write operations are ignored when the buffer is full.",
+      "notes": [
+        "Uses the buffer state achieved by edge_001 to create the FULL condition.",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "FULL",
+        "EMPTY",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer is full (FULL == 1)."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply EN=1, RW=0, and a dataIn value while the buffer is full."
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after one clock cycle following the stimulus."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "reset_protocol",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "After deasserting Rst, EMPTY is asserted, FULL is deasserted, and dataOut is zero."
+      ],
+      "goal": "Validate post\u2011reset flag values and dataOut stability.",
+      "notes": [
+        "Reset polarity is taken from contract (active high).",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Rst asserted high for at least two clock cycles."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert Rst high, then release it while toggling Clk, and monitor outputs."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Wait for two clock cycles after Rst deassertion before sampling outputs."
+      ]
+    },
+    {
+      "case_id": "back_to_back_002",
+      "category": "back_to_back",
+      "confidence": 0.8600000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "alternating_ops"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A write followed immediately by a read correctly transfers the written data to dataOut and updates EMPTY/FULL flags."
+      ],
+      "goal": "Test alternating push/pop without idle cycles.",
+      "notes": [],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Cycle 1: EN=1, RW=0 (write) with a dataIn value; Cycle 2: EN=1, RW=1 (read)."
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each clock edge."
+      ]
+    }
+  ],
+  "module_name": "LIFObuffer",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: If the reset signal is low, the buffer checks if it is full or empty and processes data accordingly:"
+  ]
+}

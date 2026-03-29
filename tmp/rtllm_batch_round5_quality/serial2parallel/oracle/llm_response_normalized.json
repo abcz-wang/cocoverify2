@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When din_valid is asserted for fewer than eight consecutive cycles, dout_valid must remain low and dout_parallel must not reflect a completed word.",
+          "notes": [],
+          "observed_signals": [
+            "dout_parallel",
+            "dout_valid"
+          ],
+          "pass_condition": "dout_valid stays 0 and dout_parallel does not change to a new 8\u2011bit value until eight valid bits have been received.",
+          "semantic_tags": [
+            "invalid_illegal_input",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "din_valid deasserted before eight bits are collected."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After eight consecutive cycles with din_valid asserted, dout_valid must become 1 and dout_parallel must contain the transmitted bits in MSB\u2011to\u2011LSB order.",
+          "notes": [],
+          "observed_signals": [
+            "dout_parallel",
+            "dout_valid"
+          ],
+          "pass_condition": "dout_valid transitions to 1 and dout_parallel reflects the eight collected din_serial bits, with the first received bit occupying bit 7 and the last occupying bit 0.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Eight consecutive din_valid cycles with din_serial driven."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

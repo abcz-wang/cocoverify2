@@ -1,0 +1,176 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "op_specific_001",
+      "expected_properties": [
+        "Each defined opcode produces the mathematically correct 32‑bit result in r",
+        "zero is asserted only when r == 0",
+        "carry, negative, and overflow reflect the semantics of the selected arithmetic operation",
+        "flag is asserted (1) for SLT and SLTU opcodes and high‑impedance (z) otherwise"
+      ],
+      "goal": "Validate functional correctness of every documented ALU opcode using representative operand values.",
+      "notes": [
+        "One representative vector per opcode is used; operands are chosen to exercise signed/unsigned behavior and edge conditions (e.g., max/min values).",
+        "The case remains combinational‑only, respecting the unknown latency model."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive each opcode (aluc) with a typical operand pair (a,b) to observe the corresponding output mapping."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs have stabilized; no cycle‑accurate timing is assumed."
+      ]
+    },
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "illegal_opcode_001",
+      "expected_properties": [
+        "When aluc does not match any defined operation, r and flag should be high‑impedance (z) as specified.",
+        "Other status flags (zero, carry, negative, overflow) should assume safe default values (e.g., 0) or remain undefined without causing assertion failures."
+      ],
+      "goal": "Check module behavior for undefined opcode values to ensure safe handling of illegal inputs.",
+      "notes": [
+        "Aluc values outside the listed parameter set (e.g., 6'b111111) are applied while keeping a and b at zero.",
+        "The case does not assume any particular latency; outputs are sampled after stabilization."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Apply out‑of‑range aluc codes to verify that the design does not produce spurious deterministic values."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle; no internal state or timing guarantees are assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_coverage",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "Outputs r, zero, carry, negative, overflow, and flag respond deterministically to any legal combination of a, b, and aluc.",
+        "No hidden state influences the observed combinational behavior."
+      ],
+      "goal": "Exercise representative legal input combinations and observe output mapping across a mix of arithmetic, logical, and shift operations.",
+      "notes": [
+        "Preserves the original conservative intent while explicitly noting inclusion of shift‑type opcodes."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: ['a', 'b', 'aluc'] covering arithmetic, logical, and shift opcodes."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Boundary‑value stimulation does not rely on hidden state or undocumented latency.",
+        "Zero detection works correctly when the result is exactly zero."
+      ],
+      "goal": "Exercise boundary‑value and width‑sensitive input patterns, including all‑zero and all‑ones operands.",
+      "notes": [
+        "Edge coverage remains value‑oriented and avoids fixed‑latency assumptions."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Use zero‑like, one‑like, and boundary patterns on ['a', 'b', 'aluc'] to probe edge conditions."
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

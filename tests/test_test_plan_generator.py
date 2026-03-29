@@ -165,7 +165,7 @@ def test_hybrid_plan_merges_llm_enrichment_and_additional_cases(tmp_path: Path) 
             ],
             "additional_cases": [
                 {
-                    "draft_id": "op_case_001",
+                    "case_id": "op_case_001",
                     "category": "basic",
                     "goal": "Exercise operation-specific combinations for arithmetic controls.",
                     "preconditions": [],
@@ -210,7 +210,10 @@ def test_hybrid_plan_merges_llm_enrichment_and_additional_cases(tmp_path: Path) 
     assert (tmp_path / "plan" / "llm_request.json").exists()
     assert (tmp_path / "plan" / "llm_response_raw.txt").exists()
     assert (tmp_path / "plan" / "llm_response_parsed.json").exists()
+    assert (tmp_path / "plan" / "llm_response_normalized.json").exists()
     assert (tmp_path / "plan" / "llm_merge_report.json").exists()
+    merge_report = json.loads((tmp_path / "plan" / "llm_merge_report.json").read_text(encoding="utf-8"))
+    assert merge_report["validation_report"]["normalization_report"]["renamed_fields"]
 
 
 def test_hybrid_plan_falls_back_cleanly_on_invalid_llm_response(tmp_path: Path) -> None:

@@ -1,0 +1,122 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "expected_properties": [
+        "Sum reflects the BCD‑corrected addition of A, B, and Cin",
+        "Cout indicates whether the BCD sum required a carry"
+      ],
+      "goal": "Exercise representative legal input combinations and verify BCD‑specific output mapping",
+      "notes": [
+        "Enriches the basic sanity case with BCD‑operation focus while preserving original intent"
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a variety of legal BCD digit pairs and carry‑in values"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization",
+        "No assumptions on internal pipeline depth"
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "bcd_correction_001",
+      "category": "basic",
+      "coverage_tags": [
+        "bcd_correction",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "When binary sum of A + B + Cin exceeds 9, Sum equals (binary_sum + 6) modulo 16",
+        "Cout is asserted (1) for those overflow cases"
+      ],
+      "goal": "Validate the BCD correction logic for overflow scenarios",
+      "notes": [
+        "Uses input patterns that force the binary sum > 9 to trigger the correction addition of 6"
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive inputs that produce a binary sum greater than 9 to exercise the correction path"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs settle; no fixed‑latency assumption"
+      ]
+    },
+    {
+      "draft_id": "illegal_bcd_input_001",
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "Module produces deterministic Sum and Cout values even when A or B contain non‑BCD digits (0xA‑0xF)",
+        "No contract‑specified error or undefined behavior is triggered"
+      ],
+      "goal": "Check behavior with out‑of‑range BCD inputs",
+      "notes": [
+        "Contract does not define illegal input constraints; this case ensures graceful handling"
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Apply values 0xA‑0xF to A or B while varying Cin"
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after inputs stabilize"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

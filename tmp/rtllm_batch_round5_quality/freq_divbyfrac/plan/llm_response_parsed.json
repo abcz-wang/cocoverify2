@@ -1,0 +1,118 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_edge",
+        "asynchronous"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "clk_div does not toggle while reset is asserted",
+        "After deassertion, clk_div begins regular fractional division without glitches"
+      ],
+      "goal": "Verify correct behavior when reset is released off a clock edge",
+      "notes": [
+        "Helps ensure reset release timing does not cause metastability"
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset signal exists"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset, then deassert it at a non-clock-aligned moment"
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe for at least 20 input clock cycles after reset release"
+      ]
+    },
+    {
+      "category": "basic",
+      "coverage_tags": [
+        "reset_pulse",
+        "robustness"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "basic_002",
+      "expected_properties": [
+        "Module recovers correctly after a short reset pulse",
+        "clk_div resumes correct fractional frequency after reset"
+      ],
+      "goal": "Test module's ability to handle brief reset pulses",
+      "notes": [],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [
+        "Reset signal exists"
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a short low pulse on rst_n (active low) then release"
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Pulse width of 2 clock cycles, observe for 30 cycles after release"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "fractional_division",
+        "duty_cycle",
+        "stability"
+      ],
+      "expected_properties": [
+        "clk_div toggles with average period corresponding to 1/3.5 of input clock",
+        "No glitches observed on clk_div during operation",
+        "Duty cycle remains within +/-5% of expected"
+      ],
+      "goal": "Validate fractional division behavior and duty cycle of clk_div",
+      "notes": [
+        "Observe over multiple division periods to capture half-cycle behavior"
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset and let the module run for sufficient cycles"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe for at least 14 input clock cycles (two full division cycles)"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": [
+    "Golden interface described clock 'clk_div', but the RTL port is not a scalar input-like signal.",
+    "Reset polarity for 'clk' is unresolved."
+  ]
+}

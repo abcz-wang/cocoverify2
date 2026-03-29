@@ -1,0 +1,90 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that any change in dout_valid is only observed after a full eight\u2011bit sequence has been presented with din_valid asserted, without assuming a fixed latency.",
+          "notes": [],
+          "observed_signals": [
+            "dout_valid"
+          ],
+          "pass_condition": "dout_valid transitions from 0 to 1 only after eight consecutive cycles where din_valid=1 and din_serial values have been sampled; no earlier transition is permitted.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a legal eight\u2011bit transfer is driven."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that dout_parallel reflects the serial bits in MSB\u2011to\u2011LSB order after the eighth valid input.",
+          "notes": [],
+          "observed_signals": [
+            "dout_parallel"
+          ],
+          "pass_condition": "After eight cycles with din_valid=1, dout_parallel equals the concatenation of the eight din_serial values where the first captured bit occupies bit 7 and the last occupies bit 0.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the eighth din_valid=1 cycle occurs."
+        },
+        {
+          "check_type": "functional",
+          "description": "Confirm that dout_valid asserts after the eighth valid bit and remains stable until reset or a new sequence.",
+          "notes": [],
+          "observed_signals": [
+            "dout_valid"
+          ],
+          "pass_condition": "dout_valid becomes 1 on the clock edge following the eighth din_valid=1 cycle and does not deassert without a reset or a new sequence start.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After eight consecutive din_valid=1 cycles."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

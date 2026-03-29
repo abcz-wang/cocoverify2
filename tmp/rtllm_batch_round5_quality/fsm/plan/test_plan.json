@@ -1,0 +1,270 @@
+{
+  "assumptions": [
+    "On every change in the input signal (IN) or positive edge of CLK or RST, if RST is active, the output signal MATCH is set to 0.",
+    "If the sequence of inputs IN is 1, 0, 0, 1, 1, the MATCH signal is 1 at the same time as the last occurrence of IN=1. If the sequence of inputs IN is 1, 0, 0, 1, 1, 0, 0, 1, 1, the MATCH signal becomes 1 at the fifth and ninth of IN; otherwise, it is set to 0.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_fsm",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.685,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "seq_detection"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "MATCH asserted only when pattern 10011 completes"
+      ],
+      "goal": "Validate detection of a single occurrence of pattern 10011 in a continuous stream.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Ensures that overlapping patterns are handled correctly"
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['IN']",
+        "Drive IN with pattern 1,0,0,1,1 followed by zeros"
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Check MATCH on same cycle as last input bit, without assuming extra latency"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.635,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['IN']"
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "confidence": 0.6050000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_signals": [
+        "IN"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.7250000000000001,
+      "coverage_tags": [
+        "negative",
+        "mismatch"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "MATCH remains 0 for non-matching sequences"
+      ],
+      "goal": "Confirm that MATCH does not assert for incorrect input patterns.",
+      "notes": [
+        "Test pattern 1,0,1,1,0 which is close but not matching",
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive IN with non-matching sequence 1,0,1,1,0"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe MATCH after each clock edge; no assertion expected"
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "confidence": 0.7250000000000001,
+      "coverage_tags": [
+        "regression",
+        "long_sequence"
+      ],
+      "defer_reason": "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "MATCH asserts only at correct positions in long mixed sequence"
+      ],
+      "goal": "Validate detection across a long random stream with multiple occurrences.",
+      "notes": [
+        "Stream includes 10011 at positions 5, 12, etc.",
+        "Advanced derived cases were downgraded because the contract does not yet justify deterministic mainline semantics."
+      ],
+      "observed_signals": [
+        "MATCH"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive IN with sequence: 0,0,1,0,0,1,1,0,1,0,0,1,1,0"
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Check MATCH at expected indices without assuming latency"
+      ]
+    }
+  ],
+  "module_name": "verified_fsm",
+  "plan_confidence": 0.8450000000000001,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

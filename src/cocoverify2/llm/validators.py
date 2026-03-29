@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import json
 import re
+from copy import deepcopy
 from typing import Any
 
 from cocoverify2.core.models import DUTContract, LLMTodoBlock, OracleSpec, TestPlan
@@ -68,20 +69,30 @@ _ORACLE_HELPER_CALLS = {"assert_equal", "assert_true", "to_sint", "to_uint", "ma
 
 def parse_plan_augmentation(raw_text: str) -> PlanAugmentation:
     """Parse raw JSON text into a validated Phase 2 augmentation model."""
-    payload = json.loads(extract_json_text(raw_text))
-    return PlanAugmentation.model_validate(payload)
+    payload = extract_json_payload(raw_text)
+    normalized, _ = normalize_plan_augmentation_payload(payload)
+    return PlanAugmentation.model_validate(normalized)
 
 
 def parse_oracle_augmentation(raw_text: str) -> OracleAugmentation:
     """Parse raw JSON text into a validated Phase 3 augmentation model."""
-    payload = json.loads(extract_json_text(raw_text))
-    return OracleAugmentation.model_validate(payload)
+    payload = extract_json_payload(raw_text)
+    normalized, _ = normalize_oracle_augmentation_payload(payload)
+    return OracleAugmentation.model_validate(normalized)
 
 
 def parse_todo_fill_response(raw_text: str) -> TodoFillResponse:
     """Parse raw JSON text into a validated block-level fill response."""
-    payload = json.loads(extract_json_text(raw_text))
+    payload = extract_json_payload(raw_text)
     return TodoFillResponse.model_validate(payload)
+
+
+def extract_json_payload(raw_text: str) -> dict[str, Any]:
+    """Extract a JSON object payload from raw model text."""
+    payload = json.loads(extract_json_text(raw_text))
+    if not isinstance(payload, dict):
+        raise ValueError("LLM response JSON root must be an object.")
+    return payload
 
 
 def extract_json_text(raw_text: str) -> str:
@@ -119,6 +130,181 @@ def extract_json_text(raw_text: str) -> str:
             if depth == 0:
                 return text[start : index + 1].strip()
     raise ValueError("LLM response contained an unterminated JSON object.")
+
+
+def normalize_plan_augmentation_payload(payload: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Apply conservative, semantics-preserving normalization for near-miss plan payloads."""
+    normalized = deepcopy(payload)
+    report: dict[str, Any] = {
+        "renamed_fields": [],
+        "stripped_fields": [],
+    }
+    allowed_top_level = {
+        "baseline_case_enrichments",
+        "additional_cases",
+        "assumptions",
+        "unresolved_items",
+        "planning_notes",
+    }
+    _strip_known_top_level_extras(normalized, allowed_top_level, report=report, location="plan")
+    normalized.setdefault("baseline_case_enrichments", [])
+    normalized.setdefault("additional_cases", [])
+    normalized.setdefault("assumptions", [])
+    normalized.setdefault("unresolved_items", [])
+    normalized.setdefault("planning_notes", [])
+
+    for index, case in enumerate(_iter_mapping_list(normalized, "additional_cases")):
+        location = f"additional_cases[{index}]"
+        if "draft_id" not in case and "case_id" in case and isinstance(case.get("case_id"), str):
+            case["draft_id"] = case.pop("case_id")
+            report["renamed_fields"].append(
+                {"location": location, "from": "case_id", "to": "draft_id"}
+            )
+        _strip_known_extras(
+            case,
+            allowed={
+                "draft_id",
+                "category",
+                "goal",
+                "preconditions",
+                "stimulus_intent",
+                "stimulus_signals",
+                "expected_properties",
+                "observed_signals",
+                "timing_assumptions",
+                "dependencies",
+                "coverage_tags",
+                "semantic_tags",
+                "notes",
+                "priority",
+            },
+            safe_extras={"case_id", "confidence", "source"},
+            report=report,
+            location=location,
+        )
+
+    for index, enrichment in enumerate(_iter_mapping_list(normalized, "baseline_case_enrichments")):
+        _strip_known_extras(
+            enrichment,
+            allowed={
+                "case_id",
+                "goal",
+                "stimulus_intent",
+                "timing_assumptions",
+                "observed_signals",
+                "stimulus_signals",
+                "expected_properties",
+                "coverage_tags",
+                "semantic_tags",
+                "notes",
+                "priority",
+            },
+            safe_extras={"confidence", "source", "draft_id"},
+            report=report,
+            location=f"baseline_case_enrichments[{index}]",
+        )
+
+    return normalized, report
+
+
+def normalize_oracle_augmentation_payload(payload: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Apply conservative, semantics-preserving normalization for near-miss oracle payloads."""
+    normalized = deepcopy(payload)
+    report: dict[str, Any] = {
+        "renamed_fields": [],
+        "stripped_fields": [],
+    }
+    allowed_top_level = {
+        "case_enrichments",
+        "additional_oracle_cases",
+        "assumptions",
+        "unresolved_items",
+        "oracle_notes",
+    }
+    _strip_known_top_level_extras(normalized, allowed_top_level, report=report, location="oracle")
+    normalized.setdefault("case_enrichments", [])
+    normalized.setdefault("additional_oracle_cases", [])
+    normalized.setdefault("assumptions", [])
+    normalized.setdefault("unresolved_items", [])
+    normalized.setdefault("oracle_notes", [])
+
+    for bucket_name in ("case_enrichments", "additional_oracle_cases"):
+        for index, oracle_case in enumerate(_iter_mapping_list(normalized, bucket_name)):
+            location = f"{bucket_name}[{index}]"
+            if "oracle_class" not in oracle_case and "oracle_group" in oracle_case and isinstance(oracle_case.get("oracle_group"), str):
+                oracle_case["oracle_class"] = oracle_case.pop("oracle_group")
+                report["renamed_fields"].append(
+                    {"location": location, "from": "oracle_group", "to": "oracle_class"}
+                )
+            _strip_known_extras(
+                oracle_case,
+                allowed={
+                    "linked_plan_case_id",
+                    "oracle_class",
+                    "checks",
+                    "assumptions",
+                    "unresolved_items",
+                    "notes",
+                },
+                safe_extras={"case_id", "confidence", "source", "category", "oracle_group"},
+                report=report,
+                location=location,
+            )
+            for check_index, check in enumerate(_iter_mapping_list(oracle_case, "checks")):
+                _strip_known_extras(
+                    check,
+                    allowed={
+                        "check_type",
+                        "description",
+                        "observed_signals",
+                        "trigger_condition",
+                        "pass_condition",
+                        "temporal_window",
+                        "strictness",
+                        "semantic_tags",
+                        "notes",
+                    },
+                    safe_extras={"check_id", "confidence", "signal_policies", "source"},
+                    report=report,
+                    location=f"{location}.checks[{check_index}]",
+                )
+    return normalized, report
+
+
+def _iter_mapping_list(container: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = container.get(key, [])
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, dict)]
+    return []
+
+
+def _strip_known_top_level_extras(
+    payload: dict[str, Any],
+    allowed: set[str],
+    *,
+    report: dict[str, Any],
+    location: str,
+) -> None:
+    for extra_key in list(payload.keys()):
+        if extra_key not in allowed:
+            payload.pop(extra_key)
+            report["stripped_fields"].append({"location": location, "field": extra_key})
+
+
+def _strip_known_extras(
+    item: dict[str, Any],
+    *,
+    allowed: set[str],
+    safe_extras: set[str],
+    report: dict[str, Any],
+    location: str,
+) -> None:
+    for extra_key in list(item.keys()):
+        if extra_key in allowed:
+            continue
+        if extra_key in safe_extras:
+            item.pop(extra_key)
+            report["stripped_fields"].append({"location": location, "field": extra_key})
 
 
 def validate_plan_augmentation(

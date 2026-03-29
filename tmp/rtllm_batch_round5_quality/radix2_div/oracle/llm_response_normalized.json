@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Result must respect the 16\u2011bit format for all exercised boundary operand pairs.",
+          "notes": [],
+          "observed_signals": [
+            "result"
+          ],
+          "pass_condition": "Upper 8 bits of result equal dividend % divisor and lower 8 bits equal dividend / divisor for each boundary case; result contains no X or Z values when res_valid asserts.",
+          "semantic_tags": [
+            "width_sensitive",
+            "edge"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a boundary operand pair is applied and res_valid becomes high."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Result must be presented in the specified 16\u2011bit format after a legal operation.",
+          "notes": [],
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "When res_valid transitions high, the upper 8 bits of result equal dividend % divisor and the lower 8 bits equal dividend / divisor for the inputs that were presented with opn_valid.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When opn_valid is asserted and later res_valid becomes high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

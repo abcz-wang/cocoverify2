@@ -414,6 +414,11 @@ class ContractExtractor:
 
         port_lookup = {port.name.lower(): port.name for port in ports}
         control_hint_candidates = {port.name for port in ports if _is_scalar_input_like_port(port)}
+        output_hint_candidates = {
+            port.name
+            for port in ports
+            if port.direction in {PortDirection.OUTPUT, PortDirection.INOUT}
+        }
         for raw_line in combined_lines:
             line = raw_line.strip()
             if not line:
@@ -478,6 +483,8 @@ class ContractExtractor:
                 else:
                     ambiguities.append(f"Spec/reset hint could not be mapped to a known reset port: {line}")
             if any(token in line_lower for token in ("fixed latency", "variable latency", "latency")):
+                assumptions.append(line)
+            if _looks_like_output_behavior_hint(line_lower, output_hint_candidates, port_lookup):
                 assumptions.append(line)
         return illegal_constraints, assumptions, ambiguities
 
@@ -594,6 +601,35 @@ def _is_scalar_input_like_port(port: PortSpec) -> bool:
     if isinstance(width, str):
         return False
     return port.raw_range is None
+
+
+def _looks_like_output_behavior_hint(
+    line_lower: str,
+    output_hint_candidates: set[str],
+    port_lookup: dict[str, str],
+) -> bool:
+    if not output_hint_candidates:
+        return False
+    behavior_tokens = (
+        " is set ",
+        " are set ",
+        " is assigned ",
+        " are assigned ",
+        " assigned to ",
+        " is determined ",
+        " are determined ",
+        " indicating whether ",
+        " means if ",
+        " concatenated ",
+        " formed ",
+        " lower ",
+        " upper ",
+        " high-impedance",
+        "'z'",
+    )
+    if not any(token in line_lower for token in behavior_tokens):
+        return False
+    return any(name in output_hint_candidates for name in _collect_port_names_in_text(line_lower, port_lookup))
 
 
 def _clock_name_confidence(name: str) -> float:

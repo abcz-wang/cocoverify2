@@ -1,0 +1,111 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "frequency_division",
+        "odd_divisor"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "clk_div toggles at a lower frequency than clk, maintaining a stable period ratio consistent with odd division",
+        "No glitches or X-propagation appear on clk_div during observation"
+      ],
+      "goal": "Validate that the divided clock exhibits the expected slower, regular toggling behavior without assuming exact cycle counts.",
+      "notes": [
+        "Observation window is conservative due to unknown exact divisor value."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Observe relative frequency of clk_div versus clk over multiple clock cycles"
+      ],
+      "stimulus_signals": [
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Observe over at least 20 clock cycles to capture several periods of clk_div"
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "reset_behavior"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "clk_div returns to a stable, non-X state after each rapid reset release",
+        "No metastability or undefined behavior is observed on clk_div during quick reset toggling"
+      ],
+      "goal": "Confirm that rapid assert/deassert of the known reset (rst_n) does not corrupt the divider output.",
+      "notes": [
+        "Uses the resolved active-low reset rst_n; clk reset polarity remains ambiguous and is not exercised."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert rst_n low, release it, then reassert quickly while clk continues toggling"
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "clk"
+      ],
+      "timing_assumptions": [
+        "Allow at least 2 clock cycles between reset release and reassert to observe stabilization"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic_progress",
+        "clock_observation"
+      ],
+      "expected_properties": [
+        "clk_div remains defined (no X) and exhibits regular toggling over the observation window"
+      ],
+      "goal": "Confirm functional progress of the frequency divider after reset without assuming exact latency.",
+      "notes": [
+        "Conservative observation due to unknown exact division ratio and timing model."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Release rst_n and monitor clk_div for several clock cycles"
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Observe over at least 10 clock cycles to capture multiple periods of clk_div"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

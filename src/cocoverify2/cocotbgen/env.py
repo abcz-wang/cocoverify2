@@ -208,9 +208,24 @@ def _build_deterministic_stimulus_steps(*, contract: DUTContract, case) -> list[
     }
     case_category = str(case.category)
     signal_names = list(getattr(case, "stimulus_signals", []) or [])
+    available_input_names = [
+        port.name
+        for port in contract.ports
+        if port.direction == PortDirection.INPUT
+        and port.name not in {clock.name for clock in contract.clocks}
+        and port.name not in {reset.name for reset in contract.resets}
+    ]
 
     if case_category == "reset":
         return [{"action": "record_inputs", "signals": {"__reset_only__": True}}]
+
+    stack_steps = _stack_buffer_steps(signal_names=available_input_names, widths=widths, case_category=case_category)
+    if stack_steps:
+        return stack_steps
+
+    serial_steps = _serial_parallel_steps(signal_names=available_input_names, case_category=case_category)
+    if serial_steps:
+        return serial_steps
 
     memory_steps = _memory_style_steps(signal_names=signal_names, widths=widths)
     if memory_steps:
@@ -287,6 +302,60 @@ def _memory_style_steps(*, signal_names: list[str], widths: dict[str, int | None
     ]
 
 
+def _stack_buffer_steps(
+    *,
+    signal_names: list[str],
+    widths: dict[str, int | None],
+    case_category: str,
+) -> list[dict[str, object]]:
+    lowered = {name.lower(): name for name in signal_names}
+    required = {"datain", "rw", "en"}
+    if not required.issubset(lowered):
+        return []
+    data_in = lowered["datain"]
+    read_write = lowered["rw"]
+    enable = lowered["en"]
+    basic_value = 0x1 & _mask_from_width(widths.get(data_in))
+    edge_value = _mask_from_width(widths.get(data_in))
+
+    if case_category == "back_to_back":
+        return [
+            {"action": "drive", "signals": {enable: 1, read_write: 0, data_in: basic_value}},
+            {"action": "wait_cycles", "cycles": 1},
+            {"action": "drive", "signals": {enable: 1, read_write: 0, data_in: edge_value}},
+            {"action": "wait_cycles", "cycles": 1},
+            {"action": "drive", "signals": {enable: 1, read_write: 1, data_in: edge_value}},
+            {"action": "wait_cycles", "cycles": 1},
+        ]
+
+    drive_value = edge_value if case_category == "edge" else basic_value
+    return [
+        {"action": "drive", "signals": {enable: 1, read_write: 0, data_in: drive_value}},
+        {"action": "wait_cycles", "cycles": 1},
+        {"action": "drive", "signals": {enable: 1, read_write: 1, data_in: drive_value}},
+        {"action": "wait_cycles", "cycles": 1},
+    ]
+
+
+def _serial_parallel_steps(*, signal_names: list[str], case_category: str) -> list[dict[str, object]]:
+    lowered = {name.lower(): name for name in signal_names}
+    required = {"din_serial", "din_valid"}
+    if not required.issubset(lowered):
+        return []
+    din_serial = lowered["din_serial"]
+    din_valid = lowered["din_valid"]
+    pattern = [1, 0, 1, 0, 1, 0, 1, 0]
+    if case_category == "edge":
+        pattern = [1] * 8
+    steps: list[dict[str, object]] = []
+    for bit in pattern:
+        steps.append({"action": "drive", "signals": {din_serial: bit, din_valid: 1}})
+        steps.append({"action": "wait_cycles", "cycles": 1})
+    steps.append({"action": "drive", "signals": {din_serial: pattern[-1], din_valid: 0}})
+    steps.append({"action": "wait_cycles", "cycles": 1})
+    return steps
+
+
 def _protocol_style_steps(*, signal_names: list[str], widths: dict[str, int | None], case) -> list[dict[str, object]]:
     signals = {name.lower(): name for name in signal_names}
     if not signals:
@@ -328,8 +397,10 @@ def _deterministic_drive_pattern(*, signal_names: list[str], widths: dict[str, i
         width = widths.get(signal_name)
         mask = _mask_from_width(width)
         lower = signal_name.lower()
-        if any(token in lower for token in ("enable", "_en", "valid", "ready", "start", "write", "read", "req", "ack", "load")):
+        if any(token in lower for token in ("enable", "_en", "valid", "ready", "start", "write", "read", "req", "ack", "load")) or lower in {"en", "ce", "we", "re"}:
             value = 1
+        elif _is_control_like_signal_name(lower):
+            value = 0
         elif profile == "edge":
             value = mask
         elif width is not None and width > 1:
@@ -343,6 +414,14 @@ def _deterministic_drive_pattern(*, signal_names: list[str], widths: dict[str, i
 def _mask_from_width(width: int | None) -> int:
     width_int = max(1, int(width or 1))
     return (1 << width_int) - 1
+
+
+def _is_control_like_signal_name(lower_name: str) -> bool:
+    normalized = lower_name.replace("[", "_").replace("]", "_")
+    tokens = [token for token in normalized.replace("__", "_").split("_") if token]
+    if lower_name in {"aluc", "opcode", "op", "sel", "mode", "cmd", "ctrl", "control"}:
+        return True
+    return any(token in {"opcode", "op", "func", "sel", "mode", "cmd", "ctrl", "control"} for token in tokens)
 
 
 def _camel(name: str) -> str:

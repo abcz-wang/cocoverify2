@@ -1,0 +1,83 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "coverage_tags": [
+        "invalid_illegal_input",
+        "validity"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "When din_valid is deasserted, changes on din_serial do not affect dout_parallel or dout_valid."
+      ],
+      "goal": "Confirm that the module ignores serial data when din_valid is low.",
+      "notes": [
+        "Ensures proper gating of input by din_valid."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [
+        "Module is out of reset and dout_valid is low."
+      ],
+      "priority": 4,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Toggle din_serial while keeping din_valid low for several cycles."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Observe after each clock edge conservatively."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "valid_handling"
+      ],
+      "expected_properties": [
+        "After eight consecutive din_valid=1 cycles with din_serial bits, dout_parallel reflects the bits MSB first and dout_valid becomes 1.",
+        "During accumulation, dout_valid remains 0."
+      ],
+      "goal": "Validate correct serial-to-parallel conversion and valid flag behavior.",
+      "notes": [
+        "Ensures that the counter resets after output and that dout_valid deasserts after the next reset."
+      ],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a sequence of eight din_serial bits with din_valid asserted, then deassert din_valid."
+      ],
+      "stimulus_signals": [
+        "din_serial",
+        "din_valid"
+      ],
+      "timing_assumptions": [
+        "Check outputs on the clock edge following the eighth valid input."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

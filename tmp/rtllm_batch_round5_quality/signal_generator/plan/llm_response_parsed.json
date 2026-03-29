@@ -1,0 +1,74 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "max_value",
+        "min_value",
+        "direction_change"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "wave reaches 31 and then decrements on subsequent cycles",
+        "wave reaches 0 and then increments on subsequent cycles"
+      ],
+      "goal": "Validate that the waveform generator correctly changes direction at the boundaries 0 and 31.",
+      "notes": [],
+      "observed_signals": [
+        "wave"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Run the design without reset for enough clock cycles to observe a full up\u2011down traversal of the wave output."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Assume continuous clocking; do not rely on a fixed number of cycles for the boundary transitions."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "direction_observation"
+      ],
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The waveform progresses through increment and decrement phases without assuming a fixed-cycle protocol."
+      ],
+      "goal": "Observe clock-driven state progress after reset, capturing both incrementing and decrementing behavior of the wave output.",
+      "notes": [
+        "Enriches the basic sanity check with explicit direction\u2011change observation."
+      ],
+      "observed_signals": [
+        "wave"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Release reset if present and observe a sufficient number of clock edges to capture at least one full up\u2011down cycle of the wave output."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations; do not assume exact latency for direction changes."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

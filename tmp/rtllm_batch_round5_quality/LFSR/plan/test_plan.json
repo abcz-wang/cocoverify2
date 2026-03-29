@@ -1,0 +1,223 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "LFSR",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "confidence": 0.7850000000000001,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_signals": [
+        "rst"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "feedback_logic",
+        "state_progress"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access.",
+        "out changes on each rising clk edge after reset according to LFSR polynomial.",
+        "No X values appear on out during observation."
+      ],
+      "goal": "Observe deterministic LFSR progression after reset.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved.",
+        "Conservative due to unknown latency; only external behavior is checked."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress.",
+        "Release reset and observe several clock cycles."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe at least 5 rising edges post-reset."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.7500000000000001,
+      "coverage_tags": [
+        "reset_release",
+        "feedback_correctness"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "After reset deassertion, out updates on each rising clk edge following XOR(out[3], out[2]) inverted feedback rule.",
+        "out never becomes X during observation window."
+      ],
+      "goal": "Validate correct LFSR state transition on clock edges after reset.",
+      "notes": [
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset has been applied and released."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert reset high, then release it, then generate a sequence of rising clock edges."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe at least 4 consecutive rising edges after reset release."
+      ]
+    },
+    {
+      "case_id": "basic_002",
+      "category": "basic",
+      "confidence": 0.7500000000000001,
+      "coverage_tags": [
+        "clock_idle_stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "When clk remains low, out retains its value across observation cycles."
+      ],
+      "goal": "Confirm that LFSR does not change state without clock activity.",
+      "notes": [
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset has been released."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Hold clk low for multiple cycles after reset release."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "No rising edge of clk occurs during the observation window."
+      ]
+    },
+    {
+      "case_id": "negative_001",
+      "category": "negative",
+      "confidence": 0.7500000000000001,
+      "coverage_tags": [
+        "illegal_reset_timing"
+      ],
+      "defer_reason": "Negative cases require stronger structured illegal-input semantics than the current contract provides.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Out remains defined (no X) even if reset is asserted while clk toggles."
+      ],
+      "goal": "Assess robustness to potentially illegal reset timing.",
+      "notes": [
+        "Negative cases require stronger structured illegal-input semantics than the current contract provides."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert rst high while generating clock toggles."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe after deasserting rst."
+      ]
+    }
+  ],
+  "module_name": "LFSR",
+  "plan_confidence": 0.8750000000000001,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

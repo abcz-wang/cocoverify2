@@ -1,0 +1,111 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "clkgenerator",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "confidence": 0.5,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "unknown",
+        "autonomous"
+      ],
+      "defer_reason": "No deterministic non-control stimulus could be derived from the current contract.",
+      "dependencies": [],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "Checks are limited to reset-safe, protocol-safe, or output-visible behavior.",
+        "No fixed latency or exact cycle count is assumed.",
+        "clk is a 1\u2011bit output that toggles over time",
+        "no fixed latency is assumed"
+      ],
+      "goal": "Observe that the clk output exhibits activity (any change) without imposing timing constraints.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "No deterministic non-control stimulus could be derived from the current contract.",
+        "Case intent remains conservative due to weak contract timing information.",
+        "No deterministic non\u2011control stimulus can be derived; the case relies on autonomous behavior."
+      ],
+      "observed_signals": [
+        "clk"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Only deterministic, contract-supported stimulus is used; otherwise the case is downgraded.",
+        "Only deterministic, contract\u2011supported stimulus is used; otherwise the case is downgraded."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only.",
+        "Use reset\u2011safe or protocol\u2011safe observation windows only."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "confidence": 0.365,
+      "coverage_tags": [
+        "edge",
+        "toggle",
+        "autonomous"
+      ],
+      "defer_reason": "No deterministic non-control stimulus could be derived from the current contract.",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deferred",
+      "expected_properties": [
+        "clk transitions at least once during observation window",
+        "clk is not stuck at a constant value"
+      ],
+      "goal": "Detect any transition on clk indicating that the generator is active without assuming a specific period.",
+      "notes": [
+        "Observes autonomous toggling of clk; no external stimulus is required.",
+        "Avoids fixed-cycle timing assumptions due to unknown PERIOD in contract.",
+        "No deterministic non-control stimulus could be derived from the current contract."
+      ],
+      "observed_signals": [
+        "clk"
+      ],
+      "preconditions": [
+        "Only ports and observable signals present in the contract may be used."
+      ],
+      "priority": 2,
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "No external stimulus; rely on internal clock generation."
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Monitor clk for a few cycles after simulation start; do not assume exact latency."
+      ]
+    }
+  ],
+  "module_name": "clkgenerator",
+  "plan_confidence": 0.27999999999999997,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Golden interface described clock 'clk', but the RTL port is not a scalar input-like signal.",
+    "Timing model is unresolved; generated cases avoid fixed-latency checks.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Negative or illegal-input behavior is not planned because the contract does not provide reliable constraints."
+  ]
+}

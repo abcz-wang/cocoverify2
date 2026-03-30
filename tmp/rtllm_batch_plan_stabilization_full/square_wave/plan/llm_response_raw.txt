@@ -1,0 +1,298 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset_behavior"],
+      "dependencies": [],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate that count wraps to 0 and wave_out toggles when count reaches (freq-1).",
+      "notes": [],
+      "observed_signals": ["wave_out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific", "ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": "8'h04"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe wave_out toggling after count reaches 3."
+        }
+      ],
+      "stimulus_signals": ["freq"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": ["invalid_input"],
+      "dependencies": [],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Check module behavior when freq is set to zero (edge of undefined operation).",
+      "notes": [],
+      "observed_signals": ["wave_out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["invalid_illegal_input", "ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": "8'h00"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe whether wave_out remains stable or toggles unexpectedly."
+        }
+      ],
+      "stimulus_signals": ["freq"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["max_freq"],
+      "dependencies": [],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise maximum frequency value to verify correct toggle period.",
+      "notes": [],
+      "observed_signals": ["wave_out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive", "ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": "8'hFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 260,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Verify wave_out toggles after 255+1 cycles."
+        }
+      ],
+      "stimulus_signals": ["freq"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["enriched"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": ["Added wait to allow wave_out toggle after driving freq."],
+      "observed_signals": ["wave_out"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": "8'h02"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture wave_out after expected toggle."
+        }
+      ],
+      "stimulus_signals": ["freq"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["enriched"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": ["Added explicit boundary drive and wait."],
+      "observed_signals": ["wave_out"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": "8'h01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Check immediate toggle for minimum freq."
+        }
+      ],
+      "stimulus_signals": ["freq"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "comparison_operands": [],
+      "coverage_tags": ["enriched"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": ["Added back-to-back drive and wait cycles."],
+      "observed_signals": ["wave_out"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": "8'h03"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "freq": "8'h03"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe two successive toggles."
+        }
+      ],
+      "stimulus_signals": ["freq"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: When count reaches (freq - 1), the count is reset to 0 and wave_out is toggled."
+  ]
+}

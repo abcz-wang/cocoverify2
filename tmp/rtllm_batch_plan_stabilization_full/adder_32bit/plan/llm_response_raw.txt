@@ -1,0 +1,222 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "carry_chain"],
+      "dependencies": [],
+      "draft_id": "edge_carry_propagation",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate full carry chain propagation across all 32 bits.",
+      "notes": [],
+      "observed_signals": ["S", "C32"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "A": "32'hFFFFFFFF",
+            "B": "32'h00000001"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "A": "32'hFFFFFFFF",
+            "B": "32'h00000001"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": []
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back", "sequential_ops"],
+      "dependencies": [],
+      "draft_id": "back_to_back_two_adds",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise two consecutive addition operations without intervening idle cycles.",
+      "notes": [],
+      "observed_signals": ["S", "C32"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "A": "32'h0000AAAA",
+            "B": "32'h00005555"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "A": "32'h0000AAAA",
+            "B": "32'h00005555"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "A": "32'h12345678",
+            "B": "32'h87654321"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "A": "32'h12345678",
+            "B": "32'h87654321"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": []
+    },
+    {
+      "category": "regression",
+      "comparison_operands": [],
+      "coverage_tags": ["regression", "basic"],
+      "dependencies": [],
+      "draft_id": "regression_fixed_values",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Provide a deterministic regression test with fixed operand values.",
+      "notes": [],
+      "observed_signals": ["S", "C32"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "A": "32'h0F0F0F0F",
+            "B": "32'hF0F0F0F0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "A": "32'h0F0F0F0F",
+            "B": "32'hF0F0F0F0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": []
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity", "comb"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "notes": ["Enriched with an additional deterministic stimulus vector."],
+      "observed_signals": ["S", "C32"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "A": "32'h0000AAAA",
+            "B": "32'h00005555"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "A": "32'h0000AAAA",
+            "B": "32'h00005555"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": []
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

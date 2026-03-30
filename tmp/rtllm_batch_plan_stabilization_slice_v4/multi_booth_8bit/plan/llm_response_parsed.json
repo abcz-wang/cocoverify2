@@ -1,0 +1,353 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "ready_timing"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that rdy asserts only after 16 clock cycles following reset deassertion and input capture.",
+      "notes": [],
+      "observed_signals": [
+        "rdy"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'hAA",
+            "b": "8'h55",
+            "reset": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 16,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'hAA",
+            "b": "8'h55"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "sign_extension",
+        "boundary_vector"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise sign\u2011extension edge cases for both positive and negative 8\u2011bit operands.",
+      "notes": [],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h80",
+            "b": "8'h01",
+            "reset": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h80",
+            "b": "8'h01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 16,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h7F",
+            "b": "8'hFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h7F",
+            "b": "8'hFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 16,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "back_to_back_001"
+      ],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate correct operation of two consecutive multiplications without an intermediate reset.",
+      "notes": [],
+      "observed_signals": [
+        "p",
+        "rdy"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h12",
+            "b": "8'h34",
+            "reset": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 16,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h12",
+            "b": "8'h34"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'hAB",
+            "b": "8'hCD"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 16,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'hAB",
+            "b": "8'hCD"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "reset",
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h0F",
+            "b": "8'h01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h0F",
+            "b": "8'h01"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

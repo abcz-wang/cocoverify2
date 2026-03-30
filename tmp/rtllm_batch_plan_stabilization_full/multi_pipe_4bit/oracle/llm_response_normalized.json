@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When either multiplicand or multiplier is zero, the product output must eventually settle to zero.",
+          "notes": [],
+          "observed_signals": [
+            "mul_out"
+          ],
+          "pass_condition": "If mul_a == 0 or mul_b == 0, mul_out must transition to a stable zero value without remaining X or Z.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a stimulus sets mul_a or mul_b to zero."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "mul_out must become a defined (non-X, non-Z) value after a legal operation completes.",
+          "notes": [],
+          "observed_signals": [
+            "mul_out"
+          ],
+          "pass_condition": "After the operation stimulus, mul_out should transition from unknown to a concrete binary value within a conservative observation window.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 case applies a legal mul_a/mul_b stimulus."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

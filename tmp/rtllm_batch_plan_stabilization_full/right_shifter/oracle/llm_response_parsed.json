@@ -1,0 +1,67 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that q never enters an undefined (X) or high\u2011impedance (Z) state after any legal operation.",
+          "notes": [],
+          "observed_signals": [
+            "q"
+          ],
+          "pass_condition": "q must contain only 0 or 1 values at all times; X or Z are not permitted.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever a legal operation is applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that after a single clock edge, the most\u2011significant bit of q reflects the driven d value.",
+          "notes": [],
+          "observed_signals": [
+            "q"
+          ],
+          "pass_condition": "If d was 1 at the rising edge, q[7] becomes 1 after the next observable update; if d was 0, q[7] becomes 0.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 case applies a single legal operation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

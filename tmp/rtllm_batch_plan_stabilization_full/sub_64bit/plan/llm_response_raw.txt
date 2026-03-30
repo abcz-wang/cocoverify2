@@ -1,0 +1,324 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset"],
+      "dependencies": [],
+      "draft_id": "new_case_reset_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that after a simulated reset period, the module produces deterministic outputs for known inputs.",
+      "notes": [],
+      "observed_signals": ["result", "overflow"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h0000_0000_0000_0000",
+            "B": "64'h0000_0000_0000_0000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h0000_0000_0000_0000",
+            "B": "64'h0000_0000_0000_0000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back"],
+      "dependencies": [],
+      "draft_id": "new_case_back_to_back_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise two consecutive subtraction operations without intervening resets to ensure state independence.",
+      "notes": [],
+      "observed_signals": ["result", "overflow"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h0000_0000_0000_0010",
+            "B": "64'h0000_0000_0000_0001"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h0000_0000_0000_0010",
+            "B": "64'h0000_0000_0000_0001"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "64'hFFFF_FFFF_FFFF_FFF0",
+            "B": "64'h0000_0000_0000_000F"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "64'hFFFF_FFFF_FFFF_FFF0",
+            "B": "64'h0000_0000_0000_000F"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": ["metamorphic"],
+      "dependencies": [],
+      "draft_id": "new_case_metamorphic_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate that the subtraction result matches a reference model for a set of deterministic vectors.",
+      "notes": [],
+      "observed_signals": ["result", "overflow"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h7FFF_FFFF_FFFF_FFFF",
+            "B": "64'h8000_0000_0000_0000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h7FFF_FFFF_FFFF_FFFF",
+            "B": "64'h8000_0000_0000_0000"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h8000_0000_0000_0000",
+            "B": "64'h7FFF_FFFF_FFFF_FFFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h8000_0000_0000_0000",
+            "B": "64'h7FFF_FFFF_FFFF_FFFF"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h0000_0000_0000_0005",
+            "B": "64'h0000_0000_0000_0003"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h0000_0000_0000_0005",
+            "B": "64'h0000_0000_0000_0003"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h7FFF_FFFF_FFFF_FFFF",
+            "B": "64'h8000_0000_0000_0000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h7FFF_FFFF_FFFF_FFFF",
+            "B": "64'h8000_0000_0000_0000"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h8000_0000_0000_0000",
+            "B": "64'h7FFF_FFFF_FFFF_FFFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "64'h8000_0000_0000_0000",
+            "B": "64'h7FFF_FFFF_FFFF_FFFF"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,301 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "fsm"
+      ],
+      "dependencies": [],
+      "draft_id": "proto_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise address sequencing to verify consistent data output across sequential reads.",
+      "notes": [],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h01"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "sequential"
+      ],
+      "dependencies": [],
+      "draft_id": "b2b_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate that rapid address changes produce correct dout without intermediate glitches.",
+      "notes": [],
+      "observed_signals": [
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h02"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h02"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h03"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h03"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "unknown"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe any externally visible progress without inventing unresolved stimulus semantics.",
+      "notes": [],
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [],
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'hFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'hFF"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "addr"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "Added protocol and back-to-back cases while preserving baseline basic and edge categories.",
+    "Stimulus programs use deterministic concrete literals and avoid timing assumptions beyond reset/protocol safety."
+  ],
+  "unresolved_items": []
+}

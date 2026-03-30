@@ -1,0 +1,73 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Outputs must be mutually exclusive: exactly one of A_greater, A_equal, A_less is high after inputs stabilize.",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "At any observation point following input stabilization, the logical sum (OR) of the three outputs equals 1 and no two outputs are high simultaneously.",
+          "semantic_tags": [
+            "mutual_exclusion",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When inputs A and B are stable."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "A_greater",
+            "A_equal",
+            "A_less"
+          ],
+          "pass_condition": "After inputs A and B are applied and settle, the outputs reflect the combinational comparison: A > B ⇒ A_greater=1 and others=0; A == B ⇒ A_equal=1 and others=0; A < B ⇒ A_less=1 and others=0.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus program drives values to A and B."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

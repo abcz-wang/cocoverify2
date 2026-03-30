@@ -1,0 +1,216 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "wrap_around",
+        "boundary"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_wrap_seconds_001",
+      "expected_properties": [
+        "Secs == 0",
+        "Mins == 1"
+      ],
+      "expected_transition": "Seconds wrap from 59 to 0 and minutes increment",
+      "goal": "Verify correct wrap\u2011around of seconds at 59 and minute increment",
+      "notes": [],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "apply_reset",
+        "observe_wrap"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": "assert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": "deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 60,
+          "signals": {},
+          "text": "run 60 clock cycles to reach seconds = 59 -> 0"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "capture Hours, Mins, Secs after wrap"
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Observe after at least one clock edge following deassertion of reset"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset",
+        "initialization"
+      ],
+      "expected_properties": [
+        "Hours == 0",
+        "Mins == 0",
+        "Secs == 0"
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post\u2011reset baseline before functional checking",
+      "notes": [],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "apply_reset",
+        "observe_initial_state"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": "assert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": "deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "wait two clock cycles for outputs to stabilize"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "capture Hours, Mins, Secs after reset"
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Do not assume completion before it becomes externally visible"
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "Secs increments each clock cycle",
+        "Mins increments when Secs wraps",
+        "Hours increments when Mins and Secs wrap"
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock\u2011driven state progress after reset or conservative initialization",
+      "notes": [],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "run_clock_cycles",
+        "observe_progress"
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "run five clock cycles to observe normal counting"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "capture Hours, Mins, Secs after several cycles"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations",
+        "Do not assume completion before it becomes externally visible"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

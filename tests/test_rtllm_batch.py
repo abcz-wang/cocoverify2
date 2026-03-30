@@ -140,11 +140,13 @@ def test_build_batch_summary_aggregates_histograms() -> None:
         llm_plan_attempted=True,
         llm_plan_fallback_used=True,
         llm_plan_status="fallback",
-        llm_plan_reason="Connection error.",
+        llm_plan_reason="Expecting value: line 3 column 9",
+        llm_plan_reason_bucket="json_parse",
         llm_oracle_attempted=True,
         llm_oracle_fallback_used=True,
         llm_oracle_status="fallback",
-        llm_oracle_reason="Connection error.",
+        llm_oracle_reason="LLM request failed after 1 attempt(s): Request timed out.",
+        llm_oracle_reason_bucket="timeout",
         rendered_test_modules=["test_partial_basic"],
         test_module_results=[
             RTLLMModuleRunResult(
@@ -181,6 +183,8 @@ def test_build_batch_summary_aggregates_histograms() -> None:
     assert metrics["llm_oracle_fallback_used"] == 1
     assert metrics["llm_plan_status_histogram"] == {"fallback": 1, "merged": 1}
     assert metrics["llm_oracle_status_histogram"] == {"fallback": 1, "merged": 1}
+    assert metrics["llm_plan_fallback_reason_histogram"] == {"json_parse": 1}
+    assert metrics["llm_oracle_fallback_reason_histogram"] == {"timeout": 1}
     assert metrics["triage_category_histogram"] == {"no_failure": 2, "runtime_test_failure": 1}
     assert metrics["assertion_strength_histogram"] == {"exact": 2, "guarded": 5, "unresolved": 8}
 

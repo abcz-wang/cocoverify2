@@ -1,0 +1,77 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "After edge-case stimulus, observable status signals must be defined and consistent with buffer semantics.",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "EMPTY and FULL are never X or Z and reflect correct empty/full status; dataOut is defined (not X/Z) when a read occurs.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the edge case stimulus sequence completes."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "dataIn",
+            "RW",
+            "EN",
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "At least one observable output changes in a manner consistent with a legal write or read operation.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic case stimulus program drives a legal operation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: If the reset signal is low, the buffer checks if it is full or empty and processes data accordingly:"
+  ]
+}

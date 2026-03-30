@@ -1,0 +1,308 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": ["protocol"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "required",
+      "notes": [],
+      "observed_signals": ["rise", "down"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": ["invalid_illegal_input"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "required",
+      "notes": [],
+      "observed_signals": ["rise", "down"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": ["metamorphic"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "required",
+      "notes": [],
+      "observed_signals": ["rise", "down"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "rst_n"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity", "seq"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [],
+      "observed_signals": ["rise", "down"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "1'b1"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

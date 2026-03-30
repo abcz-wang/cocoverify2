@@ -1,0 +1,186 @@
+#! /workspace/I/qimeng6/miniconda3/bin/vvp
+:ivl_version "10.2 (stable)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "system";
+:vpi_module "vhdl_sys";
+:vpi_module "v2005_math";
+:vpi_module "va_math";
+:vpi_module "v2009";
+S_0x5621027924d0 .scope module, "LIFObuffer" "LIFObuffer" 2 1;
+ .timescale -9 -12;
+    .port_info 0 /INPUT 4 "dataIn"
+    .port_info 1 /INPUT 1 "RW"
+    .port_info 2 /INPUT 1 "EN"
+    .port_info 3 /INPUT 1 "Rst"
+    .port_info 4 /INPUT 1 "Clk"
+    .port_info 5 /OUTPUT 1 "EMPTY"
+    .port_info 6 /OUTPUT 1 "FULL"
+    .port_info 7 /OUTPUT 4 "dataOut"
+o0x7f2a4f38a018 .functor BUFZ 1, C4<z>; HiZ drive
+v0x562102792760_0 .net "Clk", 0 0, o0x7f2a4f38a018;  0 drivers
+v0x5621027e1da0_0 .var "EMPTY", 0 0;
+o0x7f2a4f38a078 .functor BUFZ 1, C4<z>; HiZ drive
+v0x5621027e1e60_0 .net "EN", 0 0, o0x7f2a4f38a078;  0 drivers
+v0x5621027e1f00_0 .var "FULL", 0 0;
+o0x7f2a4f38a0d8 .functor BUFZ 1, C4<z>; HiZ drive
+v0x5621027e1fc0_0 .net "RW", 0 0, o0x7f2a4f38a0d8;  0 drivers
+o0x7f2a4f38a108 .functor BUFZ 1, C4<z>; HiZ drive
+v0x5621027e20d0_0 .net "Rst", 0 0, o0x7f2a4f38a108;  0 drivers
+v0x5621027e2190_0 .var "SP", 2 0;
+o0x7f2a4f38a168 .functor BUFZ 4, C4<zzzz>; HiZ drive
+v0x5621027e2270_0 .net "dataIn", 3 0, o0x7f2a4f38a168;  0 drivers
+v0x5621027e2350_0 .var "dataOut", 3 0;
+v0x5621027e2430_0 .var/i "i", 31 0;
+v0x5621027e2510 .array "stack_mem", 3 0, 3 0;
+E_0x5621027b7ff0 .event posedge, v0x562102792760_0;
+    .scope S_0x5621027924d0;
+T_0 ;
+    %wait E_0x5621027b7ff0;
+    %load/vec4 v0x5621027e1e60_0;
+    %pad/u 32;
+    %cmpi/e 0, 0, 32;
+    %jmp/0xz  T_0.0, 4;
+    %jmp T_0.1;
+T_0.0 ;
+    %load/vec4 v0x5621027e20d0_0;
+    %pad/u 32;
+    %cmpi/e 1, 0, 32;
+    %jmp/0xz  T_0.2, 4;
+    %pushi/vec4 4, 0, 3;
+    %store/vec4 v0x5621027e2190_0, 0, 3;
+    %load/vec4 v0x5621027e2190_0;
+    %parti/s 1, 2, 3;
+    %store/vec4 v0x5621027e1da0_0, 0, 1;
+    %pushi/vec4 0, 0, 4;
+    %store/vec4 v0x5621027e2350_0, 0, 4;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v0x5621027e2430_0, 0, 32;
+T_0.4 ;
+    %load/vec4 v0x5621027e2430_0;
+    %cmpi/s 4, 0, 32;
+    %jmp/0xz T_0.5, 5;
+    %pushi/vec4 0, 0, 4;
+    %ix/getv/s 4, v0x5621027e2430_0;
+    %store/vec4a v0x5621027e2510, 4, 0;
+    %load/vec4 v0x5621027e2430_0;
+    %addi 1, 0, 32;
+    %store/vec4 v0x5621027e2430_0, 0, 32;
+    %jmp T_0.4;
+T_0.5 ;
+    %jmp T_0.3;
+T_0.2 ;
+    %load/vec4 v0x5621027e20d0_0;
+    %pad/u 32;
+    %cmpi/e 0, 0, 32;
+    %jmp/0xz  T_0.6, 4;
+    %load/vec4 v0x5621027e2190_0;
+    %cmpi/ne 0, 0, 3;
+    %flag_mov 8, 4;
+    %jmp/0 T_0.8, 8;
+    %pushi/vec4 0, 0, 2;
+    %jmp/1 T_0.9, 8;
+T_0.8 ; End of true expr.
+    %pushi/vec4 1, 0, 2;
+    %jmp/0 T_0.9, 8;
+ ; End of false expr.
+    %blend;
+T_0.9;
+    %pad/s 1;
+    %store/vec4 v0x5621027e1f00_0, 0, 1;
+    %load/vec4 v0x5621027e2190_0;
+    %parti/s 1, 2, 3;
+    %store/vec4 v0x5621027e1da0_0, 0, 1;
+    %pushi/vec4 15, 15, 4;
+    %store/vec4 v0x5621027e2350_0, 0, 4;
+    %load/vec4 v0x5621027e1f00_0;
+    %pushi/vec4 0, 0, 1;
+    %cmp/e;
+    %flag_get/vec4 4;
+    %load/vec4 v0x5621027e1fc0_0;
+    %pushi/vec4 0, 0, 1;
+    %cmp/e;
+    %flag_get/vec4 4;
+    %and;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_0.10, 8;
+    %load/vec4 v0x5621027e2190_0;
+    %subi 1, 0, 3;
+    %store/vec4 v0x5621027e2190_0, 0, 3;
+    %load/vec4 v0x5621027e2190_0;
+    %cmpi/ne 0, 0, 3;
+    %flag_mov 8, 4;
+    %jmp/0 T_0.12, 8;
+    %pushi/vec4 0, 0, 2;
+    %jmp/1 T_0.13, 8;
+T_0.12 ; End of true expr.
+    %pushi/vec4 1, 0, 2;
+    %jmp/0 T_0.13, 8;
+ ; End of false expr.
+    %blend;
+T_0.13;
+    %pad/s 1;
+    %store/vec4 v0x5621027e1f00_0, 0, 1;
+    %load/vec4 v0x5621027e2190_0;
+    %parti/s 1, 2, 3;
+    %store/vec4 v0x5621027e1da0_0, 0, 1;
+    %load/vec4 v0x5621027e2270_0;
+    %load/vec4 v0x5621027e2190_0;
+    %pad/u 4;
+    %ix/vec4 4;
+    %store/vec4a v0x5621027e2510, 4, 0;
+    %jmp T_0.11;
+T_0.10 ;
+    %load/vec4 v0x5621027e1da0_0;
+    %pushi/vec4 0, 0, 1;
+    %cmp/e;
+    %flag_get/vec4 4;
+    %load/vec4 v0x5621027e1fc0_0;
+    %pushi/vec4 1, 0, 1;
+    %cmp/e;
+    %flag_get/vec4 4;
+    %and;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_0.14, 8;
+    %load/vec4 v0x5621027e2190_0;
+    %pad/u 4;
+    %ix/vec4 4;
+    %load/vec4a v0x5621027e2510, 4;
+    %store/vec4 v0x5621027e2350_0, 0, 4;
+    %pushi/vec4 0, 0, 4;
+    %load/vec4 v0x5621027e2190_0;
+    %pad/u 4;
+    %ix/vec4 4;
+    %store/vec4a v0x5621027e2510, 4, 0;
+    %load/vec4 v0x5621027e2190_0;
+    %addi 1, 0, 3;
+    %store/vec4 v0x5621027e2190_0, 0, 3;
+    %load/vec4 v0x5621027e2190_0;
+    %cmpi/ne 0, 0, 3;
+    %flag_mov 8, 4;
+    %jmp/0 T_0.16, 8;
+    %pushi/vec4 0, 0, 2;
+    %jmp/1 T_0.17, 8;
+T_0.16 ; End of true expr.
+    %pushi/vec4 1, 0, 2;
+    %jmp/0 T_0.17, 8;
+ ; End of false expr.
+    %blend;
+T_0.17;
+    %pad/s 1;
+    %store/vec4 v0x5621027e1f00_0, 0, 1;
+    %load/vec4 v0x5621027e2190_0;
+    %parti/s 1, 2, 3;
+    %store/vec4 v0x5621027e1da0_0, 0, 1;
+T_0.14 ;
+T_0.11 ;
+T_0.6 ;
+T_0.3 ;
+T_0.1 ;
+    %jmp T_0;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/LIFObuffer/verified_LIFObuffer.v";

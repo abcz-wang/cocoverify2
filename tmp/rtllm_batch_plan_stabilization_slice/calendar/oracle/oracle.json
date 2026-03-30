@@ -1,0 +1,268 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM hybrid fallback activated for plan stage: LLM request failed after 1 attempt(s): Request timed out.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "verified_calendar",
+  "based_on_plan": "verified_calendar",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_reset_001",
+      "category": "reset",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'reset_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "basic_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'basic_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    }
+  ],
+  "module_name": "verified_calendar",
+  "oracle_confidence": {
+    "functional_confidence": 0.05,
+    "overall_confidence": 0.07000000000000006,
+    "property_confidence": 0.4750000000000001,
+    "protocol_confidence": 0.4650000000000001
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.4750000000000001,
+          "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+          "expected_transition": "",
+          "notes": [
+            "Clock/reset remain anchors and are not emitted as business outputs."
+          ],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "Hours": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "Mins": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "Secs": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        }
+      ],
+      "confidence": 0.4750000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'reset_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.4750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "Hours": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "Mins": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "Secs": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.4750000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_protocol_001",
+          "check_type": "protocol",
+          "comparison_operands": [],
+          "confidence": 0.4650000000000001,
+          "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+          "expected_transition": "",
+          "notes": [
+            "Reset is used as an anchor only; it is not treated as a business output."
+          ],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "Hours": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "Mins": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "Secs": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'RST' is asserted and later released according to the inferred polarity."
+        }
+      ],
+      "confidence": 0.4650000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Reset oracle focuses on control-safe behavior instead of value-specific output claims.",
+        "Protocol oracle strictness is downgraded because the contract or plan is weak."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: The calendar module uses three always blocks to update the values of seconds, minutes, and hours based on the clock signal and reset signal.",
+    "Spec/reset hint could not be mapped to a known reset port: The second always block also triggers on the positive edge of the clock signal or the positive edge of the reset signal. It handles the minutes value (Mins). If the reset signal is active, it sets the minutes value to 0. If both the minutes and seconds values are 59, it wraps around and sets the minutes value to 0. If the seconds value is 59, it increments the minutes value by 1. Otherwise, it keeps the minutes value unchanged.",
+    "Spec/reset hint could not be mapped to a known reset port: The third always block triggers on the positive edge of the clock signal or the positive edge of the reset signal. It handles the hours value (Hours). If the reset signal is active, it sets the hours value to 0. If the hours, minutes, and seconds values are all at their maximum (23, 59, and 59 respectively), it wraps around and sets the hours value to 0. If the minutes and seconds values are both 59, it increments the hours value by 1. Otherwise, it keeps the hours value unchanged.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+    "Hybrid LLM oracle augmentation produced no accepted checks beyond the baseline oracle."
+  ]
+}

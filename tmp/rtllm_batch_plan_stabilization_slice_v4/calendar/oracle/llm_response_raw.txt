@@ -1,0 +1,115 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Outputs must not contain unknown (X) or high-impedance (Z) values after reset release.",
+          "notes": [],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "All observed output bits are 0 or 1 for at least two consecutive clock cycles after reset deassertion.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 5,
+            "min_cycles": 2,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted and the design is observed for the defined window."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that seconds increment by one each clock cycle when not at 59, and wrap to 0 at 59.",
+          "notes": [],
+          "observed_signals": [
+            "Secs"
+          ],
+          "pass_condition": "Secs_next == (Secs == 59 ? 0 : Secs + 1) for each clock edge after reset.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On every rising edge of CLK after reset release."
+        },
+        {
+          "check_type": "functional",
+          "description": "Verify minute increment behavior tied to seconds overflow.",
+          "notes": [],
+          "observed_signals": [
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "If Secs transitions from 59 to 0 then Mins_next == (Mins == 59 ? 0 : Mins + 1), otherwise Mins_next == Mins.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On every rising edge of CLK after reset release."
+        },
+        {
+          "check_type": "functional",
+          "description": "Verify hour increment behavior tied to minute and second overflow.",
+          "notes": [],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "If Mins and Secs transition from 59 to 0 simultaneously then Hours_next == (Hours == 23 ? 0 : Hours + 1), otherwise Hours_next == Hours.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On every rising edge of CLK after reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

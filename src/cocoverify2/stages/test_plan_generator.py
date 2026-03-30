@@ -14,7 +14,7 @@ from cocoverify2.llm.client import LLMClient
 from cocoverify2.llm.prompts import build_plan_system_prompt, build_plan_user_prompt
 from cocoverify2.llm.schemas import PlanAugmentation
 from cocoverify2.llm.validators import (
-    extract_json_payload,
+    extract_json_payload_with_report,
     normalize_plan_augmentation_payload,
     validate_plan_augmentation,
 )
@@ -217,6 +217,11 @@ class TestPlanGenerator:
         llm_config: LLMConfig,
     ) -> TestPlan:
         plan_dir = ensure_dir(out_dir / "plan")
+        stage_llm_config = llm_config.model_copy(
+            update={
+                "timeout_seconds": llm_config.plan_timeout_seconds or llm_config.timeout_seconds,
+            }
+        )
         system_prompt = build_plan_system_prompt()
         user_prompt = build_plan_user_prompt(
             contract=contract,
@@ -230,8 +235,8 @@ class TestPlanGenerator:
             "model": llm_config.model,
             "base_url": llm_config.base_url,
             "temperature": llm_config.temperature,
-            "timeout_seconds": llm_config.timeout_seconds,
-            "max_retries": llm_config.max_retries,
+            "timeout_seconds": stage_llm_config.timeout_seconds,
+            "max_retries": stage_llm_config.max_retries,
             "system_prompt": system_prompt,
             "user_prompt": user_prompt,
         }
@@ -240,11 +245,16 @@ class TestPlanGenerator:
         raw_response = ""
         parsed_payload: dict[str, object] = {}
         normalized_payload: dict[str, object] = {}
+        json_repair_report: dict[str, object] = {}
+        extracted_json_text = ""
+        repaired_json_text = ""
         merge_report: dict[str, object] = {}
         try:
-            client = self.llm_client or LLMClient(llm_config)
+            client = self.llm_client or LLMClient(stage_llm_config)
             raw_response = client.complete(system_prompt=system_prompt, user_prompt=user_prompt)
-            parsed_payload = extract_json_payload(raw_response)
+            parsed_payload, json_repair_report = extract_json_payload_with_report(raw_response)
+            extracted_json_text = str(json_repair_report.get("extracted_json_text", ""))
+            repaired_json_text = str(json_repair_report.get("repaired_json_text", ""))
             normalized_payload, normalization_report = normalize_plan_augmentation_payload(parsed_payload)
             parsed = PlanAugmentation.model_validate(normalized_payload)
             validated, validation_report = validate_plan_augmentation(
@@ -257,11 +267,19 @@ class TestPlanGenerator:
                 baseline_plan=baseline_plan,
                 augmentation=validated,
                 validation_report={
+                    "json_repair_report": {
+                        "repair_applied": bool(json_repair_report.get("repair_applied", False)),
+                        "applied_repairs": list(json_repair_report.get("applied_repairs", [])),
+                    },
                     "normalization_report": normalization_report,
                     **validation_report,
                 },
             )
             write_text(plan_dir / "llm_response_raw.txt", raw_response)
+            if extracted_json_text:
+                write_text(plan_dir / "llm_response_extracted.json.txt", extracted_json_text)
+            if repaired_json_text and repaired_json_text != extracted_json_text:
+                write_text(plan_dir / "llm_response_repaired.json.txt", repaired_json_text)
             write_json(plan_dir / "llm_response_parsed.json", parsed_payload)
             write_json(plan_dir / "llm_response_normalized.json", normalized_payload)
             write_json(plan_dir / "llm_merge_report.json", merge_report)
@@ -280,10 +298,16 @@ class TestPlanGenerator:
             merge_report = {
                 "status": "fallback",
                 "reason": _single_line(str(exc)),
+                "reason_bucket": _classify_plan_fallback_reason(str(exc)),
+                "repaired_response_applied": bool(json_repair_report.get("repair_applied", False)),
                 "baseline_case_count": len(baseline_plan.cases),
                 "final_case_count": len(fallback.cases),
             }
             write_text(plan_dir / "llm_response_raw.txt", raw_response)
+            if extracted_json_text:
+                write_text(plan_dir / "llm_response_extracted.json.txt", extracted_json_text)
+            if repaired_json_text and repaired_json_text != extracted_json_text:
+                write_text(plan_dir / "llm_response_repaired.json.txt", repaired_json_text)
             write_json(plan_dir / "llm_response_parsed.json", parsed_payload or {"error": _single_line(str(exc))})
             write_json(plan_dir / "llm_response_normalized.json", normalized_payload or {"error": _single_line(str(exc))})
             write_json(plan_dir / "llm_merge_report.json", merge_report)
@@ -401,6 +425,9 @@ class TestPlanGenerator:
         )
         merge_report = {
             "status": "merged",
+            "repaired_response_applied": bool(
+                validation_report.get("json_repair_report", {}).get("repair_applied", False)
+            ),
             "baseline_case_count": len(baseline_plan.cases),
             "final_case_count": len(merged_plan.cases),
             "applied_baseline_case_enrichments": applied_enrichments,
@@ -959,6 +986,17 @@ def _hybrid_plan_confidence(
 ) -> float:
     score = baseline_plan.plan_confidence + min(0.12, 0.03 * added_case_count + 0.02 * enriched_case_count)
     return max(0.1, min(score, 0.95))
+
+
+def _classify_plan_fallback_reason(reason: str) -> str:
+    normalized = _single_line(reason).lower()
+    if "timed out" in normalized or "timeout" in normalized:
+        return "timeout"
+    if "validation error" in normalized or "input should be" in normalized:
+        return "schema_validation"
+    if "expecting value" in normalized or "json" in normalized or "unterminated" in normalized:
+        return "json_parse"
+    return "other"
 
 
 def _single_line(text: str) -> str:

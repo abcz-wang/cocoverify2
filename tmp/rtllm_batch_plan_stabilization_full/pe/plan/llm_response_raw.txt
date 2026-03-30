@@ -1,0 +1,343 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset", "stability"],
+      "dependencies": [],
+      "draft_id": "reset_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that the accumulator register clears to zero on reset assertion.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b1"
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset for two cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b0"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow register to settle after reset"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "c": "32'h0000_0000"
+          },
+          "text": "Capture cleared accumulator value"
+        }
+      ],
+      "stimulus_signals": ["rst"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "width_sensitive"],
+      "dependencies": ["reset_002"],
+      "draft_id": "edge_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise maximum operand values to expose width and overflow behavior.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFF_FFFF",
+            "b": "32'hFFFF_FFFF"
+          },
+          "text": "Apply maximum unsigned operands"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One cycle for multiplication and accumulation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "c": "32'hFFFF_FFFE"
+          },
+          "text": "Capture accumulator after max product (modulo 2^32)"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0000",
+            "b": "32'h1234_5678"
+          },
+          "text": "Apply zero operand to verify no change"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One cycle for operation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "c": "32'hFFFF_FFFE"
+          },
+          "text": "Accumulator should remain unchanged"
+        }
+      ],
+      "stimulus_signals": ["a", "b"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back", "repeated_operation"],
+      "dependencies": ["basic_001"],
+      "draft_id": "back_to_back_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate correct accumulation over two consecutive operations without intervening reset.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0002",
+            "b": "32'h0000_0003"
+          },
+          "text": "First operation: 2 * 3"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow first accumulation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "c": "32'h0000_0006"
+          },
+          "text": "Capture after first operation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0004",
+            "b": "32'h0000_0005"
+          },
+          "text": "Second operation: 4 * 5"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow second accumulation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "c": "32'h0000_0016"
+          },
+          "text": "Capture after second operation (6 + 20)"
+        }
+      ],
+      "stimulus_signals": ["a", "b"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": ["protocol", "fsm_transition_path"],
+      "dependencies": ["reset_001"],
+      "draft_id": "protocol_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Demonstrate correct behavior across a reset‑deassert‑operation sequence, mimicking a simple protocol handshake.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b1"
+          },
+          "text": "Assert reset (protocol start)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b0"
+          },
+          "text": "Deassert reset (enter active state)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow register to settle after reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0001",
+            "b": "32'h0000_0001"
+          },
+          "text": "Perform first accumulation (1*1)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One cycle for operation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "c": "32'h0000_0001"
+          },
+          "text": "Capture result after protocol operation"
+        }
+      ],
+      "stimulus_signals": ["rst", "a", "b"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity", "seq"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0002",
+            "b": "32'h0000_0003"
+          },
+          "text": "Apply operands 2 and 3"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One cycle for multiplication and accumulation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "c": "32'h0000_0006"
+          },
+          "text": "Capture accumulator after operation"
+        }
+      ],
+      "stimulus_signals": ["a", "b"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

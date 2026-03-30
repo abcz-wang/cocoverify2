@@ -1,0 +1,454 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify all-zero input pattern produces zero parallel output and valid flag.",
+      "notes": [],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0",
+            "din_valid": "1'b1"
+          },
+          "text": "Start zero pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 7,
+          "signals": {},
+          "text": "Continue zeros"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "Deassert valid after 8 bits"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow output to settle"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect dout_parallel=8'h00, dout_valid=1'b1"
+        }
+      ],
+      "stimulus_signals": [
+        "din_valid",
+        "din_serial"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify all-ones input pattern produces 0xFF parallel output and valid flag.",
+      "notes": [],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1",
+            "din_valid": "1'b1"
+          },
+          "text": "Start one pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 7,
+          "signals": {},
+          "text": "Continue ones"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "Deassert valid after 8 bits"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow output to settle"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect dout_parallel=8'hFF, dout_valid=1'b1"
+        }
+      ],
+      "stimulus_signals": [
+        "din_valid",
+        "din_serial"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate back-to-back conversion of two distinct 8\u2011bit words.",
+      "notes": [],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0",
+            "din_valid": "1'b1"
+          },
+          "text": "First word start (zeros)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 7,
+          "signals": {},
+          "text": "First word bits"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "First word deassert"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after first word"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect dout_parallel=8'h00, dout_valid=1'b1"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1",
+            "din_valid": "1'b1"
+          },
+          "text": "Second word start (ones)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 7,
+          "signals": {},
+          "text": "Second word bits"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "Second word deassert"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after second word"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect dout_parallel=8'hFF, dout_valid=1'b1"
+        }
+      ],
+      "stimulus_signals": [
+        "din_valid",
+        "din_serial"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "fsm_transition_path"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_case_004",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise a transition where din_valid is de\u2011asserted mid\u2011sequence and then re\u2011asserted.",
+      "notes": [],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0",
+            "din_valid": "1'b1"
+          },
+          "text": "Start valid sequence"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "First four bits"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "Mid\u2011sequence de\u2011assert"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Idle cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1",
+            "din_valid": "1'b1"
+          },
+          "text": "Resume valid sequence"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Complete remaining bits"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "End of sequence"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow output to settle"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect dout_valid=1'b1 after the 8th valid bit despite interruption"
+        }
+      ],
+      "stimulus_signals": [
+        "din_valid",
+        "din_serial"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "negative",
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_case_005",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Check that dout_valid remains low when fewer than eight valid bits are provided.",
+      "notes": [],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0",
+            "din_valid": "1'b1"
+          },
+          "text": "Start short valid sequence"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Provide only five bits"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "Deassert before completing 8 bits"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow any pending output to settle"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect dout_valid=1'b0 because insufficient bits were received"
+        }
+      ],
+      "stimulus_signals": [
+        "din_valid",
+        "din_serial"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,254 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": [],
+      "draft_id": "new_basic_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate typical BCD addition within range.",
+      "notes": [],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h3",
+            "B": "4'h4",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture inputs after settle"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": [],
+      "draft_id": "new_edge_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Check BCD correction at upper boundary (9+9+1).",
+      "notes": [],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h9",
+            "B": "4'h9",
+            "Cin": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": [],
+      "draft_id": "new_back2back_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate module handles consecutive operations without intermediate idle cycles.",
+      "notes": [],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h2",
+            "B": "4'h3",
+            "Cin": "1'b0"
+          },
+          "text": "First operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "First capture"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h5",
+            "B": "4'h4",
+            "Cin": "1'b0"
+          },
+          "text": "Second operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Second capture"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each settle."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": [],
+      "draft_id": "new_negative_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe behavior when inputs exceed BCD digit range (e.g., A=0xA).",
+      "notes": [],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'hA",
+            "B": "4'h1",
+            "Cin": "1'b0"
+          },
+          "text": "Invalid BCD input"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [],
+  "planning_notes": [
+    "Added basic single operation test, edge boundary vector test, back-to-back pair test, and negative illegal input test to broaden coverage while preserving existing baseline cases."
+  ],
+  "unresolved_items": []
+}

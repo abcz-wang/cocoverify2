@@ -1,0 +1,74 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure no fixed-cycle assumptions for boundary inputs",
+          "notes": [
+            "The oracle must not rely on exact latency when extreme operand values are used."
+          ],
+          "observed_signals": [
+            "result",
+            "o_en"
+          ],
+          "pass_condition": "Outputs must eventually reflect the correct sum and enable without assuming a specific cycle count.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When boundary values are applied to adda and addb."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Validate that result and o_en reflect addition after a legal operation",
+          "notes": [
+            "The check is event‑based and does not require a fixed latency."
+          ],
+          "observed_signals": [
+            "result",
+            "o_en"
+          ],
+          "pass_condition": "Result eventually equals adda + addb and o_en asserts, without requiring a specific cycle delay.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After i_en is asserted and inputs are driven."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

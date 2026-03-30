@@ -1,0 +1,315 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic","sign_handling"],
+      "dependencies": [],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate subtraction when both operands are positive and result is positive.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0010",
+            "b": "16'h0004"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0010",
+            "b": "16'h0004"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a","b"],
+      "timing_assumptions": ["Observe outputs after input stabilization."]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge","boundary","max_positive"],
+      "dependencies": [],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate subtraction at maximum positive value boundary.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h7FFF",
+            "b": "16'h0001"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h7FFF",
+            "b": "16'h0001"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a","b"],
+      "timing_assumptions": ["Observe outputs after input stabilization."]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": ["negative","zero_result"],
+      "dependencies": [],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate handling of sign bit when result is zero.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific","ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a","b"],
+      "timing_assumptions": ["Observe outputs after input stabilization."]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back","protocol"],
+      "dependencies": [],
+      "draft_id": "new_case_004",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise back-to-back subtraction operations without intervening wait.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0010",
+            "b": "16'h0005"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0010",
+            "b": "16'h0005"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0003",
+            "b": "16'h0001"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0003",
+            "b": "16'h0001"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a","b"],
+      "timing_assumptions": ["Observe outputs after each input stabilization."]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a","b"],
+      "timing_assumptions": []
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h7FFF",
+            "b": "16'h0000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h7FFF",
+            "b": "16'h0000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a","b"],
+      "timing_assumptions": []
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

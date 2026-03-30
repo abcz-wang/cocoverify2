@@ -83,11 +83,13 @@ class RTLLMTaskSummary:
     llm_plan_fallback_used: bool = False
     llm_plan_status: str = "not_attempted"
     llm_plan_reason: str = ""
+    llm_plan_reason_bucket: str = ""
     llm_oracle_attempted: bool = False
     llm_oracle_succeeded: bool = False
     llm_oracle_fallback_used: bool = False
     llm_oracle_status: str = "not_attempted"
     llm_oracle_reason: str = ""
+    llm_oracle_reason_bucket: str = ""
     contract_success: bool = False
     plan_success: bool = False
     oracle_success: bool = False
@@ -118,11 +120,13 @@ class RTLLMTaskSummary:
             "llm_plan_fallback_used": self.llm_plan_fallback_used,
             "llm_plan_status": self.llm_plan_status,
             "llm_plan_reason": self.llm_plan_reason,
+            "llm_plan_reason_bucket": self.llm_plan_reason_bucket,
             "llm_oracle_attempted": self.llm_oracle_attempted,
             "llm_oracle_succeeded": self.llm_oracle_succeeded,
             "llm_oracle_fallback_used": self.llm_oracle_fallback_used,
             "llm_oracle_status": self.llm_oracle_status,
             "llm_oracle_reason": self.llm_oracle_reason,
+            "llm_oracle_reason_bucket": self.llm_oracle_reason_bucket,
             "contract_success": self.contract_success,
             "plan_success": self.plan_success,
             "oracle_success": self.oracle_success,
@@ -316,7 +320,16 @@ def _execute_task_runner(
 
 def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, task_out_dir: Path) -> RTLLMTaskSummary:
     ensure_dir(task_out_dir)
-    shared_llm_client = LLMClient(config.llm_config) if config.generation_mode == GenerationMode.HYBRID else None
+    plan_llm_client = None
+    oracle_llm_client = None
+    if config.generation_mode == GenerationMode.HYBRID:
+        plan_llm_config = config.llm_config.model_copy(
+            update={
+                "timeout_seconds": config.llm_config.plan_timeout_seconds or config.llm_config.timeout_seconds,
+            }
+        )
+        plan_llm_client = LLMClient(plan_llm_config)
+        oracle_llm_client = LLMClient(config.llm_config)
     spec_text = task_input.spec_path.read_text(encoding="utf-8", errors="replace") if task_input.spec_path else None
     interface_hint_text = extract_interface_hint_text(spec_text)
     task_description = _derive_task_description(task_input.task_name, spec_text)
@@ -351,7 +364,7 @@ def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, ta
         return summary
 
     try:
-        plan = TestPlanGenerator(llm_client=shared_llm_client).run(
+        plan = TestPlanGenerator(llm_client=plan_llm_client).run(
             contract=contract,
             task_description=task_description,
             spec_text=spec_text,
@@ -371,7 +384,7 @@ def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, ta
         return summary
 
     try:
-        oracle = OracleGenerator(llm_client=shared_llm_client).run(
+        oracle = OracleGenerator(llm_client=oracle_llm_client).run(
             contract=contract,
             plan=plan,
             task_description=task_description,
@@ -502,6 +515,7 @@ def _apply_llm_stage_status(
     report = _load_optional_json(merge_report_path)
     status = str(report.get("status", "missing_report")) if report else ("missing_report" if attempted else "not_attempted")
     reason = _single_line(str(report.get("reason", ""))) if report else ""
+    reason_bucket = _single_line(str(report.get("reason_bucket", ""))) if report else ""
     succeeded = attempted and status == "merged"
     fallback_used = attempted and status == "fallback"
     if stage_name == "plan":
@@ -510,12 +524,14 @@ def _apply_llm_stage_status(
         summary.llm_plan_fallback_used = fallback_used
         summary.llm_plan_status = status
         summary.llm_plan_reason = reason
+        summary.llm_plan_reason_bucket = reason_bucket or _classify_stage_reason_bucket(reason)
         return
     summary.llm_oracle_attempted = attempted
     summary.llm_oracle_succeeded = succeeded
     summary.llm_oracle_fallback_used = fallback_used
     summary.llm_oracle_status = status
     summary.llm_oracle_reason = reason
+    summary.llm_oracle_reason_bucket = reason_bucket or _classify_stage_reason_bucket(reason)
 
 
 def _load_optional_json(path: Path) -> dict[str, Any] | None:
@@ -575,11 +591,13 @@ def _load_task_summary(task_out_dir: Path) -> RTLLMTaskSummary | None:
         llm_plan_fallback_used=bool(payload.get("llm_plan_fallback_used", False)),
         llm_plan_status=str(payload.get("llm_plan_status", "not_attempted")),
         llm_plan_reason=str(payload.get("llm_plan_reason", "")),
+        llm_plan_reason_bucket=str(payload.get("llm_plan_reason_bucket", "")),
         llm_oracle_attempted=bool(payload.get("llm_oracle_attempted", False)),
         llm_oracle_succeeded=bool(payload.get("llm_oracle_succeeded", False)),
         llm_oracle_fallback_used=bool(payload.get("llm_oracle_fallback_used", False)),
         llm_oracle_status=str(payload.get("llm_oracle_status", "not_attempted")),
         llm_oracle_reason=str(payload.get("llm_oracle_reason", "")),
+        llm_oracle_reason_bucket=str(payload.get("llm_oracle_reason_bucket", "")),
         contract_success=bool(payload.get("contract_success", False)),
         plan_success=bool(payload.get("plan_success", False)),
         oracle_success=bool(payload.get("oracle_success", False)),
@@ -638,6 +656,8 @@ def _build_batch_summary(*, config: RTLLMBatchConfig, task_summaries: Iterable[R
     ambiguity_preserving_tasks = 0
     llm_plan_status_histogram: Counter[str] = Counter()
     llm_oracle_status_histogram: Counter[str] = Counter()
+    llm_plan_fallback_reason_histogram: Counter[str] = Counter()
+    llm_oracle_fallback_reason_histogram: Counter[str] = Counter()
 
     for task_summary in task_summaries:
         successful_modules = [
@@ -655,6 +675,10 @@ def _build_batch_summary(*, config: RTLLMBatchConfig, task_summaries: Iterable[R
             ambiguity_preserving_tasks += 1
         llm_plan_status_histogram[task_summary.llm_plan_status] += 1
         llm_oracle_status_histogram[task_summary.llm_oracle_status] += 1
+        if task_summary.llm_plan_fallback_used:
+            llm_plan_fallback_reason_histogram[task_summary.llm_plan_reason_bucket or "other"] += 1
+        if task_summary.llm_oracle_fallback_used:
+            llm_oracle_fallback_reason_histogram[task_summary.llm_oracle_reason_bucket or "other"] += 1
         for item in task_summary.test_module_results:
             triage_histogram[item.triage_category] += 1
         for key, value in task_summary.assertion_strength_counts.items():
@@ -678,6 +702,8 @@ def _build_batch_summary(*, config: RTLLMBatchConfig, task_summaries: Iterable[R
         "llm_oracle_fallback_used": sum(1 for item in task_summaries if item.llm_oracle_fallback_used),
         "llm_plan_status_histogram": dict(sorted(llm_plan_status_histogram.items())),
         "llm_oracle_status_histogram": dict(sorted(llm_oracle_status_histogram.items())),
+        "llm_plan_fallback_reason_histogram": dict(sorted(llm_plan_fallback_reason_histogram.items())),
+        "llm_oracle_fallback_reason_histogram": dict(sorted(llm_oracle_fallback_reason_histogram.items())),
         "triage_category_histogram": dict(sorted(triage_histogram.items())),
         "assertion_strength_histogram": {
             "exact": int(assertion_histogram["exact"]),
@@ -812,7 +838,9 @@ def _render_summary_markdown(batch_summary: dict[str, Any]) -> str:
         f"- Triage: `{json.dumps(metrics['triage_category_histogram'], sort_keys=True)}`",
         f"- Assertion strength: `{json.dumps(metrics['assertion_strength_histogram'], sort_keys=True)}`",
         f"- LLM plan status: `{json.dumps(metrics['llm_plan_status_histogram'], sort_keys=True)}`",
+        f"- LLM plan fallback reasons: `{json.dumps(metrics['llm_plan_fallback_reason_histogram'], sort_keys=True)}`",
         f"- LLM oracle status: `{json.dumps(metrics['llm_oracle_status_histogram'], sort_keys=True)}`",
+        f"- LLM oracle fallback reasons: `{json.dumps(metrics['llm_oracle_fallback_reason_histogram'], sort_keys=True)}`",
         "",
         "## Per-Task Rollup",
         "",
@@ -850,6 +878,19 @@ def _derive_task_description(task_name: str, spec_text: str | None) -> str:
     return f"RTLLM benchmark task {task_name}"
 
 
+def _classify_stage_reason_bucket(reason: str) -> str:
+    normalized = _single_line(reason).lower()
+    if not normalized:
+        return ""
+    if "timed out" in normalized or "timeout" in normalized:
+        return "timeout"
+    if "validation error" in normalized or "input should be" in normalized:
+        return "schema_validation"
+    if "expecting value" in normalized or "unterminated json" in normalized or "did not contain a json object" in normalized:
+        return "json_parse"
+    return "other"
+
+
 def _single_line(message: str) -> str:
     return " ".join(str(message or "").split())
 
@@ -881,6 +922,12 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--llm-api-key", default="", help="Optional LLM API key override.")
     parser.add_argument("--llm-temperature", type=float, default=None, help="Optional LLM temperature override.")
     parser.add_argument("--llm-timeout-seconds", type=int, default=None, help="Optional LLM timeout override.")
+    parser.add_argument(
+        "--plan-llm-timeout-seconds",
+        type=int,
+        default=None,
+        help="Optional Phase 2 plan-stage LLM timeout override. Defaults to --llm-timeout-seconds when omitted.",
+    )
     parser.add_argument("--llm-max-retries", type=int, default=None, help="Optional LLM retry override.")
     parser.add_argument(
         "--llm-disable-proxies",
@@ -916,6 +963,8 @@ def _build_llm_config(args: argparse.Namespace) -> LLMConfig:
         overrides["temperature"] = args.llm_temperature
     if args.llm_timeout_seconds is not None:
         overrides["timeout_seconds"] = args.llm_timeout_seconds
+    if args.plan_llm_timeout_seconds is not None:
+        overrides["plan_timeout_seconds"] = args.plan_llm_timeout_seconds
     if args.llm_max_retries is not None:
         overrides["max_retries"] = args.llm_max_retries
     if args.llm_disable_proxies:

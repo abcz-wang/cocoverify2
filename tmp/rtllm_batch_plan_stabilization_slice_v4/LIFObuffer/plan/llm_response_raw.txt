@@ -1,0 +1,450 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset","stability"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that after deasserting Rst, the buffer flags EMPTY and FULL reflect an empty state and memory is cleared.",
+      "notes": [],
+      "observed_signals": ["EMPTY","FULL","dataOut"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Rst": "1'b1",
+            "EN": "1'b0"
+          },
+          "text": "Assert reset for one clock cycle."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow reset to propagate."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Rst": "1'b0",
+            "EN": "1'b0"
+          },
+          "text": "Deassert reset."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Wait for post‑reset stabilization."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Rst": "1'b0",
+            "EN": "1'b0"
+          },
+          "text": "Capture input values after reset."
+        }
+      ],
+      "stimulus_signals": ["Rst","EN"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge","boundary","width_sensitive"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Push a maximum‑value entry when the buffer has one free slot to test boundary pointer handling.",
+      "notes": [],
+      "observed_signals": ["EMPTY","FULL","dataOut"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Rst": "1'b0",
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'hA"
+          },
+          "text": "Write first entry (0xA)."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'h5"
+          },
+          "text": "Write second entry (0x5)."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'hF"
+          },
+          "text": "Write third entry (max value 0xF) when only one slot remains."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow pointer update to settle."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'hF"
+          },
+          "text": "Capture the final write inputs."
+        }
+      ],
+      "stimulus_signals": ["EN","RW","dataIn","Rst"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back","repeated_operation"],
+      "dependencies": ["back_to_back_001"],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Perform two consecutive reads after loading two entries to verify back‑to‑back pop behavior.",
+      "notes": [],
+      "observed_signals": ["EMPTY","FULL","dataOut"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Rst": "1'b0",
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'h3"
+          },
+          "text": "Write first entry (0x3)."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'h7"
+          },
+          "text": "Write second entry (0x7)."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b1"
+          },
+          "text": "First read (pop)."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b1"
+          },
+          "text": "Second read (pop)."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow both reads to settle."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b1"
+          },
+          "text": "Capture read control inputs."
+        }
+      ],
+      "stimulus_signals": ["EN","RW","dataIn","Rst"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": ["protocol","invalid_illegal_input"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_case_004",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Attempt a read when the buffer is empty to verify that the design safely ignores the operation.",
+      "notes": [],
+      "observed_signals": ["EMPTY","FULL","dataOut"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": ["invalid_illegal_input"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Rst": "1'b0",
+            "EN": "1'b0"
+          },
+          "text": "Ensure buffer is idle and empty."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b1"
+          },
+          "text": "Assert read enable while buffer is empty."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe that no data is output and flags remain unchanged."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b1"
+          },
+          "text": "Capture illegal read inputs."
+        }
+      ],
+      "stimulus_signals": ["EN","RW","Rst"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["enhanced"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'h9"
+          },
+          "text": "Write a value (0x9) into the buffer."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b1"
+          },
+          "text": "Read back the value."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow read data to become visible."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b1"
+          },
+          "text": "Capture the read control inputs."
+        }
+      ],
+      "stimulus_signals": ["EN","RW","dataIn"],
+      "timing_assumptions": []
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["enhanced"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'h0"
+          },
+          "text": "Push minimum value (0x0) when buffer is empty."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'hF"
+          },
+          "text": "Push maximum value (0xF) to test width boundary."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow pointer updates to settle."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EN": "1'b1",
+            "RW": "1'b0",
+            "dataIn": "4'hF"
+          },
+          "text": "Capture the final boundary write inputs."
+        }
+      ],
+      "stimulus_signals": ["EN","RW","dataIn"],
+      "timing_assumptions": []
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

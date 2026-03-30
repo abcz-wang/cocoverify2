@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
+
 from cocoverify2.core.models import DUTContract, LLMTodoBlock, OracleSpec, PortSpec, TestCasePlan as CasePlanModel, TestPlan as PlanModel, TimingSpec
 from cocoverify2.core.types import LatencyModel, PortDirection, SequentialKind, TemporalWindowMode, TestCategory as PlanCategory
 from cocoverify2.llm.validators import (
     extract_json_payload,
+    extract_json_payload_with_report,
     normalize_oracle_augmentation_payload,
     normalize_plan_augmentation_payload,
     parse_plan_augmentation,
@@ -225,6 +228,99 @@ def test_normalize_plan_augmentation_repairs_case_id_to_draft_id() -> None:
     assert "case_id" not in normalized["additional_cases"][0]
     assert any(item["from"] == "case_id" and item["to"] == "draft_id" for item in report["renamed_fields"])
     assert any(item["field"] == "confidence" for item in report["stripped_fields"])
+
+
+def test_normalize_plan_augmentation_moves_misslotted_category_into_scenario_kind() -> None:
+    payload = extract_json_payload(
+        """
+        {
+          "baseline_case_enrichments": [],
+          "additional_cases": [
+            {
+              "draft_id": "extra_001",
+              "category": "write_then_readback",
+              "goal": "Write then read back conservatively.",
+              "stimulus_intent": ["Drive a write followed by a readback."],
+              "stimulus_signals": ["a"],
+              "expected_properties": ["Observe externally visible consistency."],
+              "observed_signals": ["y"]
+            }
+          ]
+        }
+        """
+    )
+
+    normalized, report = normalize_plan_augmentation_payload(payload)
+
+    case = normalized["additional_cases"][0]
+    assert case["category"] == "basic"
+    assert case["scenario_kind"] == "write_then_readback"
+    assert any(item["repair"] == "moved_invalid_category_to_scenario_kind" for item in report["semantic_repairs"])
+
+
+def test_parse_plan_augmentation_keeps_unknown_invalid_category_as_error() -> None:
+    with pytest.raises(Exception):
+        parse_plan_augmentation(
+            """
+            {
+              "baseline_case_enrichments": [],
+              "additional_cases": [
+                {
+                  "draft_id": "extra_001",
+                  "category": "totally_custom_bucket",
+                  "goal": "bad",
+                  "stimulus_intent": ["bad"],
+                  "stimulus_signals": ["a"],
+                  "expected_properties": ["bad"],
+                  "observed_signals": ["y"]
+                }
+              ]
+            }
+            """
+        )
+
+
+def test_extract_json_payload_with_report_repairs_numeric_expression_and_trailing_comma() -> None:
+    payload, report = extract_json_payload_with_report(
+        """
+        {
+          "baseline_case_enrichments": [
+            {
+              "case_id": "basic_001",
+              "stimulus_program": [
+                {"action": "wait_cycles", "cycles": (23 * 60 * 60) - 1,},
+              ]
+            }
+          ],
+          "additional_cases": [],
+        }
+        """
+    )
+
+    assert payload["baseline_case_enrichments"][0]["stimulus_program"][0]["cycles"] == 82799
+    assert report["repair_applied"] is True
+    repair_kinds = {item["kind"] for item in report["applied_repairs"]}
+    assert "evaluate_numeric_expression" in repair_kinds
+    assert "remove_trailing_commas" in repair_kinds
+
+
+def test_extract_json_payload_with_report_rejects_ambiguous_numeric_expression() -> None:
+    with pytest.raises(Exception):
+        extract_json_payload_with_report(
+            """
+            {
+              "baseline_case_enrichments": [
+                {
+                  "case_id": "basic_001",
+                  "stimulus_program": [
+                    {"action": "wait_cycles", "cycles": weird_fn(3)}
+                  ]
+                }
+              ],
+              "additional_cases": []
+            }
+            """
+        )
 
 
 def test_normalize_oracle_augmentation_strips_safe_extra_check_fields() -> None:

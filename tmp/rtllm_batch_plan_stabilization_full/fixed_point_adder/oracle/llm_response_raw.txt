@@ -1,0 +1,105 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that the output c reflects the combinational sum of inputs a and b for a representative legal input pattern.",
+          "notes": [
+            "Uses the stimulus from basic_001 which drives a=1, b=2."
+          ],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c equals the expected fixed-point addition result of a and b under the module's sign handling semantics, without requiring a specific cycle latency.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 stimulus program completes the drive and settle actions."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Confirm that c responds correctly to boundary-value inputs where a and b are set to the midpoint of the representable range.",
+          "notes": [
+            "Uses the edge_001 stimulus which drives a=32768, b=32768 for a typical 16-bit width."
+          ],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c reflects the correct signed addition result for the given boundary values, respecting sign extension and overflow handling, without assuming a fixed number of cycles.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the edge_001 stimulus program completes the drive and settle actions."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: ensure that c does not exhibit undefined (X) or high‑impedance (Z) values after inputs stabilize.",
+          "notes": [
+            "Applies to all cases; protects against hidden internal state leakage."
+          ],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c is a defined 0/1 value (no X or Z) once inputs have settled, regardless of internal latency.",
+          "semantic_tags": [
+            "guarded",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever any stimulus case completes its settle phase."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

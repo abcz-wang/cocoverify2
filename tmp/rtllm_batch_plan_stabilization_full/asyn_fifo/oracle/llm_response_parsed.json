@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Addresses must remain within the defined address width and not overflow.",
+          "notes": [],
+          "observed_signals": [
+            "waddr",
+            "raddr"
+          ],
+          "pass_condition": "The values of waddr and raddr never exceed the address range defined by $clog2(DEPTH)-1:0.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever waddr or raddr is driven by the testbench."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "rdata may change to any value after a write operation; no specific value is required.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When wenc is asserted with a valid waddr and wdata, and a subsequent renc is asserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

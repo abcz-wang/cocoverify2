@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that no fixed-cycle latency is assumed for edge stimulation; progress must be observable within an unspecified but finite number of cycles.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "After applying edge stimulus, the output eventually stabilizes to a value consistent with a single increment or wrap, without requiring a specific cycle count.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge stimulus on valid_count is applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that a legal increment operation results in a visible change of out within a conservative observation window.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "After driving valid_count=1 for at least one clock, out should transition to a new value (or wrap) and then remain stable.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 3,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a basic increment operation is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['valid_count'] without matching role(s) ['ready'] in group 'count'."
+  ]
+}

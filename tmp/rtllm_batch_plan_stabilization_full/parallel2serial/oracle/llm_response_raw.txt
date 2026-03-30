@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Outputs must not contain unknown (X) values after any operation",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "pass_condition": "valid_out and dout remain binary (0 or 1) with no X in all observed cycles",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When any stimulus is applied in the edge_001 case"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After a legal input, valid_out eventually asserts and dout reflects the MSB of d",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "pass_condition": "Within a conservative observation window, valid_out becomes 1 and dout equals d[3] at that moment",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 stimulus drives the input vector d"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

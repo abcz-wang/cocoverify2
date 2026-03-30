@@ -1,0 +1,480 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "negative",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "draft_neg_001",
+      "expected_properties": [
+        "rdata does not change from prior value when write enable is low"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that no write occurs when wenc is low even if address and data are presented.",
+      "notes": [],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "write_no_enable",
+        "read_back"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "waddr": "4'd2",
+            "wdata": "8'h55",
+            "wenc": 0
+          },
+          "text": "Present write data with enable low"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "raddr": "4'd2",
+            "renc": 1
+          },
+          "text": "Attempt read from same address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rdata": "0x??"
+          },
+          "text": "Capture read data"
+        }
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "metamorphic",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "draft_meta_001",
+      "expected_properties": [
+        "first read returns 8'hAA",
+        "second read returns 8'h55"
+      ],
+      "expected_transition": "",
+      "goal": "Confirm independent readback of two distinct write sequences.",
+      "notes": [],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "write_read_sequence_1",
+        "write_read_sequence_2"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "waddr": "4'd3",
+            "wdata": "8'hAA",
+            "wenc": 1
+          },
+          "text": "Write first pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "raddr": "4'd3",
+            "renc": 1
+          },
+          "text": "Read back first pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rdata": "0xAA"
+          },
+          "text": "Capture first read data"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "waddr": "4'd4",
+            "wdata": "8'h55",
+            "wenc": 1
+          },
+          "text": "Write second pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "raddr": "4'd4",
+            "renc": 1
+          },
+          "text": "Read back second pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rdata": "0x55"
+          },
+          "text": "Capture second read data"
+        }
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity"
+      ],
+      "expected_properties": [
+        "rdata matches written value"
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [],
+      "observed_signals": [
+        "rdata"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "wait_for_settle after read enable",
+      "stimulus_intent": [
+        "write",
+        "readback"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "waddr": "4'd0",
+            "wdata": "8'hAA",
+            "wenc": 1
+          },
+          "text": "Write a known value"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "raddr": "4'd0",
+            "renc": 1
+          },
+          "text": "Read back from same address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rdata": "0xAA"
+          },
+          "text": "Capture read data"
+        }
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "rdata equals 8'hFF when reading from max address"
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [],
+      "observed_signals": [
+        "rdata"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "wait_for_settle after read enable",
+      "stimulus_intent": [
+        "write_max_address",
+        "read_max_address"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "waddr": "4'd15",
+            "wdata": "8'hFF",
+            "wenc": 1
+          },
+          "text": "Write max address with max data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "raddr": "4'd15",
+            "renc": 1
+          },
+          "text": "Read back from max address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rdata": "0xFF"
+          },
+          "text": "Capture read data"
+        }
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "expected_properties": [
+        "first read returns 8'h11 after two consecutive writes"
+      ],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [],
+      "observed_signals": [
+        "rdata"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "wait_for_settle after final read enable",
+      "stimulus_intent": [
+        "write_seq",
+        "read_back"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "waddr": "4'd0",
+            "wdata": "8'h11",
+            "wenc": 1
+          },
+          "text": "First write"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "waddr": "4'd1",
+            "wdata": "8'h22",
+            "wenc": 1
+          },
+          "text": "Second write"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "raddr": "4'd0",
+            "renc": 1
+          },
+          "text": "Read back first address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rdata": "0x11"
+          },
+          "text": "Capture read data"
+        }
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

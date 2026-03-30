@@ -1,0 +1,379 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "fetch_transition"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "proto_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate correct handling of fetch source transition from register to RAM/ROM.",
+      "notes": [],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hAA",
+            "fetch": "2'b01",
+            "rst": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hAA",
+            "fetch": "2'b01"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h55",
+            "fetch": "2'b10"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h55",
+            "fetch": "2'b10"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "rst",
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "negative",
+        "invalid_fetch"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Check module behavior when fetch receives an undefined value.",
+      "notes": [],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hFF",
+            "fetch": "2'b11",
+            "rst": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hFF",
+            "fetch": "2'b11"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "rst",
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h3C",
+            "fetch": "2'b01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h3C",
+            "fetch": "2'b01"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "rst",
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hFF",
+            "fetch": "2'b00"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hFF",
+            "fetch": "2'b00"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h12",
+            "fetch": "2'b01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h12",
+            "fetch": "2'b01"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h34",
+            "fetch": "2'b01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h34",
+            "fetch": "2'b01"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [
+    "Added protocol and negative categories to broaden coverage while preserving existing baseline cases.",
+    "Enriched basic, edge, and back_to_back baseline cases with explicit reset handling and concrete stimulus values.",
+    "All stimulus steps use deterministic literals per schema requirements."
+  ],
+  "unresolved_items": []
+}

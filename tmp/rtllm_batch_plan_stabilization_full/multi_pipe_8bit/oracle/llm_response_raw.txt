@@ -1,0 +1,73 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that edge-case stimulus does not rely on fixed-cycle latency; output enable must eventually assert and product must become stable without X values.",
+          "notes": [],
+          "observed_signals": [
+            "mul_en_out",
+            "mul_out"
+          ],
+          "pass_condition": "After applying edge-case inputs, mul_en_out transitions to high within a conservative observation period and mul_out settles to a defined 16‑bit value (no X or Z). No assumption is made about the exact number of cycles.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "edge"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge case stimulus (boundary vectors) is applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Validate that a basic legal multiplication produces a correct product when the output enable is asserted.",
+          "notes": [],
+          "observed_signals": [
+            "mul_en_out",
+            "mul_out"
+          ],
+          "pass_condition": "When mul_en_out becomes high after a basic operation, mul_out must equal the unsigned 8‑bit product of mul_a and mul_b. The check allows any number of cycles before the assertion, requiring only eventual correctness and stability.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic case stimulus is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [
+    "All added checks preserve ambiguity by avoiding exact-cycle latency assumptions and by referencing only signals declared in the contract."
+  ],
+  "unresolved_items": []
+}

@@ -1,0 +1,336 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset", "initialization", "memory_cleared"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_reset_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that after deasserting reset, all RAM locations contain zero.",
+      "notes": [],
+      "observed_signals": ["read_data"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset propagation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Wait for RAM to settle after reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "1'b1",
+            "read_addr": "8'h00"
+          },
+          "text": "Read address 0"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "read_data": "0x0"
+          },
+          "text": "Capture read_data after reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_addr": "8'h01"
+          },
+          "text": "Read address 1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "read_data": "0x0"
+          },
+          "text": "Capture read_data for address 1"
+        }
+      ],
+      "stimulus_signals": ["rst_n", "read_en", "read_addr"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back", "write_pair"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_back_to_back_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate that two consecutive writes to different addresses are correctly stored without intermediate idle cycles.",
+      "notes": [],
+      "observed_signals": ["read_data"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "write_en": "1'b1",
+            "write_addr": "8'h02",
+            "write_data": "6'h15"
+          },
+          "text": "First write to address 2"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "write_en": "1'b1",
+            "write_addr": "8'h03",
+            "write_data": "6'h2A"
+          },
+          "text": "Second write to address 3 immediately after"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow writes to commit"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "1'b1",
+            "read_addr": "8'h02"
+          },
+          "text": "Read back address 2"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "read_data": "6'h15"
+          },
+          "text": "Capture data for address 2"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_addr": "8'h03"
+          },
+          "text": "Read back address 3"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "read_data": "6'h2A"
+          },
+          "text": "Capture data for address 3"
+        }
+      ],
+      "stimulus_signals": ["write_en", "write_addr", "write_data", "read_en", "read_addr"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": ["negative", "out_of_range_address"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_negative_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe behavior when write address exceeds the logical depth (address out of range).",
+      "notes": [],
+      "observed_signals": ["read_data"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["invalid_illegal_input"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "write_en": "1'b1",
+            "write_addr": "8'hFF",
+            "write_data": "6'h3F"
+          },
+          "text": "Attempt write with out-of-range address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow potential write to settle"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "1'b1",
+            "read_addr": "8'hFF"
+          },
+          "text": "Read back from same out-of-range address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "read_data": "0x0"
+          },
+          "text": "Capture read_data; expect zero or unchanged value"
+        }
+      ],
+      "stimulus_signals": ["write_en", "write_addr", "write_data", "read_en", "read_addr"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "write_then_readback"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": ["read_data"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "write_en": "1'b1",
+            "write_addr": "8'h00",
+            "write_data": "6'h0A"
+          },
+          "text": "Write value 0x0A to address 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One clock cycle for write to register"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "1'b1",
+            "read_addr": "8'h00"
+          },
+          "text": "Read back from address 0"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow read data to become stable"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "read_data": "6'h0A"
+          },
+          "text": "Capture read_data matching written value"
+        }
+      ],
+      "stimulus_signals": ["write_en", "write_addr", "write_data", "read_en", "read_addr"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

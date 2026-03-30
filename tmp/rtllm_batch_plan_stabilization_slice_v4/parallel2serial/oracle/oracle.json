@@ -1,0 +1,646 @@
+{
+  "assumptions": [
+    "Implement a module for parallel-to-serial conversion, where every four input bits are converted to a serial one bit output (from MSB to LSB). The output signal valid_out is set to 1 to indicate the availability of valid serial output. When valid_out = 1, the most significant bit of d is output, and the remaining three bits are output sequentially in the following 3 cycles.",
+    "The most significant bit of the parallel input is assigned to the serial output (dout). On each clock cycle, if the counter (cnt) is 3, indicating the last bit of the parallel input, the module updates the data register (data) with the parallel input (d), resets the counter (cnt) to 0, and sets the valid signal (valid) to 1.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "verified_parallel2serial",
+  "based_on_plan": "verified_parallel2serial",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.7550000000000001,
+          "description": "After reset release, observable outputs should reach a stable externally visible state before functional checking resumes.",
+          "expected_transition": "",
+          "notes": [
+            "Reset functional oracle does not invent specific reset values."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "Observable outputs settle to a stable, externally usable state without relying on undocumented exact-cycle convergence.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is released after a valid assertion interval."
+        }
+      ],
+      "confidence": 0.7550000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.7650000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "expected_transition": "",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        {
+          "check_id": "basic_001_functional_002",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.8050000000000002,
+          "description": "required",
+          "expected_transition": "",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "After a legal input d is presented, eventually valid_out becomes 1 and dout reflects the MSB of d, then continues to output the remaining bits.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When d changes"
+        }
+      ],
+      "confidence": 0.7850000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.7150000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "expected_transition": "",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        }
+      ],
+      "confidence": 0.7150000000000001,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_back_to_back_001",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_001_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.6850000000000002,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "expected_transition": "",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        }
+      ],
+      "confidence": 0.6850000000000002,
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "module_name": "verified_parallel2serial",
+  "oracle_confidence": {
+    "functional_confidence": 0.7350000000000001,
+    "overall_confidence": 0.7070833333333334,
+    "property_confidence": 0.7412500000000002,
+    "protocol_confidence": 0.7650000000000001
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7750000000000001,
+          "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+          "expected_transition": "",
+          "notes": [
+            "Clock/reset remain anchors and are not emitted as business outputs."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7250000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        {
+          "check_id": "edge_001_property_002",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7550000000000001,
+          "description": "When valid_out is asserted, dout must correspond to one of the bits of the most recent parallel input within a bounded number of cycles.",
+          "expected_transition": "",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "dout",
+            "d"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "If valid_out becomes 1, then within 5 cycles dout must equal the MSB of the last loaded d value, and subsequent cycles must output the remaining bits in order, without requiring exact-cycle alignment.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "signal_policies": {
+            "d": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "dout": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "valid_out_asserted",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When valid_out transitions from 0 to 1"
+        }
+      ],
+      "confidence": 0.7400000000000001,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "hybrid_llm_generated",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_back_to_back_001",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.6750000000000002,
+          "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+          "expected_transition": "",
+          "notes": [
+            "Stability-style property used instead of throughput-specific claims."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        }
+      ],
+      "confidence": 0.6750000000000002,
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "protocol_oracles": [
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_protocol_001",
+          "check_type": "protocol",
+          "comparison_operands": [],
+          "confidence": 0.7650000000000001,
+          "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+          "expected_transition": "",
+          "notes": [
+            "Reset is used as an anchor only; it is not treated as a business output."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "dout": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+        }
+      ],
+      "confidence": 0.7650000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Reset oracle focuses on control-safe behavior instead of value-specific output claims."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'.",
+    "Spec/reset hint could not be mapped to a known reset port: The most significant bit of the parallel input is assigned to the serial output (dout). On each clock cycle, if the counter (cnt) is 3, indicating the last bit of the parallel input, the module updates the data register (data) with the parallel input (d), resets the counter (cnt) to 0, and sets the valid signal (valid) to 1."
+  ]
+}

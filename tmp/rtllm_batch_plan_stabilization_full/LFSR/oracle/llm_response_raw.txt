@@ -1,0 +1,72 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset is released, the output 'out' must transition from an undefined or high‑impedance state to a defined 4‑bit value within a conservative observation window.",
+          "notes": [
+            "The contract does not specify exact latency; the check allows any number of clock cycles until stability is observed."
+          ],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The signal 'out' becomes a defined 4‑bit vector (no X or Z) and remains stable for at least two consecutive clock edges.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "reset"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the reset signal 'rst' transitions from high to low."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that the LFSR output 'out' exhibits state progression after clock edges following reset.",
+          "notes": [
+            "No fixed‑cycle expectation; any change that reflects shift‑register behavior satisfies the check."
+          ],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "At least one bit of 'out' changes value within a bounded number of clock cycles (e.g., within 8 cycles) after reset release, indicating progression.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "basic"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 8,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the design is no longer in reset and the clock is running."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,44 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When valid_out is asserted, dout must reflect a deterministic bit derived from the most recent parallel input d and must remain stable for at least one clock cycle.",
+          "notes": [
+            "Conservative guard: does not assume exact cycle latency between d and dout, only requires observable stability while valid_out is high."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout",
+            "d"
+          ],
+          "pass_condition": "If valid_out == 1 then dout is not X/Z and does not change until valid_out deasserts.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever valid_out transitions high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "valid_ready-like signal valid_out has no matching ready; handshake semantics remain unresolved."
+  ]
+}

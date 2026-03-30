@@ -1,0 +1,335 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": ["protocol","reset_interaction"],
+      "dependencies": [],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that a reset occurring before the pattern does not affect detection of the 10011 sequence.",
+      "notes": [],
+      "observed_signals": ["MATCH"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "RST": "1'b1" },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "RST": "1'b0" },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "IN": "1'b1" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "IN": "1'b0" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "IN": "1'b0" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "IN": "1'b1" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "IN": "1'b1" },
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["RST", "IN"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back","repeated_match"],
+      "dependencies": [],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Confirm two consecutive detections of 10011 with only a single non‑matching bit separating them.",
+      "notes": [],
+      "observed_signals": ["MATCH"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },  // separator bit
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "record_inputs", "cycles": 1, "signals": {}, "text": "" }
+      ],
+      "stimulus_signals": ["IN"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": ["invalid_illegal_input"],
+      "dependencies": [],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Ensure MATCH remains 0 when the input never forms the 10011 pattern.",
+      "notes": [],
+      "observed_signals": ["MATCH"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["invalid_illegal_input"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 5, "signals": {}, "text": "" },
+        { "action": "record_inputs", "cycles": 1, "signals": {}, "text": "" }
+      ],
+      "stimulus_signals": ["IN"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "regression",
+      "comparison_operands": [],
+      "coverage_tags": ["regression","long_sequence"],
+      "dependencies": [],
+      "draft_id": "new_case_004",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Run a deterministic longer sequence and verify MATCH toggles exactly at the expected positions (5th, 9th, 14th).",
+      "notes": [],
+      "observed_signals": ["MATCH"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reference_model_lite",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 2, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" }, // start second pattern
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "record_inputs", "cycles": 1, "signals": {}, "text": "" }
+      ],
+      "stimulus_signals": ["IN"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": ["metamorphic","shift_invariance"],
+      "dependencies": [],
+      "draft_id": "new_case_005",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Show that shifting the entire input stream by one clock does not create a false MATCH.",
+      "notes": [],
+      "observed_signals": ["MATCH"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" }, // prepend zero
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "record_inputs", "cycles": 1, "signals": {}, "text": "" }
+      ],
+      "stimulus_signals": ["IN"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic","sanity","seq","enrichment"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "record_inputs", "cycles": 1, "signals": {}, "text": "" }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["edge","boundary","enrichment"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b1" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "drive", "cycles": 1, "signals": { "IN": "1'b0" }, "text": "" },
+        { "action": "wait_cycles", "cycles": 1, "signals": {}, "text": "" },
+        { "action": "record_inputs", "cycles": 1, "signals": {}, "text": "" }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

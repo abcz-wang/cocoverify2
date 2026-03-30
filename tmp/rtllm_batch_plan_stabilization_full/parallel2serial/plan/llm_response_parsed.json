@@ -1,0 +1,378 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol"
+      ],
+      "dependencies": [],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise valid_out assertion and serial output sequence under a protocol-like scenario.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1010"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {
+            "dout": "1'b1",
+            "valid_out": "1'b1"
+          },
+          "text": "Expect valid_out asserted and dout equal to MSB of d."
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify behavior when reset is omitted before operation.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {
+            "dout": "1'b0",
+            "valid_out": "1'b0"
+          },
+          "text": "Without reset, module should not assert valid_out."
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "metamorphic"
+      ],
+      "dependencies": [],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Compare two equivalent input sequences to ensure deterministic serial output.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1100",
+            "rst_n": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {
+            "sequence1_dout": "dout",
+            "sequence1_valid": "valid_out"
+          },
+          "text": "Capture first sequence outputs."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1100",
+            "rst_n": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {
+            "sequence2_dout": "dout",
+            "sequence2_valid": "valid_out"
+          },
+          "text": "Capture second sequence outputs; should match first."
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "regression",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back"
+      ],
+      "dependencies": [],
+      "draft_id": "new_case_004",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Run back-to-back parallel inputs to verify no state leakage between operations.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0011",
+            "rst_n": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0101"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {
+            "final_dout": "dout",
+            "final_valid": "valid_out"
+          },
+          "text": "Observe that second operation produces correct serial output after first."
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1111"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1111"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

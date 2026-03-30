@@ -1,0 +1,325 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "add"
+      ],
+      "dependencies": [],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate ADD operation with zero operands.",
+      "notes": [],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000000",
+            "aluc": "6'b100000",
+            "b": "32'h00000000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000000",
+            "aluc": "6'b100000",
+            "b": "32'h00000000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "overflow"
+      ],
+      "dependencies": [],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate ADD overflow with maximum positive operands.",
+      "notes": [],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h7fffffff",
+            "aluc": "6'b100000",
+            "b": "32'h00000001"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h7fffffff",
+            "aluc": "6'b100000",
+            "b": "32'h00000001"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "shift"
+      ],
+      "dependencies": [],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate logical left shift with maximum shift amount.",
+      "notes": [],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000001",
+            "aluc": "6'b000000",
+            "b": "32'h0000001f"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000001",
+            "aluc": "6'b000000",
+            "b": "32'h0000001f"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "and"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFFFFFF",
+            "aluc": "6'b100100",
+            "b": "32'h0F0F0F0F"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFFFFFF",
+            "aluc": "6'b100100",
+            "b": "32'h0F0F0F0F"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "shift_amount"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000001",
+            "aluc": "6'b000010",
+            "b": "32'h00000000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000001",
+            "aluc": "6'b000010",
+            "b": "32'h00000000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

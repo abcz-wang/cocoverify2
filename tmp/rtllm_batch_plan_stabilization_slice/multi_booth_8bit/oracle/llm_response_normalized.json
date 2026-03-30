@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that the ready signal (rdy) is never asserted before the counter reaches 16 cycles.",
+          "notes": [],
+          "observed_signals": [
+            "rdy"
+          ],
+          "pass_condition": "rdy must remain 0 for any observation window where the internal counter (inferred) is less than 16 cycles after reset release.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a legal multiplication operation is started after reset."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that after a single multiplication operation the product output (p) eventually reflects the arithmetic result of a * b when rdy becomes 1.",
+          "notes": [],
+          "observed_signals": [
+            "p",
+            "rdy"
+          ],
+          "pass_condition": "When rdy transitions to 1, p must hold a value consistent with the 16-bit multiplication of the last driven a and b values; the exact cycle is not required.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After driving a and b for a legal operation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

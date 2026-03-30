@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: ensure wrap\u2011around behavior does not violate stability after reset.",
+          "notes": [],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "When Secs reaches 59 and wraps to 0, Mins must be 1 and Hours must remain unchanged; when both Mins and Secs wrap to 0, Hours must increment by 1 (mod 24). No X or Z values are permitted on these outputs during the observation window.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After observing Secs == 59 and a subsequent clock edge."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "Secs increments by 1 each clock cycle unless it is 59, in which case it wraps to 0 and Mins increments by 1. When Mins wraps from 59 to 0, Hours increments by 1 (mod 24). All outputs must remain defined (no X/Z) throughout the observation window.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "During the first 5 clock cycles after reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

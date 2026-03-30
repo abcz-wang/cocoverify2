@@ -1,0 +1,77 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Require observable output change after a legal operation.",
+          "notes": [
+            "Conservative functional check; no exact latency assumed."
+          ],
+          "observed_signals": [
+            "yout"
+          ],
+          "pass_condition": "yout eventually reflects a product value consistent with the provided ain and bin after start is asserted.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When start is asserted with valid ain and bin values."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guard against assuming fixed latency for edge case inputs.",
+          "notes": [
+            "Ensures that done is only considered a completion after a preceding start event; no fixed-cycle timing is required."
+          ],
+          "observed_signals": [
+            "done",
+            "start",
+            "yout"
+          ],
+          "pass_condition": "A done transition may be treated as completion only if a start event occurred earlier in the same scenario; yout may change but without fixed-cycle expectations.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When boundary-value patterns are applied to ain and bin."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: If the shift count register (i) is equal to 17, the multiplication completion flag (done_r) is reset to 0.",
+    "Reset polarity for 'start' is unresolved."
+  ]
+}

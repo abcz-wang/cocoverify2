@@ -1,0 +1,66 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "clk_div must resolve to a defined 0/1 value within a few clock cycles after reset deassertion.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "Within 10 cycles of reset release, clk_div is not X or Z.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 10,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "clk_div should exhibit toggling behavior over a conservative observation window, indicating clock generation.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "Within 20 cycles after reset release, clk_div changes state at least once.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 20,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset deassertion and during normal operation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

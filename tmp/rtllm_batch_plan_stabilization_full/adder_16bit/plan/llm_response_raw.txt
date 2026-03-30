@@ -1,0 +1,310 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back", "comb"],
+      "dependencies": [],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate that the combinational adder produces correct outputs for two successive input sets without intervening idle cycles.",
+      "notes": [],
+      "observed_signals": ["y", "Co"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0001",
+            "b": "16'h0002",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0001",
+            "b": "16'h0002",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h00FF",
+            "b": "16'h0001",
+            "Cin": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h00FF",
+            "b": "16'h0001",
+            "Cin": "1'b1"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "Cin"],
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle.",
+        "Do not infer internal state beyond combinational logic."
+      ]
+    },
+    {
+      "category": "regression",
+      "comparison_operands": [],
+      "coverage_tags": ["regression", "basic"],
+      "dependencies": [],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Re-run a basic operand combination to ensure consistent behavior across simulation runs.",
+      "notes": [],
+      "observed_signals": ["y", "Co"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h1234",
+            "b": "16'h4321",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h1234",
+            "b": "16'h4321",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "Cin"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": ["metamorphic", "edge"],
+      "dependencies": [],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Compare adder output for complementary inputs to verify arithmetic symmetry.",
+      "notes": [],
+      "observed_signals": ["y", "Co"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": ["operation_specific", "width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "16'h0000",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "16'h0000",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'hFFFF",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'hFFFF",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "Cin"],
+      "timing_assumptions": [
+        "Observe outputs after each input set stabilizes."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "16'h0001"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "16'h0001"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

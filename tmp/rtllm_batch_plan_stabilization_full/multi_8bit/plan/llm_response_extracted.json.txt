@@ -1,0 +1,279 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back"],
+      "dependencies": [],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "required",
+      "notes": [],
+      "observed_signals": ["product"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x12",
+            "B": "0x03"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "first product expected 0x36"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x05",
+            "B": "0x04"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "second product expected 0x14"
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": ["metamorphic"],
+      "dependencies": [],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "required",
+      "notes": [],
+      "observed_signals": ["product"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x0A",
+            "B": "0x07"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "product expected 0x46"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x07",
+            "B": "0x0A"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "product expected 0x46"
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe any externally visible progress without inventing unresolved stimulus semantics.",
+      "notes": [],
+      "observed_signals": ["product"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x01",
+            "B": "0x01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "product should be 0x0001"
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["edge"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [],
+      "observed_signals": ["product"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0xFF",
+            "B": "0x01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "product expected 0x00FF"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0x01",
+            "B": "0xFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "product expected 0x00FF"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0xFF",
+            "B": "0xFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "product expected 0xFE01"
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

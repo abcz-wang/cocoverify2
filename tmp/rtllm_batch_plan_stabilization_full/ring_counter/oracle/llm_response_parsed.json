@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "At any observable time, exactly one bit of out is high (single-hot property).",
+          "notes": [
+            "Ensures ring counter maintains one-hot encoding."
+          ],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The number of bits set to '1' in out is always 1; any deviation fails the property.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Continuously monitor out after reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that out progresses to a different one-hot state after a clock edge.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "After a clock rising edge, out changes to a different one-hot pattern; no requirement on exact cycle count.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a clock rising edge occurs following reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

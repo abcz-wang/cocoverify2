@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that Q never takes an undefined (X) value after reset release, regardless of latency.",
+          "notes": [
+            "Conservative guardrail; timing unknown, so no cycle bound."
+          ],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "Q remains 0 or a defined 64-bit value (no X or Z) for all observed cycles post-reset.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is deasserted and the design is clocked."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that Q exhibits the Johnson counter progression pattern without assuming exact cycle counts.",
+          "notes": [
+            "Pattern observed over multiple cycles; exact latency not required."
+          ],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "Sequence of Q values matches the Johnson sequence (e.g., 0x0, then a series where bits shift and invert) over successive clock edges.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After reset release, on each rising edge of clk."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

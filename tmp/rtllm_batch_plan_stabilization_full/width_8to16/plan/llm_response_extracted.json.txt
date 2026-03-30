@@ -1,0 +1,389 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": ["operation_specific"],
+      "dependencies": ["reset_001"],
+      "draft_id": "proto_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate that valid_out is asserted only after two consecutive valid_in cycles, reflecting the concatenation behavior.",
+      "notes": [],
+      "observed_signals": ["valid_out", "data_out"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'hAA"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h55"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect valid_out=1'b1 and data_out=16'hAA55 in the following cycle."
+        }
+      ],
+      "stimulus_signals": ["valid_in", "data_in"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": ["invalid_illegal_input"],
+      "dependencies": ["reset_001"],
+      "draft_id": "negative_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Confirm that when valid_in is deasserted, no output is generated even if data_in changes.",
+      "notes": [],
+      "observed_signals": ["valid_out", "data_out"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0",
+            "data_in": "8'hFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect valid_out remains 0 and data_out unchanged."
+        }
+      ],
+      "stimulus_signals": ["valid_in", "data_in"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back", "operation_specific"],
+      "dependencies": ["basic_001"],
+      "draft_id": "back_to_back_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise two back-to-back concatenations to verify pipeline behavior under consecutive valid inputs.",
+      "notes": [],
+      "observed_signals": ["valid_out", "data_out"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h11"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h22"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h33"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h44"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect two valid_out pulses with data_out=0x1122 then 0x3344."
+        }
+      ],
+      "stimulus_signals": ["valid_in", "data_in"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": ["metamorphic"],
+      "dependencies": ["reset_001"],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Swap order of two input bytes and verify that output reflects swapped concatenation, demonstrating metamorphic relation.",
+      "notes": [],
+      "observed_signals": ["valid_out", "data_out"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h12"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h34"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect data_out=0x1234."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h34"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h12"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect data_out=0x3412, confirming swapped order."
+        }
+      ],
+      "stimulus_signals": ["valid_in", "data_in"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h0A"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Basic operation: single valid input followed by second to produce output."
+        }
+      ],
+      "stimulus_signals": ["valid_in", "data_in"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'h00"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b1",
+            "data_in": "8'hFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Edge case: concatenation of min and max values should yield 0x00FF."
+        }
+      ],
+      "stimulus_signals": ["valid_in", "data_in"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,90 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that a rising edge on input 'a' results in exactly one cycle where 'rise' is asserted after the clock edge, without assuming a fixed latency beyond the next clock.",
+          "notes": [],
+          "observed_signals": [
+            "rise"
+          ],
+          "pass_condition": "After a transition of 'a' from 0 to 1, 'rise' becomes 1 on the next rising clock edge and returns to 0 before any subsequent 'a' change.",
+          "semantic_tags": [
+            "edge",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a 0\u21921 transition on 'a' is detected."
+        },
+        {
+          "check_type": "property",
+          "description": "Ensure that a falling edge on input 'a' results in exactly one cycle where 'down' is asserted after the clock edge, without assuming a fixed latency beyond the next clock.",
+          "notes": [],
+          "observed_signals": [
+            "down"
+          ],
+          "pass_condition": "After a transition of 'a' from 1 to 0, 'down' becomes 1 on the next rising clock edge and returns to 0 before any subsequent 'a' change.",
+          "semantic_tags": [
+            "edge",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a 1\u21920 transition on 'a' is detected."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "rise",
+            "down"
+          ],
+          "pass_condition": "After each stimulus, at least one of the output signals reflects the expected edge indication within a conservative observation window.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 stimulus program drives changes on 'a'."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

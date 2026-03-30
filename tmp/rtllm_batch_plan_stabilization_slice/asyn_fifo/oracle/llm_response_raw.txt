@@ -1,0 +1,96 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Conservative guardrail: output rdata must not exhibit undefined transitions when no read enable is asserted.",
+          "notes": [],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "If renc is low, rdata may remain unchanged or transition to unknown/high-impedance, but must not toggle between defined values without a read operation.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever a stimulus case executes without asserting renc."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "After a write operation (wenc=1) followed by a read enable (renc=1) on the next appropriate clock edge, rdata reflects the written wdata value or remains unknown if timing cannot be guaranteed.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the basic_001 case drives a legal write followed by a read."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "Boundary address values (all zeros and all ones) must not cause illegal rdata behavior; rdata may be unknown but must not cause simulation errors.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When edge_001 case applies extreme address patterns."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

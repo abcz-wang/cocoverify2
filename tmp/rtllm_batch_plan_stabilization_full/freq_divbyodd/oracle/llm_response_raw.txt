@@ -1,0 +1,70 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Require that clk_div exhibits at least one transition within a bounded observation window after reset release, preserving ambiguity about exact latency.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div changes value (0→1 or 1→0) at least once within the defined temporal window.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 10,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted (rst_n high) after being asserted."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that clk_div eventually toggles after operation, indicating progress without assuming a fixed latency.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div transitions at least once, showing externally visible state progress.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 10,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset release and a conservative number of clock cycles."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Golden interface described clock 'clk_div', but the RTL port is not a scalar input-like signal.",
+    "Reset polarity for 'clk' is unresolved."
+  ]
+}

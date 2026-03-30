@@ -1,0 +1,155 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": ["protocol", "fsm_transition"],
+      "dependencies": ["reset_001"],
+      "draft_id": "proto_001",
+      "expected_properties": ["valid_out asserted for one cycle per loaded word", "dout outputs bits MSB to LSB over four cycles"],
+      "expected_transition": "",
+      "goal": "Verify that a full parallel word load triggers a valid_out pulse and serializes the data correctly over four clock cycles.",
+      "notes": [],
+      "observed_signals": ["valid_out", "dout"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": ["reset_module", "load_parallel_word", "observe_serialization"],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Apply active low reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1100"
+          },
+          "text": "Load parallel data 1100"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Allow serialization of four bits"
+        }
+      ],
+      "stimulus_signals": ["rst_n", "d"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity"],
+      "expected_properties": ["valid_out asserted after loading", "dout outputs MSB of d first"],
+      "expected_transition": "",
+      "goal": "Apply a single legal parallel word and verify the first serial output.",
+      "notes": [],
+      "observed_signals": ["valid_out", "dout"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": ["apply_one_parallel_word"],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1010"
+          },
+          "text": "Load parallel data 1010"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow internal registers to settle"
+        }
+      ],
+      "stimulus_signals": ["d"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "boundary"],
+      "expected_properties": ["valid_out behavior unchanged for min/max vectors", "dout correctly serializes extreme patterns"],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value parallel inputs (all zeros and all ones).",
+      "notes": [],
+      "observed_signals": ["valid_out", "dout"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": ["apply_min_vector", "apply_max_vector"],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0000"
+          },
+          "text": "Load all-zero parallel data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Serialize zeros"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1111"
+          },
+          "text": "Load all-one parallel data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Serialize ones"
+        }
+      ],
+      "stimulus_signals": ["d"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

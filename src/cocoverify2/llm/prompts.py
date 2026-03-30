@@ -8,7 +8,9 @@ from typing import Any
 from cocoverify2.core.models import DUTContract, LLMTodoBlock, OracleCase, OracleCheck, OracleSpec, TestCasePlan, TestPlan
 
 _MAX_SPEC_CHARS = 12000
+_MAX_PLAN_SPEC_CHARS = 2500
 _MAX_TASK_CHARS = 4000
+_MAX_PLAN_TASK_CHARS = 2000
 _MAX_FILE_CONTEXT_CHARS = 6000
 
 
@@ -22,6 +24,8 @@ def build_plan_system_prompt() -> str:
         "Always keep baseline basic and edge coverage intact; enrich or add cases without deleting baseline coverage. "
         "Follow the schema exactly. In additional_cases, use 'draft_id' and never emit 'case_id'. "
         "Do not emit confidence, source, or other bookkeeping fields. "
+        "In additional_cases, 'category' is a coarse enum only: reset, basic, edge, protocol, back_to_back, negative, regression, metamorphic. "
+        "Put richer subtype information into 'scenario_kind', not into 'category'. "
         "Inside stimulus_program, drive and record_inputs steps must use only concrete deterministic literals: bools, integers, 0x-style literals, or Verilog numeric literals such as 16'h1234. "
         "Never emit placeholders like rand64, random, arbitrary, any_value, or symbolic generator tokens."
     )
@@ -36,62 +40,73 @@ def build_plan_user_prompt(
 ) -> str:
     """Build the Phase 2 augmentation prompt."""
     payload = {
-        "task_description": _trim_text(task_description, _MAX_TASK_CHARS),
-        "spec_text": _trim_text(spec_text, _MAX_SPEC_CHARS),
-        "contract": _compact_contract(contract),
-        "baseline_plan": baseline_plan.model_dump(mode="json"),
+        "task_description": _trim_text(task_description, _MAX_PLAN_TASK_CHARS),
+        "spec_text": _compact_plan_spec_text(spec_text),
+        "contract": _compact_contract_for_plan(contract),
+        "baseline_plan_summary": {
+            "module_name": baseline_plan.module_name,
+            "plan_strategy": baseline_plan.plan_strategy,
+            "plan_confidence": baseline_plan.plan_confidence,
+            "case_count": len(baseline_plan.cases),
+            "categories": sorted({str(case.category) for case in baseline_plan.cases}),
+            "unresolved_items": baseline_plan.unresolved_items[:8],
+        },
+        "baseline_plan_cases": _compact_plan_cases(baseline_plan),
         "requirements": {
             "must_preserve_categories": ["basic", "edge"],
+            "coarse_category_enum": [
+                "reset",
+                "basic",
+                "edge",
+                "protocol",
+                "back_to_back",
+                "negative",
+                "regression",
+                "metamorphic",
+            ],
             "semantic_tag_examples": [
                 "operation_specific",
                 "invalid_illegal_input",
                 "width_sensitive",
                 "ambiguity_preserving",
             ],
+            "category_vs_scenario_examples": [
+                {
+                    "category": "basic",
+                    "scenario_kind": "write_then_readback",
+                    "goal": "Write then read back while keeping a coarse basic category.",
+                },
+                {
+                    "category": "protocol",
+                    "scenario_kind": "fsm_transition_path",
+                    "goal": "Exercise a transition-path protocol scenario while keeping category protocol.",
+                },
+            ],
             "allowed_actions": {
-                "baseline_case_enrichments": [
-                    "goal",
-                    "stimulus_intent",
-                    "timing_assumptions",
-                    "observed_signals",
-                    "stimulus_signals",
-                    "expected_properties",
-                    "coverage_tags",
-                    "semantic_tags",
-                        "scenario_kind",
-                        "stimulus_program",
-                        "settle_requirement",
-                        "comparison_operands",
-                        "relation_kind",
-                        "expected_transition",
-                        "reference_domain",
-                    "notes",
-                    "priority",
-                ],
+                "baseline_case_enrichments": "Append or refine only the documented case fields; never change case_id/category/dependencies.",
                 "additional_cases": "coarse category only; use semantic_tags for richer subtypes",
             },
-                "structured_scenarios": {
-                    "scenario_kind_allowed": [
-                        "single_operation",
-                        "boundary_vector",
-                        "write_then_readback",
-                        "fsm_transition_path",
-                        "protocol_acceptance",
-                        "backpressure_wait",
-                        "back_to_back_pair",
-                        "metamorphic_pair",
-                        "reference_model_lite",
-                    ],
-                    "stimulus_program_rules": [
-                        "Use ordered structured steps only: drive, wait_for_settle, wait_cycles, record_inputs, record_note.",
-                        "Never emit cocotb/Python code in stimulus_program.",
-                        "Drive only known input signals from contract ports.",
-                        "Drive-step values must be concrete deterministic literals only: bools, integers, 0x-style literals, or Verilog numeric literals.",
-                        "Never emit placeholders such as rand64, random, arbitrary, any_value, or symbolic generator tokens.",
-                        "record_inputs is only for capturing already-applied input signal values; never include outputs or observation-only signals there.",
-                        "For edge/back_to_back/protocol/fsm/metamorphic/reference-like cases, stimulus_program must reflect the case label.",
-                    ],
-                },
+            "structured_scenarios": {
+                "scenario_kind_allowed": [
+                    "single_operation",
+                    "boundary_vector",
+                    "write_then_readback",
+                    "fsm_transition_path",
+                    "protocol_acceptance",
+                    "backpressure_wait",
+                    "back_to_back_pair",
+                    "metamorphic_pair",
+                    "reference_model_lite",
+                ],
+                "stimulus_program_rules": [
+                    "Use only structured steps: drive, wait_for_settle, wait_cycles, record_inputs, record_note.",
+                    "Drive only known input signals.",
+                    "Drive values and cycles must be concrete deterministic literals or integers.",
+                    "Never emit placeholders such as rand64, random, arbitrary, any_value, or symbolic generator tokens.",
+                    "cycles fields must be concrete JSON integers, never arithmetic expressions.",
+                    "record_inputs captures only already-applied input signal values, never outputs.",
+                ],
+            },
             "forbidden": [
                 "inventing unknown signals",
                 "removing baseline cases",
@@ -105,62 +120,48 @@ def build_plan_user_prompt(
             "baseline_case_enrichments": [
                 {
                     "case_id": "basic_001",
-                    "goal": "optional string",
-                    "stimulus_intent": ["optional strings"],
-                    "timing_assumptions": ["optional strings"],
-                    "observed_signals": ["known signals only"],
-                    "stimulus_signals": ["known input signals only"],
-                    "expected_properties": ["optional strings"],
-                    "coverage_tags": ["optional strings"],
-                    "semantic_tags": ["snake_case tags"],
-                    "scenario_kind": "single_operation|boundary_vector|write_then_readback|fsm_transition_path|protocol_acceptance|backpressure_wait|back_to_back_pair|metamorphic_pair|reference_model_lite",
-                    "stimulus_program": [
-                        {
-                            "action": "drive|wait_for_settle|wait_cycles|record_inputs|record_note",
-                            "signals": {"known_input": "16'h0001"},
-                            "cycles": 1,
-                            "text": "optional note"
-                        }
-                    ],
-                    "settle_requirement": "optional string",
-                    "comparison_operands": ["optional strings"],
-                    "relation_kind": "optional string",
-                    "expected_transition": "optional string",
-                    "reference_domain": "optional string",
-                    "notes": ["optional strings"],
-                    "priority": 1,
+                    "goal": "",
+                    "stimulus_intent": [],
+                    "timing_assumptions": [],
+                    "observed_signals": [],
+                    "stimulus_signals": [],
+                    "expected_properties": [],
+                    "coverage_tags": [],
+                    "semantic_tags": [],
+                    "scenario_kind": "<scenario_kind_allowed>",
+                    "stimulus_program": [{"action": "drive|wait_for_settle|wait_cycles|record_inputs|record_note", "signals": {"known_input": "0x1"}, "cycles": 1, "text": ""}],
+                    "settle_requirement": "",
+                    "comparison_operands": [],
+                    "relation_kind": "",
+                    "expected_transition": "",
+                    "reference_domain": "",
+                    "notes": [],
+                    "priority": 1
                 }
             ],
             "additional_cases": [
                 {
                     "draft_id": "new_case_001",
-                    "category": "basic|edge|protocol|back_to_back|negative|regression|metamorphic",
+                    "category": "<coarse_category_enum>",
                     "goal": "required",
                     "preconditions": [],
-                    "stimulus_intent": ["required list"],
-                    "stimulus_signals": ["known inputs only"],
-                    "expected_properties": ["required list"],
-                    "observed_signals": ["known signals only"],
+                    "stimulus_intent": [],
+                    "stimulus_signals": [],
+                    "expected_properties": [],
+                    "observed_signals": [],
                     "timing_assumptions": [],
-                    "dependencies": ["baseline case_id or another draft_id"],
+                    "dependencies": [],
                     "coverage_tags": [],
                     "semantic_tags": [],
-                    "scenario_kind": "single_operation|boundary_vector|write_then_readback|fsm_transition_path|protocol_acceptance|backpressure_wait|back_to_back_pair|metamorphic_pair|reference_model_lite",
-                    "stimulus_program": [
-                        {
-                            "action": "drive|wait_for_settle|wait_cycles|record_inputs|record_note",
-                            "signals": {"known_input": "0x1"},
-                            "cycles": 1,
-                            "text": "optional note"
-                        }
-                    ],
-                    "settle_requirement": "optional string",
+                    "scenario_kind": "<scenario_kind_allowed>",
+                    "stimulus_program": [{"action": "drive|wait_for_settle|wait_cycles|record_inputs|record_note", "signals": {"known_input": "0x1"}, "cycles": 1, "text": ""}],
+                    "settle_requirement": "",
                     "comparison_operands": [],
-                    "relation_kind": "optional string",
-                    "expected_transition": "optional string",
-                    "reference_domain": "optional string",
+                    "relation_kind": "",
+                    "expected_transition": "",
+                    "reference_domain": "",
                     "notes": [],
-                    "priority": 5,
+                    "priority": 5
                 }
             ],
             "assumptions": [],
@@ -168,7 +169,7 @@ def build_plan_user_prompt(
             "planning_notes": [],
         },
     }
-    return json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=True)
+    return json.dumps(payload, separators=(",", ":"), sort_keys=True, ensure_ascii=True)
 
 
 def build_oracle_system_prompt() -> str:
@@ -274,6 +275,70 @@ def _compact_contract(contract: DUTContract) -> dict[str, Any]:
         "ambiguities": list(contract.ambiguities),
         "contract_confidence": contract.contract_confidence,
     }
+
+
+def _compact_contract_for_plan(contract: DUTContract) -> dict[str, Any]:
+    return {
+        "module_name": contract.module_name,
+        "ports": [
+            {
+                "name": port.name,
+                "direction": str(port.direction),
+                "width": port.width,
+            }
+            for port in contract.ports
+        ],
+        "clocks": [clock.name for clock in contract.clocks],
+        "resets": [
+            {
+                "name": reset.name,
+                "active_level": reset.active_level,
+            }
+            for reset in contract.resets
+        ],
+        "handshake_groups": [
+            {
+                "group_name": group.group_name,
+                "pattern": group.pattern,
+                "signals": group.signals,
+            }
+            for group in contract.handshake_groups
+        ],
+        "observable_outputs": list(contract.observable_outputs),
+        "handshake_signals": list(contract.handshake_signals),
+        "timing": {
+            "sequential_kind": str(contract.timing.sequential_kind),
+            "latency_model": str(contract.timing.latency_model),
+            "confidence": contract.timing.confidence,
+        },
+        "contract_confidence": contract.contract_confidence,
+        "ambiguities": list(contract.ambiguities[:8]),
+        "assumptions": list(contract.assumptions[:6]),
+    }
+
+
+def _compact_plan_cases(plan: TestPlan) -> list[dict[str, Any]]:
+    return [
+        {
+            "case_id": case.case_id,
+            "category": str(case.category),
+            "goal": case.goal,
+            "stimulus_signals": list(case.stimulus_signals),
+            "observed_signals": list(case.observed_signals),
+            "execution_policy": case.execution_policy,
+            "scenario_kind": case.scenario_kind,
+            "settle_requirement": case.settle_requirement,
+            "timing_assumptions": list(case.timing_assumptions[:3]),
+            "dependencies": list(case.dependencies),
+            "coverage_tags": list(case.coverage_tags),
+            "semantic_tags": list(case.semantic_tags),
+        }
+        for case in plan.cases
+    ]
+
+
+def _compact_plan_spec_text(spec_text: str | None) -> str:
+    return _trim_text(spec_text, _MAX_PLAN_SPEC_CHARS)
 
 
 def _trim_text(text: str | None, limit: int) -> str:

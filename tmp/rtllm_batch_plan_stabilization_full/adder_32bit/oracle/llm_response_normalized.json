@@ -1,0 +1,94 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that the sum output S matches the lower 32 bits of the arithmetic sum of inputs A and B after inputs stabilize.",
+          "notes": [],
+          "observed_signals": [
+            "A",
+            "B",
+            "S"
+          ],
+          "pass_condition": "S equals (A + B) modulo 2^32 when inputs are stable.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When inputs A and B have been held stable for at least one cycle."
+        },
+        {
+          "check_type": "functional",
+          "description": "Verify that the carry-out C32 reflects the overflow of the 32-bit addition of A and B.",
+          "notes": [],
+          "observed_signals": [
+            "A",
+            "B",
+            "C32"
+          ],
+          "pass_condition": "C32 equals 1 if (A + B) exceeds 32-bit range, otherwise 0, after inputs stabilize.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When inputs A and B have been held stable for at least one cycle."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: outputs must not change spontaneously when inputs remain stable.",
+          "notes": [],
+          "observed_signals": [
+            "S",
+            "C32"
+          ],
+          "pass_condition": "If A and B do not change, S and C32 remain constant across cycles.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever inputs A and B are observed stable for a cycle."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

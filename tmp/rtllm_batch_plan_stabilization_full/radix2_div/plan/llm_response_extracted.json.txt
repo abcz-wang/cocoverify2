@@ -1,0 +1,420 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset", "initialization"],
+      "dependencies": [],
+      "draft_id": "new_reset_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate that the module returns to a known idle state after reset deassertion.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "rst": "1'b1"
+          },
+          "text": "Assert reset for two cycles."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b0"
+          },
+          "text": "Deassert reset."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow internal registers to settle after reset."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b0"
+          },
+          "text": "Capture post‑reset input state."
+        }
+      ],
+      "stimulus_signals": ["rst"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": ["protocol", "valid_ready", "acceptance"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_protocol_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise a single valid operation handshake with ready asserted.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "protocol_acceptance",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'hA5",
+            "divisor": "8'h05",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Present a valid unsigned division request."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One cycle latency before result may appear."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'hA5",
+            "divisor": "8'h05",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Capture the inputs that were driven."
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back", "repeated_operation"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_back_to_back_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate correct handling of two consecutive division requests without idle cycles.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h12",
+            "divisor": "8'h03",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "First division request."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow pipeline to accept first request."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h7F",
+            "divisor": "8'h0F",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Second division request issued immediately after first."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after second request."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h7F",
+            "divisor": "8'h0F",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Capture inputs of the second request."
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "boundary", "width_sensitive"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_edge_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise divisor zero edge case to observe module's handling of illegal input.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'hFF",
+            "divisor": "8'h00",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Provide maximum dividend with divisor zero."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow module to react to illegal divisor."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'hFF",
+            "divisor": "8'h00",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Capture the illegal input vector."
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": ["negative", "signed_operation"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_negative_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate signed division with a negative dividend.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h80",
+            "divisor": "8'h01",
+            "sign": "1'b1",
+            "res_ready": "1'b1"
+          },
+          "text": "Signed division where dividend is most negative value."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow result to become valid."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h80",
+            "divisor": "8'h01",
+            "sign": "1'b1",
+            "res_ready": "1'b1"
+          },
+          "text": "Capture signed operation inputs."
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity", "seq"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h2A",
+            "divisor": "8'h04",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Basic legal division request."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Conservative settle after request."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h2A",
+            "divisor": "8'h04",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Capture inputs for basic case."
+        }
+      ],
+      "stimulus_signals": ["dividend", "divisor", "sign", "opn_valid", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "boundary"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'hFF",
+            "divisor": "8'h01",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Maximum dividend with minimum divisor."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after edge inputs."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'hFF",
+            "divisor": "8'h01",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": "Capture edge case inputs."
+        }
+      ],
+      "stimulus_signals": ["dividend", "divisor", "opn_valid", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,67 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "clk must not assume unknown (X) or high-impedance (Z) values during observation",
+          "notes": [],
+          "observed_signals": [
+            "clk"
+          ],
+          "pass_condition": "All sampled values of clk are either 0 or 1",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "externally_visible_progress",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever the linked plan case is executed"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Record clk value after a short safe window to confirm toggling behavior without fixed-cycle expectation",
+          "notes": [],
+          "observed_signals": [
+            "clk"
+          ],
+          "pass_condition": "clk value observed after at least one toggle (change) from initial state",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After executing the stimulus program of basic_001"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

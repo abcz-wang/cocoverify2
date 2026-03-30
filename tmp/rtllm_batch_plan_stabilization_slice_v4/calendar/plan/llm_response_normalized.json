@@ -1,0 +1,429 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "seconds_wrap"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_seconds_wrap",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that Secs wraps from 59 back to 0 after 60 clock cycles post\u2011reset.",
+      "notes": [],
+      "observed_signals": [
+        "Secs"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 60,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Check that Secs == 0 after wrap."
+        }
+      ],
+      "stimulus_signals": [
+        "RST",
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation; no exact\u2011cycle timing guarantee."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "minutes_wrap"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_minutes_wrap",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that Mins increments when Secs wraps from 59 to 0 and that Mins wraps from 59 back to 0 after 60 minute cycles.",
+      "notes": [],
+      "observed_signals": [
+        "Mins"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 60,
+          "signals": {},
+          "text": "First minute increment (Secs wraps)."
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Mins should be 1."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3540,
+          "signals": {},
+          "text": "Complete remaining 59 minute cycles (60*60 - 60)."
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Mins should be 0 after wrap."
+        }
+      ],
+      "stimulus_signals": [
+        "RST",
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "hours_wrap"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_hours_wrap",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that Hours increments after a full day (24\u202f\u00d7\u202f60\u202f\u00d7\u202f60 cycles) and wraps from 23 back to 0.",
+      "notes": [],
+      "observed_signals": [
+        "Hours"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 86400,
+          "signals": {},
+          "text": "One full day of clock cycles."
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Hours should be 0 after wrap."
+        }
+      ],
+      "stimulus_signals": [
+        "RST",
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "consecutive_resets"
+      ],
+      "dependencies": [],
+      "draft_id": "back_to_back_resets",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Confirm that two consecutive active\u2011high resets bring the calendar back to the same zero state.",
+      "notes": [],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": "First reset assert"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": "First reset deassert"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Allow state to settle"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "State after first reset should be 0/0/0."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": "Second reset assert"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": "Second reset deassert"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Allow state to settle"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "State after second reset should also be 0/0/0."
+        }
+      ],
+      "stimulus_signals": [
+        "RST",
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset_inactive"
+      ],
+      "dependencies": [],
+      "draft_id": "negative_reset_inactive",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Ensure that when RST is held low, the calendar continues normal counting without spurious resets.",
+      "notes": [],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": "Assert RST low (inactive)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "Observe normal counting"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "No unexpected reset behavior observed."
+        }
+      ],
+      "stimulus_signals": [
+        "RST",
+        "CLK"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Observe Hours, Mins, Secs progression after reset."
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

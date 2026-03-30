@@ -1,0 +1,617 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "toggle",
+        "CLK_50"
+      ],
+      "dependencies": [],
+      "draft_id": "edge_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify CLK_50 toggles each clock cycle after reset.",
+      "notes": [
+        "After deasserting reset, CLK_50 should invert every positive edge of CLK_in."
+      ],
+      "observed_signals": [
+        "CLK_50"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "CLK_50 should have toggled 5 times."
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": []
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "toggle",
+        "CLK_10"
+      ],
+      "dependencies": [],
+      "draft_id": "edge_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify CLK_10 toggles after five input cycles post‑reset.",
+      "notes": [
+        "CLK_10 toggles when cnt_10 reaches 4, i.e., every 5 cycles."
+      ],
+      "observed_signals": [
+        "CLK_10"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "CLK_10 should have toggled once."
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": []
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "toggle",
+        "CLK_1"
+      ],
+      "dependencies": [],
+      "draft_id": "edge_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify CLK_1 toggles after fifty input cycles post‑reset.",
+      "notes": [
+        "CLK_1 toggles when cnt_100 reaches 49, i.e., every 50 cycles."
+      ],
+      "observed_signals": [
+        "CLK_1"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 50,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "CLK_1 should have toggled once."
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": []
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset_behavior"
+      ],
+      "dependencies": [],
+      "draft_id": "protocol_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Confirm that reset clears all counters and forces outputs low.",
+      "notes": [
+        "During active reset, all output clocks must be 0."
+      ],
+      "observed_signals": [
+        "CLK_50",
+        "CLK_10",
+        "CLK_1"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "All CLK_* outputs should be 0 after reset deassertion."
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": []
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset_back_to_back"
+      ],
+      "dependencies": [],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise two consecutive resets with minimal gap.",
+      "notes": [
+        "Ensures the design can handle back‑to‑back reset assertions."
+      ],
+      "observed_signals": [
+        "CLK_50",
+        "CLK_10",
+        "CLK_1"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Outputs should be low after each reset deassertion."
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": []
+    },
+    {
+      "category": "regression",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic_extended"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "regression_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Re‑run basic observation over a longer horizon to catch latent issues.",
+      "notes": [],
+      "observed_signals": [
+        "CLK_50",
+        "CLK_10",
+        "CLK_1"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 100,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Observe stable periodic behavior over 100 cycles."
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": []
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reference_model_lite"
+      ],
+      "dependencies": [],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Compare two runs with different reset deassertion times for consistent output periods.",
+      "notes": [],
+      "observed_signals": [
+        "CLK_50",
+        "CLK_10",
+        "CLK_1"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": "Run A: reset asserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": "Run A: reset deasserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 60,
+          "signals": {},
+          "text": "Run A: observe"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Run A complete."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": "Run B: reset asserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": "Run B: reset deasserted after longer hold"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 60,
+          "signals": {},
+          "text": "Run B: observe"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Run B complete. Verify periods match Run A."
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": []
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe clock-driven state progress after reset with extended observation.",
+      "notes": [],
+      "observed_signals": [
+        "CLK_50",
+        "CLK_10",
+        "CLK_1"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Observe outputs over 20 cycles."
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": []
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

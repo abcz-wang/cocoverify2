@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When valid_out is asserted, dout must correspond to one of the bits of the most recent parallel input within a bounded number of cycles.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "dout",
+            "d"
+          ],
+          "pass_condition": "If valid_out becomes 1, then within 5 cycles dout must equal the MSB of the last loaded d value, and subsequent cycles must output the remaining bits in order, without requiring exact-cycle alignment.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "valid_out_asserted",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When valid_out transitions from 0 to 1"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "pass_condition": "After a legal input d is presented, eventually valid_out becomes 1 and dout reflects the MSB of d, then continues to output the remaining bits.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When d changes"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

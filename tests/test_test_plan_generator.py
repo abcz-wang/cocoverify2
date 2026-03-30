@@ -9,8 +9,9 @@ import sys
 from pathlib import Path
 
 from cocoverify2.core.config import LLMConfig
-from cocoverify2.core.models import DUTContract, PortSpec, TimingSpec
+from cocoverify2.core.models import DUTContract, PortSpec, TestCasePlan, TestPlan, TimingSpec
 from cocoverify2.core.types import GenerationMode, PortDirection, SequentialKind
+from cocoverify2.llm.prompts import build_plan_user_prompt
 from cocoverify2.stages.contract_extractor import ContractExtractor
 from cocoverify2.stages.test_plan_generator import TestPlanGenerator
 
@@ -328,6 +329,120 @@ def test_hybrid_plan_drops_nondeterministic_stimulus_placeholders(tmp_path: Path
     assert any("stimulus_program_warnings" in item for item in warnings)
 
 
+def test_hybrid_plan_repairs_misslotted_category_into_scenario_kind(tmp_path: Path) -> None:
+    _, contract_path = _extract_contract(tmp_path, "simple_comb.v")
+    llm_response = json.dumps(
+        {
+            "baseline_case_enrichments": [],
+            "additional_cases": [
+                {
+                    "draft_id": "extra_001",
+                    "category": "write_then_readback",
+                    "goal": "Write then read back conservatively.",
+                    "preconditions": [],
+                    "stimulus_intent": ["Drive one value and observe a readback."],
+                    "stimulus_signals": ["a", "b"],
+                    "expected_properties": ["Observe external consistency only."],
+                    "observed_signals": ["y"],
+                    "timing_assumptions": [],
+                    "dependencies": ["basic_001"],
+                    "coverage_tags": ["functional"],
+                    "semantic_tags": ["operation_specific"],
+                    "notes": [],
+                    "priority": 4,
+                }
+            ],
+            "assumptions": [],
+            "unresolved_items": [],
+            "planning_notes": [],
+        }
+    )
+    generator = TestPlanGenerator(llm_client=_StaticLLMClient(llm_response))
+    plan = generator.run_from_artifact(
+        contract_path=contract_path,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        generation_mode=GenerationMode.HYBRID,
+        llm_config=LLMConfig(),
+    )
+
+    added_case = next(case for case in plan.cases if case.case_id == "basic_002")
+    assert added_case.category == "basic"
+    assert added_case.scenario_kind == "write_then_readback"
+    merge_report = json.loads((tmp_path / "plan" / "llm_merge_report.json").read_text(encoding="utf-8"))
+    repairs = merge_report["validation_report"]["normalization_report"]["semantic_repairs"]
+    assert any(item["repair"] == "moved_invalid_category_to_scenario_kind" for item in repairs)
+
+
+def test_hybrid_plan_repairs_calendar_style_numeric_expression_json(tmp_path: Path) -> None:
+    _, contract_path = _extract_contract(tmp_path, "simple_seq.v")
+    llm_response = """
+    {
+      "baseline_case_enrichments": [
+        {
+          "case_id": "reset_001",
+          "stimulus_program": [
+            {"action": "wait_cycles", "cycles": (23 * 60 * 60) - 1,}
+          ]
+        }
+      ],
+      "additional_cases": [],
+    }
+    """
+    generator = TestPlanGenerator(llm_client=_StaticLLMClient(llm_response))
+    plan = generator.run_from_artifact(
+        contract_path=contract_path,
+        task_description=None,
+        spec_text="calendar style reset sequencing",
+        out_dir=tmp_path,
+        generation_mode=GenerationMode.HYBRID,
+        llm_config=LLMConfig(),
+    )
+
+    reset_case = next(case for case in plan.cases if case.case_id == "reset_001")
+    assert reset_case.stimulus_program == [{"action": "wait_cycles", "cycles": 82799}]
+    merge_report = json.loads((tmp_path / "plan" / "llm_merge_report.json").read_text(encoding="utf-8"))
+    assert merge_report["status"] == "merged"
+    assert merge_report["repaired_response_applied"] is True
+    assert (tmp_path / "plan" / "llm_response_extracted.json.txt").exists()
+    assert (tmp_path / "plan" / "llm_response_repaired.json.txt").exists()
+
+
+def test_build_plan_user_prompt_uses_compact_context() -> None:
+    plan = _demo_prompt_plan()
+    contract = _demo_prompt_contract()
+
+    payload = json.loads(
+        build_plan_user_prompt(
+            contract=contract,
+            baseline_plan=plan,
+            task_description="Demo task",
+            spec_text="Spec text " * 1000,
+        )
+    )
+
+    assert "baseline_plan" not in payload
+    assert "baseline_plan_cases" in payload
+    assert "baseline_plan_summary" in payload
+    assert "coarse_category_enum" in payload["requirements"]
+    assert len(payload["spec_text"]) <= 5014
+    assert set(payload["baseline_plan_cases"][0].keys()) <= {
+        "case_id",
+        "category",
+        "goal",
+        "stimulus_signals",
+        "observed_signals",
+        "execution_policy",
+        "scenario_kind",
+        "settle_requirement",
+        "timing_assumptions",
+        "dependencies",
+        "coverage_tags",
+        "semantic_tags",
+    }
+
+
 def test_seq_without_business_inputs_keeps_clock_driven_basic_case_deterministic(tmp_path: Path) -> None:
     contract = DUTContract(
         module_name="counter_like",
@@ -381,3 +496,46 @@ def test_stage_plan_cli_smoke(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
     assert "Test plan generated for module 'simple_comb'" in result.stdout
     assert (tmp_path / "cli_plan" / "plan" / "test_plan.json").exists()
+
+
+def _demo_prompt_contract() -> DUTContract:
+    return DUTContract(
+        module_name="prompt_demo",
+        ports=[
+            PortSpec(name="a", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="b", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="y", direction=PortDirection.OUTPUT, width=8),
+        ],
+        observable_outputs=["y"],
+        contract_confidence=0.8,
+        timing=TimingSpec(sequential_kind=SequentialKind.COMB, latency_model="fixed", confidence=0.9),
+    )
+
+
+def _demo_prompt_plan():
+    return TestPlan(
+        module_name="prompt_demo",
+        based_on_contract="contract.json",
+        plan_strategy="rule_based_conservative",
+        cases=[
+            TestCasePlan(
+                case_id="basic_001",
+                goal="Exercise a simple deterministic combination.",
+                category="basic",
+                stimulus_intent=["Drive a legal pattern."],
+                stimulus_signals=["a", "b"],
+                expected_properties=["Observe y."],
+                observed_signals=["y"],
+                timing_assumptions=["Allow combinational settle."],
+                execution_policy="deterministic",
+                scenario_kind="single_operation",
+                coverage_tags=["basic"],
+                semantic_tags=["operation_specific"],
+                confidence=0.7,
+                source="rule_based",
+            )
+        ],
+        unresolved_items=["keep it compact"],
+        assumptions=["compact baseline"],
+        plan_confidence=0.7,
+    )

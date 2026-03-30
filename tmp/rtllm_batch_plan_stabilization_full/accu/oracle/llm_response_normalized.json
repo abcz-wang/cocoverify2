@@ -1,0 +1,103 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that valid_out is asserted only when exactly four valid inputs have been accumulated, avoiding reliance on hidden counters.",
+          "notes": [
+            "The contract does not expose internal count; this guardrail checks observable correlation between valid_out and data_out changes."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "Whenever valid_out transitions to 1, data_out must change from its previous value, and the change magnitude must be consistent with adding four 8\u2011bit inputs (i.e., delta \u2264 4*255). No assumption on exact cycle latency is made.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "valid_out_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On each rising edge of valid_out."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "After a legal input sequence, the design eventually produces a stable data_out and a single-cycle valid_out pulse; the exact cycle is not fixed.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the plan drives a sequence of four valid inputs."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "Treat reset as a control-only event; no data_out or valid_out changes are expected during reset assertion.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "During reset (rst_n asserted low), both valid_out and data_out must remain at 0 or X, and no transition to 1 is allowed.",
+          "semantic_tags": [
+            "reset",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While rst_n is low."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

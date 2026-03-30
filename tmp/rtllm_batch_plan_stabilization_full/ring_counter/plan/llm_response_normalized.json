@@ -1,0 +1,269 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "wrap_around",
+        "edge"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_wrap_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that the 1-bit cycles back to LSB after completing a full rotation.",
+      "notes": [
+        "After eight clock cycles post\u2011reset, the output should return to 8'b0000_0001."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 8,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect out to be 8'b0000_0001 after wrap\u2011around."
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative clocked observation; do not assume exact\u2011cycle latency."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "seq"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "basic_seq_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe normal progression of the ring counter after reset release.",
+      "notes": [
+        "After one clock edge with reset deasserted, the output should shift to the next bit."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "out should be 8'b0000_0010 after one clock."
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative clocked observation."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset",
+        "back_to_back"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "b2b_reset_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Test back\u2011to\u2011back reset deassertion and assertion sequences.",
+      "notes": [
+        "Observe out after each reset transition to ensure deterministic re\u2011initialization."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Check out after each reset edge."
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative clocked observation; do not assume immediate effect of reset."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "seq"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe clock\u2011driven state progress after reset release.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "out should advance to the next bit."
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative clocked observation; do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

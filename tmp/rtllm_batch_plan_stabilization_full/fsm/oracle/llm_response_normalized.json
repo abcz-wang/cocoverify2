@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "MATCH must only be asserted when the most recent five IN bits form the pattern 1\u20110\u20110\u20111\u20111, and must be deasserted otherwise.",
+          "notes": [],
+          "observed_signals": [
+            "MATCH"
+          ],
+          "pass_condition": "MATCH is high only if the sliding window of the last five IN samples equals 1,0,0,1,1; otherwise MATCH is low. No assumption is made about the exact cycle latency between pattern completion and MATCH assertion.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When any change on IN occurs."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "MATCH"
+          ],
+          "pass_condition": "MATCH reflects detection of the 1\u20110\u20110\u20111\u20111 pattern without assuming a fixed latency; it may become high any cycle after the last pattern bit is observed and must return low when the pattern is not present.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the sliding window of IN satisfies the pattern condition."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

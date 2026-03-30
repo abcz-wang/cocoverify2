@@ -24,6 +24,28 @@ from cocoverify2.utils.numeric_literals import normalize_deterministic_literal
 
 _ORACLE_CLASSES = {"protocol", "functional", "property"}
 _STRICTNESS_THRESHOLD = 0.75
+_COARSE_PLAN_CATEGORIES = {
+    "reset",
+    "basic",
+    "edge",
+    "protocol",
+    "back_to_back",
+    "negative",
+    "regression",
+    "metamorphic",
+}
+_SCENARIO_KIND_TO_CATEGORY = {
+    "single_operation": "basic",
+    "boundary_vector": "edge",
+    "write_then_readback": "basic",
+    "fsm_transition_path": "protocol",
+    "protocol_acceptance": "protocol",
+    "backpressure_wait": "protocol",
+    "back_to_back_pair": "back_to_back",
+    "metamorphic_pair": "metamorphic",
+    "reference_model_lite": "basic",
+}
+_NUMERIC_EXPRESSION_FIELDS = ("cycles", "min_cycles", "max_cycles", "priority")
 _SAFE_BUILTIN_CALLS = {"abs", "bool", "dict", "hex", "int", "len", "list", "max", "min", "range"}
 _SAFE_DICT_METHODS = {"get", "items", "keys", "values"}
 _DANGEROUS_CALLS = {
@@ -90,10 +112,23 @@ def parse_todo_fill_response(raw_text: str) -> TodoFillResponse:
 
 def extract_json_payload(raw_text: str) -> dict[str, Any]:
     """Extract a JSON object payload from raw model text."""
-    payload = json.loads(extract_json_text(raw_text))
+    payload, _ = extract_json_payload_with_report(raw_text)
+    return payload
+
+
+def extract_json_payload_with_report(raw_text: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Extract a JSON object payload and report any conservative pre-parse repair."""
+    extracted_text = extract_json_text(raw_text)
+    repaired_text, repair_report = repair_json_text(extracted_text)
+    payload = json.loads(repaired_text)
     if not isinstance(payload, dict):
         raise ValueError("LLM response JSON root must be an object.")
-    return payload
+    return payload, {
+        "repair_applied": repaired_text != extracted_text,
+        "applied_repairs": repair_report,
+        "extracted_json_text": extracted_text,
+        "repaired_json_text": repaired_text,
+    }
 
 
 def extract_json_text(raw_text: str) -> str:
@@ -133,12 +168,34 @@ def extract_json_text(raw_text: str) -> str:
     raise ValueError("LLM response contained an unterminated JSON object.")
 
 
+def repair_json_text(json_text: str) -> tuple[str, list[dict[str, Any]]]:
+    """Apply narrow, semantics-preserving repairs to near-miss JSON text."""
+    text = str(json_text or "")
+    repairs: list[dict[str, Any]] = []
+
+    if text.startswith("\ufeff"):
+        text = text.lstrip("\ufeff")
+        repairs.append({"kind": "strip_bom"})
+
+    text_without_trailing_commas, trailing_comma_count = _remove_trailing_commas(text)
+    if trailing_comma_count:
+        text = text_without_trailing_commas
+        repairs.append({"kind": "remove_trailing_commas", "count": trailing_comma_count})
+
+    for field_name in _NUMERIC_EXPRESSION_FIELDS:
+        text, field_repairs = _replace_numeric_field_expressions(text, field_name)
+        repairs.extend(field_repairs)
+
+    return text, repairs
+
+
 def normalize_plan_augmentation_payload(payload: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     """Apply conservative, semantics-preserving normalization for near-miss plan payloads."""
     normalized = deepcopy(payload)
     report: dict[str, Any] = {
         "renamed_fields": [],
         "stripped_fields": [],
+        "semantic_repairs": [],
     }
     allowed_top_level = {
         "baseline_case_enrichments",
@@ -161,6 +218,7 @@ def normalize_plan_augmentation_payload(payload: dict[str, Any]) -> tuple[dict[s
             report["renamed_fields"].append(
                 {"location": location, "from": "case_id", "to": "draft_id"}
             )
+        _repair_additional_case_category(case, report=report, location=location)
         _strip_known_extras(
             case,
             allowed={
@@ -291,6 +349,133 @@ def _iter_mapping_list(container: dict[str, Any], key: str) -> list[dict[str, An
     if isinstance(value, list):
         return [item for item in value if isinstance(item, dict)]
     return []
+
+
+def _repair_additional_case_category(
+    case: dict[str, Any],
+    *,
+    report: dict[str, Any],
+    location: str,
+) -> None:
+    raw_category = case.get("category")
+    if not isinstance(raw_category, str):
+        return
+    normalized_category = normalize_tag(raw_category)
+    if normalized_category in _COARSE_PLAN_CATEGORIES:
+        case["category"] = normalized_category
+        return
+
+    scenario_kind = normalize_tag(case.get("scenario_kind"))
+    if scenario_kind:
+        case["scenario_kind"] = scenario_kind
+    if scenario_kind:
+        return
+
+    mapped_category = _SCENARIO_KIND_TO_CATEGORY.get(normalized_category)
+    if mapped_category is None:
+        return
+
+    case["scenario_kind"] = normalized_category
+    case["category"] = mapped_category
+    report["semantic_repairs"].append(
+        {
+            "location": location,
+            "repair": "moved_invalid_category_to_scenario_kind",
+            "from_category": raw_category,
+            "to_category": mapped_category,
+            "scenario_kind": normalized_category,
+        }
+    )
+
+
+def _remove_trailing_commas(text: str) -> tuple[str, int]:
+    result: list[str] = []
+    in_string = False
+    escaped = False
+    removed = 0
+    index = 0
+    while index < len(text):
+        char = text[index]
+        if in_string:
+            result.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            index += 1
+            continue
+        if char == '"':
+            in_string = True
+            result.append(char)
+            index += 1
+            continue
+        if char == ",":
+            lookahead = index + 1
+            while lookahead < len(text) and text[lookahead].isspace():
+                lookahead += 1
+            if lookahead < len(text) and text[lookahead] in "]}":
+                removed += 1
+                index += 1
+                continue
+        result.append(char)
+        index += 1
+    return "".join(result), removed
+
+
+def _replace_numeric_field_expressions(text: str, field_name: str) -> tuple[str, list[dict[str, Any]]]:
+    repairs: list[dict[str, Any]] = []
+    pattern = re.compile(
+        rf'("{re.escape(field_name)}"\s*:\s*)(?P<expr>[()0-9_\s+\-*/]+)(?=\s*[,}}])'
+    )
+
+    def replacer(match: re.Match[str]) -> str:
+        expr = match.group("expr").strip()
+        if not any(token in expr for token in "+-*/()"):
+            return match.group(0)
+        value = _safe_integer_expression(expr)
+        if value is None:
+            return match.group(0)
+        repairs.append({"kind": "evaluate_numeric_expression", "field": field_name, "original": expr, "value": value})
+        return f"{match.group(1)}{value}"
+
+    return pattern.sub(replacer, text), repairs
+
+
+def _safe_integer_expression(expr: str) -> int | None:
+    try:
+        tree = ast.parse(expr, mode="eval")
+    except SyntaxError:
+        return None
+
+    def _eval(node: ast.AST) -> int | None:
+        if isinstance(node, ast.Expression):
+            return _eval(node.body)
+        if isinstance(node, ast.Constant) and isinstance(node.value, int) and not isinstance(node.value, bool):
+            return int(node.value)
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
+            operand = _eval(node.operand)
+            if operand is None:
+                return None
+            return operand if isinstance(node.op, ast.UAdd) else -operand
+        if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.FloorDiv)):
+            left = _eval(node.left)
+            right = _eval(node.right)
+            if left is None or right is None:
+                return None
+            if isinstance(node.op, ast.Add):
+                return left + right
+            if isinstance(node.op, ast.Sub):
+                return left - right
+            if isinstance(node.op, ast.Mult):
+                return left * right
+            if right == 0:
+                return None
+            return left // right
+        return None
+
+    return _eval(tree)
 
 
 def _strip_known_top_level_extras(

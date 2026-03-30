@@ -1,0 +1,82 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [],
+      "linked_plan_case_id": "basic_001",
+      "notes": [
+        "Conservative property to ensure that the detector eventually asserts the output after a valid sequence."
+      ],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "Observe that the output can transition from low to high after the input pattern 1\u20110\u20110\u20111 is presented."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "sequence_detected may assert at least once within a bounded observation window after the input pattern is applied, without requiring a fixed-cycle latency.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 10,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the stimulus program for basic_001 completes the input bit sequence 1,0,0,1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "required",
+          "notes": [
+            "Ensure that no protocol violations occur during reset release."
+          ],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "During reset assertion and release, the output must remain stable (no toggling) and must not be used as a handshake or completion indicator.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is deasserted after the reset_001 stimulus."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

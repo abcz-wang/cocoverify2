@@ -1,0 +1,136 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure wave stays within the 5\u2011bit range 0 to 31 inclusive.",
+          "notes": [],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "wave value is never less than 0 or greater than 31 throughout simulation.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously during the entire simulation."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that wave settles to a defined, non-X value after reset release.",
+          "notes": [],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "wave becomes a stable, non-X value for at least two consecutive clock cycles after reset is deasserted.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is deasserted."
+        },
+        {
+          "check_type": "property",
+          "description": "Guard against assuming a fixed latency for wave to reach its terminal values after reset.",
+          "notes": [],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "No property asserts an exact cycle count for wave reaching 0 or 31; only conservative progress is required.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "During post\u2011reset observation."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that wave updates after a few clock cycles following reset release.",
+          "notes": [],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "wave value changes from its initial post\u2011reset value within five clock cycles.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset is deasserted, during the observation window."
+        },
+        {
+          "check_type": "property",
+          "description": "Do not rely on a fixed number of cycles for wave to complete a full up\u2011down cycle.",
+          "notes": [],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "No property asserts an exact cycle count for a full waveform period; only eventual progression is required.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Continuously after reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

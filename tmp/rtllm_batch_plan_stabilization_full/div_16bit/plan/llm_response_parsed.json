@@ -1,0 +1,284 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "invalid",
+        "zero_divisor"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_neg_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "required",
+      "notes": [
+        "Test behavior when divisor B is zero."
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'hABCD",
+            "B": "8'h00"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture inputs for analysis"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "sequence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_b2b_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "required",
+      "notes": [
+        "Apply two distinct input vectors back-to-back without waiting for settle between them."
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h0001",
+            "B": "8'h01"
+          },
+          "text": "First operation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h00FF",
+            "B": "8'h0F"
+          },
+          "text": "Second operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Record both input sets"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "metamorphic",
+        "equivalence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_meta_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "required",
+      "notes": [
+        "Two inputs that are bitwise inverses should produce complementary quotient/remainder patterns."
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'hAAAA",
+            "B": "8'h55"
+          },
+          "text": "First vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture first"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h5555",
+            "B": "8'hAA"
+          },
+          "text": "Second vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture second"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "additional_vector"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [
+        "Add an extra stimulus vector to broaden basic coverage."
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h0000",
+            "B": "8'h01"
+          },
+          "text": "Zero dividend"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture zero case"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

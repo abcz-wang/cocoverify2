@@ -1,0 +1,349 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": [],
+      "draft_id": "new_reset_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that after reset the internal registers are correctly sign‑extended and the ready signal is de‑asserted.",
+      "notes": [],
+      "observed_signals": ["p", "rdy"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "reset": "1" },
+          "text": "Apply reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset propagation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "reset": "0" },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow registers to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": { "a": "0x55", "b": "0xAA" },
+          "text": "Capture input values after reset"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Conservative clocked observations; do not assume immediate ready."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": [],
+      "draft_id": "new_edge_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise boundary‑vector values to verify width‑sensitive behavior.",
+      "notes": [],
+      "observed_signals": ["p", "rdy"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'hFF", "b": "8'h01" },
+          "text": "Max multiplicand, min multiplier"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Start operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": { "a": "8'hFF", "b": "8'h01" },
+          "text": "Record inputs"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe after sufficient cycles for completion."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": [],
+      "draft_id": "new_protocol_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Confirm that the ready signal follows the expected protocol timing.",
+      "notes": [],
+      "observed_signals": ["p", "rdy"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h12", "b": "8'h34" },
+          "text": "Apply operands"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Start multiplication"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture initial state"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 16,
+          "signals": {},
+          "text": "Wait for full operation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture final state"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "rdy should be asserted after 16 cycles."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": [],
+      "draft_id": "new_negative_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Check handling of signed‑negative operand values.",
+      "notes": [],
+      "observed_signals": ["p", "rdy"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["invalid_illegal_input"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h80", "b": "8'h80" },
+          "text": "Test signed negative values"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Start"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": { "a": "8'h80", "b": "8'h80" },
+          "text": "Record inputs"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Check that product matches signed multiplication semantics."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": [],
+      "draft_id": "new_back_to_back_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate correct operation when two multiplications are issued consecutively.",
+      "notes": [],
+      "observed_signals": ["p", "rdy"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h0F", "b": "8'h01" },
+          "text": "First operation"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 16,
+          "signals": {},
+          "text": "Wait for completion"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture first result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h02", "b": "8'h03" },
+          "text": "Second operation immediately"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 16,
+          "signals": {},
+          "text": "Wait for second completion"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture second result"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Operations back‑to‑back without extra idle cycles."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h0A", "b": "8'h05" },
+          "text": "Apply simple operands"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow operation start"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": { "a": "8'h0A", "b": "8'h05" },
+          "text": "Record inputs"
+        }
+      ],
+      "priority": 1
+    },
+    {
+      "case_id": "edge_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'hFF", "b": "8'hFF" },
+          "text": "Max values"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Start"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": { "a": "8'hFF", "b": "8'hFF" },
+          "text": "Record inputs"
+        }
+      ],
+      "priority": 1
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: Q must never contain unknown (X) or high‑impedance (Z) values and must follow the Johnson counter transition rule across observed cycles.",
+          "notes": [],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "All recorded Q samples are fully defined (no X/Z) and each successive sample satisfies the Johnson rule: if previous LSB was 0 then next MSB is 1, otherwise next MSB is 0, with a right‑shift of the remaining bits.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the edge_001 plan case records Q values across consecutive clock edges."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "After reset release, Q becomes a defined 64‑bit value (no X/Z) and shows observable progression on successive clock edges.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 plan case executes and records Q over a few clock cycles."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,326 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Each input vector produces correct sum and carry-out independent of previous vector.",
+        "No spurious latency or state retention between back-to-back operations."
+      ],
+      "goal": "Validate that consecutive combinational additions produce correct results without interference.",
+      "stimulus_intent": [
+        "Apply first operand set, observe outputs, then immediately apply second operand set and observe outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0x55",
+            "b": "0xAA",
+            "cin": 0
+          },
+          "text": "First input vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational propagation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": 1,
+            "b": 1,
+            "cin": 1
+          },
+          "text": "Capture first output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0xFF",
+            "b": "0x01",
+            "cin": 1
+          },
+          "text": "Second input vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational propagation for second vector"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": 1,
+            "b": 1,
+            "cin": 1
+          },
+          "text": "Capture second output"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "priority": 3,
+      "coverage_tags": [
+        "back_to_back",
+        "comb"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "scenario_kind": "back_to_back_pair",
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "Changing only the carry-in flips the least significant sum bit and propagates carry correctly.",
+        "Sum and carry-out follow the mathematical relationship for all operand pairs."
+      ],
+      "goal": "Check metamorphic relationship between inputs differing only by carry-in.",
+      "stimulus_intent": [
+        "Drive a random operand pair with cin=0, record sum, then drive same operands with cin=1 and compare."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0x3C",
+            "b": "0x27",
+            "cin": 0
+          },
+          "text": "First vector with cin=0"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow propagation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sum": 1,
+            "cout": 1
+          },
+          "text": "Capture output for cin=0"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0x3C",
+            "b": "0x27",
+            "cin": 1
+          },
+          "text": "Second vector with cin=1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow propagation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sum": 1,
+            "cout": 1
+          },
+          "text": "Capture output for cin=1"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "priority": 4,
+      "coverage_tags": [
+        "metamorphic",
+        "comb"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "scenario_kind": "metamorphic_pair",
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "expected_properties": [
+        "Outputs reflect combinational sum of inputs for any legal values.",
+        "No hidden state influences output."
+      ],
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['a', 'b', 'cin']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0x12",
+            "b": "0x34",
+            "cin": 0
+          },
+          "text": "Typical input vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational propagation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sum": 1,
+            "cout": 1
+          },
+          "text": "Capture output"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "priority": 1,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb"
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "scenario_kind": "single_operation",
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['a', 'b']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0x00",
+            "b": "0x00",
+            "cin": 0
+          },
+          "text": "All zeros"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Propagate"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sum": 1,
+            "cout": 1
+          },
+          "text": "Capture zero result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0xFF",
+            "b": "0xFF",
+            "cin": 1
+          },
+          "text": "All ones with carry-in"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Propagate"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sum": 1,
+            "cout": 1
+          },
+          "text": "Capture max result"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "priority": 2,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "scenario_kind": "boundary_vector",
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

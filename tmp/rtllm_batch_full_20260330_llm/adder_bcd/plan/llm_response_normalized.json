@@ -1,0 +1,272 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Sum and Cout reflect correct BCD addition for each independent input vector",
+        "No residual state influences the second operation"
+      ],
+      "expected_transition": "",
+      "goal": "Validate that consecutive independent input vectors produce correct combinational outputs without hidden state.",
+      "notes": [
+        "Even though the design is combinational, this case ensures the testbench does not inadvertently latch values."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [
+        "All input ports A, B, Cin are driven with legal BCD values before each observation."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive first legal input vector, observe outputs, then drive second distinct legal vector and observe outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0010",
+            "B": "4'b0011",
+            "Cin": "1'b0"
+          },
+          "text": "First vector: 2 + 3"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          },
+          "text": "Capture first output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0101",
+            "B": "4'b0110",
+            "Cin": "1'b1"
+          },
+          "text": "Second vector: 5 + 6 + 1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          },
+          "text": "Capture second output"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Outputs are observed after each wait_for_settle step."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Sum and Cout correctly represent BCD addition of A, B, and Cin for typical legal values."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['A', 'B', 'Cin']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0100",
+            "B": "4'b0011",
+            "Cin": "1'b0"
+          },
+          "text": "Example: 4 + 3"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          },
+          "text": "Capture outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "Sum and Cout correctly handle edge BCD values and carry generation."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['A', 'B']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b0000",
+            "B": "4'b0000",
+            "Cin": "1'b0"
+          },
+          "text": "Zero boundary: 0 + 0"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after zero case"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          },
+          "text": "Capture zero case outputs"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'b1001",
+            "B": "4'b1001",
+            "Cin": "1'b1"
+          },
+          "text": "Maximum BCD with carry: 9 + 9 + 1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after max case"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          },
+          "text": "Capture max case outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

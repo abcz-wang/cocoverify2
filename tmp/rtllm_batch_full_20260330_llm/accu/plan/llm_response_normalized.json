@@ -1,0 +1,155 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "negative",
+        "illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "valid_out remains 0 throughout the stimulus",
+        "data_out does not change when valid_in is deasserted"
+      ],
+      "expected_transition": "",
+      "goal": "Confirm that data_in changes while valid_in is low have no effect on accumulation or output.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [
+        "Reset has been released and module is in stable post\u2011reset state"
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive valid_in=0 and toggle data_in with arbitrary values",
+        "Observe that no valid_out pulse is generated"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 170,
+            "valid_in": 0
+          },
+          "text": "First data value while invalid"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow internal state to settle"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 85
+          },
+          "text": "Second data value while invalid"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle step"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity"
+      ],
+      "expected_properties": [
+        "valid_out stays 0 and data_out unchanged until four valid inputs have been presented"
+      ],
+      "expected_transition": "",
+      "goal": "Drive a single valid input word and verify that no output is produced until four words are accumulated.",
+      "notes": [
+        "Enrichment adds explicit stimulus steps and clarifies expected lack of output for a single operation."
+      ],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply one valid data word (valid_in=1, data_in=0x3C) and then deassert valid_in"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": 60,
+            "valid_in": 1
+          },
+          "text": "First valid data word"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One clock cycle to register input"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": 0
+          },
+          "text": "Deactivate valid_in"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe that valid_out remains 0"
+        }
+      ],
+      "stimulus_signals": [
+        "data_in",
+        "valid_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations",
+        "Do not assume any output before four valid inputs have been observed"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

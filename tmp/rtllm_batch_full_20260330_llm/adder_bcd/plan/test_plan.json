@@ -1,0 +1,268 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "adder_bcd",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing.",
+        "Sum and Cout correctly represent BCD addition of A, B, and Cin for typical legal values."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['A', 'B', 'Cin']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": "4'b0100",
+            "B": "4'b0011",
+            "Cin": "1'b0"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.6975,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Sum and Cout correctly handle edge BCD values and carry generation."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['A', 'B']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": "4'b0000",
+            "B": "4'b0000",
+            "Cin": "1'b0"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          }
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "A": "4'b1001",
+            "B": "4'b1001",
+            "Cin": "1'b1"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "back_to_back",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Sum and Cout reflect correct BCD addition for each independent input vector",
+        "No residual state influences the second operation"
+      ],
+      "expected_transition": "",
+      "goal": "Validate that consecutive independent input vectors produce correct combinational outputs without hidden state.",
+      "notes": [
+        "Even though the design is combinational, this case ensures the testbench does not inadvertently latch values."
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "preconditions": [
+        "All input ports A, B, Cin are driven with legal BCD values before each observation."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive first legal input vector, observe outputs, then drive second distinct legal vector and observe outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": "4'b0010",
+            "B": "4'b0011",
+            "Cin": "1'b0"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          }
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "A": "4'b0101",
+            "B": "4'b0110",
+            "Cin": "1'b1"
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "Cout": null,
+            "Sum": null
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Outputs are observed after each wait_for_settle step."
+      ]
+    }
+  ],
+  "module_name": "adder_bcd",
+  "plan_confidence": 0.8175000000000001,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

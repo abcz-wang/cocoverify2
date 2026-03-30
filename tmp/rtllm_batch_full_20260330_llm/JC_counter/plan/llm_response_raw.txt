@@ -1,0 +1,170 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "direction_change",
+        "shift_logic"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "When Q[0] is 0, the next Q has MSB set to 1 and the rest shifted right.",
+        "When Q[0] is 1, the next Q has MSB set to 0 and the rest shifted right.",
+        "Observed Q transitions follow the Johnson counter rule without X or Z values."
+      ],
+      "expected_transition": "Observe Q transition from a state with LSB=0 to the next state with MSB=1, then from LSB=1 to MSB=0.",
+      "goal": "Validate the direction‑change behavior of the Johnson counter when the least‑significant bit toggles.",
+      "notes": [
+        "The case does not assume a fixed number of cycles for the transition; it observes the first two clock edges after reset release."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "Counter has been released from reset and observed for at least two clock cycles."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release reset, allow the counter to run, capture Q before and after the LSB toggles."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Assert active‑low reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One clock cycle while reset is asserted"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "De‑assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe two clock edges to capture LSB toggle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Q": 1
+          },
+          "text": "Record Q after transition"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Conservative observation across multiple clock cycles; no fixed latency is assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_progress"
+      ],
+      "expected_properties": [
+        "Q remains defined (no X/Z) after reset release.",
+        "Q changes according to the Johnson counter rule on successive clock edges."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock‑driven state progress after reset release and verify that Q evolves consistently.",
+      "notes": [
+        "The enrichment adds explicit observation steps while preserving the original conservative intent."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release reset and record Q over a few clock cycles to confirm stable progression."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One clock cycle with reset asserted"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "De‑assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Observe three clock edges after reset release"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Q": 1
+          },
+          "text": "Capture Q values"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations; do not assume a fixed‑cycle completion."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

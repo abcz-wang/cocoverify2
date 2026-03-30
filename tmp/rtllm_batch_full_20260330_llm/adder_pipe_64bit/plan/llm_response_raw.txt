@@ -1,0 +1,227 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "goal": "Apply a representative legal input pattern and verify that the adder produces the correct sum when enabled.",
+      "stimulus_intent": [
+        "Drive i_en high to enable the addition.",
+        "Provide random 64‑bit values on adda and addb."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": 1,
+            "adda": "rand64",
+            "addb": "rand64"
+          },
+          "text": "Enable operation and present operands."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Advance one clock cycle."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow pipeline to produce stable result."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "result": 1,
+            "o_en": 1
+          },
+          "text": "Capture output and enable flag."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "expected_properties": [
+        "When i_en is asserted, o_en becomes high after a conservative number of cycles and result equals adda + addb (mod 2^65).",
+        "No X or Z values appear on result or o_en after stabilization."
+      ],
+      "coverage_tags": [
+        "operation_specific",
+        "basic"
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "scenario_kind": "single_operation",
+      "timing_assumptions": [
+        "Do not assume a fixed latency; observe until o_en asserts and result stabilizes."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "expected_transition": "",
+      "settle_requirement": "",
+      "notes": [
+        "Uses random operand values to increase functional diversity while remaining conservative on timing."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "neg_illegal_001",
+      "category": "negative",
+      "coverage_tags": [
+        "illegal_input",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "goal": "Confirm that the adder does not produce a valid result when the enable signal is deasserted.",
+      "stimulus_intent": [
+        "Drive i_en low while toggling adda and addb values."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": 0,
+            "adda": "rand64",
+            "addb": "rand64"
+          },
+          "text": "Present operands without enabling the operation."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe for any unintended output activity."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "result": 1,
+            "o_en": 1
+          },
+          "text": "Capture outputs to verify they remain inactive."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "expected_properties": [
+        "o_en must remain low when i_en is low.",
+        "result must not change (remain stable or X) while i_en is low."
+      ],
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "scenario_kind": "single_operation",
+      "timing_assumptions": [
+        "Observe over at least two clock cycles after stimulus."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "expected_transition": "",
+      "settle_requirement": "",
+      "notes": []
+    },
+    {
+      "draft_id": "protocol_001",
+      "category": "protocol",
+      "coverage_tags": [
+        "protocol_acceptance",
+        "backpressure_wait"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "goal": "Validate the enable‑handshake behavior: result becomes valid only after i_en is asserted and a conservative latency passes.",
+      "stimulus_intent": [
+        "Pulse i_en high for one cycle, then deassert.",
+        "Provide fixed operand values to allow deterministic observation."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": 1,
+            "adda": "0x123456789ABCDEF0",
+            "addb": "0x0FEDCBA987654321"
+          },
+          "text": "Start a single addition operation."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": 0
+          },
+          "text": "Release enable."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": "Wait until the pipeline produces a stable output."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "result": 1,
+            "o_en": 1
+          },
+          "text": "Capture the sum and its enable flag."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "expected_properties": [
+        "o_en must transition high after a conservative number of cycles following the i_en pulse.",
+        "result must equal the 65‑bit sum of the provided operands when o_en is high."
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "scenario_kind": "write_then_readback",
+      "timing_assumptions": [
+        "Do not assume exact cycle latency; allow up to a few cycles for o_en to assert."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "expected_transition": "",
+      "settle_requirement": "",
+      "notes": []
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

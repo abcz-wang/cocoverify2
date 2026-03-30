@@ -1,0 +1,456 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "sanity"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "r equals a + b (unsigned addition)",
+        "carry is 1 when unsigned addition overflows",
+        "overflow is 1 when signed addition overflows",
+        "zero is 0 because result is non\u2011zero",
+        "negative reflects sign of the signed result",
+        "flag is high\u2011impedance (or 0) because ADD is not SLT/SLTU"
+      ],
+      "expected_transition": "",
+      "goal": "Verify correct result and flag behavior for the ADD operation.",
+      "notes": [
+        "Uses concrete values to make expected results unambiguous."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a = 0x0000_0001, b = 0x0000_0001, aluc = ADD"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0001",
+            "aluc": "6'b100000",
+            "b": "32'h0000_0001"
+          },
+          "text": "Apply ADD operands"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": 1,
+            "aluc": 1,
+            "b": 1
+          },
+          "text": "Capture stimulus"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 1,
+            "zero": 1
+          },
+          "text": "Capture outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after a single settle cycle; no sequential timing assumed."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "boundary_vector",
+        "width_sensitive"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "r equals b shifted left by shift_amount (mod 32) for SLL",
+        "zero is 1 when shifted result is all zeros",
+        "negative reflects sign of the shifted result",
+        "carry and overflow are undefined for shift ops (contract does not specify)"
+      ],
+      "expected_transition": "",
+      "goal": "Exercise shift\u2011left logical operation at minimum and maximum shift amounts.",
+      "notes": [
+        "Shift amount taken from lower 5 bits of operand a as per typical MIPS semantics."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive shift amount 0 and 31 for SLL and verify resulting r"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0000",
+            "aluc": "6'b000000",
+            "b": "32'hFFFF_FFFF"
+          },
+          "text": "SLL with shift amount 0"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after first shift"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "flag": 1,
+            "negative": 1,
+            "r": 1,
+            "zero": 1
+          },
+          "text": "Capture outputs for shift 0"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_001F",
+            "aluc": "6'b000000",
+            "b": "32'h0000_0001"
+          },
+          "text": "SLL with shift amount 31"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after second shift"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "flag": 1,
+            "negative": 1,
+            "r": 1,
+            "zero": 1
+          },
+          "text": "Capture outputs for shift 31"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Combinational outputs are observed after each wait_for_settle step."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "dependencies": [],
+      "draft_id": "new_case_003",
+      "expected_properties": [
+        "Outputs may be high\u2011impedance or retain previous values; contract does not define behavior for undefined opcodes."
+      ],
+      "expected_transition": "",
+      "goal": "Observe module response to an undefined opcode, preserving ambiguity.",
+      "notes": [
+        "No illegal input constraints are specified; this case checks that the design does not crash."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive aluc with a value not matching any defined operation"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h1234_5678",
+            "aluc": "6'b111111",
+            "b": "32'h9ABC_DEF0"
+          },
+          "text": "Apply undefined opcode"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow any combinational response to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 1,
+            "zero": 1
+          },
+          "text": "Capture all observable outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "No timing guarantees; simply observe stable outputs after drive."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Outputs follow combinational mapping from inputs for any legal opcode."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "notes": [
+        "Enriched with explicit drive and settle steps."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a, b, aluc with a typical legal pattern and observe outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_00AA",
+            "aluc": "6'b100100",
+            "b": "32'h0000_0055"
+          },
+          "text": "Apply AND operation as a representative legal case"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 1,
+            "zero": 1
+          },
+          "text": "Capture all observable outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after a single settle cycle; no sequential timing assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive",
+        "boundary_vector"
+      ],
+      "expected_properties": [
+        "Boundary values for inputs do not cause illegal behavior."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Added explicit drives for zero, max, and sign\u2011extended values."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero\u2011like, one\u2011like, and extreme patterns on a, b, aluc."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0000",
+            "aluc": "6'b100000",
+            "b": "32'h0000_0000"
+          },
+          "text": "ADD with both operands zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after zero case"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFF_FFFF",
+            "aluc": "6'b100010",
+            "b": "32'hFFFF_FFFF"
+          },
+          "text": "SUB with both operands max (testing signed overflow)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after max case"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 1,
+            "zero": 1
+          },
+          "text": "Capture outputs for both boundary vectors"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle; no fixed latency required."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Validate that after reset deassertion, the output 'out' updates on each rising clock edge following the LFSR feedback relationship.",
+          "notes": [
+            "The contract does not specify exact latency; the check observes the first observable change after each clock edge."
+          ],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "For at least two consecutive clock cycles after reset release, 'out' is defined (not X/Z) and the new value equals the previous value shifted left with the inverted XOR of bits [3] and [2] inserted at LSB.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 2,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted and a rising edge of clk occurs."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The output 'out' eventually transitions to a defined value (not X/Z) within a conservative observation window after reset release.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the basic_001 stimulus (post\u2011reset observation) is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

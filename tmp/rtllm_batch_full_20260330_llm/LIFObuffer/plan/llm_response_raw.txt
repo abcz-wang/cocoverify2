@@ -1,0 +1,340 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "illegal_input",
+        "full_buffer_write"
+      ],
+      "dependencies": [
+        "edge_001"
+      ],
+      "draft_id": "neg_write_when_full_001",
+      "expected_properties": [
+        "When FULL is asserted, a write attempt (RW=0, EN=1) does not change dataOut and does not alter EMPTY/FULL flags."
+      ],
+      "expected_transition": "",
+      "goal": "Verify that a write operation is ignored when the buffer is full.",
+      "notes": [
+        "Uses conservative observation; no assumption on internal latency."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer must be in FULL state before stimulus."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "Observe signals stable for at least one clock after stimulus.",
+      "stimulus_intent": [
+        "Drive EN=1, RW=0, dataIn=0x5 while buffer is full."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Ensure previous operations have settled."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 5
+          },
+          "text": "Attempt illegal write."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow any internal logic to react."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EMPTY": null,
+            "FULL": null,
+            "dataOut": null
+          },
+          "text": "Capture observable outputs."
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume fixed-cycle completion."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "write_then_read",
+        "data_integrity"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "write_then_readback_001",
+      "expected_properties": [
+        "Data written in a push operation is later retrieved unchanged by a pop operation."
+      ],
+      "expected_transition": "",
+      "goal": "Demonstrate correct LIFO behavior across back‑to‑back write and read operations.",
+      "notes": [
+        "Conservative timing: observe after each clock edge."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "preconditions": [
+        "Buffer is not full before the write."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "Each operation must be observed stable for one clock cycle before the next.",
+      "stimulus_intent": [
+        "Perform a write of a known pattern, then immediately perform a read to retrieve it."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 9
+          },
+          "text": "Push value 0x9."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow write to settle."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 1,
+            "dataIn": 0
+          },
+          "text": "Pop value."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow read to settle."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataOut": null,
+            "EMPTY": null,
+            "FULL": null
+          },
+          "text": "Capture outputs after read."
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation; no fixed latency assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "A legal write operation (EN=1, RW=0) updates EMPTY/FULL flags appropriately.",
+        "A legal read operation (EN=1, RW=1) produces a valid dataOut when not empty."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation (write) and observe stable post‑operation behavior.",
+      "notes": [
+        "Enriching with explicit operation intent and observation windows."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "Observe signals stable for at least one clock cycle after the operation.",
+      "stimulus_intent": [
+        "Drive EN=1, RW=0, dataIn=0xA to perform a push."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 10
+          },
+          "text": "Push value 0xA."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow write to settle."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EMPTY": null,
+            "FULL": null,
+            "dataOut": null
+          },
+          "text": "Capture post‑write flags."
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "boundary_vector"
+      ],
+      "expected_properties": [
+        "Zero (0x0) and maximum (0xF) values are correctly stored and retrieved.",
+        "Buffer flags correctly reflect boundary conditions after each operation."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary‑value and width‑sensitive input patterns.",
+      "notes": [
+        "Adds explicit zero and max patterns for dataIn."
+      ],
+      "observed_signals": [
+        "EMPTY",
+        "FULL",
+        "dataOut"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "Each boundary operation must be observed stable for one clock cycle.",
+      "stimulus_intent": [
+        "Use zero-like (0x0) and one-like (0xF) patterns on dataIn with EN=1, RW=0."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 0
+          },
+          "text": "Push zero value."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after zero push."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "EN": 1,
+            "RW": 0,
+            "dataIn": 15
+          },
+          "text": "Push max value (0xF)."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after max push."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "EMPTY": null,
+            "FULL": null,
+            "dataOut": null
+          },
+          "text": "Capture flags after boundary pushes."
+        }
+      ],
+      "stimulus_signals": [
+        "EN",
+        "RW",
+        "dataIn"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume fixed latency."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

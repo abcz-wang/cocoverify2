@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that when A is max value and B is 1, the sum wraps to zero and carry-out is asserted.",
+          "notes": [],
+          "observed_signals": [
+            "S",
+            "C32"
+          ],
+          "pass_condition": "S equals 0x00000000 and C32 equals 1 after inputs stabilize.",
+          "semantic_tags": [
+            "width_sensitive",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When inputs A=0xFFFFFFFF and B=0x1 are applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that S reflects the modulo-2^32 sum of A and B and C32 reflects the overflow bit for any legal input pair.",
+          "notes": [],
+          "observed_signals": [
+            "S",
+            "C32"
+          ],
+          "pass_condition": "For each observed input pair, S equals (A + B) modulo 2^32 and C32 equals the overflow bit.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When any legal input combination is applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

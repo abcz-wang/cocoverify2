@@ -1,0 +1,317 @@
+{
+  "additional_cases": [
+    {
+      "category": "regression",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "regression",
+        "repeatability"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "reg_001",
+      "expected_properties": [
+        "valid_out asserts for each loaded parallel word and deasserts between loads",
+        "dout produces the correct MSB\u2011first serial sequence for each load"
+      ],
+      "expected_transition": "",
+      "goal": "Verify deterministic behavior when the same parallel word is presented multiple times with idle cycles in between.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Load a known pattern, wait, then reload the same pattern to check repeatable output"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1010"
+          },
+          "text": "first load"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "idle period"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1010"
+          },
+          "text": "second load"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow outputs to settle"
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each load without assuming a fixed latency"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "expected_properties": [
+        "valid_out and dout become X\u2011free and stable after reset release"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset low, release it, and observe that all outputs return to a known stable state"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow post\u2011reset stabilization"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Do not assume any specific number of cycles for reset recovery beyond observation of stable signals"
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "valid_out becomes high within a few cycles after d is presented",
+        "dout outputs the MSB of d first, followed by the remaining bits in order"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a typical parallel word and observe the serial output and valid flag"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1101"
+          },
+          "text": "load parallel data"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow internal registers to capture"
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe valid_out and dout over the next several cycles without assuming a fixed latency"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "valid_out asserts for each loaded word and deasserts between words",
+        "dout reflects the correct bit order for each boundary pattern"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 2,
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply extreme and boundary parallel patterns to verify width\u2011sensitive behavior"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0000"
+          },
+          "text": "all zeros"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "observe output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1111"
+          },
+          "text": "all ones"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "observe output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1000"
+          },
+          "text": "single\u2011one at MSB"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "observe output"
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Do not rely on exact cycle counts; simply ensure outputs settle after each pattern"
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "expected_properties": [
+        "valid_out toggles for each word without glitches",
+        "dout produces two distinct MSB\u2011first sequences in order"
+      ],
+      "observed_signals": [
+        "valid_out",
+        "dout"
+      ],
+      "priority": 3,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Load two parallel words with minimal idle time to test back\u2011to\u2011back operation"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b0101"
+          },
+          "text": "first word"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "minimal spacing"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "d": "4'b1010"
+          },
+          "text": "second word"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow outputs to settle after second word"
+        }
+      ],
+      "stimulus_signals": [
+        "d"
+      ],
+      "timing_assumptions": [
+        "Observe each word's serial output independently; do not assume overlapping latency"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

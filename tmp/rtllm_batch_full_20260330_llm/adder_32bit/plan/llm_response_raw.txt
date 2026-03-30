@@ -1,0 +1,226 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "S equals (A + B) modulo 2^32",
+        "C32 equals the carry-out from the 32‑bit addition"
+      ],
+      "expected_transition": "",
+      "goal": "Exercise representative legal input combinations and observe output mapping while explicitly recording the combinational relationship between inputs and outputs.",
+      "notes": [
+        "Enriches the original basic case with explicit stimulus sequencing and property expectations."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "Assume combinational logic settles within a few nanoseconds; no clock edge required.",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: A and B",
+        "Record the resulting sum and carry‑out"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "random_32bit",
+            "B": "random_32bit"
+          },
+          "text": "Apply random 32‑bit operands"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational path to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": 1,
+            "B": 1
+          },
+          "text": "Capture applied operands"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "S": 1,
+            "C32": 1
+          },
+          "text": "Capture resulting sum and carry"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization; no sequential timing assumed."
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "category": "edge",
+      "draft_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary_vector",
+        "carry_propagation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "S equals 0x00000000 when A=0xFFFFFFFF and B=0x1",
+        "C32 equals 1 indicating overflow"
+      ],
+      "expected_transition": "",
+      "goal": "Validate correct handling of the maximum operand value and carry‑out generation at the numeric boundary.",
+      "notes": [
+        "Tests the adder's behavior when a carry propagates through all bits."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive"
+      ],
+      "settle_requirement": "Combinational outputs must settle after inputs are stable.",
+      "stimulus_intent": [
+        "Apply the maximum 32‑bit value to A and a minimal increment to B to trigger a full‑width carry."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "0xFFFFFFFF",
+            "B": "0x00000001"
+          },
+          "text": "Force boundary condition"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "S": 1,
+            "C32": 1
+          },
+          "text": "Capture sum and carry‑out"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "No clock edge; purely combinational observation."
+      ]
+    },
+    {
+      "category": "basic",
+      "draft_id": "basic_random_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "random_vector"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "expected_properties": [
+        "S equals (A + B) modulo 2^32 for arbitrary operands",
+        "C32 reflects the correct carry‑out"
+      ],
+      "expected_transition": "",
+      "goal": "Provide additional random stimulus to increase input space coverage while maintaining basic operation verification.",
+      "notes": [],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a set of random 32‑bit operand pairs to the adder."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "random_32bit",
+            "B": "random_32bit"
+          },
+          "text": "Apply random operands"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to stabilize"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "S": 1,
+            "C32": 1
+          },
+          "text": "Capture results"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Combinational path assumed to settle after input drive."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

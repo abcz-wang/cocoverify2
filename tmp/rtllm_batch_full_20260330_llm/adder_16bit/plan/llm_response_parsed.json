@@ -1,0 +1,406 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "operation_sequence"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "Each consecutive operation produces correct sum and carry-out independent of previous operation.",
+        "No residual state influences the second operation."
+      ],
+      "expected_transition": "",
+      "goal": "Validate that two back\u2011to\u2011back adder operations produce correct results without hidden state.",
+      "notes": [
+        "Uses combinational nature; only need to wait for signal settle between drives."
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [
+        "Inputs a, b, Cin are driven with legal values for each operation."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "wait_for_settle after each drive",
+      "stimulus_intent": [
+        "Drive first operand set, observe outputs, then drive second operand set and observe outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Cin": 0,
+            "a": "0x1234",
+            "b": "0x5678"
+          },
+          "text": "First operation inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "Cin": 0,
+            "a": "0x1234",
+            "b": "0x5678"
+          },
+          "text": "Capture first operation inputs"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Cin": 1,
+            "a": "0xABCD",
+            "b": "0x0F0F"
+          },
+          "text": "Second operation inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow second operation outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "Cin": 1,
+            "a": "0xABCD",
+            "b": "0x0F0F"
+          },
+          "text": "Capture second operation inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle.",
+        "No internal storage assumed."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "metamorphic",
+        "operand_transform"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "If operand A is bitwise inverted and Cin toggled, the resulting sum matches the transformed reference."
+      ],
+      "expected_transition": "",
+      "goal": "Check algebraic consistency of the adder under systematic operand transformations.",
+      "notes": [
+        "Leverages the mathematical relationship: (~a) + (~b) + 1 = ~(a + b) for two's complement."
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [
+        "Initial operands are legal 16\u2011bit values."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "wait_for_settle after each drive",
+      "stimulus_intent": [
+        "Apply a pair of related operand sets and compare their outputs for expected metamorphic relation."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Cin": 0,
+            "a": "0x0F0F",
+            "b": "0x00FF"
+          },
+          "text": "Original operand set"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle original outputs"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "Cin": 0,
+            "a": "0x0F0F",
+            "b": "0x00FF"
+          },
+          "text": "Capture original inputs"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Cin": 1,
+            "a": "0xF0F0",
+            "b": "0xFF00"
+          },
+          "text": "Transformed operand set (bitwise NOT and Cin toggled)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle transformed outputs"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "Cin": 1,
+            "a": "0xF0F0",
+            "b": "0xFF00"
+          },
+          "text": "Capture transformed inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle.",
+        "No sequential state assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb"
+      ],
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle\u2011accurate timing.",
+        "Sum and carry-out match a reference 16\u2011bit addition."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "wait_for_settle after drive",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non\u2011control inputs: ['a', 'b', 'Cin']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Cin": 0,
+            "a": "0x0000",
+            "b": "0x0000"
+          },
+          "text": "Zero inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "Cin": 0,
+            "a": "0x0000",
+            "b": "0x0000"
+          },
+          "text": "Capture zero case"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Cin": 1,
+            "a": "0xFFFF",
+            "b": "0x0001"
+          },
+          "text": "Maximum plus one with carry\u2011in"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle outputs for max case"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "Cin": 1,
+            "a": "0xFFFF",
+            "b": "0x0001"
+          },
+          "text": "Capture max case"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Boundary\u2011value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max\u2011style exploration is planned.",
+        "Sum and carry\u2011out are correct for extreme operand values."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary\u2011value and width\u2011sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value\u2011oriented and avoids fixed\u2011latency assumptions."
+      ],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "wait_for_settle after each drive",
+      "stimulus_intent": [
+        "Use zero\u2011like, one\u2011like, and boundary patterns on ['a', 'b']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Cin": 0,
+            "a": "0x0000",
+            "b": "0x0000"
+          },
+          "text": "All zeros"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle zero case"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "Cin": 0,
+            "a": "0x0000",
+            "b": "0x0000"
+          },
+          "text": "Capture zero case"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "Cin": 1,
+            "a": "0xFFFF",
+            "b": "0xFFFF"
+          },
+          "text": "All ones with carry\u2011in"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle max case"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "Cin": 1,
+            "a": "0xFFFF",
+            "b": "0xFFFF"
+          },
+          "text": "Capture max case"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

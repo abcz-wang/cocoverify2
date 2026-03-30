@@ -1,0 +1,172 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "write_readback",
+        "functional"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "write_readback_001",
+      "expected_properties": [
+        "When write_en is asserted with a legal address and data, the subsequent read_en assertion of the same address yields read_data equal to the written data, observed after a conservative clocked observation."
+      ],
+      "expected_transition": "",
+      "goal": "Verify that a write followed by a read of the same address returns the written value, under conservative timing assumptions.",
+      "notes": [
+        "No fixed-cycle latency is assumed; the read may observe the new value after at least one clock edge."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a legal write operation (write_en=1, write_addr, write_data), then drive a read operation (read_en=1, same read_addr) and observe read_data."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_addr": 0,
+            "read_en": 0,
+            "write_addr": 8,
+            "write_data": 6,
+            "write_en": 1
+          },
+          "text": "Apply write operation"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow write to be registered"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_addr": 8,
+            "read_en": 1,
+            "write_en": 0
+          },
+          "text": "Apply read of same address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe read_data stability"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "read_data": 6
+          },
+          "text": "Capture read_data for comparison"
+        }
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation; do not assume a fixed number of cycles between write and read visibility."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post\u2011operation behavior.",
+      "notes": [
+        "Stimulus program now explicitly drives inputs, waits for settle, and records the read_data output."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non\u2011control inputs: write_en, write_addr, write_data, read_en, read_addr."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_addr": 0,
+            "read_en": 0,
+            "write_addr": 8,
+            "write_data": 6,
+            "write_en": 1
+          },
+          "text": "Apply a write operation while keeping read disabled"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to stabilize after the operation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "read_data": 6
+          },
+          "text": "Capture read_data for later verification"
+        }
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

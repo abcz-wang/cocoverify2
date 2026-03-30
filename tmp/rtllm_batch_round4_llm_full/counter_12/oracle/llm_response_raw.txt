@@ -1,3 +1,0 @@
-{
-  "verilog_code": "module verified_counter_12 (\n    input  wire rst_n,\n    input  wire clk,\n    input  wire valid_count,\n    output reg  [3:0] out\n);\n\n    // Asynchronous active-low reset\n    always @(posedge clk or negedge rst_n) begin\n        if (!rst_n) begin\n            out <= 4'b0000;\n        end else if (valid_count) begin\n            if (out == 4'd11)\n                out <= 4'b0000;\n            else\n                out <= out + 1'b1;\n        end else begin\n            out <= out; // hold value when disabled\n        end\n    end\n\nendmodule"
-}

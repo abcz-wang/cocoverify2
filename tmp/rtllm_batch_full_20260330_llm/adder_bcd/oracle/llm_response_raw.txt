@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Boundary BCD addition must produce a valid BCD digit (0-9) on Sum and correctly indicate overflow on Cout.",
+          "notes": [],
+          "observed_signals": [
+            "Sum",
+            "Cout"
+          ],
+          "pass_condition": "Sum is within the range 0 to 9 (binary 0000 to 1001) and Cout is asserted if and only if the binary sum of A, B, and Cin exceeds 9.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge stimulus drives zero-like, one-like, or maximum BCD values."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "Sum",
+            "Cout"
+          ],
+          "pass_condition": "Sum and Cout reflect the combinational BCD addition of A, B, and Cin without reliance on hidden state or exact cycle timing.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When basic stimulus applies a representative legal input vector."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

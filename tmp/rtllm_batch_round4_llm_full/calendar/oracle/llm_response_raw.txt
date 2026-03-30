@@ -1,5 +1,0 @@
-{
-  "generated_verilog": "module calendar (input CLK, input RST, output reg [5:0] Hours, output reg [5:0] Mins, output reg [5:0] Secs);\n  // Seconds counter\n  always @(posedge CLK or posedge RST) begin\n    if (RST) begin\n      Secs <= 6'd0;\n    end else if (Secs == 6'd59) begin\n      Secs <= 6'd0;\n    end else begin\n      Secs <= Secs + 6'd1;\n    end\n  end\n  // Minutes counter\n  always @(posedge CLK or posedge RST) begin\n    if (RST) begin\n      Mins <= 6'd0;\n    end else if (Secs == 6'd59) begin\n      if (Mins == 6'd59) begin\n        Mins <= 6'd0;\n      end else begin\n        Mins <= Mins + 6'd1;\n      end\n    end else begin\n      Mins <= Mins; // hold value\n    end\n  end\n  // Hours counter\n  always @(posedge CLK or posedge RST) begin\n    if (RST) begin\n      Hours <= 6'd0;\n    end else if (Secs == 6'd59 && Mins == 6'd59) begin\n      if (Hours == 6'd23) begin\n        Hours <= 6'd0;\n      end else begin\n        Hours <= Hours + 6'd1;\n      end\n    end else begin\n      Hours <= Hours; // hold value\n    end\n  end\nendmodule",
-  "assumptions": [],
-  "unresolved_items": []
-}

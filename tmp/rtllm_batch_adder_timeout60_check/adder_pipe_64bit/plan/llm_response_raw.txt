@@ -1,0 +1,326 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "overflow"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "edge_overflow_001",
+      "expected_properties": [
+        "Result reflects correct 65‑bit sum including carry out when operands cause overflow.",
+        "o_en asserts when the sum is valid."
+      ],
+      "goal": "Validate correct handling of maximum operand values and carry‑out generation.",
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post‑reset state."
+      ],
+      "priority": 2,
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply the maximum 64‑bit operand to adda and a value that triggers a carry on addb."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b1",
+            "adda": "64'hFFFFFFFFFFFFFFFF",
+            "addb": "64'h0000000000000001"
+          },
+          "text": "Initiate addition that will overflow."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow pipeline to produce result."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b1",
+            "adda": "64'hFFFFFFFFFFFFFFFF",
+            "addb": "64'h0000000000000001"
+          },
+          "text": "Capture the driven inputs for reference."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; do not assume a fixed latency."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "back_to_back_002",
+      "expected_properties": [
+        "Second operation produces a valid result independent of the first operation's latency.",
+        "o_en toggles appropriately for each operation."
+      ],
+      "goal": "Exercise two consecutive additions with minimal idle cycles.",
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Design is out of reset and has completed the first basic operation."
+      ],
+      "priority": 3,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive two legal addition requests back‑to‑back."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b1",
+            "adda": "64'h000000000000000A",
+            "addb": "64'h0000000000000005"
+          },
+          "text": "First addition request."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Minimal spacing before second request."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b1",
+            "adda": "64'h0000000000000010",
+            "addb": "64'h000000000000000F"
+          },
+          "text": "Second addition request."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": "Allow pipeline to settle both results."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b1",
+            "adda": "64'h0000000000000010",
+            "addb": "64'h000000000000000F"
+          },
+          "text": "Capture inputs of second operation."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Do not assume exact cycle latency; observe until outputs stabilize."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "handshake"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "protocol_enable_001",
+      "expected_properties": [
+        "o_en asserts only after a valid addition has been accepted.",
+        "o_en deasserts when no new valid addition is pending."
+      ],
+      "goal": "Verify that the output enable follows the expected protocol relationship with i_en.",
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Design is out of reset."
+      ],
+      "priority": 4,
+      "scenario_kind": "protocol_acceptance",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Toggle i_en and observe corresponding o_en behavior."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b0",
+            "adda": "64'h0000000000000000",
+            "addb": "64'h0000000000000000"
+          },
+          "text": "Ensure idle state."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe idle o_en low."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b1",
+            "adda": "64'h0000000000000003",
+            "addb": "64'h0000000000000004"
+          },
+          "text": "Issue a valid addition."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow result and o_en to become valid."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b0",
+            "adda": "64'h0000000000000000",
+            "addb": "64'h0000000000000000"
+          },
+          "text": "Return i_en to idle."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe o_en deassert."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Observe until o_en stabilizes after each i_en transition."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Result matches the sum of adda and addb when i_en is asserted.",
+        "o_en asserts when the result is valid."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post‑operation behavior.",
+      "notes": [
+        "Stimulus uses a minimal non‑zero operand pattern to avoid trivial zero‑sum ambiguity."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b1",
+            "adda": "64'h0000000000000001",
+            "addb": "64'h0000000000000001"
+          },
+          "text": "Single addition request."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow pipeline to produce result."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b1",
+            "adda": "64'h0000000000000001",
+            "addb": "64'h0000000000000001"
+          },
+          "text": "Capture driven inputs for reference."
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; do not assume a fixed latency."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

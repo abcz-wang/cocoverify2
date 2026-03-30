@@ -1,0 +1,341 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_div_16bit",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing.",
+        "Result and odd reflect the combinational division of A by B for a typical legal vector."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise a representative legal input combination and verify output mapping.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Conservative case preserving ambiguity; no timing assumptions beyond combinational settle."
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "Observe outputs after one cycle of wait_for_settle.",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['A', 'B']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": 255,
+            "B": 15
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 255,
+            "B": 15
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.6975,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "boundary_vector"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Division handles maximum dividend and divisor values without overflow.",
+        "Division handles minimum non\u2011zero divisor correctly."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary\u2011value and width\u2011sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions.",
+        "Edge coverage remains value\u2011oriented and avoids fixed\u2011latency assumptions."
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "settle_requirement": "Observe outputs after each wait_for_settle step.",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['A', 'B']",
+        "Use zero\u2011like, one\u2011like, and boundary patterns on ['A', 'B']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": 65535,
+            "B": 255
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 65535,
+            "B": 255
+          }
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "A": 0,
+            "B": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 0,
+            "B": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "back_to_back",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Each input pair produces a result and odd output that correspond to the combinational division of A by B, independent of the previous pair."
+      ],
+      "expected_transition": "",
+      "goal": "Validate that the combinational divider produces correct outputs for two successive input vectors without any implicit state.",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply two distinct legal input vectors back\u2011to\u2011back and observe outputs after each."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": 4660,
+            "B": 18
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 4660,
+            "B": 18
+          }
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "A": 43981,
+            "B": 52
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 43981,
+            "B": 52
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle step."
+      ]
+    },
+    {
+      "case_id": "metamorphic_001",
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "metamorphic",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeating the same legal input vector yields identical result and odd outputs, confirming deterministic combinational behavior."
+      ],
+      "expected_transition": "",
+      "goal": "Demonstrate output stability for identical successive inputs (metamorphic consistency).",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "preconditions": [],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive the same legal input pattern twice and verify identical outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "A": 3855,
+            "B": 15
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 3855,
+            "B": 15
+          }
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "A": 3855,
+            "B": 15
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "A": 3855,
+            "B": 15
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Outputs are sampled after each wait_for_settle; no internal state should affect the second observation."
+      ]
+    }
+  ],
+  "module_name": "verified_div_16bit",
+  "plan_confidence": 0.8475,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

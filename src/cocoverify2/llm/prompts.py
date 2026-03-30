@@ -21,7 +21,9 @@ def build_plan_system_prompt() -> str:
         "Preserve ambiguity when behavior is underspecified. "
         "Always keep baseline basic and edge coverage intact; enrich or add cases without deleting baseline coverage. "
         "Follow the schema exactly. In additional_cases, use 'draft_id' and never emit 'case_id'. "
-        "Do not emit confidence, source, or other bookkeeping fields."
+        "Do not emit confidence, source, or other bookkeeping fields. "
+        "Inside stimulus_program, drive and record_inputs steps must use only concrete deterministic literals: bools, integers, 0x-style literals, or Verilog numeric literals such as 16'h1234. "
+        "Never emit placeholders like rand64, random, arbitrary, any_value, or symbolic generator tokens."
     )
 
 
@@ -84,6 +86,9 @@ def build_plan_user_prompt(
                         "Use ordered structured steps only: drive, wait_for_settle, wait_cycles, record_inputs, record_note.",
                         "Never emit cocotb/Python code in stimulus_program.",
                         "Drive only known input signals from contract ports.",
+                        "Drive-step values must be concrete deterministic literals only: bools, integers, 0x-style literals, or Verilog numeric literals.",
+                        "Never emit placeholders such as rand64, random, arbitrary, any_value, or symbolic generator tokens.",
+                        "record_inputs is only for capturing already-applied input signal values; never include outputs or observation-only signals there.",
                         "For edge/back_to_back/protocol/fsm/metamorphic/reference-like cases, stimulus_program must reflect the case label.",
                     ],
                 },
@@ -112,7 +117,7 @@ def build_plan_user_prompt(
                     "stimulus_program": [
                         {
                             "action": "drive|wait_for_settle|wait_cycles|record_inputs|record_note",
-                            "signals": {"known_input": 1},
+                            "signals": {"known_input": "16'h0001"},
                             "cycles": 1,
                             "text": "optional note"
                         }
@@ -144,7 +149,7 @@ def build_plan_user_prompt(
                     "stimulus_program": [
                         {
                             "action": "drive|wait_for_settle|wait_cycles|record_inputs|record_note",
-                            "signals": {"known_input": 1},
+                            "signals": {"known_input": "0x1"},
                             "cycles": 1,
                             "text": "optional note"
                         }

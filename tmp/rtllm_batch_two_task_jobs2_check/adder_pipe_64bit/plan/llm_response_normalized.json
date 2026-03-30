@@ -1,0 +1,321 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "o_en_handshake"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "proto_001",
+      "expected_properties": [
+        "o_en asserts when result becomes valid and deasserts after the next enable cycle"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the output enable handshake follows the input enable without assuming fixed latency.",
+      "notes": [
+        "Conservative: wait for any observable o_en transition after i_en."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Reset has been released and module is stable."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "protocol_acceptance",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a single addition operation and observe the o_en handshake behavior."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0010",
+            "addb": "64'h0000_0000_0000_0005",
+            "i_en": "1'b1"
+          },
+          "text": "Issue addition"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow pipeline to produce result"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0010",
+            "addb": "64'h0000_0000_0000_0005",
+            "i_en": "1'b1"
+          },
+          "text": "Capture inputs for reference"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "i_en": "1'b0"
+          },
+          "text": "Deassert enable to observe o_en deassertion"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe o_en response"
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Do not assume a fixed number of cycles between i_en and o_en; wait for observable stability."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "illegal_input",
+        "reset_active"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "No result or o_en should become valid while reset is asserted."
+      ],
+      "expected_transition": "",
+      "goal": "Confirm that the design remains quiescent when inputs are driven during active reset.",
+      "notes": [
+        "Even though inputs are driven, reset dominance should prevent any output activity."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "rst_n is asserted low."
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive i_en and operands while reset is active and verify outputs stay inactive."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h1234_5678_9ABC_DEF0",
+            "addb": "64'h0FED_CBA9_8765_4321",
+            "i_en": "1'b1",
+            "rst_n": "1'b0"
+          },
+          "text": "Apply inputs during reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": "Observe that result and o_en remain stable (X or 0)"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Outputs may remain unknown during reset; no assumption of valid data."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "stimulus_intent": [
+        "Assert and release reset, then observe that result and o_en settle to a defined state."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": "Assert active-low reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset for a few cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow module to stabilize post-reset"
+        }
+      ],
+      "timing_assumptions": [
+        "No fixed latency assumed for reset recovery."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern and observe stable post-operation behavior."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0001",
+            "addb": "64'h0000_0000_0000_0002",
+            "i_en": "1'b1"
+          },
+          "text": "Issue a simple addition"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Advance one clock cycle"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe result and o_en after pipeline latency"
+        }
+      ],
+      "timing_assumptions": [
+        "Do not assume exact cycle count for result availability."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "stimulus_intent": [
+        "Use zero, max, and carry\u2011boundary patterns on operands and enable."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0000",
+            "addb": "64'h0000_0000_0000_0000",
+            "i_en": "1'b1"
+          },
+          "text": "Zero operands"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe result for zero case"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'hFFFF_FFFF_FFFF_FFFF",
+            "addb": "64'h0000_0000_0000_0001",
+            "i_en": "1'b1"
+          },
+          "text": "Maximum operand plus one to test carry overflow"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe result for max+1 case"
+        }
+      ],
+      "timing_assumptions": [
+        "Conservative observation; no fixed latency assumed."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing while remaining safe under unknown latency."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0010",
+            "addb": "64'h0000_0000_0000_0005",
+            "i_en": "1'b1"
+          },
+          "text": "First addition"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Minimal spacing"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_00FF",
+            "addb": "64'h0000_0000_0000_0001",
+            "i_en": "1'b1"
+          },
+          "text": "Second addition back\u2011to\u2011back"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": "Observe both results and o_en transitions"
+        }
+      ],
+      "timing_assumptions": [
+        "Do not assume that the second operation completes before the first result is visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

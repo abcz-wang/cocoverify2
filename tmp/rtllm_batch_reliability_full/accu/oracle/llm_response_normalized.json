@@ -1,0 +1,43 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When valid_out is asserted, data_out must equal the sum of the four most recent data_in values that were presented with valid_in=1.",
+          "notes": [
+            "Conservative check; does not assume fixed latency, only requires that after a sequence of four valid inputs, a later cycle with valid_out=1 shows the correct sum."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out",
+            "valid_in",
+            "data_in"
+          ],
+          "pass_condition": "If valid_out=1, then data_out matches the accumulated sum of the last four data_in values that had valid_in=1, regardless of exact cycle offset.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "valid_out_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When valid_out transitions to 1."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

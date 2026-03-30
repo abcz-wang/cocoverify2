@@ -17,6 +17,7 @@ class LLMClient:
 
     def __init__(self, config: LLMConfig) -> None:
         self.config = config
+        self._openai_client: Any | None = None
 
     def complete(self, *, system_prompt: str, user_prompt: str) -> str:
         """Return raw text content from the configured LLM backend."""
@@ -45,11 +46,19 @@ class LLMClient:
         raise RuntimeError(f"LLM request failed after {attempts} attempt(s): {last_error}")
 
     def _create_openai_client(self) -> Any:
+        if self._openai_client is not None:
+            return self._openai_client
         try:
             from openai import OpenAI
         except ImportError as exc:  # pragma: no cover - dependency-level path
             raise RuntimeError("The openai package is required for cocoverify2 hybrid LLM mode.") from exc
-        return OpenAI(base_url=self.config.base_url, api_key=self.config.api_key)
+        self._openai_client = OpenAI(
+            base_url=self.config.base_url,
+            api_key=self.config.api_key,
+            timeout=float(self.config.timeout_seconds),
+            max_retries=0,
+        )
+        return self._openai_client
 
 
 def _extract_response_text(response: Any) -> str:

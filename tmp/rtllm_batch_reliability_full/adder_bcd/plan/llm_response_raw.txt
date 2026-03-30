@@ -1,0 +1,226 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "draft_id": "new_case_001",
+      "goal": "Verify that consecutive BCD additions produce correct Sum and Cout without intermediate reset.",
+      "stimulus_intent": [
+        "Apply two back-to-back addition operations with distinct inputs."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "expected_properties": [
+        "Sum and Cout reflect each addition independently; no spurious carry between operations."
+      ],
+      "coverage_tags": [
+        "back_to_back",
+        "comb"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "scenario_kind": "back_to_back_pair",
+      "priority": 3,
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd2",
+            "B": "4'd3",
+            "Cin": "1'b0"
+          },
+          "text": "First addition"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd2",
+            "B": "4'd3",
+            "Cin": "1'b0"
+          }
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd7",
+            "B": "4'd5",
+            "Cin": "1'b1"
+          },
+          "text": "Second addition"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd7",
+            "B": "4'd5",
+            "Cin": "1'b1"
+          }
+        }
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "goal": "Exercise a typical legal BCD addition and verify Sum and Cout.",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across A, B, Cin."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B",
+        "Cin"
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "expected_properties": [
+        "Sum equals (A+B+Cin) corrected to BCD; Cout indicates overflow beyond 9."
+      ],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb"
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "scenario_kind": "single_operation",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd3",
+            "B": "4'd4",
+            "Cin": "1'b0"
+          },
+          "text": "Typical addition"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd3",
+            "B": "4'd4",
+            "Cin": "1'b0"
+          }
+        }
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "goal": "Exercise boundary values (0 and 9) for BCD inputs to verify correct correction and carry generation.",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on A and B."
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "observed_signals": [
+        "Sum",
+        "Cout"
+      ],
+      "expected_properties": [
+        "When A+B+Cin exceeds 9, Sum is corrected and Cout asserted; at boundaries behavior matches BCD spec."
+      ],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "scenario_kind": "boundary_vector",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd0",
+            "B": "4'd0"
+          },
+          "text": "Zero inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd0",
+            "B": "4'd0"
+          }
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd9",
+            "B": "4'd9"
+          },
+          "text": "Maximum BCD inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "4'd9",
+            "B": "4'd9"
+          }
+        }
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input stabilization."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

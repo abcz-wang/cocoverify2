@@ -1,0 +1,466 @@
+{
+  "additional_cases": [
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "protocol",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "After eight valid serial bits, dout_valid becomes 1 and dout_parallel equals the transmitted pattern 0b01010101."
+      ],
+      "expected_transition": "",
+      "goal": "Verify that a known alternating bit pattern is correctly captured and presented on the parallel output with proper validity indication.",
+      "notes": [],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "protocol_acceptance",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a sequence of eight valid serial bits with alternating values and observe the resulting parallel output and validity."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b1",
+            "din_serial": "1'b0"
+          },
+          "text": "first bit 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": "second bit 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "third bit 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": "fourth bit 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "fifth bit 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": "sixth bit 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "seventh bit 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": "eighth bit 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "deassert valid after transmission"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow output to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "",
+            "dout_valid": ""
+          },
+          "text": "capture final parallel data and validity"
+        }
+      ],
+      "stimulus_signals": [
+        "din_valid",
+        "din_serial"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after at most one clock cycle following the eighth valid bit."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "When din_valid is asserted for eight consecutive cycles with din_serial driven, dout_valid becomes 1 and dout_parallel reflects the eight transmitted bits."
+      ],
+      "expected_transition": "",
+      "goal": "Demonstrate normal operation for a single 8‑bit transfer.",
+      "notes": [],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a single valid 8‑bit sequence and observe the resulting parallel output and validity."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b1",
+            "din_serial": "1'b1"
+          },
+          "text": "bit 7 (MSB) = 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "bit 6 = 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": "bit 5 = 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "bit 4 = 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": "bit 3 = 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "bit 2 = 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": "bit 1 = 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "bit 0 (LSB) = 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "deassert valid after transmission"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "",
+            "dout_valid": ""
+          },
+          "text": "capture final parallel data and validity"
+        }
+      ],
+      "stimulus_signals": [
+        "din_valid",
+        "din_serial"
+      ],
+      "timing_assumptions": [
+        "Observe dout_valid and dout_parallel after at most one clock cycle following the eighth valid bit."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "The module correctly handles din_valid low (no capture) and high (capture) without assuming hidden latency."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise the boundary conditions of the din_valid control signal.",
+      "notes": [],
+      "observed_signals": [
+        "dout_parallel",
+        "dout_valid"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Toggle din_valid between 0 and 1 while keeping din_serial stable to verify that no bits are captured when din_valid is 0."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0",
+            "din_serial": "1'b1"
+          },
+          "text": "idle period with valid low"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b1"
+          },
+          "text": "assert valid to start capture"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "first captured bit = 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "deassert valid early to test incomplete capture"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow any pending output to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "",
+            "dout_valid": ""
+          },
+          "text": "capture state after early deassertion"
+        }
+      ],
+      "stimulus_signals": [
+        "din_valid",
+        "din_serial"
+      ],
+      "timing_assumptions": [
+        "No assumption of exact capture latency; observe outputs after a conservative settle period."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

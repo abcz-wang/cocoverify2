@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that after a legal write operation, the EMPTY flag eventually deasserts and dataOut remains stable, without assuming a fixed latency.",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "At least one of the observed signals changes in a manner consistent with a successful write, and no X/Z values appear after stabilization.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a write (RW=0) with EN=1 is applied after reset."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guard against assuming that a read operation completes within a single clock cycle when timing is unknown.",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "The property holds that after a read request, EMPTY may become asserted only after an observable change, and no premature assumption of completion is made.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a read (RW=1) with EN=1 is issued."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,298 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "slti"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "flag is asserted (1) when a < b for signed SLT operation",
+        "zero is deasserted (0) when result is non\u2011zero",
+        "negative reflects sign of the subtraction result"
+      ],
+      "expected_transition": "",
+      "goal": "Verify flag output for signed less\u2011than (SLT) operation.",
+      "notes": [],
+      "observed_signals": [
+        "r",
+        "zero",
+        "flag",
+        "negative"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive operands where a < b (signed) and aluc set to SLT to check flag=1."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000001",
+            "aluc": "6'b101010",
+            "b": "32'h00000002"
+          },
+          "text": "Apply signed less\u2011than operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000001",
+            "aluc": "6'b101010",
+            "b": "32'h00000002"
+          },
+          "text": "Capture applied inputs for reference"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Outputs are expected to be stable after a single delta cycle."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "sltui"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "flag is asserted (1) when a < b for unsigned SLTU operation",
+        "zero is deasserted (0) when result is non\u2011zero",
+        "carry reflects unsigned overflow if any"
+      ],
+      "expected_transition": "",
+      "goal": "Verify flag output for unsigned less\u2011than (SLTU) operation.",
+      "notes": [],
+      "observed_signals": [
+        "r",
+        "zero",
+        "flag",
+        "carry"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive operands where a < b (unsigned) and aluc set to SLTU to check flag=1."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000001",
+            "aluc": "6'b101011",
+            "b": "32'h00000002"
+          },
+          "text": "Apply unsigned less\u2011than operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000001",
+            "aluc": "6'b101011",
+            "b": "32'h00000002"
+          },
+          "text": "Capture applied inputs for reference"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Outputs are expected to be stable after a single delta cycle."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "add_zero"
+      ],
+      "expected_properties": [
+        "Result matches addition of zero operands",
+        "zero output is asserted",
+        "carry, overflow, negative are deasserted"
+      ],
+      "expected_transition": "",
+      "goal": "Apply a simple ADD operation with zero operands to verify basic combinational behavior.",
+      "notes": [],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a=0, b=0, aluc=ADD to observe expected zero result."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000000",
+            "aluc": "6'b100000",
+            "b": "32'h00000000"
+          },
+          "text": "Apply ADD with zero operands"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000000",
+            "aluc": "6'b100000",
+            "b": "32'h00000000"
+          },
+          "text": "Record applied inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Outputs are expected to be stable after a single delta cycle."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "operation_specific",
+        "add_boundary"
+      ],
+      "expected_properties": [
+        "Carry and overflow are correctly indicated for maximum unsigned addition",
+        "zero is deasserted for non\u2011zero result"
+      ],
+      "expected_transition": "",
+      "goal": "Apply boundary values to test carry and overflow detection for ADDU.",
+      "notes": [],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a=0xFFFFFFFF, b=0xFFFFFFFF, aluc=ADDU to provoke carry and overflow."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFFFFFF",
+            "aluc": "6'b100001",
+            "b": "32'hFFFFFFFF"
+          },
+          "text": "Apply ADDU with maximum operands"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFFFFFF",
+            "aluc": "6'b100001",
+            "b": "32'hFFFFFFFF"
+          },
+          "text": "Record applied inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Outputs are expected to be stable after a single delta cycle."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

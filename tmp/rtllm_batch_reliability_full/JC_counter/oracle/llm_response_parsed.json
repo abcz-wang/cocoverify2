@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that Q never assumes an X or Z value after reset release, preserving definedness under ambiguity.",
+          "notes": [
+            "Guard against undefined output during stabilization."
+          ],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "Q must be 0 or a valid 64-bit value (no X/Z) after the settle period following reset release.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is deasserted and the design is observed for a settle period."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that Q updates on each rising edge of clk after reset, without assuming a fixed latency.",
+          "notes": [
+            "Conservative observation of state progression."
+          ],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "After each rising edge of clk, Q should reflect the Johnson counter progression or remain stable if no progression is expected; exact cycle timing is not required.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a clock edge occurs following reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

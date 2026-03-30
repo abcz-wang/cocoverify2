@@ -1,0 +1,247 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "carry",
+        "overflow"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 equals (A + B) >> 32"
+      ],
+      "expected_transition": "",
+      "goal": "Test addition with maximum operands to verify carry-out generation.",
+      "notes": [],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "settle_requirement": "wait_for_settle 1 cycle after driving inputs",
+      "stimulus_intent": [
+        "Drive both operands to all ones to provoke carry-out."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'hFFFFFFFF",
+            "B": "32'hFFFFFFFF"
+          },
+          "text": "Maximum operand values"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'hFFFFFFFF",
+            "B": "32'hFFFFFFFF"
+          },
+          "text": "Capture applied inputs"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect S = 32'hFFFFFFFE and C32 = 1"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "zero_operand"
+      ],
+      "draft_id": "edge_002",
+      "expected_properties": [
+        "Sum output S equals the non\u2011zero operand when the other operand is zero",
+        "Carry-out C32 equals 0 when adding zero"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that adding zero yields the other operand unchanged and no carry.",
+      "notes": [],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "wait_for_settle 1 cycle after each drive",
+      "stimulus_intent": [
+        "Drive A=0 with a non\u2011zero B, then drive B=0 with a non\u2011zero A."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h00000000",
+            "B": "32'h12345678"
+          },
+          "text": "A zero, B non\u2011zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h00000000",
+            "B": "32'h12345678"
+          },
+          "text": "Capture first operand pair"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h9ABCDEF0",
+            "B": "32'h00000000"
+          },
+          "text": "A non\u2011zero, B zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h9ABCDEF0",
+            "B": "32'h00000000"
+          },
+          "text": "Capture second operand pair"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect S equals the non\u2011zero operand and C32 = 0 for both cases"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each input stabilization."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "comb",
+        "sanity"
+      ],
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 equals (A + B) >> 32"
+      ],
+      "expected_transition": "",
+      "goal": "Validate combinational correctness of the 32-bit adder for typical operand values.",
+      "notes": [],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "wait_for_settle 1 cycle after driving inputs",
+      "stimulus_intent": [
+        "Apply a nominal operand pair and verify sum and carry-out."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h00001234",
+            "B": "32'h00004321"
+          },
+          "text": "Nominal input values"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational logic to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h00001234",
+            "B": "32'h00004321"
+          },
+          "text": "Capture applied inputs"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe outputs S and C32 for correctness"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -284,6 +284,50 @@ def test_hybrid_plan_uses_normalized_payload_for_validation(tmp_path: Path) -> N
     assert any(item.get("field") == "preconditions" for item in stripped)
 
 
+def test_hybrid_plan_drops_nondeterministic_stimulus_placeholders(tmp_path: Path) -> None:
+    _, contract_path = _extract_contract(tmp_path, "simple_comb.v")
+    llm_response = json.dumps(
+        {
+            "baseline_case_enrichments": [
+                {
+                    "case_id": "basic_001",
+                    "stimulus_signals": ["a", "b"],
+                    "scenario_kind": "single_operation",
+                    "stimulus_program": [
+                        {"action": "drive", "signals": {"a": "rand64", "b": "0x4"}},
+                        {"action": "record_inputs", "signals": {"a": "rand64", "y": 1, "b": "8'b00000101"}},
+                    ],
+                    "notes": ["Keep only deterministic literals."],
+                }
+            ],
+            "additional_cases": [],
+            "assumptions": [],
+            "unresolved_items": [],
+            "planning_notes": [],
+        }
+    )
+    generator = TestPlanGenerator(llm_client=_StaticLLMClient(llm_response))
+    plan = generator.run_from_artifact(
+        contract_path=contract_path,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        generation_mode=GenerationMode.HYBRID,
+        llm_config=LLMConfig(),
+    )
+
+    basic_case = next(case for case in plan.cases if case.case_id == "basic_001")
+    assert basic_case.stimulus_program == [
+        {"action": "drive", "signals": {"b": 4}},
+        {"action": "record_inputs", "signals": {"b": 5}},
+    ]
+    payload = json.loads((tmp_path / "plan" / "test_plan.json").read_text(encoding="utf-8"))
+    assert "rand64" not in json.dumps(payload)
+    merge_report = json.loads((tmp_path / "plan" / "llm_merge_report.json").read_text(encoding="utf-8"))
+    warnings = merge_report["validation_report"]["signal_normalization_warnings"]
+    assert any("stimulus_program_warnings" in item for item in warnings)
+
+
 def test_seq_without_business_inputs_keeps_clock_driven_basic_case_deterministic(tmp_path: Path) -> None:
     contract = DUTContract(
         module_name="counter_like",

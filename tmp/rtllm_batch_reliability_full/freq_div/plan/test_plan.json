@@ -1,0 +1,204 @@
+{
+  "assumptions": [
+    "On every positive edge of CLK_in or RST, if RST is active, CLK_50 is set to 0.",
+    "On every positive edge of CLK_in or RST, if RST is active, CLK_10 is set to 0, and the counter cnt_10 is reset to 0.",
+    "On every positive edge of CLK_in or RST, if RST is active, CLK_1 is set to 0, and the counter cnt_100 is reset to 0.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "freq_div",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "comparison_operands": [],
+      "confidence": 0.4350000000000001,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "CLK_50",
+        "CLK_10",
+        "CLK_1"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization.",
+        "Assert reset synchronously with CLK_in, hold for a few cycles, then deassert."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 3
+        },
+        {
+          "action": "wait_for_settle"
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Observe outputs after at least one clock cycle post\u2011reset."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.3850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "basic_progress"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock-driven state progress after reset or conservative initialization.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "CLK_50",
+        "CLK_10",
+        "CLK_1"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress.",
+        "Release reset, let the design run for several input clock cycles, and observe that output clocks evolve without X values."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 20
+        },
+        {
+          "action": "record_note",
+          "text": "Check that CLK_50, CLK_10, and CLK_1 are non\u2011X and exhibit expected toggling patterns"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Do not assume exact latency; allow observation over a window of at least 20 input clock cycles."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.24250000000000005,
+      "coverage_tags": [
+        "edge",
+        "toggle_verification"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "CLK_10 toggles from 0 to 1 within a number of CLK_in cycles consistent with a divide-by-10 operation"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the divided clock CLK_10 exhibits a toggle after the expected number of input clock cycles.",
+      "notes": [
+        "Observes the first toggle of CLK_10 after reset release."
+      ],
+      "observed_signals": [
+        "CLK_10"
+      ],
+      "preconditions": [
+        "RST is deasserted"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Ensure the design is out of reset and allow enough input clock cycles for CLK_10 to toggle."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 6
+        },
+        {
+          "action": "record_note",
+          "text": "Check that CLK_10 has transitioned from 0 to 1"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Do not assume exact cycle count; allow a small window for the toggle."
+      ]
+    }
+  ],
+  "module_name": "freq_div",
+  "plan_confidence": 0.17,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Golden interface described clock 'CLK_50', but the RTL port is not a scalar input-like signal.",
+    "Golden interface described clock 'CLK_10', but the RTL port is not a scalar input-like signal.",
+    "Golden interface described clock 'CLK_1', but the RTL port is not a scalar input-like signal.",
+    "Spec/reset hint could not be mapped to a known reset port: If the counter cnt_10 reaches a value of 4, CLK_10 is toggled by inverting its current value, and the counter cnt_10 is reset to 0.",
+    "Spec/reset hint could not be mapped to a known reset port: If the counter cnt_100 reaches a value of 49, CLK_1 is toggled by inverting its current value, and the counter cnt_100 is reset to 0.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions."
+  ]
+}

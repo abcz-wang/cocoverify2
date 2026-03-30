@@ -1,0 +1,48 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When valid_out is asserted, dout must reflect the current MSB of the internal shift register, and subsequent cycles must output the remaining bits in order.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "pass_condition": "If valid_out transitions high, dout must equal the MSB of the input word d for that transaction, and for the next three clock cycles dout must present the next bits (bit2, bit1, bit0) while valid_out remains high.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 4,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On detection of a rising edge of valid_out."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,3104 @@
+{
+  "artifact_stage": "render",
+  "based_on_contract": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_reliability_full/radix2_div/contract/contract.json",
+  "based_on_oracle": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_reliability_full/radix2_div/oracle/oracle.json",
+  "based_on_plan": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_reliability_full/radix2_div/plan/test_plan.json",
+  "based_on_render_metadata": "",
+  "coverage_summary": {
+    "case_categories": [
+      "back_to_back",
+      "basic",
+      "edge",
+      "protocol",
+      "reset"
+    ],
+    "class_name": "VerifiedRadix2DivCoverage",
+    "coverage_tags": [
+      "acceptance",
+      "back_to_back",
+      "backpressure",
+      "basic",
+      "boundary",
+      "edge",
+      "initialization",
+      "persistence",
+      "protocol",
+      "repeated_operation",
+      "res",
+      "reset",
+      "sanity",
+      "seq",
+      "stability",
+      "valid_ready"
+    ]
+  },
+  "env_summary": {
+    "case_count": 7,
+    "class_name": "VerifiedRadix2DivEnv",
+    "driver_helpers": [
+      "exercise_case",
+      "drive_inputs",
+      "wait_for_settle",
+      "record_case_inputs"
+    ],
+    "has_reset_helper": true,
+    "llm_todo_blocks": [
+      {
+        "block_id": "stimulus_reset_001",
+        "case_id": "reset_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid"
+          ],
+          "business_outputs": [
+            "result"
+          ],
+          "case_id": "reset_001",
+          "category": "reset",
+          "goal": "Establish a stable post-reset baseline before functional checking.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "stimulus_intent": [
+            "Assert the detected reset using the inferred polarity.",
+            "Release reset conservatively and observe interface stabilization."
+          ],
+          "stimulus_signals": [
+            "rst"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_reset_001 case_id=reset_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_reset_001 case_id=reset_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_basic_001",
+        "case_id": "basic_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid"
+          ],
+          "business_outputs": [
+            "result"
+          ],
+          "case_id": "basic_001",
+          "category": "basic",
+          "goal": "Apply one legal operation and observe stable post-operation behavior.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "stimulus_intent": [
+            "Drive a representative legal input pattern across known non-control inputs: ['dividend', 'divisor', 'sign', 'opn_valid', 'res_ready']"
+          ],
+          "stimulus_signals": [
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid",
+            "res_ready"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_edge_001",
+        "case_id": "edge_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid"
+          ],
+          "business_outputs": [
+            "result"
+          ],
+          "case_id": "edge_001",
+          "category": "edge",
+          "goal": "Exercise boundary-value and width-sensitive input patterns.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "stimulus_intent": [
+            "Use zero-like, one-like, and boundary patterns on ['dividend', 'divisor', 'opn_valid', 'res_ready']"
+          ],
+          "stimulus_signals": [
+            "dividend",
+            "divisor",
+            "opn_valid",
+            "res_ready"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_protocol_001",
+        "case_id": "protocol_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid"
+          ],
+          "business_outputs": [
+            "result"
+          ],
+          "case_id": "protocol_001",
+          "category": "protocol",
+          "goal": "Observe basic res valid/ready handshake acceptance.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "stimulus_intent": [
+            "Drive res_valid with a legal transaction while allowing res_ready to indicate acceptance."
+          ],
+          "stimulus_signals": [
+            "res_ready"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible.",
+            "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_protocol_001 case_id=protocol_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_protocol_001 case_id=protocol_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_protocol_002",
+        "case_id": "protocol_002",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid"
+          ],
+          "business_outputs": [
+            "result"
+          ],
+          "case_id": "protocol_002",
+          "category": "protocol",
+          "goal": "Observe res backpressure behavior when ready is low.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "stimulus_intent": [
+            "Attempt a transaction while res_ready remains low or unavailable for acceptance."
+          ],
+          "stimulus_signals": [
+            "res_ready"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible.",
+            "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_protocol_002 case_id=protocol_002",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_protocol_002 case_id=protocol_002",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_protocol_003",
+        "case_id": "protocol_003",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid"
+          ],
+          "business_outputs": [
+            "result"
+          ],
+          "case_id": "protocol_003",
+          "category": "protocol",
+          "goal": "Observe safe valid persistence or safe-source behavior for res traffic.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "stimulus_intent": [
+            "Maintain or re-assert res_valid across conservative observation windows until acceptance is visible."
+          ],
+          "stimulus_signals": [
+            "res_ready"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible.",
+            "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_protocol_003 case_id=protocol_003",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_protocol_003 case_id=protocol_003",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_back_to_back_001",
+        "case_id": "back_to_back_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid"
+          ],
+          "business_outputs": [
+            "result"
+          ],
+          "case_id": "back_to_back_001",
+          "category": "back_to_back",
+          "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "stimulus_intent": [
+            "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+          ],
+          "stimulus_signals": [
+            "dividend",
+            "divisor",
+            "sign"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+        "template_name": "env_module.py.tmpl"
+      }
+    ],
+    "monitor_helpers": [
+      "safe_observe",
+      "note_oracle_result",
+      "sample_outputs"
+    ],
+    "oracle_helper_module": "verified_radix2_div_oracle",
+    "template_name": "env_module.py.tmpl",
+    "unresolved_items": [
+      "Detected valid_ready-like signal(s) ['opn_valid'] without matching role(s) ['ready'] in group 'opn'.",
+      "Spec/reset hint could not be mapped to a known reset port: res_valid is managed based on the reset signal, the counter, and whether the result has been consumed.",
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage."
+    ],
+    "wait_helpers": [
+      "wait_event_based",
+      "wait_bounded_safe",
+      "wait_unbounded_safe"
+    ]
+  },
+  "fill_status": "experimental_available",
+  "fill_warnings": [
+    "Experimental TODO fill metadata is present, but the default mainline pipeline remains render -> run -> triage."
+  ],
+  "filled_todo_block_ids": [],
+  "generated_files": [
+    {
+      "description": "Marks the rendered cocotb test directory as a Python package.",
+      "relative_path": "cocotb_tests/__init__.py",
+      "role": "package_init",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Conservative DUT interface helpers derived from the contract artifact.",
+      "relative_path": "cocotb_tests/verified_radix2_div_interface.py",
+      "role": "interface",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Thin environment wrapper that composes interface, timing-safe waits, and coverage helpers.",
+      "relative_path": "cocotb_tests/verified_radix2_div_env.py",
+      "role": "env",
+      "template_name": "env_module.py.tmpl",
+      "todo_block_ids": [
+        "stimulus_reset_001",
+        "stimulus_basic_001",
+        "stimulus_edge_001",
+        "stimulus_protocol_001",
+        "stimulus_protocol_002",
+        "stimulus_protocol_003",
+        "stimulus_back_to_back_001"
+      ]
+    },
+    {
+      "description": "Structured oracle helper functions rendered from the oracle artifact.",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "role": "oracle",
+      "template_name": "oracle_module.py.tmpl",
+      "todo_block_ids": [
+        "oracle_reset_001_protocol_001",
+        "oracle_protocol_001_protocol_001",
+        "oracle_protocol_002_protocol_001",
+        "oracle_protocol_003_protocol_001",
+        "oracle_back_to_back_001_protocol_001",
+        "oracle_edge_001_functional_001",
+        "oracle_reset_001_property_001",
+        "oracle_basic_001_property_001",
+        "oracle_edge_001_property_001",
+        "oracle_protocol_001_property_001",
+        "oracle_protocol_002_property_001",
+        "oracle_protocol_003_property_001",
+        "oracle_back_to_back_001_property_001"
+      ]
+    },
+    {
+      "description": "Stable runtime helpers exposed to LLM-filled stimulus and oracle TODO blocks.",
+      "relative_path": "cocotb_tests/verified_radix2_div_runtime.py",
+      "role": "runtime",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Coverage scaffold rendered from plan coverage tags for later execution stages.",
+      "relative_path": "cocotb_tests/verified_radix2_div_coverage.py",
+      "role": "coverage",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Rendered basic cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_basic.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_reset_001",
+        "testcase_setup_basic_001",
+        "testcase_setup_back_to_back_001"
+      ]
+    },
+    {
+      "description": "Rendered protocol cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_protocol.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_protocol_001",
+        "testcase_setup_protocol_002",
+        "testcase_setup_protocol_003"
+      ]
+    },
+    {
+      "description": "Rendered edge cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_edge.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_edge_001"
+      ]
+    },
+    {
+      "description": "Phase 4 executable Makefile shell; Phase 5 injects run-time variables and executes it.",
+      "relative_path": "cocotb_tests/Makefile",
+      "role": "makefile",
+      "template_name": "",
+      "todo_block_ids": []
+    }
+  ],
+  "interface_summary": {
+    "business_inputs": [
+      "dividend",
+      "divisor",
+      "sign",
+      "opn_valid"
+    ],
+    "business_outputs": [
+      "result"
+    ],
+    "class_name": "VerifiedRadix2DivInterface",
+    "clock_signals": [
+      "clk"
+    ],
+    "optional_signals": [],
+    "protocol_signal_names": [
+      "res_valid",
+      "res_ready"
+    ],
+    "reset_signals": [
+      "rst"
+    ],
+    "unknown_direction_signals": [],
+    "unresolved_items": [
+      "Detected valid_ready-like signal(s) ['opn_valid'] without matching role(s) ['ready'] in group 'opn'.",
+      "Spec/reset hint could not be mapped to a known reset port: res_valid is managed based on the reset signal, the counter, and whether the result has been consumed."
+    ]
+  },
+  "llm_todo_blocks": [
+    {
+      "block_id": "stimulus_reset_001",
+      "case_id": "reset_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid"
+        ],
+        "business_outputs": [
+          "result"
+        ],
+        "case_id": "reset_001",
+        "category": "reset",
+        "goal": "Establish a stable post-reset baseline before functional checking.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "stimulus_intent": [
+          "Assert the detected reset using the inferred polarity.",
+          "Release reset conservatively and observe interface stabilization."
+        ],
+        "stimulus_signals": [
+          "rst"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_reset_001 case_id=reset_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_radix2_div_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_reset_001 case_id=reset_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid"
+        ],
+        "business_outputs": [
+          "result"
+        ],
+        "case_id": "basic_001",
+        "category": "basic",
+        "goal": "Apply one legal operation and observe stable post-operation behavior.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "stimulus_intent": [
+          "Drive a representative legal input pattern across known non-control inputs: ['dividend', 'divisor', 'sign', 'opn_valid', 'res_ready']"
+        ],
+        "stimulus_signals": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid",
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_radix2_div_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid"
+        ],
+        "business_outputs": [
+          "result"
+        ],
+        "case_id": "edge_001",
+        "category": "edge",
+        "goal": "Exercise boundary-value and width-sensitive input patterns.",
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "stimulus_intent": [
+          "Use zero-like, one-like, and boundary patterns on ['dividend', 'divisor', 'opn_valid', 'res_ready']"
+        ],
+        "stimulus_signals": [
+          "dividend",
+          "divisor",
+          "opn_valid",
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_radix2_div_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_protocol_001",
+      "case_id": "protocol_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid"
+        ],
+        "business_outputs": [
+          "result"
+        ],
+        "case_id": "protocol_001",
+        "category": "protocol",
+        "goal": "Observe basic res valid/ready handshake acceptance.",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "stimulus_intent": [
+          "Drive res_valid with a legal transaction while allowing res_ready to indicate acceptance."
+        ],
+        "stimulus_signals": [
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible.",
+          "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_protocol_001 case_id=protocol_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_radix2_div_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_protocol_001 case_id=protocol_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_protocol_002",
+      "case_id": "protocol_002",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid"
+        ],
+        "business_outputs": [
+          "result"
+        ],
+        "case_id": "protocol_002",
+        "category": "protocol",
+        "goal": "Observe res backpressure behavior when ready is low.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "stimulus_intent": [
+          "Attempt a transaction while res_ready remains low or unavailable for acceptance."
+        ],
+        "stimulus_signals": [
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible.",
+          "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_protocol_002 case_id=protocol_002",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_radix2_div_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_protocol_002 case_id=protocol_002",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_protocol_003",
+      "case_id": "protocol_003",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid"
+        ],
+        "business_outputs": [
+          "result"
+        ],
+        "case_id": "protocol_003",
+        "category": "protocol",
+        "goal": "Observe safe valid persistence or safe-source behavior for res traffic.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "stimulus_intent": [
+          "Maintain or re-assert res_valid across conservative observation windows until acceptance is visible."
+        ],
+        "stimulus_signals": [
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible.",
+          "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_protocol_003 case_id=protocol_003",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_radix2_div_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_protocol_003 case_id=protocol_003",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_back_to_back_001",
+      "case_id": "back_to_back_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid"
+        ],
+        "business_outputs": [
+          "result"
+        ],
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "stimulus_intent": [
+          "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+        ],
+        "stimulus_signals": [
+          "dividend",
+          "divisor",
+          "sign"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_radix2_div_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_protocol_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_protocol_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When reset 'rst' is asserted and later released according to the inferred polarity."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "protocol_reset_001",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_protocol_001_protocol_001",
+      "case_id": "protocol_001",
+      "check_id": "protocol_001_protocol_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "res_ready",
+          "result"
+        ],
+        "pass_condition": "A transaction may be considered accepted only on valid/ready overlap; downstream completion is not required in the same observation point or any predetermined later observation point.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_ready": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "primary_data_output_case_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "protocol_event",
+          "max_cycles": null,
+          "min_cycles": 0,
+          "mode": "bounded_range"
+        },
+        "trigger_condition": "When 'res_valid' and 'res_ready' overlap in the observation window."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_001_protocol_001 case_id=protocol_001 oracle_case_id=protocol_protocol_001 check_id=protocol_001_protocol_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "protocol_protocol_001",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_001_protocol_001 case_id=protocol_001 oracle_case_id=protocol_protocol_001 check_id=protocol_001_protocol_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_protocol_002_protocol_001",
+      "case_id": "protocol_002",
+      "check_id": "protocol_002_protocol_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "res_ready",
+          "result"
+        ],
+        "pass_condition": "Progress may stall or be deferred; the oracle does not require completion or acceptance until a later legal handshake is observed.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_ready": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "protocol_event",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When 'res_valid' is asserted while 'res_ready' remains low or unavailable for acceptance."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_002_protocol_001 case_id=protocol_002 oracle_case_id=protocol_protocol_002 check_id=protocol_002_protocol_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "protocol_protocol_002",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_002_protocol_001 case_id=protocol_002 oracle_case_id=protocol_protocol_002 check_id=protocol_002_protocol_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_protocol_003_protocol_001",
+      "case_id": "protocol_003",
+      "check_id": "protocol_003_protocol_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "res_ready",
+          "result"
+        ],
+        "pass_condition": "The interface remains externally consistent while waiting; completion is not claimed before a legal acceptance event is visible.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_ready": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "protocol_event",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When 'res_valid' stays asserted across multiple conservative observation opportunities before 'res_ready' allows acceptance."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_003_protocol_001 case_id=protocol_003 oracle_case_id=protocol_protocol_003 check_id=protocol_003_protocol_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "protocol_protocol_003",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_003_protocol_001 case_id=protocol_003 oracle_case_id=protocol_protocol_003 check_id=protocol_003_protocol_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_back_to_back_001_protocol_001",
+      "case_id": "back_to_back_001",
+      "check_id": "back_to_back_001_protocol_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "pass_condition": "A second operation is not treated as accepted or complete unless a distinct later protocol-visible event is observed.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "primary_data_output_guarded_definedness",
+            "strength": "guarded"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "protocol_event",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When the linked plan applies repeated or back-to-back operations with minimal spacing."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_protocol_001 case_id=back_to_back_001 oracle_case_id=protocol_back_to_back_001 check_id=back_to_back_001_protocol_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "protocol_back_to_back_001",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_protocol_001 case_id=back_to_back_001 oracle_case_id=protocol_back_to_back_001 check_id=back_to_back_001_protocol_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_functional_001",
+      "case_id": "edge_001",
+      "check_id": "edge_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "result",
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid"
+        ],
+        "pass_condition": "Whenever res_valid rises, compute expected_quotient and expected_remainder from the last captured dividend/divisor respecting sign. The upper 8 bits of result must equal expected_remainder and the lower 8 bits must equal expected_quotient. No X or Z values are permitted on result when res_valid is high.",
+        "semantic_tags": [
+          "operation_specific",
+          "ambiguity_preserving"
+        ],
+        "signal_policies": {
+          "dividend": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "divisor": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "opn_valid": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "primary_data_output_case_ambiguity",
+            "strength": "unresolved"
+          },
+          "sign": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "res_valid_rise",
+          "max_cycles": null,
+          "min_cycles": 0,
+          "mode": "event_based"
+        },
+        "trigger_condition": "On each rising edge of res_valid."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001_llm_001 check_id=edge_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_edge_001_llm_001",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001_llm_001 check_id=edge_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_property_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_property_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "While reset is asserted or being released."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_reset_001",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_property_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_property_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_basic_001",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_property_001",
+      "case_id": "edge_001",
+      "check_id": "edge_001_property_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_edge_001",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_protocol_001_property_001",
+      "case_id": "protocol_001",
+      "check_id": "protocol_001_property_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "res_ready",
+          "result"
+        ],
+        "pass_condition": "Acceptance is only credited on legal handshake overlap and is never inferred from a later output alone.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_ready": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "protocol_event",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the case tries to interpret a transfer as accepted."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_001_property_001 case_id=protocol_001 oracle_case_id=property_protocol_001 check_id=protocol_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_protocol_001",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_001_property_001 case_id=protocol_001 oracle_case_id=property_protocol_001 check_id=protocol_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_protocol_002_property_001",
+      "case_id": "protocol_002",
+      "check_id": "protocol_002_property_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "res_ready",
+          "result"
+        ],
+        "pass_condition": "The design is only required to avoid premature acceptance/completion claims; it is not required to make progress under backpressure.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_ready": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "protocol_event",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When ready is low during an attempted transfer."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_002_property_001 case_id=protocol_002 oracle_case_id=property_protocol_002 check_id=protocol_002_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_protocol_002",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_002_property_001 case_id=protocol_002 oracle_case_id=property_protocol_002 check_id=protocol_002_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_protocol_003_property_001",
+      "case_id": "protocol_003",
+      "check_id": "protocol_003_property_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "res_ready",
+          "result"
+        ],
+        "pass_condition": "Completion or success is not credited before a later legal acceptance or progress event is externally visible.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_ready": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "protocol_event",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "While a source is waiting for the protocol to permit acceptance."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_003_property_001 case_id=protocol_003 oracle_case_id=property_protocol_003 check_id=protocol_003_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_protocol_003",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_003_property_001 case_id=protocol_003 oracle_case_id=property_protocol_003 check_id=protocol_003_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_back_to_back_001_property_001",
+      "case_id": "back_to_back_001",
+      "check_id": "back_to_back_001_property_001",
+      "context": {
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "res_valid": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "protocol_visible_signal",
+            "strength": "guarded"
+          },
+          "result": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "dividend": 8,
+          "divisor": 8,
+          "opn_valid": 1,
+          "res_ready": 1,
+          "res_valid": 1,
+          "result": 16,
+          "rst": 1,
+          "sign": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "repeated_operations",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "unbounded_safe"
+        },
+        "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_back_to_back_001",
+      "relative_path": "cocotb_tests/verified_radix2_div_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_reset_001",
+      "case_id": "reset_001",
+      "check_id": "",
+      "context": {
+        "case_id": "reset_001",
+        "category": "reset",
+        "coverage_tags": [
+          "reset",
+          "initialization",
+          "stability"
+        ],
+        "dependencies": [],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": [
+          "rst"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_reset_001 case_id=reset_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_reset_001 case_id=reset_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "case_id": "basic_001",
+        "category": "basic",
+        "coverage_tags": [
+          "basic",
+          "sanity",
+          "seq"
+        ],
+        "dependencies": [
+          "reset_001"
+        ],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid",
+          "res_ready"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_basic_001 case_id=basic_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_basic_001 case_id=basic_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_back_to_back_001",
+      "case_id": "back_to_back_001",
+      "check_id": "",
+      "context": {
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "coverage_tags": [
+          "back_to_back",
+          "repeated_operation"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "stimulus_signals": [
+          "dividend",
+          "divisor",
+          "sign"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_back_to_back_001 case_id=back_to_back_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_back_to_back_001 case_id=back_to_back_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_protocol_001",
+      "case_id": "protocol_001",
+      "check_id": "",
+      "context": {
+        "case_id": "protocol_001",
+        "category": "protocol",
+        "coverage_tags": [
+          "protocol",
+          "valid_ready",
+          "acceptance",
+          "res"
+        ],
+        "dependencies": [
+          "reset_001"
+        ],
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "stimulus_signals": [
+          "res_ready"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_protocol_001 case_id=protocol_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_protocol.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_protocol_001 case_id=protocol_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_protocol_002",
+      "case_id": "protocol_002",
+      "check_id": "",
+      "context": {
+        "case_id": "protocol_002",
+        "category": "protocol",
+        "coverage_tags": [
+          "protocol",
+          "valid_ready",
+          "backpressure",
+          "res"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": [
+          "res_ready"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_protocol_002 case_id=protocol_002",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_protocol.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_protocol_002 case_id=protocol_002",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_protocol_003",
+      "case_id": "protocol_003",
+      "check_id": "",
+      "context": {
+        "case_id": "protocol_003",
+        "category": "protocol",
+        "coverage_tags": [
+          "protocol",
+          "valid_ready",
+          "persistence",
+          "res"
+        ],
+        "dependencies": [
+          "protocol_001"
+        ],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": [
+          "res_ready"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_protocol_003 case_id=protocol_003",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_protocol.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_protocol_003 case_id=protocol_003",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "case_id": "edge_001",
+        "category": "edge",
+        "coverage_tags": [
+          "edge",
+          "boundary"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "stimulus_signals": [
+          "dividend",
+          "divisor",
+          "opn_valid",
+          "res_ready"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_edge_001 case_id=edge_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_radix2_div_edge.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_edge_001 case_id=edge_001",
+      "template_name": "test_case.py.tmpl"
+    }
+  ],
+  "module_name": "verified_radix2_div",
+  "oracle_summary": {
+    "empty_functional_cases": [],
+    "functional_case_count": 1,
+    "llm_todo_blocks": [
+      {
+        "block_id": "oracle_reset_001_protocol_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_protocol_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'rst' is asserted and later released according to the inferred polarity."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "protocol_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_protocol_001_protocol_001",
+        "case_id": "protocol_001",
+        "check_id": "protocol_001_protocol_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "res_ready",
+            "result"
+          ],
+          "pass_condition": "A transaction may be considered accepted only on valid/ready overlap; downstream completion is not required in the same observation point or any predetermined later observation point.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_ready": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "primary_data_output_case_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When 'res_valid' and 'res_ready' overlap in the observation window."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_001_protocol_001 case_id=protocol_001 oracle_case_id=protocol_protocol_001 check_id=protocol_001_protocol_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "protocol_protocol_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_001_protocol_001 case_id=protocol_001 oracle_case_id=protocol_protocol_001 check_id=protocol_001_protocol_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_protocol_002_protocol_001",
+        "case_id": "protocol_002",
+        "check_id": "protocol_002_protocol_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "res_ready",
+            "result"
+          ],
+          "pass_condition": "Progress may stall or be deferred; the oracle does not require completion or acceptance until a later legal handshake is observed.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_ready": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When 'res_valid' is asserted while 'res_ready' remains low or unavailable for acceptance."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_002_protocol_001 case_id=protocol_002 oracle_case_id=protocol_protocol_002 check_id=protocol_002_protocol_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "protocol_protocol_002",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_002_protocol_001 case_id=protocol_002 oracle_case_id=protocol_protocol_002 check_id=protocol_002_protocol_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_protocol_003_protocol_001",
+        "case_id": "protocol_003",
+        "check_id": "protocol_003_protocol_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "res_ready",
+            "result"
+          ],
+          "pass_condition": "The interface remains externally consistent while waiting; completion is not claimed before a legal acceptance event is visible.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_ready": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When 'res_valid' stays asserted across multiple conservative observation opportunities before 'res_ready' allows acceptance."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_003_protocol_001 case_id=protocol_003 oracle_case_id=protocol_protocol_003 check_id=protocol_003_protocol_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "protocol_protocol_003",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_003_protocol_001 case_id=protocol_003 oracle_case_id=protocol_protocol_003 check_id=protocol_003_protocol_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_back_to_back_001_protocol_001",
+        "case_id": "back_to_back_001",
+        "check_id": "back_to_back_001_protocol_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "A second operation is not treated as accepted or complete unless a distinct later protocol-visible event is observed.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "primary_data_output_guarded_definedness",
+              "strength": "guarded"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies repeated or back-to-back operations with minimal spacing."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_protocol_001 case_id=back_to_back_001 oracle_case_id=protocol_back_to_back_001 check_id=back_to_back_001_protocol_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "protocol_back_to_back_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_protocol_001 case_id=back_to_back_001 oracle_case_id=protocol_back_to_back_001 check_id=back_to_back_001_protocol_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_functional_001",
+        "case_id": "edge_001",
+        "check_id": "edge_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "result",
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid"
+          ],
+          "pass_condition": "Whenever res_valid rises, compute expected_quotient and expected_remainder from the last captured dividend/divisor respecting sign. The upper 8 bits of result must equal expected_remainder and the lower 8 bits must equal expected_quotient. No X or Z values are permitted on result when res_valid is high.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "dividend": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "divisor": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "opn_valid": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "primary_data_output_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "sign": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "res_valid_rise",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On each rising edge of res_valid."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001_llm_001 check_id=edge_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_edge_001_llm_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001_llm_001 check_id=edge_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_reset_001_property_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_property_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_basic_001_property_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_property_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_property_001",
+        "case_id": "edge_001",
+        "check_id": "edge_001_property_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_edge_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_protocol_001_property_001",
+        "case_id": "protocol_001",
+        "check_id": "protocol_001_property_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "res_ready",
+            "result"
+          ],
+          "pass_condition": "Acceptance is only credited on legal handshake overlap and is never inferred from a later output alone.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_ready": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the case tries to interpret a transfer as accepted."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_001_property_001 case_id=protocol_001 oracle_case_id=property_protocol_001 check_id=protocol_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_protocol_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_001_property_001 case_id=protocol_001 oracle_case_id=property_protocol_001 check_id=protocol_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_protocol_002_property_001",
+        "case_id": "protocol_002",
+        "check_id": "protocol_002_property_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "res_ready",
+            "result"
+          ],
+          "pass_condition": "The design is only required to avoid premature acceptance/completion claims; it is not required to make progress under backpressure.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_ready": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When ready is low during an attempted transfer."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_002_property_001 case_id=protocol_002 oracle_case_id=property_protocol_002 check_id=protocol_002_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_protocol_002",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_002_property_001 case_id=protocol_002 oracle_case_id=property_protocol_002 check_id=protocol_002_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_protocol_003_property_001",
+        "case_id": "protocol_003",
+        "check_id": "protocol_003_property_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "res_ready",
+            "result"
+          ],
+          "pass_condition": "Completion or success is not credited before a later legal acceptance or progress event is externally visible.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_ready": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While a source is waiting for the protocol to permit acceptance."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_protocol_003_property_001 case_id=protocol_003 oracle_case_id=property_protocol_003 check_id=protocol_003_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_protocol_003",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_protocol_003_property_001 case_id=protocol_003 oracle_case_id=property_protocol_003 check_id=protocol_003_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_back_to_back_001_property_001",
+        "case_id": "back_to_back_001",
+        "check_id": "back_to_back_001_property_001",
+        "context": {
+          "observed_signals": [
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "res_valid": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "protocol_visible_signal",
+              "strength": "guarded"
+            },
+            "result": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "dividend": 8,
+            "divisor": 8,
+            "opn_valid": 1,
+            "res_ready": 1,
+            "res_valid": 1,
+            "result": 16,
+            "rst": 1,
+            "sign": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_back_to_back_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      }
+    ],
+    "preserves_temporal_modes": [
+      "bounded_range",
+      "event_based",
+      "unbounded_safe"
+    ],
+    "property_case_count": 7,
+    "protocol_case_count": 5,
+    "runtime_helper_module": "verified_radix2_div_runtime",
+    "template_name": "oracle_module.py.tmpl",
+    "temporal_modes": [
+      "bounded_range",
+      "event_based",
+      "unbounded_safe"
+    ],
+    "unresolved_items": [
+      "Detected valid_ready-like signal(s) ['opn_valid'] without matching role(s) ['ready'] in group 'opn'.",
+      "Spec/reset hint could not be mapped to a known reset port: res_valid is managed based on the reset signal, the counter, and whether the result has been consumed.",
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+      "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks."
+    ]
+  },
+  "render_confidence": 0.5452857142857144,
+  "render_warnings": [
+    "Detected valid_ready-like signal(s) ['opn_valid'] without matching role(s) ['ready'] in group 'opn'.",
+    "Spec/reset hint could not be mapped to a known reset port: res_valid is managed based on the reset signal, the counter, and whether the result has been consumed.",
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+    "Oracle confidence is limited; rendered checks preserve unresolved items and avoid stronger value-level assertions.",
+    "Rendered Makefile is an executable Phase 4 shell; Phase 5 injects execution variables and selects the backend.",
+    "Task description was provided to the render stage but not used to invent new testbench semantics.",
+    "Spec text was provided to the render stage but only upstream artifacts were trusted for code generation.",
+    "Deterministic render remains the default mainline; post-render TODO fill is experimental and not required by the benchmark path."
+  ],
+  "template_inventory": [
+    "env_module.py.tmpl",
+    "oracle_module.py.tmpl",
+    "test_case.py.tmpl",
+    "test_module.py.tmpl"
+  ],
+  "test_modules": [
+    "test_verified_radix2_div_basic",
+    "test_verified_radix2_div_protocol",
+    "test_verified_radix2_div_edge"
+  ],
+  "unfilled_todo_block_ids": []
+}

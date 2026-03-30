@@ -1,0 +1,378 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "Illegal or special-case inputs (NaN, signaling NaN) do not cause undefined behavior; module should produce a defined NaN output."
+      ],
+      "expected_transition": "",
+      "goal": "Verify handling of NaN inputs under conservative timing.",
+      "notes": [
+        "NaN is represented as exponent all 1s and non\u2011zero mantissa."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Reset has been released and module is stable."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive NaN on operand a and a normal value on operand b, then observe output."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h7FC00000",
+            "b": "32'h3F800000"
+          },
+          "text": "NaN * 1.0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "conservative observation window"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h7FC00000",
+            "b": "32'h3F800000"
+          },
+          "text": "capture NaN stimulus"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency; wait a few cycles for output to settle."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [
+        "z_from_a_b",
+        "z_from_b_a"
+      ],
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [
+        "Multiplication is commutative; swapping inputs yields identical output."
+      ],
+      "expected_transition": "",
+      "goal": "Demonstrate commutativity of floating\u2011point multiplication.",
+      "notes": [
+        "Uses two separate stimulus sequences; output comparison is external to stimulus_program."
+      ],
+      "observed_signals": [
+        "z"
+      ],
+      "preconditions": [
+        "Module is out of reset."
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "First drive a=1.5, b=2.5; then drive a=2.5, b=1.5."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h3FC00000",
+            "b": "32'h40200000"
+          },
+          "text": "first order: 1.5 * 2.5"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "allow result to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h3FC00000",
+            "b": "32'h40200000"
+          },
+          "text": "capture first operand order"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h40200000",
+            "b": "32'h3FC00000"
+          },
+          "text": "second order: 2.5 * 1.5"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "allow second result to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h40200000",
+            "b": "32'h3FC00000"
+          },
+          "text": "capture second operand order"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Conservative waiting between stimulus pairs."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "rst": 1
+          },
+          "text": "assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": 0
+          },
+          "text": "deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 5,
+          "signals": {},
+          "text": "allow post\u2011reset stabilization"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rst": 0
+          },
+          "text": "capture reset state"
+        }
+      ],
+      "stimulus_signals": [
+        "rst"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h3F800000",
+            "b": "32'h40000000"
+          },
+          "text": "multiply 1.0 * 2.0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "conservative observation window"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h3F800000",
+            "b": "32'h40000000"
+          },
+          "text": "capture applied operands"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h00000000",
+            "b": "32'h00000000"
+          },
+          "text": "zero * zero"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "observe zero result"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFFFFFF",
+            "b": "32'hFFFFFFFF"
+          },
+          "text": "max pattern (all ones) on both inputs"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "observe potential overflow/NaN handling"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h7F800000",
+            "b": "32'h3F800000"
+          },
+          "text": "infinity * 1.0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "observe infinity propagation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h7F800000",
+            "b": "32'h3F800000"
+          },
+          "text": "capture last edge stimulus"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h3F800000",
+            "b": "32'h40000000"
+          },
+          "text": "first operation: 1.0 * 2.0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "minimal spacing"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h40400000",
+            "b": "32'h40800000"
+          },
+          "text": "second operation: 3.0 * 4.0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "observe second result"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h40400000",
+            "b": "32'h40800000"
+          },
+          "text": "capture inputs of second operation"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

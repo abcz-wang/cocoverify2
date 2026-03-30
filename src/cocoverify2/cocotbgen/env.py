@@ -8,6 +8,7 @@ from cocoverify2.cocotbgen.template_loader import render_template
 from cocoverify2.cocotbgen.todo_blocks import build_todo_block
 from cocoverify2.core.models import DUTContract, TestPlan
 from cocoverify2.core.types import PortDirection
+from cocoverify2.utils.numeric_literals import normalize_deterministic_literal
 
 _ENV_TEMPLATE = "env_module.py.tmpl"
 
@@ -222,7 +223,7 @@ def _build_deterministic_stimulus_steps(*, contract: DUTContract, case) -> list[
         getattr(case, "stimulus_program", []) or [],
         available_input_names=set(available_input_names),
     )
-    if structured_program:
+    if _has_executable_drive_step(structured_program):
         return _ensure_recorded_inputs(structured_program)
 
     if case_category == "reset":
@@ -291,11 +292,15 @@ def _validate_stimulus_program(
             raw_signals = step.get("signals")
             if not isinstance(raw_signals, dict):
                 continue
-            filtered_signals: dict[str, object] = {
-                str(signal_name): signal_value
-                for signal_name, signal_value in raw_signals.items()
-                if str(signal_name) in available_input_names
-            }
+            filtered_signals: dict[str, object] = {}
+            for signal_name, signal_value in raw_signals.items():
+                normalized_name = str(signal_name or "").strip()
+                if normalized_name not in available_input_names:
+                    continue
+                try:
+                    filtered_signals[normalized_name] = normalize_deterministic_literal(signal_value)
+                except ValueError:
+                    continue
             if not filtered_signals:
                 continue
             normalized.append({"action": "drive", "signals": filtered_signals})
@@ -313,7 +318,17 @@ def _validate_stimulus_program(
         if action == "record_inputs":
             raw_signals = step.get("signals")
             if isinstance(raw_signals, dict) and raw_signals:
-                normalized.append({"action": "record_inputs", "signals": dict(raw_signals)})
+                filtered_signals: dict[str, object] = {}
+                for signal_name, signal_value in raw_signals.items():
+                    normalized_name = str(signal_name or "").strip()
+                    if normalized_name not in available_input_names:
+                        continue
+                    try:
+                        filtered_signals[normalized_name] = normalize_deterministic_literal(signal_value)
+                    except ValueError:
+                        continue
+                if filtered_signals:
+                    normalized.append({"action": "record_inputs", "signals": filtered_signals})
             continue
         if action == "record_note":
             text = str(step.get("text") or "").strip()
@@ -321,6 +336,15 @@ def _validate_stimulus_program(
                 normalized.append({"action": "record_note", "text": text})
             continue
     return normalized
+
+
+def _has_executable_drive_step(steps: list[dict[str, object]]) -> bool:
+    return any(
+        step.get("action") in {"drive", "record_inputs"}
+        and isinstance(step.get("signals"), dict)
+        and bool(step.get("signals"))
+        for step in steps
+    )
 
 
 def _ensure_recorded_inputs(steps: list[dict[str, object]]) -> list[dict[str, object]]:

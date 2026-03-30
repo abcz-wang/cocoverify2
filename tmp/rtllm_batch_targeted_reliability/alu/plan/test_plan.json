@@ -1,0 +1,136 @@
+{
+  "assumptions": [
+    "Implement an ALU for a 32-bit MIPS-ISA CPU. The \u201ca\u201d and \u201cb\u201d are the two operands of the ALU, the \u201caluc\u201d is the opcode, and the \u201cr\u201d gives out the result. \u201czero\u201d means if the result is zero, \u201ccarry\u201d means if there is a carry bit, \u201cnegative\u201d means if the result is negative, \u201coverflow\u201d means if the computation is overflow, the \u201cflag\u201d is the result of \u201cslt\u201d and \u201csltu\u201d instructions. The supported operations and corresponding opcode are shown below:",
+    "zero: a 1-bit output indicating whether the result is zero",
+    "carry: a 1-bit output indicating whether a carry occurred during the operation",
+    "negative: a 1-bit output indicating whether the result is negative",
+    "overflow: a 1-bit output indicating whether an overflow occurred during the operation",
+    "flag: a 1-bit output representing a general flag, which is set based on specific operations (SLT and SLTU)",
+    "The module assigns the input operands to the signed wires and the output result (r) to the lower 32 bits of the register (res[31:0]). The flag output is determined based on the control signal (aluc) and is set to '1' when the operation is SLT or SLTU, and 'z' (high-impedance) otherwise. The zero output is set to '1' when the result is all zeros, and '0' otherwise.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM hybrid fallback activated for plan stage: LLM request failed after 2 attempt(s): Request timed out."
+  ],
+  "based_on_contract": "verified_alu",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['a', 'b', 'aluc']"
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.6975,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['a', 'b', 'aluc']"
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "module_name": "verified_alu",
+  "plan_confidence": 0.7475,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage."
+  ]
+}

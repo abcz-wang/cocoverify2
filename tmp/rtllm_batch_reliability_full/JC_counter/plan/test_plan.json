@@ -1,0 +1,292 @@
+{
+  "assumptions": [
+    "If the reset signal (rst_n) is low, indicating a reset condition, the counter value (Q) is set to 0.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_JC_counter",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "comparison_operands": [],
+      "confidence": 0.9350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery.",
+        "Observed outputs or protocol-visible signals settle to a stable, non\u2011X post\u2011reset state."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post\u2011reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "rst_n": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "rst_n": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock\u2011driven state progress after reset or conservative initialization.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved.",
+        "Case relies on deterministic clock\u2011driven observation because no non\u2011control inputs were resolved."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "rst_n": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "rst_n": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "clk": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "clk": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.9,
+      "coverage_tags": [
+        "edge",
+        "sequence",
+        "johnson"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "After deasserting reset, Q follows the 64\u2011bit Johnson counter sequence on each clock edge."
+      ],
+      "expected_transition": "",
+      "goal": "Validate the Johnson counting progression over several clock cycles.",
+      "notes": [
+        "The pattern is verified conservatively without assuming exact latency."
+      ],
+      "observed_signals": [
+        "Q"
+      ],
+      "preconditions": [
+        "Reset is active\u2011low and has been released."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Assert reset, release it, then generate a few clock edges while noting expected Q values."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "rst_n": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "rst_n": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "clk": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "clk": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_note",
+          "text": "Expected Q after 1st cycle: 64'h8000_0000_0000_0000"
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "clk": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "clk": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "record_note",
+          "text": "Expected Q after 2nd cycle: 64'hC000_0000_0000_0000"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe Q after each full clock period; no fixed\u2011cycle latency assumed."
+      ]
+    }
+  ],
+  "module_name": "verified_JC_counter",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

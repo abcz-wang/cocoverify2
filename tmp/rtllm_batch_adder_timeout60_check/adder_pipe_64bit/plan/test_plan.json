@@ -1,0 +1,491 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_adder_64bit",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "comparison_operands": [],
+      "confidence": 0.9350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.8850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible.",
+        "Result matches the sum of adda and addb when i_en is asserted.",
+        "o_en asserts when the result is valid."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post\u2011operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Stimulus uses a minimal non\u2011zero operand pattern to avoid trivial zero\u2011sum ambiguity."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['i_en', 'adda', 'addb']",
+        "Drive a representative legal input pattern across known non\u2011control inputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "adda": 1,
+            "addb": 1,
+            "i_en": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "adda": 1,
+            "addb": 1,
+            "i_en": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Conservative observation; do not assume a fixed latency."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.8350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['adda', 'addb', 'i_en']"
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "adda",
+        "addb",
+        "i_en"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "confidence": 0.8050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_002",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.9,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "overflow"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Result reflects correct 65\u2011bit sum including carry out when operands cause overflow.",
+        "o_en asserts when the sum is valid."
+      ],
+      "expected_transition": "",
+      "goal": "Validate correct handling of maximum operand values and carry\u2011out generation.",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Apply the maximum 64\u2011bit operand to adda and a value that triggers a carry on addb."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "adda": 18446744073709551615,
+            "addb": 1,
+            "i_en": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "adda": 18446744073709551615,
+            "addb": 1,
+            "i_en": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; do not assume a fixed latency."
+      ]
+    },
+    {
+      "case_id": "back_to_back_002",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "confidence": 0.9,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Second operation produces a valid result independent of the first operation's latency.",
+        "o_en toggles appropriately for each operation."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise two consecutive additions with minimal idle cycles.",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Design is out of reset and has completed the first basic operation."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive two legal addition requests back\u2011to\u2011back."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "adda": 10,
+            "addb": 5,
+            "i_en": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "adda": 16,
+            "addb": 15,
+            "i_en": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "adda": 16,
+            "addb": 15,
+            "i_en": 1
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Do not assume exact cycle latency; observe until outputs stabilize."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "comparison_operands": [],
+      "confidence": 0.9,
+      "coverage_tags": [
+        "protocol",
+        "handshake"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "o_en asserts only after a valid addition has been accepted.",
+        "o_en deasserts when no new valid addition is pending."
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the output enable follows the expected protocol relationship with i_en.",
+      "notes": [],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Design is out of reset."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "protocol_acceptance",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Toggle i_en and observe corresponding o_en behavior."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "adda": 0,
+            "addb": 0,
+            "i_en": 0
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "adda": 3,
+            "addb": 4,
+            "i_en": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "adda": 0,
+            "addb": 0,
+            "i_en": 0
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Observe until o_en stabilizes after each i_en transition."
+      ]
+    }
+  ],
+  "module_name": "verified_adder_64bit",
+  "plan_confidence": 0.95,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

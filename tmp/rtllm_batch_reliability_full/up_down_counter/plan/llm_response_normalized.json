@@ -1,0 +1,264 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "direction_change",
+        "back_to_back"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "When up_down=1 the count increments each clock cycle; when up_down=0 the count decrements each clock cycle."
+      ],
+      "expected_transition": "",
+      "goal": "Validate correct handling of immediate direction changes on consecutive clock cycles.",
+      "notes": [],
+      "observed_signals": [
+        "count"
+      ],
+      "preconditions": [
+        "Reset has been released and counter is in a known state."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply up_down=1 for one cycle, observe increment, then apply up_down=0 for one cycle, observe decrement."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "up_down": "1'b1"
+          },
+          "text": "Set direction to increment"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow one clock edge"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": "capture"
+          },
+          "text": "Capture count after increment"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "up_down": "1'b0"
+          },
+          "text": "Set direction to decrement"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow one clock edge"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": "capture"
+          },
+          "text": "Capture count after decrement"
+        }
+      ],
+      "stimulus_signals": [
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Observations are taken after each rising edge of clk."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "reset": "1'b1"
+          },
+          "text": "Assert synchronous reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset for two clock cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow counter to settle after reset release"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": "capture"
+          },
+          "text": "Capture count value post\u2011reset (expected 0)"
+        }
+      ],
+      "stimulus_signals": [
+        "reset"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "direction_change"
+      ],
+      "expected_properties": [
+        "Externally visible outputs remain defined and can change across conservative clocked observation windows.",
+        "The plan observes progress without assuming a fixed-cycle protocol or hidden internal state access."
+      ],
+      "expected_transition": "",
+      "goal": "Observe clock-driven state progress after reset or conservative initialization.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved.",
+        "Case relies on deterministic clock-driven observation because no non-control inputs were resolved."
+      ],
+      "observed_signals": [
+        "count"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Release reset if present and observe a small number of conservative clock edges for externally visible progress.",
+        "First increment the counter, then decrement it, capturing the count after each phase."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "up_down": "1'b1"
+          },
+          "text": "Set direction to increment"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe several increments"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": "capture"
+          },
+          "text": "Capture count after increment phase"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "up_down": "1'b0"
+          },
+          "text": "Set direction to decrement"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe several decrements"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {
+            "count": "capture"
+          },
+          "text": "Capture count after decrement phase"
+        }
+      ],
+      "stimulus_signals": [
+        "up_down"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

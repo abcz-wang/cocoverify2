@@ -1,0 +1,106 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Seconds counter increments by 1 each clock cycle and wraps from 59 to 0.",
+          "notes": [],
+          "observed_signals": [
+            "Secs"
+          ],
+          "pass_condition": "On each rising edge of CLK when RST is deasserted, Secs either increments by 1 (if previous value < 59) or becomes 0 (if previous value == 59).",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "CLK_posedge",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When CLK rises and RST is low."
+        },
+        {
+          "check_type": "functional",
+          "description": "Minutes counter increments by 1 when seconds wrap from 59 to 0, otherwise holds.",
+          "notes": [],
+          "observed_signals": [
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "On each rising edge of CLK when RST is deasserted, if previous Secs == 59 then Mins increments (if previous Mins < 59) or becomes 0 (if previous Mins == 59); otherwise Mins stays unchanged.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "CLK_posedge",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When CLK rises and RST is low."
+        },
+        {
+          "check_type": "functional",
+          "description": "Hours counter increments by 1 when minutes and seconds both wrap from 59 to 0, otherwise holds.",
+          "notes": [],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "On each rising edge of CLK when RST is deasserted, if previous Secs == 59 and previous Mins == 59 then Hours increments (if previous Hours < 23) or becomes 0 (if previous Hours == 23); otherwise Hours stays unchanged.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "CLK_posedge",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When CLK rises and RST is low."
+        },
+        {
+          "check_type": "functional",
+          "description": "Reset initializes all counters to 0.",
+          "notes": [],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "When RST is asserted (high) any time, Hours, Mins, and Secs become 0 and remain 0 until RST is deasserted.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "RST_assert",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When RST transitions high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

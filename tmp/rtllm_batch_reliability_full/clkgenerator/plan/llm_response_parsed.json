@@ -1,0 +1,112 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "periodic_behavior"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "clk transitions from 0 to 1 within a few cycles after simulation start",
+        "no unexpected glitches on the first toggle"
+      ],
+      "expected_transition": "",
+      "goal": "Capture the first rising edge of clk to ensure the generator starts correctly.",
+      "notes": [],
+      "observed_signals": [
+        "clk"
+      ],
+      "preconditions": [
+        "Simulation starts with default reset state (if any) and no driven inputs."
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Observe clk without providing any stimulus, relying on the module's internal behavior."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow initial state to settle"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Check clk value for first rising edge"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Do not assume exact cycle count for the first toggle; only require it occurs within a reasonable observation window."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "periodic_behavior"
+      ],
+      "expected_properties": [
+        "clk should alternate between 0 and 1 over time",
+        "no glitches observed on clk"
+      ],
+      "expected_transition": "",
+      "goal": "Observe that clk toggles periodically after any reset, confirming basic clock generation.",
+      "notes": [
+        "Enrichment adds explicit observation intent while preserving original conservative stance."
+      ],
+      "observed_signals": [
+        "clk"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Observe output clk without driving any inputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe several clock periods"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Check that clk has toggled at least twice"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "No fixed latency assumed; rely on periodic observation window."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

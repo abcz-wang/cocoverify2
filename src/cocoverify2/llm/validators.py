@@ -20,6 +20,7 @@ from cocoverify2.llm.schemas import (
     PlanCaseEnrichment,
     TodoFillResponse,
 )
+from cocoverify2.utils.numeric_literals import normalize_deterministic_literal
 
 _ORACLE_CLASSES = {"protocol", "functional", "property"}
 _STRICTNESS_THRESHOLD = 0.75
@@ -713,16 +714,22 @@ def _normalize_stimulus_program(
                 continue
             kept_signals: dict[str, Any] = {}
             dropped_signals: list[str] = []
+            invalid_values: list[dict[str, str]] = []
             for signal_name, signal_value in raw_signals.items():
                 normalized_name = str(signal_name or "").strip()
                 if not normalized_name:
                     continue
-                if normalized_name in known_input_signals:
-                    kept_signals[normalized_name] = signal_value
-                else:
+                if normalized_name not in known_input_signals:
                     dropped_signals.append(normalized_name)
+                    continue
+                try:
+                    kept_signals[normalized_name] = normalize_deterministic_literal(signal_value)
+                except ValueError as exc:
+                    invalid_values.append({"signal": normalized_name, "reason": str(exc)})
             if dropped_signals:
                 warnings.append({"index": index, "reason": "unknown_drive_signals", "signals": dropped_signals})
+            if invalid_values:
+                warnings.append({"index": index, "reason": "invalid_drive_values", "details": invalid_values})
             if not kept_signals:
                 continue
             normalized.append({"action": "drive", "signals": kept_signals})
@@ -738,10 +745,31 @@ def _normalize_stimulus_program(
             continue
         if action == "record_inputs":
             raw_signals = raw_step.get("signals")
-            if isinstance(raw_signals, dict) and raw_signals:
-                normalized.append({"action": "record_inputs", "signals": dict(raw_signals)})
-            else:
+            if not isinstance(raw_signals, dict) or not raw_signals:
                 warnings.append({"index": index, "reason": "record_inputs_without_signals"})
+                continue
+            kept_signals: dict[str, Any] = {}
+            dropped_signals: list[str] = []
+            invalid_values: list[dict[str, str]] = []
+            for signal_name, signal_value in raw_signals.items():
+                normalized_name = str(signal_name or "").strip()
+                if not normalized_name:
+                    continue
+                if normalized_name not in known_input_signals:
+                    dropped_signals.append(normalized_name)
+                    continue
+                try:
+                    kept_signals[normalized_name] = normalize_deterministic_literal(signal_value)
+                except ValueError as exc:
+                    invalid_values.append({"signal": normalized_name, "reason": str(exc)})
+            if dropped_signals:
+                warnings.append({"index": index, "reason": "record_inputs_non_input_signals", "signals": dropped_signals})
+            if invalid_values:
+                warnings.append({"index": index, "reason": "invalid_recorded_input_values", "details": invalid_values})
+            if kept_signals:
+                normalized.append({"action": "record_inputs", "signals": kept_signals})
+            else:
+                warnings.append({"index": index, "reason": "record_inputs_without_valid_signals"})
             continue
         if action == "record_note":
             text = _normalize_text(str(raw_step.get("text") or ""))

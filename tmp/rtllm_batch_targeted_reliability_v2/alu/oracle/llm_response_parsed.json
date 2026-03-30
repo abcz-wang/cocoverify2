@@ -1,0 +1,67 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure flag output is high-impedance for non\u2011SLT/SLTU opcodes.",
+          "notes": [],
+          "observed_signals": [
+            "flag"
+          ],
+          "pass_condition": "When aluc is not SLT (6'b101010) nor SLTU (6'b101011), flag must be 'z' (high\u2011impedance).",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever aluc changes to a non\u2011SLT/SLTU value."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "known signals only"
+          ],
+          "pass_condition": "",
+          "semantic_tags": [
+            "snake_case tags"
+          ],
+          "strictness": "conservative|guarded|strict",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based|bounded_range|unbounded_safe|exact_cycle"
+          },
+          "trigger_condition": ""
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

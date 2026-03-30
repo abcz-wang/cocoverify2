@@ -1,0 +1,262 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "negative",
+        "illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "When fetch is an undefined value (2'b11), the module should retain previous register contents and outputs should not change."
+      ],
+      "expected_transition": "",
+      "goal": "Verify that illegal fetch codes are ignored and do not alter stored instruction fields.",
+      "notes": [
+        "The contract does not specify behavior for undefined fetch values; this case checks for safe handling."
+      ],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "preconditions": [
+        "A prior valid instruction has been loaded (e.g., via basic_001)."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive an illegal fetch pattern (2'b11) with a sample data value and observe that outputs remain unchanged."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h55",
+            "fetch": "2'b11"
+          },
+          "text": "Apply illegal fetch code"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow any internal propagation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h55",
+            "fetch": "2'b11"
+          },
+          "text": "Capture applied inputs for reference"
+        }
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after one clock cycle following stimulus."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a legal fetch value (2'b01) with a representative data pattern and verify output fields update accordingly."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hA5",
+            "fetch": "2'b01"
+          },
+          "text": "Load instruction into ins_p1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow register capture"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hA5",
+            "fetch": "2'b01"
+          },
+          "text": "Record stimulus values"
+        }
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after one clock cycle following the drive."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "ins",
+        "ad1",
+        "ad2"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply zero, one, and maximum patterns on fetch and data to probe boundary behavior."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h00",
+            "fetch": "2'b00"
+          },
+          "text": "Zero pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after zero pattern"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h00",
+            "fetch": "2'b00"
+          },
+          "text": "Capture zero inputs"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h01",
+            "fetch": "2'b01"
+          },
+          "text": "One-like pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after one-like pattern"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'h01",
+            "fetch": "2'b01"
+          },
+          "text": "Capture one-like inputs"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hFF",
+            "fetch": "2'b10"
+          },
+          "text": "Maximum data pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after max pattern"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data": "8'hFF",
+            "fetch": "2'b10"
+          },
+          "text": "Capture max inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "fetch",
+        "data"
+      ],
+      "timing_assumptions": [
+        "Each drive is followed by one cycle settle before observation."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

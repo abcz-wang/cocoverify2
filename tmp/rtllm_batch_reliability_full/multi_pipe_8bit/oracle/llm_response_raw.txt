@@ -1,0 +1,41 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When the output enable signal mul_en_out is asserted, the product output mul_out must equal the unsigned multiplication of the input operands mul_a and mul_b; when mul_en_out is deasserted, mul_out must be zero.",
+          "notes": [
+            "Conservative check does not assume a fixed latency; it only requires eventual consistency after the operation is applied."
+          ],
+          "observed_signals": [
+            "mul_en_out",
+            "mul_out"
+          ],
+          "pass_condition": "Eventually (within an event‑based observation window) after mul_en_in is asserted, if mul_en_out becomes high then mul_out equals mul_a * mul_b; otherwise mul_out remains zero.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When mul_en_in transitions high for a legal multiplication operation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

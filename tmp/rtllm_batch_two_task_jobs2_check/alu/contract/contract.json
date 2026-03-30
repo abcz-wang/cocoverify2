@@ -1,0 +1,178 @@
+{
+  "allowed_unknowns": [],
+  "ambiguities": [],
+  "assumptions": [
+    "Implement an ALU for a 32-bit MIPS-ISA CPU. The \u201ca\u201d and \u201cb\u201d are the two operands of the ALU, the \u201caluc\u201d is the opcode, and the \u201cr\u201d gives out the result. \u201czero\u201d means if the result is zero, \u201ccarry\u201d means if there is a carry bit, \u201cnegative\u201d means if the result is negative, \u201coverflow\u201d means if the computation is overflow, the \u201cflag\u201d is the result of \u201cslt\u201d and \u201csltu\u201d instructions. The supported operations and corresponding opcode are shown below:",
+    "zero: a 1-bit output indicating whether the result is zero",
+    "carry: a 1-bit output indicating whether a carry occurred during the operation",
+    "negative: a 1-bit output indicating whether the result is negative",
+    "overflow: a 1-bit output indicating whether an overflow occurred during the operation",
+    "flag: a 1-bit output representing a general flag, which is set based on specific operations (SLT and SLTU)",
+    "The module assigns the input operands to the signed wires and the output result (r) to the lower 32 bits of the register (res[31:0]). The flag output is determined based on the control signal (aluc) and is set to '1' when the operation is SLT or SLTU, and 'z' (high-impedance) otherwise. The zero output is set to '1' when the result is all zeros, and '0' otherwise."
+  ],
+  "clocks": [],
+  "contract_confidence": 0.7475,
+  "extraction_warnings": [],
+  "handshake_groups": [],
+  "handshake_signals": [],
+  "illegal_input_constraints": [],
+  "module_name": "verified_alu",
+  "observable_outputs": [
+    "r",
+    "zero",
+    "carry",
+    "negative",
+    "overflow",
+    "flag"
+  ],
+  "parameters": {},
+  "ports": [
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "a",
+      "raw_range": "[31:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 32
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "b",
+      "raw_range": "[31:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 32
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "aluc",
+      "raw_range": "[5:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 6
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "output",
+      "name": "r",
+      "raw_range": "[31:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 32
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "output",
+      "name": "zero",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "output",
+      "name": "carry",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "output",
+      "name": "negative",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "output",
+      "name": "overflow",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "output",
+      "name": "flag",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    }
+  ],
+  "resets": [],
+  "rtl_sources": [
+    "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/alu/verified_alu.v"
+  ],
+  "source_map": {
+    "module_name": [
+      "rtl:verified_alu.v"
+    ],
+    "ports.a": [
+      "rtl:verified_alu.v",
+      "golden_interface"
+    ],
+    "ports.aluc": [
+      "rtl:verified_alu.v",
+      "golden_interface"
+    ],
+    "ports.b": [
+      "rtl:verified_alu.v",
+      "golden_interface"
+    ],
+    "ports.carry": [
+      "rtl:verified_alu.v",
+      "golden_interface"
+    ],
+    "ports.flag": [
+      "rtl:verified_alu.v",
+      "golden_interface"
+    ],
+    "ports.negative": [
+      "rtl:verified_alu.v",
+      "golden_interface"
+    ],
+    "ports.overflow": [
+      "rtl:verified_alu.v",
+      "golden_interface"
+    ],
+    "ports.r": [
+      "rtl:verified_alu.v",
+      "golden_interface"
+    ],
+    "ports.zero": [
+      "rtl:verified_alu.v",
+      "golden_interface"
+    ],
+    "timing": [
+      "rtl_heuristic"
+    ]
+  },
+  "timing": {
+    "confidence": 0.65,
+    "fixed_latency_cycles": null,
+    "latency_model": "unknown",
+    "sampling_window_cycles": null,
+    "sequential_kind": "comb",
+    "source": "rtl_heuristic",
+    "variable_latency_range": null
+  }
+}

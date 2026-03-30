@@ -1,0 +1,289 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset",
+        "illegal_start"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "neg_start_during_reset",
+      "expected_properties": [
+        "Asserting start while reset is active must not cause the done flag to be set nor product accumulation."
+      ],
+      "expected_transition": "",
+      "goal": "Verify that start asserted during active reset is ignored and does not affect internal state.",
+      "notes": [
+        "The contract does not define behavior for start during reset; this case checks safe handling."
+      ],
+      "observed_signals": [
+        "done",
+        "yout"
+      ],
+      "preconditions": [
+        "Reset polarity is known (active low)."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert start concurrently with active reset and verify no operation occurs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "0",
+            "start": "1",
+            "ain": "16'h1234",
+            "bin": "16'h0002"
+          },
+          "text": "Apply reset and start together for one cycle."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow internal reset handling."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1",
+            "start": "0"
+          },
+          "text": "Release reset and deassert start."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": "Observe that done remains low and yout stays zero."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1",
+            "start": "0",
+            "ain": "16'h1234",
+            "bin": "16'h0002"
+          },
+          "text": "Capture final input values for reference."
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "start",
+        "ain",
+        "bin"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation; no fixed latency assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Product output yout reflects ain * bin after done is asserted.",
+        "Done flag transitions high after operation completes."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['ain', 'bin']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "start": "1",
+            "ain": "16'h0003",
+            "bin": "16'h0004"
+          },
+          "text": "Start multiplication with 3 * 4."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One clock cycle to register inputs."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "start": "0"
+          },
+          "text": "Deassert start to allow operation to proceed."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 5,
+          "signals": {},
+          "text": "Conservative observation window for done and yout to settle."
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "ain": "16'h0003",
+            "bin": "16'h0004"
+          },
+          "text": "Capture the operand values for reference."
+        }
+      ],
+      "stimulus_signals": [
+        "ain",
+        "bin",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['ain', 'bin']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "start": "1",
+            "ain": "16'h0000",
+            "bin": "16'h0000"
+          },
+          "text": "All zeros multiplication."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "start": "0"
+          },
+          "text": "Deassert start."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 4,
+          "signals": {},
+          "text": "Observe done and yout."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "start": "1",
+            "ain": "16'hFFFF",
+            "bin": "16'hFFFF"
+          },
+          "text": "Maximum value multiplication."
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "start": "0"
+          },
+          "text": "Deassert start."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 6,
+          "signals": {},
+          "text": "Observe done and yout for max case."
+        }
+      ],
+      "stimulus_signals": [
+        "ain",
+        "bin",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

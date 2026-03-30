@@ -1,0 +1,198 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "toggle_verification"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "CLK_10 toggles from 0 to 1 within a number of CLK_in cycles consistent with a divide-by-10 operation"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the divided clock CLK_10 exhibits a toggle after the expected number of input clock cycles.",
+      "notes": [
+        "Observes the first toggle of CLK_10 after reset release."
+      ],
+      "observed_signals": [
+        "CLK_10"
+      ],
+      "preconditions": [
+        "RST is deasserted"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Ensure the design is out of reset and allow enough input clock cycles for CLK_10 to toggle."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": 0
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 6,
+          "signals": {},
+          "text": "Allow input clock to advance; expect first toggle of CLK_10"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "RST": 0
+          },
+          "text": "Capture input state post\u2011reset"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Check that CLK_10 has transitioned from 0 to 1"
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Do not assume exact cycle count; allow a small window for the toggle."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset synchronously with CLK_in, hold for a few cycles, then deassert."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": 1
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Maintain reset for a few clock cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": 0
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle after reset release"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "RST": 0
+          },
+          "text": "Capture post\u2011reset input state"
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after at least one clock cycle post\u2011reset."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "basic_progress"
+      ],
+      "observed_signals": [
+        "CLK_50",
+        "CLK_10",
+        "CLK_1"
+      ],
+      "priority": 1,
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset, let the design run for several input clock cycles, and observe that output clocks evolve without X values."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": 0
+          },
+          "text": "Ensure reset is deasserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": "Observe output clocks over multiple input cycles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "RST": 0
+          },
+          "text": "Capture stable input state"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Check that CLK_50, CLK_10, and CLK_1 are non\u2011X and exhibit expected toggling patterns"
+        }
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "timing_assumptions": [
+        "Do not assume exact latency; allow observation over a window of at least 20 input clock cycles."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

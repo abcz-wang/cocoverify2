@@ -1,0 +1,272 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_back_to_back_001",
+      "expected_properties": [
+        "rise and down can be asserted on consecutive clock cycles when a toggles each cycle",
+        "outputs return to 0 when no further edge occurs"
+      ],
+      "expected_transition": "",
+      "goal": "Validate back-to-back edge detection with minimal idle cycles.",
+      "notes": [],
+      "observed_signals": [
+        "rise",
+        "down"
+      ],
+      "preconditions": [
+        "Reset has been released and module is in stable post‑reset state."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Toggle input a each clock cycle to generate consecutive rising and falling edges."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0"
+          },
+          "text": "Initialize a low"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow one clock for stabilization"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1"
+          },
+          "text": "Rising edge"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe rise output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0"
+          },
+          "text": "Falling edge immediately after"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe down output"
+        }
+      ],
+      "stimulus_signals": [
+        "a"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "rise is asserted on the clock cycle after a transitions from 0 to 1",
+        "down is asserted on the clock cycle after a transitions from 1 to 0",
+        "rise and down return to 0 when no edge occurs"
+      ],
+      "expected_transition": "",
+      "goal": "Apply a single rising and falling edge sequence and observe correct output behavior.",
+      "notes": [],
+      "observed_signals": [
+        "rise",
+        "down"
+      ],
+      "preconditions": [
+        "Module is out of reset and inputs are stable."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a low, then a high to generate a rising edge, then low to generate a falling edge."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0"
+          },
+          "text": "Initialize a low"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Stabilize before edge"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1"
+          },
+          "text": "Rising edge"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe rise output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0"
+          },
+          "text": "Falling edge"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe down output"
+        }
+      ],
+      "stimulus_signals": [
+        "a"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "Edge detection works for both possible 1‑bit values",
+        "Outputs are correctly asserted for each transition and de‑asserted otherwise"
+      ],
+      "expected_transition": "",
+      "goal": "Exercise both 0→1 and 1→0 transitions using boundary vectors.",
+      "notes": [],
+      "observed_signals": [
+        "rise",
+        "down"
+      ],
+      "preconditions": [
+        "Module is out of reset."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply the two extreme values of a (0 and 1) to generate both edge types."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0"
+          },
+          "text": "Set a to 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Stabilize"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "1"
+          },
+          "text": "Rising edge (0→1)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe rise"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0"
+          },
+          "text": "Falling edge (1→0)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe down"
+        }
+      ],
+      "stimulus_signals": [
+        "a"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

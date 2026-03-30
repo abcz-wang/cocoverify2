@@ -1,0 +1,281 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "state_independent"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "c updates correctly for each consecutive operation without dependence on previous inputs"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that the combinational subtractor produces correct results for back-to-back input changes, confirming absence of hidden state.",
+      "notes": [],
+      "observed_signals": [
+        "c"
+      ],
+      "preconditions": [
+        "Use only ports a, b, and observable output c"
+      ],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "wait_for_settle",
+      "stimulus_intent": [
+        "Apply two distinct subtraction patterns sequentially and observe output stability after each."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h1234",
+            "b": "16'h0010"
+          },
+          "text": "First operation inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow output to stabilize"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h1234",
+            "b": "16'h0010"
+          },
+          "text": "Capture first input vector"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0005",
+            "b": "16'h0003"
+          },
+          "text": "Second operation inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow output to stabilize"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0005",
+            "b": "16'h0003"
+          },
+          "text": "Capture second input vector"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": []
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "expected_properties": [
+        "c equals (a - b) modulo 2^N for unsigned inputs"
+      ],
+      "goal": "Exercise a typical subtraction and verify combinational output mapping.",
+      "notes": [
+        "Enrichment adds concrete stimulus and explicit property."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "wait_for_settle",
+      "stimulus_intent": [
+        "Apply a representative legal input pattern across inputs a and b."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0A0A",
+            "b": "16'h0505"
+          },
+          "text": "Typical subtraction inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow combinational output to stabilize"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0A0A",
+            "b": "16'h0505"
+          },
+          "text": "Capture applied inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Combinational path; output stable after inputs settle."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "expected_properties": [
+        "c reflects correct wrap‑around behavior at minimum and maximum operand values"
+      ],
+      "goal": "Exercise boundary‑value patterns to verify correct handling of zero, max, and mixed extremes.",
+      "notes": [
+        "Adds explicit boundary drives and observations."
+      ],
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 2,
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "wait_for_settle",
+      "stimulus_intent": [
+        "Use zero, all‑ones, and mixed extreme patterns on inputs a and b."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0",
+            "b": "0"
+          },
+          "text": "Both inputs zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "0",
+            "b": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "0",
+            "b": "16'hFFFF"
+          },
+          "text": "a zero, b max"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "0",
+            "b": "16'hFFFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "0"
+          },
+          "text": "a max, b zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "16'hFFFF"
+          },
+          "text": "Both inputs max"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "16'hFFFF"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Combinational behavior; output stable after each input change."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

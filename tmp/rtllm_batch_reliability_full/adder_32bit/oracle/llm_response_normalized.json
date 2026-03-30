@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure that when both operands are all ones, the carry-out C32 becomes 1 and sum S equals 32'hFFFFFFFE after inputs stabilize.",
+          "notes": [],
+          "observed_signals": [
+            "S",
+            "C32"
+          ],
+          "pass_condition": "C32 == 1 && S == 32'hFFFFFFFE",
+          "semantic_tags": [
+            "carry",
+            "overflow"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When edge_001 stimulus applies A = 32'hFFFFFFFF and B = 32'hFFFFFFFF."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that sum output S and carry-out C32 reflect (A + B) modulo 2^32 and overflow respectively for a representative operand pair.",
+          "notes": [],
+          "observed_signals": [
+            "S",
+            "C32"
+          ],
+          "pass_condition": "S == (A + B) & 32'hFFFFFFFF && C32 == ((A + B) >> 32)",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When basic_001 stimulus drives A and B with a legal random pattern."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Timing remains ambiguous; temporal windows are bounded but not exact-cycle."
+  ]
+}

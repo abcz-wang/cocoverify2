@@ -1,0 +1,75 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Verify that CLK_10 toggles at least once within a conservative observation window after reset release.",
+          "notes": [
+            "No exact cycle count assumed due to timing ambiguity."
+          ],
+          "observed_signals": [
+            "CLK_10"
+          ],
+          "pass_condition": "CLK_10 changes value from 0 to 1 (or 1 to 0) within 8 to 12 CLK_in cycles after reset deassertion.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "edge"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 12,
+            "min_cycles": 8,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted and the design is observed for a window of CLK_in cycles."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "All observed output clocks remain defined (no X or Z) and exhibit toggling behavior consistent with division, without asserting exact period.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "basic_progress"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 20,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset release, during the observation window."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Clock ports CLK_50, CLK_10, CLK_1 are outputs; no scalar input-like signal ambiguity affects oracle definitions."
+  ]
+}

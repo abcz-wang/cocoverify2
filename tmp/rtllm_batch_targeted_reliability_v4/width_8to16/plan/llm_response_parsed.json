@@ -1,0 +1,166 @@
+{
+  "additional_cases": [
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "negative",
+        "invalid_illegal_input"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "neg_001",
+      "expected_properties": [
+        "When valid_in is deasserted, data_out and valid_out must remain unchanged."
+      ],
+      "goal": "Verify that spurious data_in changes without a valid_in assertion do not affect outputs.",
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 4,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input"
+      ],
+      "stimulus_intent": [
+        "Toggle data_in while keeping valid_in low and confirm no output activity."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'hAA",
+            "valid_in": "0"
+          },
+          "text": "Apply data without valid flag"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow any internal propagation"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h55",
+            "valid_in": "0"
+          },
+          "text": "Change data again while still invalid"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe stability of outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Conservative observation: outputs are sampled after at least two clock cycles following the last drive."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "notes": [
+        "Enrichment adds concrete drive steps for the basic functional path."
+      ],
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h12",
+            "valid_in": "1"
+          },
+          "text": "First valid byte"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow internal capture of first byte"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h34",
+            "valid_in": "1"
+          },
+          "text": "Second valid byte to form output"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe concatenated output"
+        }
+      ],
+      "timing_assumptions": [
+        "Outputs may appear up to two clock cycles after the second valid_in assertion due to unknown latency."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "notes": [
+        "Covers boundary values 0x00 and 0xFF for the 8\u2011bit input."
+      ],
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h00",
+            "valid_in": "1"
+          },
+          "text": "Zero pattern first byte"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'hFF",
+            "valid_in": "1"
+          },
+          "text": "Max pattern second byte"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "timing_assumptions": [
+        "Conservative observation window of two cycles after the second edge stimulus."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

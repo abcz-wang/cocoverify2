@@ -1,0 +1,218 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Outputs update correctly for each consecutive input vector without intermediate stabilization beyond combinational propagation."
+      ],
+      "goal": "Apply two distinct operand sets back‑to‑back and verify that sum and cout follow each input change.",
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "priority": 3,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive first operand set, observe, then immediately drive second operand set."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h0F",
+            "b": "8'h01",
+            "cin": "1'b0"
+          }
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h0F",
+            "b": "8'h01",
+            "cin": "1'b0"
+          }
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'hF0",
+            "b": "8'hFE",
+            "cin": "1'b1"
+          }
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'hF0",
+            "b": "8'hFE",
+            "cin": "1'b1"
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "timing_assumptions": [
+        "Outputs are combinationally derived; observe after each settle period."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "goal": "Verify combinational sum and carry‑out for a typical operand combination.",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non‑control inputs: ['a', 'b', 'cin']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h55",
+            "b": "8'hAA",
+            "cin": "1'b0"
+          }
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h55",
+            "b": "8'hAA",
+            "cin": "1'b0"
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "timing_assumptions": [
+        "Outputs reflect inputs combinationally; observe after input stabilization."
+      ],
+      "coverage_tags": [
+        "operation_specific"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "scenario_kind": "single_operation",
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state."
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "priority": 1
+    },
+    {
+      "case_id": "edge_001",
+      "goal": "Validate boundary conditions including zero, maximum values, and carry‑in variations.",
+      "stimulus_intent": [
+        "Use zero‑like, one‑like, and boundary patterns on ['a', 'b']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h00",
+            "b": "8'h00",
+            "cin": "1'b0"
+          }
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'h00",
+            "b": "8'h00",
+            "cin": "1'b0"
+          }
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "8'hFF",
+            "b": "8'hFF",
+            "cin": "1'b1"
+          }
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "8'hFF",
+            "b": "8'hFF",
+            "cin": "1'b1"
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "cin"
+      ],
+      "timing_assumptions": [
+        "Outputs reflect inputs combinationally; observe after each input vector stabilizes."
+      ],
+      "coverage_tags": [
+        "width_sensitive"
+      ],
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "scenario_kind": "boundary_vector",
+      "expected_properties": [
+        "Boundary‑value stimulation does not rely on hidden state or undocumented latency."
+      ],
+      "observed_signals": [
+        "sum",
+        "cout"
+      ],
+      "priority": 2
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

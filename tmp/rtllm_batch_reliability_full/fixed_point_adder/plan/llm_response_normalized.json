@@ -1,0 +1,278 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "coverage_tags": [
+        "back_to_back",
+        "comb"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "c equals a + b for each driven vector, demonstrating no hidden storage between operations"
+      ],
+      "goal": "Verify that successive independent input vectors produce correct outputs without residual state.",
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 3,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive two distinct input vectors sequentially on a and b and observe c after each."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": "first vector: zeros"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow combinational output to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": "capture first input set"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h00AA",
+            "b": "16'h0055"
+          },
+          "text": "second vector: non\u2011zero pattern"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "settle for second operation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h00AA",
+            "b": "16'h0055"
+          },
+          "text": "capture second input set"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Each output is observed after a wait_for_settle step; no sequential latency is assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb"
+      ],
+      "expected_properties": [
+        "c equals the combinational sum a + b modulo 2^N for each driven input vector"
+      ],
+      "goal": "Exercise representative legal input combinations and observe output mapping for a combinational fixed-point adder.",
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a simple zero input pattern and a small non\u2011zero pattern on inputs a and b."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": "apply zero inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow combinational output to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": "capture applied inputs"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h00FF",
+            "b": "16'h0001"
+          },
+          "text": "apply small non\u2011zero inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow output to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h00FF",
+            "b": "16'h0001"
+          },
+          "text": "capture second input vector"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after each wait_for_settle step; no internal state is assumed."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "width_sensitive"
+      ],
+      "expected_properties": [
+        "c reflects correct combinational addition for extreme operand values without assuming hidden latency"
+      ],
+      "goal": "Exercise boundary\u2011value patterns on the fixed\u2011point adder inputs to verify width\u2011sensitive behavior.",
+      "observed_signals": [
+        "c"
+      ],
+      "priority": 2,
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply zero, all\u2011ones, and one\u2011hot patterns on a and b to probe min/max and sign\u2011bit handling."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": "minimum (zero) inputs"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": "capture zero case"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "16'h0001"
+          },
+          "text": "max positive plus one to test overflow handling"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'hFFFF",
+            "b": "16'h0001"
+          },
+          "text": "capture max case"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h8000",
+            "b": "16'h8000"
+          },
+          "text": "both inputs with sign bit set (negative values if signed)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "16'h8000",
+            "b": "16'h8000"
+          },
+          "text": "capture sign\u2011bit case"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b"
+      ],
+      "timing_assumptions": [
+        "Observe c after each wait_for_settle; no sequential timing assumptions."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

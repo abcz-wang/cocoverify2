@@ -1,0 +1,295 @@
+{
+  "additional_cases": [
+    {
+      "category": "metamorphic",
+      "draft_id": "meta_001",
+      "expected_properties": [
+        "For the same address input, the output dout must be identical across consecutive reads."
+      ],
+      "goal": "Validate deterministic read behavior by repeating the same address read.",
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 3,
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive a specific address, capture dout, repeat the same address, capture dout again."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h02"
+          },
+          "text": "First read of address 0x02"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow output to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h02"
+          },
+          "text": "Capture address value"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observation window"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h02"
+          },
+          "text": "Second read of same address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow output to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h02"
+          },
+          "text": "Capture address again"
+        }
+      ],
+      "stimulus_signals": [
+        "addr"
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "draft_id": "b2b_001",
+      "expected_properties": [
+        "Consecutive reads of different addresses should produce corresponding dout values without interference."
+      ],
+      "goal": "Check that back-to-back address changes produce correct independent outputs.",
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 4,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Drive two distinct addresses sequentially and observe dout for each."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": "First address 0x00"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after first address"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": "Capture first address"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observation window for first read"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'hFF"
+          },
+          "text": "Second address 0xFF"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after second address"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'hFF"
+          },
+          "text": "Capture second address"
+        }
+      ],
+      "stimulus_signals": [
+        "addr"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity"
+      ],
+      "expected_properties": [
+        "dout reflects the ROM content at the driven address after a settle period."
+      ],
+      "goal": "Observe ROM output for a nominal address without assuming latency.",
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive a typical address value and capture dout after a safe settle period."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h04"
+          },
+          "text": "Typical address within range"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow dout to stabilize"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h04"
+          },
+          "text": "Record the driven address"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observation window for dout"
+        }
+      ],
+      "stimulus_signals": [
+        "addr"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "dout should correspond to ROM contents at address 0x00 and 0xFF respectively."
+      ],
+      "goal": "Exercise boundary address values to verify ROM handling at extremes.",
+      "observed_signals": [
+        "dout"
+      ],
+      "priority": 2,
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "stimulus_intent": [
+        "Apply minimum and maximum address values and observe dout."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": "Minimum address (0)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after min address"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'h00"
+          },
+          "text": "Capture min address"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observation window for min address"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'hFF"
+          },
+          "text": "Maximum address (255)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Settle after max address"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "addr": "8'hFF"
+          },
+          "text": "Capture max address"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observation window for max address"
+        }
+      ],
+      "stimulus_signals": [
+        "addr"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

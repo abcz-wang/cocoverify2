@@ -1,0 +1,184 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_adder_32bit",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.49750000000000005,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing.",
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 equals (A + B) >> 32"
+      ],
+      "expected_transition": "",
+      "goal": "Validate combinational correctness of the 32-bit adder for typical operand values.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "wait_for_settle 1 cycle after driving inputs",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['A', 'B']",
+        "Apply a nominal operand pair and verify sum and carry-out."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_note",
+          "text": "Observe outputs S and C32 for correctness"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.40750000000000003,
+      "coverage_tags": [
+        "edge",
+        "carry",
+        "overflow"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Sum output S equals (A + B) modulo 2^32",
+        "Carry-out C32 equals (A + B) >> 32"
+      ],
+      "expected_transition": "",
+      "goal": "Test addition with maximum operands to verify carry-out generation.",
+      "notes": [],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "settle_requirement": "wait_for_settle 1 cycle after driving inputs",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive both operands to all ones to provoke carry-out."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_note",
+          "text": "Expect S = 32'hFFFFFFFE and C32 = 1"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "case_id": "edge_002",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.40750000000000003,
+      "coverage_tags": [
+        "edge",
+        "zero_operand"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Sum output S equals the non\u2011zero operand when the other operand is zero",
+        "Carry-out C32 equals 0 when adding zero"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that adding zero yields the other operand unchanged and no carry.",
+      "notes": [],
+      "observed_signals": [
+        "S",
+        "C32"
+      ],
+      "preconditions": [],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "wait_for_settle 1 cycle after each drive",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive A=0 with a non\u2011zero B, then drive B=0 with a non\u2011zero A."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_note",
+          "text": "Expect S equals the non\u2011zero operand and C32 = 0 for both cases"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe outputs after each input stabilization."
+      ]
+    }
+  ],
+  "module_name": "verified_adder_32bit",
+  "plan_confidence": 0.3975,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions."
+  ]
+}

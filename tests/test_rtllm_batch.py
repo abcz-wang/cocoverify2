@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from cocoverify2.eval.rtllm_batch import (
@@ -9,6 +10,7 @@ from cocoverify2.eval.rtllm_batch import (
     RTLLMModuleRunResult,
     RTLLMTaskSummary,
     _build_batch_summary,
+    _write_task_summary,
     discover_rtllm_tasks,
     resolve_rtllm_task_inputs,
     run_rtllm_batch,
@@ -234,3 +236,128 @@ def test_run_rtllm_batch_continues_after_task_failure(tmp_path: Path) -> None:
     assert (tmp_path / "out" / "summary.json").exists()
     assert (tmp_path / "out" / "summary.csv").exists()
     assert (tmp_path / "out" / "summary.md").exists()
+
+
+def test_run_rtllm_batch_resume_reuses_existing_task_summary(tmp_path: Path) -> None:
+    for name in ("task_a", "task_b"):
+        task_dir = tmp_path / name
+        task_dir.mkdir()
+        (task_dir / f"verified_{name}.v").write_text("module m; endmodule", encoding="utf-8")
+        (task_dir / "design_description.txt").write_text(f"{name} spec", encoding="utf-8")
+
+    cached_summary = RTLLMTaskSummary(
+        task_name="task_a",
+        task_dir=str(tmp_path / "task_a"),
+        artifact_root=str(tmp_path / "out" / "task_a"),
+        rtl_sources=[str(tmp_path / "task_a" / "verified_task_a.v")],
+        spec_present=True,
+        contract_success=True,
+        plan_success=True,
+        oracle_success=True,
+        render_success=True,
+        rendered_test_modules=["test_task_a_basic"],
+        test_module_results=[
+            RTLLMModuleRunResult(
+                test_module="test_task_a_basic",
+                run_status="success",
+                triage_category="no_failure",
+                passed_tests_count=1,
+                failed_tests_count=0,
+                return_code=0,
+                run_dir="run/basic",
+                triage_dir="triage/basic",
+            )
+        ],
+        assertion_strength_counts={"exact": 1, "guarded": 0, "unresolved": 0},
+        task_status="success",
+    )
+    _write_task_summary(tmp_path / "out" / "task_a", cached_summary)
+
+    executed: list[str] = []
+
+    def fake_runner(task_input, config, task_out_dir):  # noqa: ANN001
+        executed.append(task_input.task_name)
+        return RTLLMTaskSummary(
+            task_name=task_input.task_name,
+            task_dir=str(task_input.task_dir),
+            artifact_root=str(task_out_dir),
+            rtl_sources=[str(path) for path in task_input.rtl_sources],
+            spec_present=True,
+            contract_success=True,
+            plan_success=True,
+            oracle_success=True,
+            render_success=True,
+            rendered_test_modules=[f"test_{task_input.task_name}_basic"],
+            test_module_results=[
+                RTLLMModuleRunResult(
+                    test_module=f"test_{task_input.task_name}_basic",
+                    run_status="success",
+                    triage_category="no_failure",
+                    passed_tests_count=1,
+                    failed_tests_count=0,
+                    return_code=0,
+                    run_dir=str(task_out_dir / "run"),
+                    triage_dir=str(task_out_dir / "triage"),
+                )
+            ],
+            assertion_strength_counts={"exact": 1, "guarded": 0, "unresolved": 0},
+            task_status="success",
+        )
+
+    batch_summary = run_rtllm_batch(
+        RTLLMBatchConfig(benchmark_root=tmp_path, out_dir=tmp_path / "out", resume=True),
+        task_runner=fake_runner,
+    )
+
+    assert executed == ["task_b"]
+    assert batch_summary["aggregate_metrics"]["resumed_tasks"] == 1
+    tasks = {item["task_name"]: item for item in batch_summary["tasks"]}
+    assert tasks["task_a"]["resumed_from_cache"] is True
+
+
+def test_run_rtllm_batch_supports_parallel_jobs(tmp_path: Path) -> None:
+    for name in ("task_a", "task_b", "task_c"):
+        task_dir = tmp_path / name
+        task_dir.mkdir()
+        (task_dir / f"verified_{name}.v").write_text("module m; endmodule", encoding="utf-8")
+        (task_dir / "design_description.txt").write_text(f"{name} spec", encoding="utf-8")
+
+    def fake_runner(task_input, config, task_out_dir):  # noqa: ANN001
+        return RTLLMTaskSummary(
+            task_name=task_input.task_name,
+            task_dir=str(task_input.task_dir),
+            artifact_root=str(task_out_dir),
+            rtl_sources=[str(path) for path in task_input.rtl_sources],
+            spec_present=True,
+            plan_generation_mode=config.generation_mode.value,
+            oracle_generation_mode=config.generation_mode.value,
+            contract_success=True,
+            plan_success=True,
+            oracle_success=True,
+            render_success=True,
+            rendered_test_modules=[f"test_{task_input.task_name}_basic"],
+            test_module_results=[
+                RTLLMModuleRunResult(
+                    test_module=f"test_{task_input.task_name}_basic",
+                    run_status="success",
+                    triage_category="no_failure",
+                    passed_tests_count=1,
+                    failed_tests_count=0,
+                    return_code=0,
+                    run_dir=str(task_out_dir / "run"),
+                    triage_dir=str(task_out_dir / "triage"),
+                )
+            ],
+            assertion_strength_counts={"exact": 1, "guarded": 0, "unresolved": 0},
+            task_status="success",
+        )
+
+    batch_summary = run_rtllm_batch(
+        RTLLMBatchConfig(benchmark_root=tmp_path, out_dir=tmp_path / "out", jobs=2),
+        task_runner=fake_runner,
+    )
+
+    assert batch_summary["batch_execution_policy"]["jobs"] == 2
+    assert [task["task_name"] for task in batch_summary["tasks"]] == ["task_a", "task_b", "task_c"]
+    summary_payload = json.loads((tmp_path / "out" / "summary.json").read_text(encoding="utf-8"))
+    assert summary_payload["batch_execution_policy"]["jobs"] == 2

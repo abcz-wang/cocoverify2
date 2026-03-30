@@ -1,0 +1,72 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Detect overlapping occurrences without missing the second detection.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "For each overlapping occurrence of the 1001 pattern, sequence_detected must assert high on the cycle after the fourth bit of that occurrence.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When overlapping pattern bits are presented as defined in plan case edge_001."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "sequence_detected must transition from low to high after the fourth bit of a 1001 pattern within a few clock cycles, and remain low for non\u2011matching input patterns.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 stimulus drives the 1001 bit sequence."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Golden interface mentioned port 'S4', but it was not found in the RTL header.",
+    "Spec/reset hint could not be mapped to a known reset port: -Reset Behavior: When reset is high, the state machine returns to the IDLE state, resetting the detection process."
+  ]
+}

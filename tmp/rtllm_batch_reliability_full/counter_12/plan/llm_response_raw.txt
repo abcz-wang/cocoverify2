@@ -1,0 +1,257 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Assert active-low reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset for stabilization"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow outputs to settle"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe out stable at 0 after reset"
+        }
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation after reset release"
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_count": 1
+          },
+          "text": "Enable counting for one cycle"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe output after increment"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "out should increment by 1"
+        }
+      ],
+      "timing_assumptions": [
+        "Observe out after one clock edge"
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "valid_count": 0
+          },
+          "text": "Pause counting"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Verify out unchanged during pause"
+        },
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "valid_count": 1
+          },
+          "text": "Resume counting"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Verify out increments after enable"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Edge behavior validated"
+        }
+      ],
+      "timing_assumptions": [
+        "No fixed latency assumed"
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_count": 1
+          },
+          "text": "First increment"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Minimal idle spacing"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_count": 1
+          },
+          "text": "Second increment"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe two increments"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Back-to-back operation completed"
+        }
+      ],
+      "timing_assumptions": [
+        "Conservative observation after each drive"
+      ]
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "wrap_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "wrap_around",
+        "boundary"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "expected_properties": [
+        "Counter wraps from 4'd11 back to 4'd0 when valid_count remains asserted"
+      ],
+      "expected_transition": "",
+      "goal": "Validate wrap‑around behavior after reaching the maximum count value.",
+      "notes": [
+        "Uses a full counting sequence after a clean reset."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "Reset has been released and counter is at 0"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive reset, then enable counting long enough to observe wrap‑around."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 2,
+          "signals": {
+            "rst_n": 0
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": 1
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow counter to initialize"
+        },
+        {
+          "action": "drive",
+          "cycles": 12,
+          "signals": {
+            "valid_count": 1
+          },
+          "text": "Enable counting for 12 cycles to exceed max value"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe final output"
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "out should be 0 after wrap from 11"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "valid_count"
+      ],
+      "timing_assumptions": [
+        "Conservative clocked observation; no fixed latency assumed"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

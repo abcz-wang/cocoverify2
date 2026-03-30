@@ -1,0 +1,140 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "coverage_tags": [
+        "reset_asynchronous",
+        "glitch_check"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_001",
+      "expected_properties": [
+        "out remains stable during reset and transitions correctly after deassertion, without spurious toggles."
+      ],
+      "goal": "Validate LFSR behavior when reset deassertion occurs mid-cycle (asynchronous release).",
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 5,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "edge_case",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Assert reset, then deassert it without aligning to clock edge, and observe output stability."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": 1
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": 0
+          },
+          "text": "Deassert reset asynchronously"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Observe output after asynchronous release"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Check for any glitches or unexpected output"
+        }
+      ],
+      "stimulus_signals": [
+        "rst"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "lfsr_progress",
+        "feedback_logic"
+      ],
+      "expected_properties": [
+        "out changes on each clock edge according to LFSR feedback (out[3] XOR out[2] inverted) after reset release."
+      ],
+      "goal": "Observe LFSR output evolution over multiple clock cycles after reset release.",
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Release reset and capture output progression over successive clock edges."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": 1
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": 0
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe LFSR output evolution"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Check out changes manually or via checker"
+        }
+      ],
+      "stimulus_signals": [
+        "rst"
+      ],
+      "timing_assumptions": [
+        "Observe at least 5 clock cycles after reset deassertion."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

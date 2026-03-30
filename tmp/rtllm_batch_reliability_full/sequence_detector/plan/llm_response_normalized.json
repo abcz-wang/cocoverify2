@@ -1,0 +1,502 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "draft_id": "edge_overlap_001",
+      "expected_properties": [
+        "When the input bitstream contains overlapping occurrences of the pattern 1001 (e.g., 1 0 0 1 0 0 1), the output sequence_detected asserts high on the cycle after the fourth bit of each occurrence."
+      ],
+      "goal": "Validate overlapping detection of the 1001 sequence without missing the second occurrence.",
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "priority": 2,
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a bitstream that contains overlapping 1001 patterns and observe the output for each detection."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b1"
+          },
+          "text": "Bit 1 of first pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Bit 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Bit 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b1"
+          },
+          "text": "Bit 1 completes first 1001"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sequence_detected": "sequence_detected"
+          },
+          "text": "Capture first detection"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Start overlapping pattern (bit 0)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Bit 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b1"
+          },
+          "text": "Bit 1 completes second 1001"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sequence_detected": "sequence_detected"
+          },
+          "text": "Capture second detection"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe output within a few clock cycles after each pattern completion."
+      ]
+    },
+    {
+      "category": "negative",
+      "draft_id": "negative_001",
+      "expected_properties": [
+        "For a bitstream that never contains the pattern 1001, the output sequence_detected remains low throughout the observation window."
+      ],
+      "goal": "Ensure no false positive detection on non\u2011matching input sequences.",
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "priority": 3,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "invalid_illegal_input",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Apply a stream of zeros and verify that sequence_detected never asserts."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 8,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Eight consecutive zeros"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 8,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sequence_detected": "sequence_detected"
+          },
+          "text": "Capture final output state"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe for at least twice the maximum possible detection latency."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "draft_id": "back_to_back_001",
+      "expected_properties": [
+        "When two 1001 patterns are presented back\u2011to\u2011back (10011001), sequence_detected asserts after the fourth and eighth bits respectively."
+      ],
+      "goal": "Verify detection of consecutive non\u2011overlapping sequences without idle cycles.",
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "priority": 2,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive two consecutive 1001 patterns and confirm two separate detections."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 8,
+          "signals": {
+            "data_in": "1'b1"
+          },
+          "text": "First bit of first pattern (1)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Second bit (0)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Third bit (0)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b1"
+          },
+          "text": "Fourth bit completes first 1001"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sequence_detected": "sequence_detected"
+          },
+          "text": "Capture first detection"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b1"
+          },
+          "text": "First bit of second pattern (1)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Second bit (0)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Third bit (0)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b1"
+          },
+          "text": "Fourth bit completes second 1001"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sequence_detected": "sequence_detected"
+          },
+          "text": "Capture second detection"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Each detection should occur within a few cycles after the respective fourth bit."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "fsm_transition_path",
+        "pattern_detection"
+      ],
+      "expected_properties": [
+        "When the input sequence 1\u20110\u20110\u20111 appears on data_in over four consecutive clock cycles, sequence_detected asserts high within a few cycles after the fourth bit.",
+        "sequence_detected remains low for all other input patterns."
+      ],
+      "goal": "Demonstrate basic functional detection of the 1001 pattern after reset.",
+      "observed_signals": [
+        "sequence_detected"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Release reset, feed the 1001 pattern, and observe the detection output."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b1"
+          },
+          "text": "Bit 1 of pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Bit 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b0"
+          },
+          "text": "Bit 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "1'b1"
+          },
+          "text": "Bit 1 completes pattern"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {}
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "sequence_detected": "sequence_detected"
+          },
+          "text": "Capture detection result"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Observe at least 2 clock cycles after the fourth bit to allow the detector to assert the output."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

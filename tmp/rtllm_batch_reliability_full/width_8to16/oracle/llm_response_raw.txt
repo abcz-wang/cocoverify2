@@ -1,0 +1,73 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "After two consecutive cycles with valid_in asserted, the module must eventually assert valid_out and present a 16-bit data_out that concatenates the first input as the high byte and the second input as the low byte.",
+          "notes": [
+            "The order of concatenation is inferred from the specification; the check does not assume a fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "When a pair of back-to-back valid_in cycles is observed, a later cycle (unspecified latency) must show valid_out=1 and data_out equal to {first_data, second_data}. No X or Z values are permitted on these outputs when valid_out is high.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Detect two successive cycles where valid_in is high."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Require that valid_out remains low after the first valid_in until a second valid_in is observed, ensuring the design does not prematurely assert output validity.",
+          "notes": [
+            "This enforces the intended two‑cycle accumulation without imposing a concrete cycle count."
+          ],
+          "observed_signals": [
+            "valid_out"
+          ],
+          "pass_condition": "If a cycle with valid_in=1 is observed and the previous cycle did not have valid_in=1, then valid_out must stay 0 until another valid_in=1 occurs.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a single valid_in pulse is detected without an immediate preceding valid_in."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

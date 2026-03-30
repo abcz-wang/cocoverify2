@@ -1,0 +1,216 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "pipeline"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_back_to_back_001",
+      "expected_properties": [
+        "Result reflects successive additions without intermediate reset.",
+        "o_en toggles appropriately for each operation."
+      ],
+      "expected_transition": "",
+      "goal": "Validate back-to-back addition operations under unknown pipeline latency.",
+      "notes": [
+        "Uses two distinct operand pairs with minimal idle cycles."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "preconditions": [
+        "Reset has been released and module is stable."
+      ],
+      "priority": 4,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive two consecutive legal addition operations with minimal spacing."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0001",
+            "addb": "64'h0000_0000_0000_0001",
+            "i_en": "1'b1"
+          },
+          "text": "First addition: 1 + 1"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow pipeline to progress"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'hFFFF_FFFF_FFFF_FFFF",
+            "addb": "64'h0000_0000_0000_0001",
+            "i_en": "1'b1"
+          },
+          "text": "Second addition: max + 1 (wrap)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": "Observe stable outputs after second operation"
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; no fixed-cycle latency assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "When i_en is asserted, result equals adda + addb and o_en becomes 1 after a conservative latency."
+      ],
+      "expected_transition": "",
+      "goal": "Apply a single legal addition and verify correct sum and enable signaling.",
+      "notes": [
+        "Uses a small non\u2011zero operand pair to avoid trivial zero\u2011sum edge effects."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "priority": 1,
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "Result and o_en must be stable for at least two consecutive clock cycles after o_en asserts.",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non\u2011control inputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0003",
+            "addb": "64'h0000_0000_0000_0004",
+            "i_en": "1'b1"
+          },
+          "text": "Perform 3 + 4"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 3,
+          "signals": {},
+          "text": "Allow pipeline to produce stable result"
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Result correctly reflects addition at numeric extremes, including carry\u2011out into the 65\u2011bit result."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary\u2011value addition patterns on the adder inputs.",
+      "notes": [
+        "Covers zero, maximum unsigned value, and one\u2011off cases."
+      ],
+      "observed_signals": [
+        "result",
+        "o_en"
+      ],
+      "priority": 2,
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "Result and o_en must remain stable for at least two cycles after each operation.",
+      "stimulus_intent": [
+        "Apply zero, maximum, and one\u2011off operand vectors."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'h0000_0000_0000_0000",
+            "addb": "64'h0000_0000_0000_0000",
+            "i_en": "1'b1"
+          },
+          "text": "Zero + Zero"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe result for zero case"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "adda": "64'hFFFF_FFFF_FFFF_FFFF",
+            "addb": "64'h0000_0000_0000_0001",
+            "i_en": "1'b1"
+          },
+          "text": "Max + 1 (wrap with carry)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe result for max+1 case"
+        }
+      ],
+      "stimulus_signals": [
+        "i_en",
+        "adda",
+        "addb"
+      ],
+      "timing_assumptions": [
+        "Conservative observation; no fixed latency assumed."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,329 @@
+{
+  "assumptions": [
+    "Implement an ALU for a 32-bit MIPS-ISA CPU. The \u201ca\u201d and \u201cb\u201d are the two operands of the ALU, the \u201caluc\u201d is the opcode, and the \u201cr\u201d gives out the result. \u201czero\u201d means if the result is zero, \u201ccarry\u201d means if there is a carry bit, \u201cnegative\u201d means if the result is negative, \u201coverflow\u201d means if the computation is overflow, the \u201cflag\u201d is the result of \u201cslt\u201d and \u201csltu\u201d instructions. The supported operations and corresponding opcode are shown below:",
+    "zero: a 1-bit output indicating whether the result is zero",
+    "carry: a 1-bit output indicating whether a carry occurred during the operation",
+    "negative: a 1-bit output indicating whether the result is negative",
+    "overflow: a 1-bit output indicating whether an overflow occurred during the operation",
+    "flag: a 1-bit output representing a general flag, which is set based on specific operations (SLT and SLTU)",
+    "The module assigns the input operands to the signed wires and the output result (r) to the lower 32 bits of the register (res[31:0]). The flag output is determined based on the control signal (aluc) and is set to '1' when the operation is SLT or SLTU, and 'z' (high-impedance) otherwise. The zero output is set to '1' when the result is all zeros, and '0' otherwise.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "verified_alu",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific",
+        "add_zero"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observable outputs respond to legal input changes without assuming internal state.",
+        "Checks focus on input/output consistency rather than cycle-accurate timing.",
+        "Result matches addition of zero operands",
+        "zero output is asserted",
+        "carry, overflow, negative are deasserted"
+      ],
+      "expected_transition": "",
+      "goal": "Apply a simple ADD operation with zero operands to verify basic combinational behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['a', 'b', 'aluc']",
+        "Drive a=0, b=0, aluc=ADD to observe expected zero result."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "a": 0,
+            "aluc": 32,
+            "b": 0
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "a": 0,
+            "aluc": 32,
+            "b": 0
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage.",
+        "Outputs are expected to be stable after a single delta cycle."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.6975,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "operation_specific",
+        "add_boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned.",
+        "Carry and overflow are correctly indicated for maximum unsigned addition",
+        "zero is deasserted for non\u2011zero result"
+      ],
+      "expected_transition": "",
+      "goal": "Apply boundary values to test carry and overflow detection for ADDU.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "r",
+        "zero",
+        "carry",
+        "negative",
+        "overflow",
+        "flag"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['a', 'b', 'aluc']",
+        "Drive a=0xFFFFFFFF, b=0xFFFFFFFF, aluc=ADDU to provoke carry and overflow."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "a": 4294967295,
+            "aluc": 33,
+            "b": 4294967295
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "a": 4294967295,
+            "aluc": 33,
+            "b": 4294967295
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage.",
+        "Outputs are expected to be stable after a single delta cycle."
+      ]
+    },
+    {
+      "case_id": "basic_002",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "operation_specific",
+        "slti"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "flag is asserted (1) when a < b for signed SLT operation",
+        "zero is deasserted (0) when result is non\u2011zero",
+        "negative reflects sign of the subtraction result"
+      ],
+      "expected_transition": "",
+      "goal": "Verify flag output for signed less\u2011than (SLT) operation.",
+      "notes": [],
+      "observed_signals": [
+        "r",
+        "zero",
+        "flag",
+        "negative"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive operands where a < b (signed) and aluc set to SLT to check flag=1."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "a": 1,
+            "aluc": 42,
+            "b": 2
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "a": 1,
+            "aluc": 42,
+            "b": 2
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Outputs are expected to be stable after a single delta cycle."
+      ]
+    },
+    {
+      "case_id": "basic_003",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.7475,
+      "coverage_tags": [
+        "operation_specific",
+        "sltui"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "flag is asserted (1) when a < b for unsigned SLTU operation",
+        "zero is deasserted (0) when result is non\u2011zero",
+        "carry reflects unsigned overflow if any"
+      ],
+      "expected_transition": "",
+      "goal": "Verify flag output for unsigned less\u2011than (SLTU) operation.",
+      "notes": [],
+      "observed_signals": [
+        "r",
+        "zero",
+        "flag",
+        "carry"
+      ],
+      "preconditions": [],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_generated",
+      "stimulus_intent": [
+        "Drive operands where a < b (unsigned) and aluc set to SLTU to check flag=1."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "a": 1,
+            "aluc": 43,
+            "b": 2
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "record_inputs",
+          "signals": {
+            "a": 1,
+            "aluc": 43,
+            "b": 2
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "aluc"
+      ],
+      "timing_assumptions": [
+        "Outputs are expected to be stable after a single delta cycle."
+      ]
+    }
+  ],
+  "module_name": "verified_alu",
+  "plan_confidence": 0.8475,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": []
+}

@@ -1,0 +1,1269 @@
+{
+  "artifact_stage": "render",
+  "based_on_contract": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_targeted_reliability_v2/alu/contract/contract.json",
+  "based_on_oracle": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_targeted_reliability_v2/alu/oracle/oracle.json",
+  "based_on_plan": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_targeted_reliability_v2/alu/plan/test_plan.json",
+  "based_on_render_metadata": "",
+  "coverage_summary": {
+    "case_categories": [
+      "basic",
+      "edge"
+    ],
+    "class_name": "VerifiedAluCoverage",
+    "coverage_tags": [
+      "basic",
+      "boundary",
+      "comb",
+      "edge",
+      "sanity"
+    ]
+  },
+  "env_summary": {
+    "case_count": 2,
+    "class_name": "VerifiedAluEnv",
+    "driver_helpers": [
+      "exercise_case",
+      "drive_inputs",
+      "wait_for_settle",
+      "record_case_inputs"
+    ],
+    "has_reset_helper": false,
+    "llm_todo_blocks": [
+      {
+        "block_id": "stimulus_basic_001",
+        "case_id": "basic_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "a",
+            "b",
+            "aluc"
+          ],
+          "business_outputs": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "case_id": "basic_001",
+          "category": "basic",
+          "goal": "Exercise representative legal input combinations and observe output mapping.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "a": 32,
+            "aluc": 6,
+            "b": 32,
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 32,
+            "zero": 1
+          },
+          "stimulus_intent": [
+            "Drive a representative legal input pattern across known non-control inputs: ['a', 'b', 'aluc']"
+          ],
+          "stimulus_signals": [
+            "a",
+            "b",
+            "aluc"
+          ],
+          "timing_assumptions": [
+            "Observe outputs after input stabilization.",
+            "Do not infer internal state or undocumented storage."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_edge_001",
+        "case_id": "edge_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "a",
+            "b",
+            "aluc"
+          ],
+          "business_outputs": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "case_id": "edge_001",
+          "category": "edge",
+          "goal": "Exercise boundary-value and width-sensitive input patterns.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "signal_widths": {
+            "a": 32,
+            "aluc": 6,
+            "b": 32,
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 32,
+            "zero": 1
+          },
+          "stimulus_intent": [
+            "Use zero-like, one-like, and boundary patterns on ['a', 'b', 'aluc']"
+          ],
+          "stimulus_signals": [
+            "a",
+            "b",
+            "aluc"
+          ],
+          "timing_assumptions": [
+            "Observe outputs after input stabilization.",
+            "Do not infer internal state or undocumented storage."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+        "template_name": "env_module.py.tmpl"
+      }
+    ],
+    "monitor_helpers": [
+      "safe_observe",
+      "note_oracle_result",
+      "sample_outputs"
+    ],
+    "oracle_helper_module": "verified_alu_oracle",
+    "template_name": "env_module.py.tmpl",
+    "unresolved_items": [
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage."
+    ],
+    "wait_helpers": [
+      "wait_event_based",
+      "wait_bounded_safe",
+      "wait_unbounded_safe"
+    ]
+  },
+  "fill_status": "experimental_available",
+  "fill_warnings": [
+    "Experimental TODO fill metadata is present, but the default mainline pipeline remains render -> run -> triage."
+  ],
+  "filled_todo_block_ids": [],
+  "generated_files": [
+    {
+      "description": "Marks the rendered cocotb test directory as a Python package.",
+      "relative_path": "cocotb_tests/__init__.py",
+      "role": "package_init",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Conservative DUT interface helpers derived from the contract artifact.",
+      "relative_path": "cocotb_tests/verified_alu_interface.py",
+      "role": "interface",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Thin environment wrapper that composes interface, timing-safe waits, and coverage helpers.",
+      "relative_path": "cocotb_tests/verified_alu_env.py",
+      "role": "env",
+      "template_name": "env_module.py.tmpl",
+      "todo_block_ids": [
+        "stimulus_basic_001",
+        "stimulus_edge_001"
+      ]
+    },
+    {
+      "description": "Structured oracle helper functions rendered from the oracle artifact.",
+      "relative_path": "cocotb_tests/verified_alu_oracle.py",
+      "role": "oracle",
+      "template_name": "oracle_module.py.tmpl",
+      "todo_block_ids": [
+        "oracle_basic_001_functional_001",
+        "oracle_edge_001_functional_001",
+        "oracle_basic_001_property_001",
+        "oracle_edge_001_property_001"
+      ]
+    },
+    {
+      "description": "Stable runtime helpers exposed to LLM-filled stimulus and oracle TODO blocks.",
+      "relative_path": "cocotb_tests/verified_alu_runtime.py",
+      "role": "runtime",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Coverage scaffold rendered from plan coverage tags for later execution stages.",
+      "relative_path": "cocotb_tests/verified_alu_coverage.py",
+      "role": "coverage",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Rendered basic cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_verified_alu_basic.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_basic_001"
+      ]
+    },
+    {
+      "description": "Rendered edge cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_verified_alu_edge.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_edge_001"
+      ]
+    },
+    {
+      "description": "Phase 4 executable Makefile shell; Phase 5 injects run-time variables and executes it.",
+      "relative_path": "cocotb_tests/Makefile",
+      "role": "makefile",
+      "template_name": "",
+      "todo_block_ids": []
+    }
+  ],
+  "interface_summary": {
+    "business_inputs": [
+      "a",
+      "b",
+      "aluc"
+    ],
+    "business_outputs": [
+      "r",
+      "zero",
+      "carry",
+      "negative",
+      "overflow",
+      "flag"
+    ],
+    "class_name": "VerifiedAluInterface",
+    "clock_signals": [],
+    "optional_signals": [],
+    "protocol_signal_names": [],
+    "reset_signals": [],
+    "unknown_direction_signals": [],
+    "unresolved_items": []
+  },
+  "llm_todo_blocks": [
+    {
+      "block_id": "stimulus_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "a",
+          "b",
+          "aluc"
+        ],
+        "business_outputs": [
+          "r",
+          "zero",
+          "carry",
+          "negative",
+          "overflow",
+          "flag"
+        ],
+        "case_id": "basic_001",
+        "category": "basic",
+        "goal": "Exercise representative legal input combinations and observe output mapping.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "a": 32,
+          "aluc": 6,
+          "b": 32,
+          "carry": 1,
+          "flag": 1,
+          "negative": 1,
+          "overflow": 1,
+          "r": 32,
+          "zero": 1
+        },
+        "stimulus_intent": [
+          "Drive a representative legal input pattern across known non-control inputs: ['a', 'b', 'aluc']"
+        ],
+        "stimulus_signals": [
+          "a",
+          "b",
+          "aluc"
+        ],
+        "timing_assumptions": [
+          "Observe outputs after input stabilization.",
+          "Do not infer internal state or undocumented storage."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_alu_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "a",
+          "b",
+          "aluc"
+        ],
+        "business_outputs": [
+          "r",
+          "zero",
+          "carry",
+          "negative",
+          "overflow",
+          "flag"
+        ],
+        "case_id": "edge_001",
+        "category": "edge",
+        "goal": "Exercise boundary-value and width-sensitive input patterns.",
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "signal_widths": {
+          "a": 32,
+          "aluc": 6,
+          "b": 32,
+          "carry": 1,
+          "flag": 1,
+          "negative": 1,
+          "overflow": 1,
+          "r": 32,
+          "zero": 1
+        },
+        "stimulus_intent": [
+          "Use zero-like, one-like, and boundary patterns on ['a', 'b', 'aluc']"
+        ],
+        "stimulus_signals": [
+          "a",
+          "b",
+          "aluc"
+        ],
+        "timing_assumptions": [
+          "Observe outputs after input stabilization.",
+          "Do not infer internal state or undocumented storage."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_alu_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_functional_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "r",
+          "zero",
+          "carry",
+          "negative",
+          "overflow",
+          "flag"
+        ],
+        "pass_condition": "Observable outputs respond consistently to the applied inputs without relying on hidden state or exact-cycle timing.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "carry": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "flag": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior",
+            "strength": "guarded"
+          },
+          "negative": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "overflow": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "r": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior",
+            "strength": "guarded"
+          },
+          "zero": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior",
+            "strength": "guarded"
+          }
+        },
+        "signal_widths": {
+          "a": 32,
+          "aluc": 6,
+          "b": 32,
+          "carry": 1,
+          "flag": 1,
+          "negative": 1,
+          "overflow": 1,
+          "r": 32,
+          "zero": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "input_stable",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When the linked basic stimulus applies legal representative input patterns."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_basic_001",
+      "relative_path": "cocotb_tests/verified_alu_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_functional_001",
+      "case_id": "edge_001",
+      "check_id": "edge_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "r",
+          "zero",
+          "carry",
+          "negative",
+          "overflow",
+          "flag"
+        ],
+        "pass_condition": "Boundary-value outputs remain externally consistent and do not require hidden state or fixed-latency interpretation.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "carry": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "flag": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior",
+            "strength": "guarded"
+          },
+          "negative": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "overflow": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "r": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior_downgraded_for_case_ambiguity",
+            "strength": "unresolved"
+          },
+          "zero": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior",
+            "strength": "guarded"
+          }
+        },
+        "signal_widths": {
+          "a": 32,
+          "aluc": 6,
+          "b": 32,
+          "carry": 1,
+          "flag": 1,
+          "negative": 1,
+          "overflow": 1,
+          "r": 32,
+          "zero": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "boundary_inputs_stable",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When the linked edge case applies zero-like, one-like, or width-boundary patterns."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001 check_id=edge_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_edge_001",
+      "relative_path": "cocotb_tests/verified_alu_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001 check_id=edge_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_property_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_property_001",
+      "context": {
+        "observed_signals": [
+          "r",
+          "zero",
+          "carry",
+          "negative",
+          "overflow",
+          "flag"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "carry": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "flag": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior",
+            "strength": "guarded"
+          },
+          "negative": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "overflow": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "r": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          },
+          "zero": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior",
+            "strength": "guarded"
+          }
+        },
+        "signal_widths": {
+          "a": 32,
+          "aluc": 6,
+          "b": 32,
+          "carry": 1,
+          "flag": 1,
+          "negative": 1,
+          "overflow": 1,
+          "r": 32,
+          "zero": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "input_stable",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_basic_001",
+      "relative_path": "cocotb_tests/verified_alu_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_property_001",
+      "case_id": "edge_001",
+      "check_id": "edge_001_property_001",
+      "context": {
+        "observed_signals": [
+          "r",
+          "zero",
+          "carry",
+          "negative",
+          "overflow",
+          "flag"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "carry": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "flag": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior",
+            "strength": "guarded"
+          },
+          "negative": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "overflow": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          },
+          "r": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          },
+          "zero": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_conditional_high_impedance_behavior",
+            "strength": "guarded"
+          }
+        },
+        "signal_widths": {
+          "a": 32,
+          "aluc": 6,
+          "b": 32,
+          "carry": 1,
+          "flag": 1,
+          "negative": 1,
+          "overflow": 1,
+          "r": 32,
+          "zero": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "input_stable",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_edge_001",
+      "relative_path": "cocotb_tests/verified_alu_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "case_id": "basic_001",
+        "category": "basic",
+        "coverage_tags": [
+          "basic",
+          "sanity",
+          "comb"
+        ],
+        "dependencies": [],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": [
+          "a",
+          "b",
+          "aluc"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_basic_001 case_id=basic_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_alu_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_basic_001 case_id=basic_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "case_id": "edge_001",
+        "category": "edge",
+        "coverage_tags": [
+          "edge",
+          "boundary"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "stimulus_signals": [
+          "a",
+          "b",
+          "aluc"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_edge_001 case_id=edge_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_alu_edge.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_edge_001 case_id=edge_001",
+      "template_name": "test_case.py.tmpl"
+    }
+  ],
+  "module_name": "verified_alu",
+  "oracle_summary": {
+    "empty_functional_cases": [],
+    "functional_case_count": 2,
+    "llm_todo_blocks": [
+      {
+        "block_id": "oracle_basic_001_functional_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "Observable outputs respond consistently to the applied inputs without relying on hidden state or exact-cycle timing.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "carry": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "flag": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior",
+              "strength": "guarded"
+            },
+            "negative": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "overflow": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "r": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior",
+              "strength": "guarded"
+            },
+            "zero": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior",
+              "strength": "guarded"
+            }
+          },
+          "signal_widths": {
+            "a": 32,
+            "aluc": 6,
+            "b": 32,
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 32,
+            "zero": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked basic stimulus applies legal representative input patterns."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_functional_001",
+        "case_id": "edge_001",
+        "check_id": "edge_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "Boundary-value outputs remain externally consistent and do not require hidden state or fixed-latency interpretation.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "carry": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "flag": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior",
+              "strength": "guarded"
+            },
+            "negative": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "overflow": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "r": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "zero": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior",
+              "strength": "guarded"
+            }
+          },
+          "signal_widths": {
+            "a": 32,
+            "aluc": 6,
+            "b": 32,
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 32,
+            "zero": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked edge case applies zero-like, one-like, or width-boundary patterns."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001 check_id=edge_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_edge_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001 check_id=edge_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_basic_001_property_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_property_001",
+        "context": {
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "carry": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "flag": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior",
+              "strength": "guarded"
+            },
+            "negative": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "overflow": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "r": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "zero": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior",
+              "strength": "guarded"
+            }
+          },
+          "signal_widths": {
+            "a": 32,
+            "aluc": 6,
+            "b": 32,
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 32,
+            "zero": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_property_001",
+        "case_id": "edge_001",
+        "check_id": "edge_001_property_001",
+        "context": {
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "carry": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "flag": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior",
+              "strength": "guarded"
+            },
+            "negative": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "overflow": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            },
+            "r": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "zero": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_conditional_high_impedance_behavior",
+              "strength": "guarded"
+            }
+          },
+          "signal_widths": {
+            "a": 32,
+            "aluc": 6,
+            "b": 32,
+            "carry": 1,
+            "flag": 1,
+            "negative": 1,
+            "overflow": 1,
+            "r": 32,
+            "zero": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_edge_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      }
+    ],
+    "preserves_temporal_modes": [
+      "event_based"
+    ],
+    "property_case_count": 2,
+    "protocol_case_count": 0,
+    "runtime_helper_module": "verified_alu_runtime",
+    "template_name": "oracle_module.py.tmpl",
+    "temporal_modes": [
+      "event_based"
+    ],
+    "unresolved_items": [
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+      "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks."
+    ]
+  },
+  "render_confidence": 0.6091666666666666,
+  "render_warnings": [
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+    "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks.",
+    "Rendered Makefile is an executable Phase 4 shell; Phase 5 injects execution variables and selects the backend.",
+    "Task description was provided to the render stage but not used to invent new testbench semantics.",
+    "Spec text was provided to the render stage but only upstream artifacts were trusted for code generation.",
+    "Deterministic render remains the default mainline; post-render TODO fill is experimental and not required by the benchmark path."
+  ],
+  "template_inventory": [
+    "env_module.py.tmpl",
+    "oracle_module.py.tmpl",
+    "test_case.py.tmpl",
+    "test_module.py.tmpl"
+  ],
+  "test_modules": [
+    "test_verified_alu_basic",
+    "test_verified_alu_edge"
+  ],
+  "unfilled_todo_block_ids": []
+}

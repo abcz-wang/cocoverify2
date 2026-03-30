@@ -1,0 +1,339 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Each input pair produces a result and odd output that correspond to the combinational division of A by B, independent of the previous pair."
+      ],
+      "goal": "Validate that the combinational divider produces correct outputs for two successive input vectors without any implicit state.",
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "priority": 3,
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "stimulus_intent": [
+        "Apply two distinct legal input vectors back\u2011to\u2011back and observe outputs after each."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h1234",
+            "B": "8'h12"
+          },
+          "text": "first vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow combinational outputs to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h1234",
+            "B": "8'h12"
+          },
+          "text": "capture first input values"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'hABCD",
+            "B": "8'h34"
+          },
+          "text": "second vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow outputs to settle for second vector"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "16'hABCD",
+            "B": "8'h34"
+          },
+          "text": "capture second input values"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after each wait_for_settle step."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "metamorphic",
+        "operation_specific"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [
+        "Repeating the same legal input vector yields identical result and odd outputs, confirming deterministic combinational behavior."
+      ],
+      "goal": "Demonstrate output stability for identical successive inputs (metamorphic consistency).",
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "priority": 4,
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "stimulus_intent": [
+        "Drive the same legal input pattern twice and verify identical outputs."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h0F0F",
+            "B": "8'h0F"
+          },
+          "text": "first occurrence"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "settle after first drive"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h0F0F",
+            "B": "8'h0F"
+          },
+          "text": "capture first input"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h0F0F",
+            "B": "8'h0F"
+          },
+          "text": "second occurrence"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "settle after second drive"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h0F0F",
+            "B": "8'h0F"
+          },
+          "text": "capture second input"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Outputs are sampled after each wait_for_settle; no internal state should affect the second observation."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "comb",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Result and odd reflect the combinational division of A by B for a typical legal vector."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise a representative legal input combination and verify output mapping.",
+      "notes": [
+        "Conservative case preserving ambiguity; no timing assumptions beyond combinational settle."
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "Observe outputs after one cycle of wait_for_settle.",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['A', 'B']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h00FF",
+            "B": "8'h0F"
+          },
+          "text": "representative vector"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "allow combinational outputs to stabilize"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h00FF",
+            "B": "8'h0F"
+          },
+          "text": "capture applied inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "boundary_vector"
+      ],
+      "expected_properties": [
+        "Division handles maximum dividend and divisor values without overflow.",
+        "Division handles minimum non\u2011zero divisor correctly."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary\u2011value and width\u2011sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value\u2011oriented and avoids fixed\u2011latency assumptions."
+      ],
+      "observed_signals": [
+        "result",
+        "odd"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive",
+        "operation_specific"
+      ],
+      "settle_requirement": "Observe outputs after each wait_for_settle step.",
+      "stimulus_intent": [
+        "Use zero\u2011like, one\u2011like, and boundary patterns on ['A', 'B']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'hFFFF",
+            "B": "8'hFF"
+          },
+          "text": "maximum values"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "settle after max vector"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "16'hFFFF",
+            "B": "8'hFF"
+          },
+          "text": "capture max inputs"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h0000",
+            "B": "8'h01"
+          },
+          "text": "minimum non\u2011zero divisor"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "settle after min vector"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "16'h0000",
+            "B": "8'h01"
+          },
+          "text": "capture min inputs"
+        }
+      ],
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

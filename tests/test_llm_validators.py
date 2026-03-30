@@ -160,6 +160,43 @@ def test_validate_plan_augmentation_normalizes_structured_stimulus_program() -> 
     assert report["signal_normalization_warnings"]
 
 
+def test_validate_plan_augmentation_rejects_nondeterministic_drive_literals_and_output_recording() -> None:
+    augmentation = parse_plan_augmentation(
+        """
+        {
+          "baseline_case_enrichments": [
+            {
+              "case_id": "basic_001",
+              "stimulus_program": [
+                {"action": "drive", "signals": {"a": "0x10", "b": "rand64"}},
+                {"action": "record_inputs", "signals": {"a": "16'h000f", "y": 1}}
+              ]
+            }
+          ],
+          "additional_cases": [],
+          "assumptions": [],
+          "unresolved_items": [],
+          "planning_notes": []
+        }
+        """
+    )
+
+    validated, report = validate_plan_augmentation(augmentation, contract=_demo_contract(), baseline_plan=_demo_plan())
+
+    enrichment = validated.baseline_case_enrichments[0]
+    assert enrichment.stimulus_program == [
+        {"action": "drive", "signals": {"a": 16}},
+        {"action": "record_inputs", "signals": {"a": 15}},
+    ]
+    warning_reasons = {
+        warning["reason"]
+        for entry in report["signal_normalization_warnings"]
+        for warning in entry.get("stimulus_program_warnings", [])
+    }
+    assert "invalid_drive_values" in warning_reasons
+    assert "record_inputs_non_input_signals" in warning_reasons
+
+
 def test_normalize_plan_augmentation_repairs_case_id_to_draft_id() -> None:
     payload = extract_json_payload(
         """

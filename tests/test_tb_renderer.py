@@ -400,3 +400,38 @@ def test_deterministic_stimulus_keeps_explicit_record_inputs_from_structured_pro
     steps = _build_deterministic_stimulus_steps(contract=contract, case=case)
 
     assert steps.count({"action": "record_inputs", "signals": {"din": 10}}) == 1
+
+
+def test_deterministic_stimulus_falls_back_when_structured_program_has_only_invalid_literals() -> None:
+    contract = DUTContract(
+        module_name="demo_structured_invalid",
+        ports=[
+            PortSpec(name="adda", direction=PortDirection.INPUT, width=64),
+            PortSpec(name="addb", direction=PortDirection.INPUT, width=64),
+            PortSpec(name="sum", direction=PortDirection.OUTPUT, width=64),
+        ],
+        timing=TimingSpec(sequential_kind=SequentialKind.COMB, latency_model="unknown", confidence=0.7),
+    )
+    case = TestCasePlan(
+        case_id="basic_001",
+        goal="structured invalid",
+        category=TestCategory.BASIC,
+        stimulus_intent=["structured"],
+        stimulus_signals=["adda", "addb"],
+        stimulus_program=[
+            {"action": "drive", "signals": {"adda": "rand64", "addb": "random"}},
+            {"action": "record_note", "text": "bad literals should not suppress deterministic fallback"},
+        ],
+        expected_properties=["observe"],
+        observed_signals=["sum"],
+        timing_assumptions=["settle"],
+        coverage_tags=["basic"],
+        semantic_tags=["operation_specific"],
+        confidence=0.8,
+    )
+
+    steps = _build_deterministic_stimulus_steps(contract=contract, case=case)
+
+    assert any(step["action"] == "drive" for step in steps)
+    assert all("rand64" not in str(step) and "random" not in str(step) for step in steps)
+    assert any(step["action"] == "record_inputs" for step in steps)

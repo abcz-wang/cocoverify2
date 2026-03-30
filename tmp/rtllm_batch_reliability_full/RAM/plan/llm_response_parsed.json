@@ -1,0 +1,305 @@
+{
+  "additional_cases": [
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [
+        "Two consecutive write operations are accepted without intermediate idle cycles.",
+        "The second write's effect is observable on a subsequent read."
+      ],
+      "expected_transition": "",
+      "goal": "Validate back-to-back write operations and subsequent readback under conservative timing.",
+      "notes": [
+        "No assumption of fixed latency between writes; observation is based on externally visible read data."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "preconditions": [
+        "Reset has been released and the design is in a stable post\u2011reset state."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Apply two write operations back\u2011to\u2011back and then read the last written location."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "0",
+            "write_addr": "8'h01",
+            "write_data": "6'h0A",
+            "write_en": "1"
+          },
+          "text": "First write"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "0",
+            "write_addr": "8'h02",
+            "write_data": "6'h0B",
+            "write_en": "1"
+          },
+          "text": "Second write immediately after first"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_addr": "8'h02",
+            "read_en": "1",
+            "write_en": "0"
+          },
+          "text": "Read back the second location"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect read_data == 6'h0B"
+        }
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Observe only after conservative settle periods; no fixed\u2011cycle latency assumed."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post\u2011operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non\u2011control inputs: ['write_en', 'write_addr', 'write_data', 'read_en', 'read_addr']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "0",
+            "write_en": "0"
+          },
+          "text": "Idle state"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "0",
+            "write_addr": "8'h03",
+            "write_data": "6'h15",
+            "write_en": "1"
+          },
+          "text": "Write a value"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_addr": "8'h03",
+            "read_en": "1",
+            "write_en": "0"
+          },
+          "text": "Read back the written location"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect read_data == 6'h15"
+        }
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [
+        "Boundary\u2011value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max\u2011style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary\u2011value and width\u2011sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value\u2011oriented and avoids fixed\u2011latency assumptions."
+      ],
+      "observed_signals": [
+        "read_data"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Use zero\u2011like, one\u2011like, and boundary patterns on ['write_addr', 'write_data', 'read_addr', 'write_en', 'read_en']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "0",
+            "write_addr": "8'h00",
+            "write_data": "6'h00",
+            "write_en": "1"
+          },
+          "text": "Write zeros to lowest address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_en": "0",
+            "write_addr": "8'hFF",
+            "write_data": "6'h3F",
+            "write_en": "1"
+          },
+          "text": "Write max values to max address (boundary test)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "read_addr": "8'hFF",
+            "read_en": "1",
+            "write_en": "0"
+          },
+          "text": "Read back max address"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {}
+        },
+        {
+          "action": "record_note",
+          "cycles": 1,
+          "signals": {},
+          "text": "Expect read_data == 6'h3F"
+        }
+      ],
+      "stimulus_signals": [
+        "write_en",
+        "write_addr",
+        "write_data",
+        "read_en",
+        "read_addr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

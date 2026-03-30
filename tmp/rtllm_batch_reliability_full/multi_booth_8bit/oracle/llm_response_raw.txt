@@ -1,0 +1,59 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guard against assuming fixed latency for ready signal; only require that rdy eventually becomes 1 after a legal multiplication sequence.",
+          "notes": [],
+          "observed_signals": ["rdy"],
+          "pass_condition": "If rdy transitions to 1 at any later clock cycle after inputs are stable, the property passes; no bound on cycle count is imposed.",
+          "semantic_tags": ["ambiguity_preserving"],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a and b are driven with a legal operand pair."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Require that after a single legal multiplication input, the product output p stabilizes to a defined 16-bit value before the next input is applied.",
+          "notes": [],
+          "observed_signals": ["p"],
+          "pass_condition": "p must settle to a non-X, non-Z value and remain unchanged until new inputs are presented.",
+          "semantic_tags": ["operation_specific"],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a and b are driven with a new operand pair."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

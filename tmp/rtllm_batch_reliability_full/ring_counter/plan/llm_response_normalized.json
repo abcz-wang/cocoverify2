@@ -1,0 +1,166 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "wrap_around"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_edge_001",
+      "expected_properties": [
+        "After eight clock cycles following reset deassertion, out returns to the initial state 8'b0000_0001",
+        "Exactly one bit of out remains high during each observed cycle"
+      ],
+      "expected_transition": "",
+      "goal": "Validate that the ring counter correctly wraps around after a full rotation.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [
+        "reset is active-high as defined in the contract"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "fsm_transition_path",
+      "semantic_tags": [
+        "operation_specific",
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert reset high to initialize the counter",
+        "Release reset and observe out over nine clock cycles to capture a full wrap\u2011around"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 1
+          },
+          "text": "Initialize counter"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 9,
+          "signals": {},
+          "text": "Observe out through a full rotation"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Check that out equals 8'b0000_0001 after the ninth cycle"
+        }
+      ],
+      "stimulus_signals": [
+        "reset"
+      ],
+      "timing_assumptions": [
+        "Conservative observation across clock edges without assuming exact latency"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq",
+        "operation_specific"
+      ],
+      "expected_properties": [
+        "Exactly one bit of out is high at any time",
+        "out shifts the high bit by one position each rising clock edge after reset is released"
+      ],
+      "expected_transition": "",
+      "goal": "Verify cyclic progression of out after reset release over a few clock cycles.",
+      "notes": [
+        "Enrichment adds concrete stimulus steps while preserving the original conservative intent."
+      ],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert reset high to initialize the counter",
+        "Deassert reset and observe out for several clock cycles"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 1
+          },
+          "text": "Initialize counter"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset to take effect"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": 0
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Observe out progression over four clock edges"
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Check that exactly one bit of out is high each cycle"
+        }
+      ],
+      "stimulus_signals": [
+        "reset"
+      ],
+      "timing_assumptions": [
+        "Observe over a conservative number of clock cycles without assuming exact latency"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

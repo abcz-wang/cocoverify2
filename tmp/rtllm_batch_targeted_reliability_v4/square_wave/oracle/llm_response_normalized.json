@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Conservative guardrail ensuring that repeated toggles of wave_out are observable without assuming fixed latency.",
+          "notes": [
+            "The property does not require a specific cycle count between toggles, only that a change is eventually seen."
+          ],
+          "observed_signals": [
+            "wave_out"
+          ],
+          "pass_condition": "After each legal operation, wave_out must eventually change state at least once before the next operation is applied.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a back-to-back sequence of legal operations is issued."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "wave_out"
+          ],
+          "pass_condition": "wave_out must transition at least once after a single legal freq stimulus is applied, without assuming a fixed cycle latency.",
+          "semantic_tags": [
+            "snake_case tags"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 case applies a legal freq value."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,2363 @@
+{
+  "artifact_stage": "render",
+  "based_on_contract": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_targeted_reliability_v4/width_8to16/contract/contract.json",
+  "based_on_oracle": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_targeted_reliability_v4/width_8to16/oracle/oracle.json",
+  "based_on_plan": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/rtllm_batch_targeted_reliability_v4/width_8to16/plan/test_plan.json",
+  "based_on_render_metadata": "",
+  "coverage_summary": {
+    "case_categories": [
+      "back_to_back",
+      "basic",
+      "edge",
+      "negative",
+      "reset"
+    ],
+    "class_name": "VerifiedWidth8to16Coverage",
+    "coverage_tags": [
+      "back_to_back",
+      "basic",
+      "boundary",
+      "edge",
+      "initialization",
+      "invalid_illegal_input",
+      "negative",
+      "repeated_operation",
+      "reset",
+      "sanity",
+      "seq",
+      "stability"
+    ]
+  },
+  "env_summary": {
+    "case_count": 5,
+    "class_name": "VerifiedWidth8to16Env",
+    "driver_helpers": [
+      "exercise_case",
+      "drive_inputs",
+      "wait_for_settle",
+      "record_case_inputs"
+    ],
+    "has_reset_helper": true,
+    "llm_todo_blocks": [
+      {
+        "block_id": "stimulus_reset_001",
+        "case_id": "reset_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "valid_in",
+            "data_in"
+          ],
+          "business_outputs": [
+            "valid_out",
+            "data_out"
+          ],
+          "case_id": "reset_001",
+          "category": "reset",
+          "goal": "Establish a stable post-reset baseline before functional checking.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "stimulus_intent": [
+            "Assert the detected reset using the inferred polarity.",
+            "Release reset conservatively and observe interface stabilization."
+          ],
+          "stimulus_signals": [
+            "rst_n"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_reset_001 case_id=reset_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_reset_001 case_id=reset_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_basic_001",
+        "case_id": "basic_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "valid_in",
+            "data_in"
+          ],
+          "business_outputs": [
+            "valid_out",
+            "data_out"
+          ],
+          "case_id": "basic_001",
+          "category": "basic",
+          "goal": "Apply one legal operation and observe stable post-operation behavior.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "stimulus_intent": [
+            "Drive a representative legal input pattern across known non-control inputs: ['valid_in', 'data_in']"
+          ],
+          "stimulus_signals": [
+            "valid_in",
+            "data_in"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible.",
+            "Outputs may appear up to two clock cycles after the second valid_in assertion due to unknown latency."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_edge_001",
+        "case_id": "edge_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "valid_in",
+            "data_in"
+          ],
+          "business_outputs": [
+            "valid_out",
+            "data_out"
+          ],
+          "case_id": "edge_001",
+          "category": "edge",
+          "goal": "Exercise boundary-value and width-sensitive input patterns.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "stimulus_intent": [
+            "Use zero-like, one-like, and boundary patterns on ['data_in', 'valid_in']"
+          ],
+          "stimulus_signals": [
+            "data_in",
+            "valid_in"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible.",
+            "Conservative observation window of two cycles after the second edge stimulus."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_back_to_back_001",
+        "case_id": "back_to_back_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "valid_in",
+            "data_in"
+          ],
+          "business_outputs": [
+            "valid_out",
+            "data_out"
+          ],
+          "case_id": "back_to_back_001",
+          "category": "back_to_back",
+          "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "stimulus_intent": [
+            "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+          ],
+          "stimulus_signals": [
+            "valid_in",
+            "data_in"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_negative_001",
+        "case_id": "negative_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "valid_in",
+            "data_in"
+          ],
+          "business_outputs": [
+            "valid_out",
+            "data_out"
+          ],
+          "case_id": "negative_001",
+          "category": "negative",
+          "goal": "Verify that spurious data_in changes without a valid_in assertion do not affect outputs.",
+          "semantic_tags": [
+            "invalid_illegal_input"
+          ],
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "stimulus_intent": [
+            "Toggle data_in while keeping valid_in low and confirm no output activity."
+          ],
+          "stimulus_signals": [
+            "valid_in",
+            "data_in"
+          ],
+          "timing_assumptions": [
+            "Conservative observation: outputs are sampled after at least two clock cycles following the last drive."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_negative_001 case_id=negative_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_negative_001 case_id=negative_001",
+        "template_name": "env_module.py.tmpl"
+      }
+    ],
+    "monitor_helpers": [
+      "safe_observe",
+      "note_oracle_result",
+      "sample_outputs"
+    ],
+    "oracle_helper_module": "verified_width_8to16_oracle",
+    "template_name": "env_module.py.tmpl",
+    "unresolved_items": [
+      "Detected valid_ready-like signal(s) ['valid_in'] without matching role(s) ['ready'] in group 'in'.",
+      "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'."
+    ],
+    "wait_helpers": [
+      "wait_event_based",
+      "wait_bounded_safe",
+      "wait_unbounded_safe"
+    ]
+  },
+  "fill_status": "experimental_available",
+  "fill_warnings": [
+    "Experimental TODO fill metadata is present, but the default mainline pipeline remains render -> run -> triage."
+  ],
+  "filled_todo_block_ids": [],
+  "generated_files": [
+    {
+      "description": "Marks the rendered cocotb test directory as a Python package.",
+      "relative_path": "cocotb_tests/__init__.py",
+      "role": "package_init",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Conservative DUT interface helpers derived from the contract artifact.",
+      "relative_path": "cocotb_tests/verified_width_8to16_interface.py",
+      "role": "interface",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Thin environment wrapper that composes interface, timing-safe waits, and coverage helpers.",
+      "relative_path": "cocotb_tests/verified_width_8to16_env.py",
+      "role": "env",
+      "template_name": "env_module.py.tmpl",
+      "todo_block_ids": [
+        "stimulus_reset_001",
+        "stimulus_basic_001",
+        "stimulus_edge_001",
+        "stimulus_back_to_back_001",
+        "stimulus_negative_001"
+      ]
+    },
+    {
+      "description": "Structured oracle helper functions rendered from the oracle artifact.",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "role": "oracle",
+      "template_name": "oracle_module.py.tmpl",
+      "todo_block_ids": [
+        "oracle_reset_001_protocol_001",
+        "oracle_reset_001_functional_001",
+        "oracle_basic_001_functional_001",
+        "oracle_basic_001_functional_002",
+        "oracle_edge_001_functional_001",
+        "oracle_back_to_back_001_functional_001",
+        "oracle_reset_001_property_001",
+        "oracle_basic_001_property_001",
+        "oracle_edge_001_property_001",
+        "oracle_edge_001_property_002",
+        "oracle_back_to_back_001_property_001",
+        "oracle_negative_001_property_001"
+      ]
+    },
+    {
+      "description": "Stable runtime helpers exposed to LLM-filled stimulus and oracle TODO blocks.",
+      "relative_path": "cocotb_tests/verified_width_8to16_runtime.py",
+      "role": "runtime",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Coverage scaffold rendered from plan coverage tags for later execution stages.",
+      "relative_path": "cocotb_tests/verified_width_8to16_coverage.py",
+      "role": "coverage",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Rendered basic cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_verified_width_8to16_basic.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_reset_001",
+        "testcase_setup_basic_001",
+        "testcase_setup_back_to_back_001",
+        "testcase_setup_negative_001"
+      ]
+    },
+    {
+      "description": "Rendered edge cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_verified_width_8to16_edge.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_edge_001"
+      ]
+    },
+    {
+      "description": "Phase 4 executable Makefile shell; Phase 5 injects run-time variables and executes it.",
+      "relative_path": "cocotb_tests/Makefile",
+      "role": "makefile",
+      "template_name": "",
+      "todo_block_ids": []
+    }
+  ],
+  "interface_summary": {
+    "business_inputs": [
+      "valid_in",
+      "data_in"
+    ],
+    "business_outputs": [
+      "valid_out",
+      "data_out"
+    ],
+    "class_name": "VerifiedWidth8to16Interface",
+    "clock_signals": [
+      "clk"
+    ],
+    "optional_signals": [],
+    "protocol_signal_names": [],
+    "reset_signals": [
+      "rst_n"
+    ],
+    "unknown_direction_signals": [],
+    "unresolved_items": [
+      "Detected valid_ready-like signal(s) ['valid_in'] without matching role(s) ['ready'] in group 'in'.",
+      "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'."
+    ]
+  },
+  "llm_todo_blocks": [
+    {
+      "block_id": "stimulus_reset_001",
+      "case_id": "reset_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "valid_in",
+          "data_in"
+        ],
+        "business_outputs": [
+          "valid_out",
+          "data_out"
+        ],
+        "case_id": "reset_001",
+        "category": "reset",
+        "goal": "Establish a stable post-reset baseline before functional checking.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "stimulus_intent": [
+          "Assert the detected reset using the inferred polarity.",
+          "Release reset conservatively and observe interface stabilization."
+        ],
+        "stimulus_signals": [
+          "rst_n"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_reset_001 case_id=reset_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_width_8to16_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_reset_001 case_id=reset_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "valid_in",
+          "data_in"
+        ],
+        "business_outputs": [
+          "valid_out",
+          "data_out"
+        ],
+        "case_id": "basic_001",
+        "category": "basic",
+        "goal": "Apply one legal operation and observe stable post-operation behavior.",
+        "semantic_tags": [
+          "ambiguity_preserving",
+          "operation_specific"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "stimulus_intent": [
+          "Drive a representative legal input pattern across known non-control inputs: ['valid_in', 'data_in']"
+        ],
+        "stimulus_signals": [
+          "valid_in",
+          "data_in"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible.",
+          "Outputs may appear up to two clock cycles after the second valid_in assertion due to unknown latency."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_width_8to16_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "valid_in",
+          "data_in"
+        ],
+        "business_outputs": [
+          "valid_out",
+          "data_out"
+        ],
+        "case_id": "edge_001",
+        "category": "edge",
+        "goal": "Exercise boundary-value and width-sensitive input patterns.",
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "stimulus_intent": [
+          "Use zero-like, one-like, and boundary patterns on ['data_in', 'valid_in']"
+        ],
+        "stimulus_signals": [
+          "data_in",
+          "valid_in"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible.",
+          "Conservative observation window of two cycles after the second edge stimulus."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_width_8to16_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_back_to_back_001",
+      "case_id": "back_to_back_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "valid_in",
+          "data_in"
+        ],
+        "business_outputs": [
+          "valid_out",
+          "data_out"
+        ],
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "stimulus_intent": [
+          "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+        ],
+        "stimulus_signals": [
+          "valid_in",
+          "data_in"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_width_8to16_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_negative_001",
+      "case_id": "negative_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "valid_in",
+          "data_in"
+        ],
+        "business_outputs": [
+          "valid_out",
+          "data_out"
+        ],
+        "case_id": "negative_001",
+        "category": "negative",
+        "goal": "Verify that spurious data_in changes without a valid_in assertion do not affect outputs.",
+        "semantic_tags": [
+          "invalid_illegal_input"
+        ],
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "stimulus_intent": [
+          "Toggle data_in while keeping valid_in low and confirm no output activity."
+        ],
+        "stimulus_signals": [
+          "valid_in",
+          "data_in"
+        ],
+        "timing_assumptions": [
+          "Conservative observation: outputs are sampled after at least two clock cycles following the last drive."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_negative_001 case_id=negative_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/verified_width_8to16_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_negative_001 case_id=negative_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_protocol_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_protocol_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          },
+          "valid_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "protocol_reset_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_functional_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "Observable outputs settle to a stable, externally usable state without relying on undocumented exact-cycle convergence.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          },
+          "valid_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "at_observation",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When reset is released after a valid assertion interval."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_functional_001 case_id=reset_001 oracle_case_id=functional_reset_001 check_id=reset_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_reset_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_functional_001 case_id=reset_001 oracle_case_id=functional_reset_001 check_id=reset_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_functional_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_basic_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_functional_002",
+      "case_id": "basic_001",
+      "check_id": "basic_001_functional_002",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "valid_out is asserted only after two consecutive valid_in cycles and data_out equals {first_data, second_data} where first_data is the earlier 8\u2011bit value and second_data is the later one.",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": 2,
+          "min_cycles": 0,
+          "mode": "bounded_range"
+        },
+        "trigger_condition": "When both valid_in cycles have been driven as per the basic_001 stimulus."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_002 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_002",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_basic_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_002 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_002",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_functional_001",
+      "case_id": "edge_001",
+      "check_id": "edge_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001 check_id=edge_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_edge_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001 check_id=edge_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_back_to_back_001_functional_001",
+      "case_id": "back_to_back_001",
+      "check_id": "back_to_back_001_functional_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "conservative",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_functional_001 case_id=back_to_back_001 oracle_case_id=functional_back_to_back_001 check_id=back_to_back_001_functional_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "functional_back_to_back_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_functional_001 case_id=back_to_back_001 oracle_case_id=functional_back_to_back_001 check_id=back_to_back_001_functional_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_reset_001_property_001",
+      "case_id": "reset_001",
+      "check_id": "reset_001_property_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "reset_release",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "While reset is asserted or being released."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_reset_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_property_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_property_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_basic_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_property_001",
+      "case_id": "edge_001",
+      "check_id": "edge_001_property_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_edge_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_property_002",
+      "case_id": "edge_001",
+      "check_id": "edge_001_property_002",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "No change to valid_out or data_out occurs before the second valid_in assertion; outputs may only transition after the second valid_in is observed.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "When a second valid_in is driven following a first valid_in."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_002 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_002",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_edge_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_002 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_002",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_back_to_back_001_property_001",
+      "case_id": "back_to_back_001",
+      "check_id": "back_to_back_001_property_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": false,
+            "allow_unknown": false,
+            "definedness_mode": "not_required",
+            "rationale": "explicit_output_behavior",
+            "strength": "exact"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "repeated_operations",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "unbounded_safe"
+        },
+        "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_back_to_back_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_negative_001_property_001",
+      "case_id": "negative_001",
+      "check_id": "negative_001_property_001",
+      "context": {
+        "observed_signals": [
+          "valid_out",
+          "data_out"
+        ],
+        "pass_condition": "The oracle only requires safe non-violation behavior and does not invent undocumented error responses.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "data_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "property_guardrail_preserves_value_ambiguity",
+            "strength": "unresolved"
+          },
+          "valid_out": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "negative_or_illegal_case_preserves_ambiguity",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "clk": 1,
+          "data_in": 8,
+          "data_out": 16,
+          "rst_n": 1,
+          "valid_in": 1,
+          "valid_out": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "illegal_input_observation",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "unbounded_safe"
+        },
+        "trigger_condition": "When the linked plan probes documented illegal or constrained inputs."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_negative_001_property_001 case_id=negative_001 oracle_case_id=property_negative_001 check_id=negative_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_negative_001",
+      "relative_path": "cocotb_tests/verified_width_8to16_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_negative_001_property_001 case_id=negative_001 oracle_case_id=property_negative_001 check_id=negative_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_reset_001",
+      "case_id": "reset_001",
+      "check_id": "",
+      "context": {
+        "case_id": "reset_001",
+        "category": "reset",
+        "coverage_tags": [
+          "reset",
+          "initialization",
+          "stability"
+        ],
+        "dependencies": [],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": [
+          "rst_n"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_reset_001 case_id=reset_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_width_8to16_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_reset_001 case_id=reset_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "case_id": "basic_001",
+        "category": "basic",
+        "coverage_tags": [
+          "basic",
+          "sanity",
+          "seq"
+        ],
+        "dependencies": [
+          "reset_001"
+        ],
+        "semantic_tags": [
+          "ambiguity_preserving",
+          "operation_specific"
+        ],
+        "stimulus_signals": [
+          "valid_in",
+          "data_in"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_basic_001 case_id=basic_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_width_8to16_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_basic_001 case_id=basic_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_back_to_back_001",
+      "case_id": "back_to_back_001",
+      "check_id": "",
+      "context": {
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "coverage_tags": [
+          "back_to_back",
+          "repeated_operation"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "stimulus_signals": [
+          "valid_in",
+          "data_in"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_back_to_back_001 case_id=back_to_back_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_width_8to16_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_back_to_back_001 case_id=back_to_back_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_negative_001",
+      "case_id": "negative_001",
+      "check_id": "",
+      "context": {
+        "case_id": "negative_001",
+        "category": "negative",
+        "coverage_tags": [
+          "negative",
+          "invalid_illegal_input"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "invalid_illegal_input"
+        ],
+        "stimulus_signals": [
+          "valid_in",
+          "data_in"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_negative_001 case_id=negative_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_width_8to16_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_negative_001 case_id=negative_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "case_id": "edge_001",
+        "category": "edge",
+        "coverage_tags": [
+          "edge",
+          "boundary"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "stimulus_signals": [
+          "data_in",
+          "valid_in"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_edge_001 case_id=edge_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_verified_width_8to16_edge.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_edge_001 case_id=edge_001",
+      "template_name": "test_case.py.tmpl"
+    }
+  ],
+  "module_name": "verified_width_8to16",
+  "oracle_summary": {
+    "empty_functional_cases": [],
+    "functional_case_count": 4,
+    "llm_todo_blocks": [
+      {
+        "block_id": "oracle_reset_001_protocol_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_protocol_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "protocol_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_protocol_001 case_id=reset_001 oracle_case_id=protocol_reset_001 check_id=reset_001_protocol_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_reset_001_functional_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "Observable outputs settle to a stable, externally usable state without relying on undocumented exact-cycle convergence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "at_observation",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is released after a valid assertion interval."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_functional_001 case_id=reset_001 oracle_case_id=functional_reset_001 check_id=reset_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_functional_001 case_id=reset_001 oracle_case_id=functional_reset_001 check_id=reset_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_basic_001_functional_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_001 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_basic_001_functional_002",
+        "case_id": "basic_001",
+        "check_id": "basic_001_functional_002",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "valid_out is asserted only after two consecutive valid_in cycles and data_out equals {first_data, second_data} where first_data is the earlier 8\u2011bit value and second_data is the later one.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When both valid_in cycles have been driven as per the basic_001 stimulus."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_functional_002 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_002",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_functional_002 case_id=basic_001 oracle_case_id=functional_basic_001 check_id=basic_001_functional_002",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_functional_001",
+        "case_id": "edge_001",
+        "check_id": "edge_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001 check_id=edge_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_edge_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_functional_001 case_id=edge_001 oracle_case_id=functional_edge_001 check_id=edge_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_back_to_back_001_functional_001",
+        "case_id": "back_to_back_001",
+        "check_id": "back_to_back_001_functional_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_functional_001 case_id=back_to_back_001 oracle_case_id=functional_back_to_back_001 check_id=back_to_back_001_functional_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "functional_back_to_back_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_functional_001 case_id=back_to_back_001 oracle_case_id=functional_back_to_back_001 check_id=back_to_back_001_functional_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_reset_001_property_001",
+        "case_id": "reset_001",
+        "check_id": "reset_001_property_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_reset_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_reset_001_property_001 case_id=reset_001 oracle_case_id=property_reset_001 check_id=reset_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_basic_001_property_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_property_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_property_001",
+        "case_id": "edge_001",
+        "check_id": "edge_001_property_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_edge_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_property_002",
+        "case_id": "edge_001",
+        "check_id": "edge_001_property_002",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "No change to valid_out or data_out occurs before the second valid_in assertion; outputs may only transition after the second valid_in is observed.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a second valid_in is driven following a first valid_in."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_002 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_002",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_edge_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_002 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_002",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_back_to_back_001_property_001",
+        "case_id": "back_to_back_001",
+        "check_id": "back_to_back_001_property_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_back_to_back_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_negative_001_property_001",
+        "case_id": "negative_001",
+        "check_id": "negative_001_property_001",
+        "context": {
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "The oracle only requires safe non-violation behavior and does not invent undocumented error responses.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "negative_or_illegal_case_preserves_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "clk": 1,
+            "data_in": 8,
+            "data_out": 16,
+            "rst_n": 1,
+            "valid_in": 1,
+            "valid_out": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "illegal_input_observation",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked plan probes documented illegal or constrained inputs."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_negative_001_property_001 case_id=negative_001 oracle_case_id=property_negative_001 check_id=negative_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_negative_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_negative_001_property_001 case_id=negative_001 oracle_case_id=property_negative_001 check_id=negative_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      }
+    ],
+    "preserves_temporal_modes": [
+      "bounded_range",
+      "event_based",
+      "unbounded_safe"
+    ],
+    "property_case_count": 5,
+    "protocol_case_count": 1,
+    "runtime_helper_module": "verified_width_8to16_runtime",
+    "template_name": "oracle_module.py.tmpl",
+    "temporal_modes": [
+      "bounded_range",
+      "event_based",
+      "unbounded_safe"
+    ],
+    "unresolved_items": [
+      "Detected valid_ready-like signal(s) ['valid_in'] without matching role(s) ['ready'] in group 'in'.",
+      "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'."
+    ]
+  },
+  "render_confidence": 0.6691111111111112,
+  "render_warnings": [
+    "Detected valid_ready-like signal(s) ['valid_in'] without matching role(s) ['ready'] in group 'in'.",
+    "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'.",
+    "Rendered Makefile is an executable Phase 4 shell; Phase 5 injects execution variables and selects the backend.",
+    "Task description was provided to the render stage but not used to invent new testbench semantics.",
+    "Spec text was provided to the render stage but only upstream artifacts were trusted for code generation.",
+    "Deterministic render remains the default mainline; post-render TODO fill is experimental and not required by the benchmark path."
+  ],
+  "template_inventory": [
+    "env_module.py.tmpl",
+    "oracle_module.py.tmpl",
+    "test_case.py.tmpl",
+    "test_module.py.tmpl"
+  ],
+  "test_modules": [
+    "test_verified_width_8to16_basic",
+    "test_verified_width_8to16_edge"
+  ],
+  "unfilled_todo_block_ids": []
+}

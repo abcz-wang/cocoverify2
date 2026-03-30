@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import csv
@@ -14,6 +15,7 @@ from typing import Any, Callable, Iterable, Sequence
 from cocoverify2.core.config import LLMConfig
 from cocoverify2.core.models import OracleSpec, RenderMetadata, SimulationConfig, SimulationResult, TestPlan, TriageResult
 from cocoverify2.core.types import GenerationMode, SimulationMode
+from cocoverify2.llm.client import LLMClient
 from cocoverify2.stages.contract_extractor import ContractExtractor
 from cocoverify2.stages.oracle_generator import OracleGenerator
 from cocoverify2.stages.simulator_runner import SimulatorRunnerStage
@@ -95,6 +97,7 @@ class RTLLMTaskSummary:
     assertion_strength_counts: dict[str, int] = field(
         default_factory=lambda: {"exact": 0, "guarded": 0, "unresolved": 0}
     )
+    resumed_from_cache: bool = False
     task_status: str = "failed"
     failure_reason_summary: str = ""
 
@@ -141,6 +144,7 @@ class RTLLMTaskSummary:
                 for item in self.test_module_results
             ],
             "assertion_strength_counts": dict(self.assertion_strength_counts),
+            "resumed_from_cache": self.resumed_from_cache,
             "task_status": self.task_status,
             "failure_reason_summary": self.failure_reason_summary,
         }
@@ -162,6 +166,8 @@ class RTLLMBatchConfig:
     llm_config: LLMConfig = field(default_factory=LLMConfig)
     task_names: list[str] = field(default_factory=list)
     limit: int | None = None
+    jobs: int = 1
+    resume: bool = False
 
 
 def discover_rtllm_tasks(root: Path) -> list[Path]:
@@ -213,6 +219,11 @@ def run_rtllm_batch(
     """Execute the RTLLM batch harness and persist aggregate summaries."""
     out_dir = ensure_dir(config.out_dir)
     discovered_tasks = discover_rtllm_tasks(config.benchmark_root)
+    try:
+        if out_dir.parent.resolve() == config.benchmark_root.resolve():
+            discovered_tasks = [task for task in discovered_tasks if task.resolve() != out_dir.resolve()]
+    except FileNotFoundError:
+        pass
     if config.task_names:
         selected = set(config.task_names)
         discovered_tasks = [task for task in discovered_tasks if task.name in selected]
@@ -220,36 +231,92 @@ def run_rtllm_batch(
         discovered_tasks = discovered_tasks[: max(config.limit, 0)]
     runner = task_runner or _run_one_rtllm_task
 
-    task_summaries: list[RTLLMTaskSummary] = []
-    for index, task_dir in enumerate(discovered_tasks, start=1):
-        LOGGER.info("Running RTLLM batch task %s/%s: %s", index, len(discovered_tasks), task_dir.name)
+    indexed_summaries: list[RTLLMTaskSummary | None] = [None] * len(discovered_tasks)
+    pending_tasks: list[tuple[int, RTLLMTaskInput, Path]] = []
+    resumed_count = 0
+    for index, task_dir in enumerate(discovered_tasks):
         task_input = resolve_rtllm_task_inputs(task_dir)
         task_out_dir = out_dir / task_input.task_name
-        try:
-            task_summary = runner(task_input, config, task_out_dir)
-        except Exception as exc:  # keep the batch moving even if the harness itself trips on one task
-            task_summary = RTLLMTaskSummary(
-                task_name=task_input.task_name,
-                task_dir=str(task_input.task_dir),
-                artifact_root=str(task_out_dir),
-                rtl_sources=[str(path) for path in task_input.rtl_sources],
-                spec_present=task_input.spec_path is not None,
-                makefile_source_discovery_used=task_input.makefile_source_discovery_used,
-                ignored_generation_inputs=list(task_input.ignored_generation_inputs),
-                plan_generation_mode=config.generation_mode.value,
-                oracle_generation_mode=config.generation_mode.value,
-                task_status="failed",
-                failure_reason_summary=f"batch_harness_error: {_single_line(str(exc))}",
+        if config.resume:
+            cached_summary = _load_task_summary(task_out_dir)
+            if cached_summary is not None:
+                cached_summary.resumed_from_cache = True
+                indexed_summaries[index] = cached_summary
+                resumed_count += 1
+                LOGGER.info("Resuming cached RTLLM batch task %s/%s: %s", index + 1, len(discovered_tasks), task_dir.name)
+                continue
+        pending_tasks.append((index, task_input, task_out_dir))
+
+    worker_count = max(1, int(config.jobs))
+    if worker_count == 1 or len(pending_tasks) <= 1:
+        for index, task_input, task_out_dir in pending_tasks:
+            indexed_summaries[index] = _execute_task_runner(
+                runner=runner,
+                task_input=task_input,
+                config=config,
+                task_out_dir=task_out_dir,
+                index=index,
+                total_tasks=len(discovered_tasks),
             )
-        task_summaries.append(task_summary)
+    else:
+        with ThreadPoolExecutor(max_workers=worker_count, thread_name_prefix="rtllm-batch") as executor:
+            future_map = {
+                executor.submit(
+                    _execute_task_runner,
+                    runner=runner,
+                    task_input=task_input,
+                    config=config,
+                    task_out_dir=task_out_dir,
+                    index=index,
+                    total_tasks=len(discovered_tasks),
+                ): index
+                for index, task_input, task_out_dir in pending_tasks
+            }
+            for future in as_completed(future_map):
+                index = future_map[future]
+                indexed_summaries[index] = future.result()
+
+    task_summaries = [summary for summary in indexed_summaries if summary is not None]
 
     batch_summary = _build_batch_summary(config=config, task_summaries=task_summaries)
+    batch_summary.setdefault("aggregate_metrics", {})["resumed_tasks"] = resumed_count
     _write_batch_summary_files(config=config, batch_summary=batch_summary)
     return batch_summary
 
 
+def _execute_task_runner(
+    *,
+    runner: Callable[[RTLLMTaskInput, RTLLMBatchConfig, Path], RTLLMTaskSummary],
+    task_input: RTLLMTaskInput,
+    config: RTLLMBatchConfig,
+    task_out_dir: Path,
+    index: int,
+    total_tasks: int,
+) -> RTLLMTaskSummary:
+    LOGGER.info("Running RTLLM batch task %s/%s: %s", index + 1, total_tasks, task_input.task_name)
+    try:
+        task_summary = runner(task_input, config, task_out_dir)
+    except Exception as exc:  # keep the batch moving even if the harness itself trips on one task
+        task_summary = RTLLMTaskSummary(
+            task_name=task_input.task_name,
+            task_dir=str(task_input.task_dir),
+            artifact_root=str(task_out_dir),
+            rtl_sources=[str(path) for path in task_input.rtl_sources],
+            spec_present=task_input.spec_path is not None,
+            makefile_source_discovery_used=task_input.makefile_source_discovery_used,
+            ignored_generation_inputs=list(task_input.ignored_generation_inputs),
+            plan_generation_mode=config.generation_mode.value,
+            oracle_generation_mode=config.generation_mode.value,
+            task_status="failed",
+            failure_reason_summary=f"batch_harness_error: {_single_line(str(exc))}",
+        )
+    _write_task_summary(task_out_dir, task_summary)
+    return task_summary
+
+
 def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, task_out_dir: Path) -> RTLLMTaskSummary:
     ensure_dir(task_out_dir)
+    shared_llm_client = LLMClient(config.llm_config) if config.generation_mode == GenerationMode.HYBRID else None
     spec_text = task_input.spec_path.read_text(encoding="utf-8", errors="replace") if task_input.spec_path else None
     interface_hint_text = extract_interface_hint_text(spec_text)
     task_description = _derive_task_description(task_input.task_name, spec_text)
@@ -284,7 +351,7 @@ def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, ta
         return summary
 
     try:
-        plan = TestPlanGenerator().run(
+        plan = TestPlanGenerator(llm_client=shared_llm_client).run(
             contract=contract,
             task_description=task_description,
             spec_text=spec_text,
@@ -304,7 +371,7 @@ def _run_one_rtllm_task(task_input: RTLLMTaskInput, config: RTLLMBatchConfig, ta
         return summary
 
     try:
-        oracle = OracleGenerator().run(
+        oracle = OracleGenerator(llm_client=shared_llm_client).run(
             contract=contract,
             plan=plan,
             task_description=task_description,
@@ -457,6 +524,79 @@ def _load_optional_json(path: Path) -> dict[str, Any] | None:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _task_summary_path(task_out_dir: Path) -> Path:
+    return task_out_dir / "task_summary.json"
+
+
+def _write_task_summary(task_out_dir: Path, summary: RTLLMTaskSummary) -> None:
+    ensure_dir(task_out_dir)
+    write_json(_task_summary_path(task_out_dir), summary.to_dict())
+
+
+def _load_task_summary(task_out_dir: Path) -> RTLLMTaskSummary | None:
+    path = _task_summary_path(task_out_dir)
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(payload, dict) or not payload.get("task_name"):
+        return None
+    module_results = [
+        RTLLMModuleRunResult(
+            test_module=str(item.get("test_module", "")),
+            run_status=str(item.get("run_status", "")),
+            triage_category=str(item.get("triage_category", "")),
+            passed_tests_count=int(item.get("passed_tests_count", 0)),
+            failed_tests_count=int(item.get("failed_tests_count", 0)),
+            return_code=item.get("return_code"),
+            run_dir=str(item.get("run_dir", "")),
+            triage_dir=str(item.get("triage_dir", "")),
+            passed_tests=[str(name) for name in item.get("passed_tests", [])],
+            failed_tests=[str(name) for name in item.get("failed_tests", [])],
+        )
+        for item in payload.get("test_module_results", [])
+        if isinstance(item, dict)
+    ]
+    return RTLLMTaskSummary(
+        task_name=str(payload.get("task_name", "")),
+        module_name=str(payload.get("module_name", "")),
+        task_dir=str(payload.get("task_dir", "")),
+        artifact_root=str(payload.get("artifact_root", "")),
+        rtl_sources=[str(path) for path in payload.get("rtl_sources", [])],
+        spec_present=bool(payload.get("spec_present", False)),
+        makefile_source_discovery_used=bool(payload.get("makefile_source_discovery_used", False)),
+        ignored_generation_inputs=[str(path) for path in payload.get("ignored_generation_inputs", [])],
+        plan_generation_mode=str(payload.get("plan_generation_mode", GenerationMode.HYBRID.value)),
+        oracle_generation_mode=str(payload.get("oracle_generation_mode", GenerationMode.HYBRID.value)),
+        llm_plan_attempted=bool(payload.get("llm_plan_attempted", False)),
+        llm_plan_succeeded=bool(payload.get("llm_plan_succeeded", False)),
+        llm_plan_fallback_used=bool(payload.get("llm_plan_fallback_used", False)),
+        llm_plan_status=str(payload.get("llm_plan_status", "not_attempted")),
+        llm_plan_reason=str(payload.get("llm_plan_reason", "")),
+        llm_oracle_attempted=bool(payload.get("llm_oracle_attempted", False)),
+        llm_oracle_succeeded=bool(payload.get("llm_oracle_succeeded", False)),
+        llm_oracle_fallback_used=bool(payload.get("llm_oracle_fallback_used", False)),
+        llm_oracle_status=str(payload.get("llm_oracle_status", "not_attempted")),
+        llm_oracle_reason=str(payload.get("llm_oracle_reason", "")),
+        contract_success=bool(payload.get("contract_success", False)),
+        plan_success=bool(payload.get("plan_success", False)),
+        oracle_success=bool(payload.get("oracle_success", False)),
+        render_success=bool(payload.get("render_success", False)),
+        rendered_test_modules=[str(name) for name in payload.get("rendered_test_modules", [])],
+        test_module_results=module_results,
+        assertion_strength_counts={
+            "exact": int(payload.get("assertion_strength_counts", {}).get("exact", 0)),
+            "guarded": int(payload.get("assertion_strength_counts", {}).get("guarded", 0)),
+            "unresolved": int(payload.get("assertion_strength_counts", {}).get("unresolved", 0)),
+        },
+        resumed_from_cache=bool(payload.get("resumed_from_cache", False)),
+        task_status=str(payload.get("task_status", "failed")),
+        failure_reason_summary=str(payload.get("failure_reason_summary", "")),
+    )
+
+
 def _derive_task_status(summary: RTLLMTaskSummary) -> str:
     if not summary.render_success:
         return "failed"
@@ -566,6 +706,10 @@ def _build_batch_summary(*, config: RTLLMBatchConfig, task_summaries: Iterable[R
             "trust_env": config.llm_config.trust_env,
             "disable_proxies": config.llm_config.disable_proxies,
         },
+        "batch_execution_policy": {
+            "jobs": int(config.jobs),
+            "resume": bool(config.resume),
+        },
         "generation_input_policy": {
             "allowed": ["verified RTL", "design_description.txt", "benchmark makefile only for source discovery if needed"],
             "disallowed": ["reference.dat", "benchmark testbench.v", "golden output data"],
@@ -646,6 +790,7 @@ def _render_summary_markdown(batch_summary: dict[str, Any]) -> str:
         f"- Pipeline: `{ ' -> '.join(batch_summary['pipeline']) }`",
         f"- Experimental fill used: `{batch_summary['experimental_fill_used']}`",
         f"- LLM runtime policy: `provider={batch_summary['llm_runtime_policy']['provider']}, model={batch_summary['llm_runtime_policy']['model']}, trust_env={batch_summary['llm_runtime_policy']['trust_env']}, disable_proxies={batch_summary['llm_runtime_policy']['disable_proxies']}`",
+        f"- Batch execution policy: `jobs={batch_summary['batch_execution_policy']['jobs']}, resume={batch_summary['batch_execution_policy']['resume']}`",
         "",
         "## Aggregate Metrics",
         "",
@@ -660,6 +805,7 @@ def _render_summary_markdown(batch_summary: dict[str, Any]) -> str:
         f"- Tasks with guarded/unresolved policies: {metrics['tasks_with_guarded_or_unresolved_policies']}",
         f"- LLM plan attempted/succeeded/fallback: {metrics['llm_plan_attempted']}/{metrics['llm_plan_succeeded']}/{metrics['llm_plan_fallback_used']}",
         f"- LLM oracle attempted/succeeded/fallback: {metrics['llm_oracle_attempted']}/{metrics['llm_oracle_succeeded']}/{metrics['llm_oracle_fallback_used']}",
+        f"- Resumed tasks: {metrics.get('resumed_tasks', 0)}",
         "",
         "## Histograms",
         "",
@@ -748,6 +894,8 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--task", action="append", default=[], help="Optional task name filter; may be passed multiple times.")
     parser.add_argument("--limit", type=int, default=None, help="Optional maximum number of tasks to run.")
+    parser.add_argument("--jobs", type=int, default=1, help="Task-level parallelism for the batch runner.")
+    parser.add_argument("--resume", action="store_true", help="Reuse per-task summaries that already exist under the output directory.")
     parser.add_argument("--no-clean-build", action="store_true", help="Disable clean-build runs.")
     parser.add_argument("--waves", action="store_true", help="Enable waveform capture.")
     return parser.parse_args(argv)
@@ -791,6 +939,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         llm_config=_build_llm_config(args),
         task_names=list(args.task),
         limit=args.limit,
+        jobs=max(1, int(args.jobs)),
+        resume=args.resume,
     )
     batch_summary = run_rtllm_batch(config)
     summary_dir = Path(batch_summary["out_dir"])

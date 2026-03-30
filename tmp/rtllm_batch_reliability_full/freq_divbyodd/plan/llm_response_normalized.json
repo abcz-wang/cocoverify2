@@ -1,0 +1,123 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset_edge_behavior"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "edge_reset_release_001",
+      "expected_properties": [
+        "clk_div remains stable (no X) while rst_n is asserted",
+        "clk_div does not toggle until after rst_n is deasserted"
+      ],
+      "expected_transition": "",
+      "goal": "Validate correct clk_div behavior during reset assertion and deassertion edges.",
+      "notes": [
+        "Uses the known active\u2011low reset rst_n; polarity of other reset signals is ambiguous and therefore not exercised."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Assert rst_n low for several cycles, then release and observe clk_div stabilization."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "0"
+          },
+          "text": "Assert active\u2011low reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Hold reset asserted"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "Observe clk_div after reset release"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Clock continues to toggle during reset assertion."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "post_reset_progress"
+      ],
+      "expected_properties": [
+        "clk_div transitions between 0 and 1 over multiple clock cycles after reset release",
+        "clk_div never contains X or Z values during observation"
+      ],
+      "expected_transition": "",
+      "goal": "Verify that clk_div produces a stable divided clock after reset.",
+      "notes": [
+        "Conservative observation without assuming the exact divisor value."
+      ],
+      "observed_signals": [
+        "clk_div"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving",
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "Observe clk_div behavior over several clock cycles after reset release."
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "Allow clk_div to settle and exhibit periodic toggling"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe at least ten clk cycles after any reset activity."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,73 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guard against spurious output toggles during asynchronous reset deassertion.",
+          "notes": [
+            "Ensures that out remains stable while reset is being released and only changes after a clock edge."
+          ],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "out must not change value from its reset state until at least one rising edge of clk after reset is deasserted.",
+          "semantic_tags": [
+            "edge_case",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset (rst) transitions from high to low."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Require observable progression of the LFSR output after reset release.",
+          "notes": [
+            "The LFSR should produce a new state within a few clock cycles, but exact latency is not mandated."
+          ],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "out must change at least once to a different defined value within 5 clock cycles after reset is deasserted.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 5,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset (rst) is released."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

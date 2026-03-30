@@ -1,0 +1,212 @@
+{
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "expected_properties": [
+        "Hours, Mins, Secs are 0 after reset release and remain defined (no X) for subsequent cycles"
+      ],
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "stimulus_signals": [
+        "RST"
+      ],
+      "stimulus_intent": [
+        "Assert the active-high reset",
+        "Release reset and observe that all time counters initialize to zero and stay stable"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b1"
+          },
+          "text": "Apply active reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": "Allow reset to propagate"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Observe post‑reset stabilization"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "RST": "1'b0"
+          },
+          "text": "Capture reset deasserted value"
+        }
+      ],
+      "timing_assumptions": [
+        "Observe at least three rising edges of CLK after reset release"
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "scenario_kind": "single_operation",
+      "priority": 1
+    },
+    {
+      "case_id": "basic_001",
+      "expected_properties": [
+        "Secs increments each clock cycle modulo 60",
+        "Mins increments when Secs wraps from 59 to 0",
+        "Hours increments when Mins and Secs both wrap from 59 to 0"
+      ],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "stimulus_signals": [
+        "CLK"
+      ],
+      "stimulus_intent": [
+        "Release reset if present",
+        "Drive a sequence of clock edges and verify normal time‑count progression"
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Ensure reset is deasserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 120,
+          "signals": {},
+          "text": "Observe two full minute cycles to see hour increment possibility"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "CLK": "1'b0"
+          },
+          "text": "Capture final clock level"
+        }
+      ],
+      "timing_assumptions": [
+        "Clock period is unknown; assume observations over many cycles are sufficient"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "scenario_kind": "fsm_transition_path",
+      "priority": 1
+    }
+  ],
+  "additional_cases": [
+    {
+      "draft_id": "wrap_001",
+      "category": "edge",
+      "expected_properties": [
+        "When Secs reaches 59, the next cycle sets Secs to 0 and increments Mins",
+        "When Mins and Secs are both 59, the next cycle sets Mins to 0 and increments Hours",
+        "When Hours, Mins, and Secs are 23, 59, 59 respectively, the next cycle wraps Hours to 0"
+      ],
+      "coverage_tags": [
+        "wrap_around",
+        "boundary"
+      ],
+      "observed_signals": [
+        "Hours",
+        "Mins",
+        "Secs"
+      ],
+      "stimulus_signals": [
+        "CLK"
+      ],
+      "stimulus_intent": [
+        "Drive enough clock cycles after reset to reach the 59‑second boundary and verify wrap behavior",
+        "Continue driving to reach minute and hour boundaries and verify correct wrap"
+      ],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 60,
+          "signals": {},
+          "text": "Advance to Secs = 59"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe Secs wrap to 0 and Mins increment"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 59,
+          "signals": {},
+          "text": "Advance to Mins = 59 while Secs = 0"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe Mins wrap to 0 and Hours increment"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": (23 * 60 * 60) - 1,
+          "signals": {},
+          "text": "Advance to Hours = 23, Mins = 59, Secs = 59"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe Hours wrap to 0"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "CLK": "1'b0"
+          },
+          "text": "Capture final clock level after wrap checks"
+        }
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "scenario_kind": "boundary_vector",
+      "priority": 2,
+      "timing_assumptions": [
+        "No fixed latency assumed; observations rely on clock edges only"
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

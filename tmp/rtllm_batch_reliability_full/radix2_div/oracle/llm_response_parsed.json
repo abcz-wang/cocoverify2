@@ -1,0 +1,84 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When res_valid transitions high, the 16-bit result must represent a mathematically correct division of the most recent dividend/divisor pair respecting the sign flag.",
+          "notes": [
+            "The check does not assume a fixed latency; it only requires that a valid result appears after a legal request.",
+            "If multiple requests are in flight, the oracle conservatively matches the result to the latest request that has not yet been consumed."
+          ],
+          "observed_signals": [
+            "res_valid",
+            "result",
+            "dividend",
+            "divisor",
+            "sign",
+            "opn_valid"
+          ],
+          "pass_condition": "Whenever res_valid rises, compute expected_quotient and expected_remainder from the last captured dividend/divisor respecting sign. The upper 8 bits of result must equal expected_remainder and the lower 8 bits must equal expected_quotient. No X or Z values are permitted on result when res_valid is high.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "res_valid_rise",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On each rising edge of res_valid."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After a single legal operation request (opn_valid high with res_valid low), the design must eventually produce a result that matches the division of the provided operands.",
+          "notes": [
+            "The oracle does not enforce a specific number of cycles; it only requires eventual correctness once res_valid asserts."
+          ],
+          "observed_signals": [
+            "opn_valid",
+            "res_valid",
+            "result",
+            "dividend",
+            "divisor",
+            "sign"
+          ],
+          "pass_condition": "When res_valid becomes high following the request, the result must encode the correct quotient and remainder as defined in the contract. The check tolerates any latency between request and response.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On each occurrence of res_valid rising after a request."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

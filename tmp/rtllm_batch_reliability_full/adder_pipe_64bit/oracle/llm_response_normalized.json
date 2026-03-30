@@ -1,0 +1,74 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Result must become a defined 65\u2011bit value (no X/Z) after a legal addition operation.",
+          "notes": [
+            "Conservative property; does not assume a fixed latency."
+          ],
+          "observed_signals": [
+            "result"
+          ],
+          "pass_condition": "After i_en is asserted, result transitions from X/Z to a concrete 65\u2011bit value and remains stable for at least two clock cycles.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a legal edge case operation (zero, max, or one\u2011off) is applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "Functional check that validates addition result and enable signal without imposing exact-cycle timing."
+          ],
+          "observed_signals": [
+            "result",
+            "o_en"
+          ],
+          "pass_condition": "When i_en is asserted, result eventually equals adda + addb and o_en becomes 1, with both signals remaining stable for at least two consecutive clock cycles.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 plan case drives a legal addition."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

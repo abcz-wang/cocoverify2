@@ -739,6 +739,8 @@ def _supports_clock_hint(line_lower: str, port_name: str, port_lookup: dict[str,
     reset_confidence = _reset_name_confidence(port_name)
     if clock_confidence > reset_confidence:
         return True
+    if not _line_explicitly_targets_named_role(line_lower=line_lower, port_name=port_name, role="clock"):
+        return False
     mentioned_names = _collect_port_names_in_text(line_lower, port_lookup)
     return len(mentioned_names) == 1 and reset_confidence == 0.0
 
@@ -748,8 +750,25 @@ def _supports_reset_hint(line_lower: str, port_name: str, port_lookup: dict[str,
     clock_confidence = _clock_name_confidence(port_name)
     if reset_confidence > clock_confidence:
         return True
+    if not _line_explicitly_targets_named_role(line_lower=line_lower, port_name=port_name, role="reset"):
+        return False
     mentioned_names = _collect_port_names_in_text(line_lower, port_lookup)
     return len(mentioned_names) == 1 and clock_confidence == 0.0
+
+
+def _line_explicitly_targets_named_role(*, line_lower: str, port_name: str, role: str) -> bool:
+    normalized = re.sub(r"\s+", " ", str(line_lower or "").strip().lower())
+    signal_lower = port_name.lower()
+    role_tokens = {
+        "clock": r"(?:clock|clock signal|clk)",
+        "reset": r"(?:reset|reset signal|rst)",
+    }
+    role_pattern = role_tokens.get(role, re.escape(role))
+    explicit_patterns = (
+        rf"^\s*[-*]?\s*{re.escape(signal_lower)}\s*:\s*.*\b{role_pattern}\b",
+        rf"\b{re.escape(signal_lower)}\b\s+(?:is|acts as|serves as|provides)\s+(?:an?\s+)?\b{role_pattern}\b",
+    )
+    return any(re.search(pattern, normalized) for pattern in explicit_patterns)
 
 
 def _has_strong_role(items: Iterable[ClockSpec | ResetSpec], name: str, threshold: float = 0.75) -> bool:

@@ -213,6 +213,49 @@ The output toggles according to the clock and the requested frequency.
     assert "freq" not in {clock.name for clock in contract.clocks}
 
 
+def test_sequence_data_input_is_not_promoted_to_clock_from_narrative_text(tmp_path: Path) -> None:
+    rtl_path = tmp_path / "sequence_detector_like.v"
+    rtl_path.write_text(
+        "\n".join(
+            [
+                "module sequence_detector(clk, rst_n, data_in, sequence_detected);",
+                "input clk;",
+                "input rst_n;",
+                "input data_in;",
+                "output reg sequence_detected;",
+                "endmodule",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    spec_text = """
+Module name:
+    sequence_detector
+
+Input ports:
+    clk: Clock signal to synchronize the detector.
+    rst_n: Reset signal to initialize the state machine.
+    data_in: 1-bit binary input signal to feed the bitstream for sequence detection.
+
+Output ports:
+    sequence_detected: asserted when the sequence is detected.
+
+Implementation:
+    The FSM transitions through states based on the bitstream data_in. On each clock cycle, the detector checks for a match.
+""".strip()
+
+    contract = ContractExtractor().run(
+        rtl_paths=[rtl_path],
+        task_description=None,
+        spec_text=spec_text,
+        golden_interface_text=extract_interface_hint_text(spec_text),
+        out_dir=tmp_path / "out",
+    )
+
+    assert [clock.name for clock in contract.clocks] == ["clk"]
+    assert "data_in" not in {clock.name for clock in contract.clocks}
+
+
 def test_interface_hint_extraction_feeds_contract_without_reusing_full_spec(tmp_path: Path) -> None:
     spec_text = """
 Module name:

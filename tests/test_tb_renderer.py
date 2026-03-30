@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
+import asyncio
+import importlib
 import json
 import os
 import py_compile
+import pytest
 import subprocess
 import sys
+import uuid
 from pathlib import Path
 
+from cocoverify2.cocotbgen.oracle import render_oracle_module
+from cocoverify2.cocotbgen.runtime_helpers import render_runtime_helpers_module
 from cocoverify2.cocotbgen.env import _build_deterministic_stimulus_steps
-from cocoverify2.core.models import DUTContract, PortSpec, TestCasePlan, TimingSpec
-from cocoverify2.core.types import PortDirection, SequentialKind, TestCategory
+from cocoverify2.core.models import DUTContract, OracleCase, OracleCheck, OracleSpec, PortSpec, SignalAssertionPolicy, TemporalWindow, TestCasePlan, TimingSpec
+from cocoverify2.core.types import AssertionStrength, DefinednessMode, OracleCheckType, OracleStrictness, PortDirection, SequentialKind, TemporalWindowMode, TestCategory
 from cocoverify2.stages.contract_extractor import ContractExtractor
 from cocoverify2.stages.oracle_generator import OracleGenerator
 from cocoverify2.stages.tb_renderer import TBRenderer
@@ -71,6 +77,103 @@ def _render_fixture(tmp_path: Path, rtl_name: str):
 def _compile_generated_python(package_dir: Path) -> None:
     for path in package_dir.glob("*.py"):
         py_compile.compile(str(path), doraise=True)
+
+
+class _FakeCoverage:
+    def __init__(self) -> None:
+        self.records: list[tuple[str, str, str]] = []
+
+    def record_oracle_check(self, check_id: str, check_type: str, strictness: str) -> None:
+        self.records.append((check_id, check_type, strictness))
+
+
+class _FakeEnv:
+    def __init__(
+        self,
+        *,
+        samples: list[dict[str, object]],
+        widths: dict[str, int | None],
+        case_inputs: dict[str, dict[str, object]],
+    ) -> None:
+        self._samples = list(samples)
+        self._index = 0
+        self._widths = dict(widths)
+        self._case_inputs = dict(case_inputs)
+        self.coverage = _FakeCoverage()
+        self.oracle_results: list[dict[str, object]] = []
+
+    async def wait_for_window(self, temporal_window: dict[str, object], label: str = "window") -> None:
+        return None
+
+    async def wait_event_based(self, label: str = "event_based") -> None:
+        if self._index < len(self._samples) - 1:
+            self._index += 1
+
+    async def sample_outputs(self, names=None) -> dict[str, object]:
+        sample = self._samples[min(self._index, len(self._samples) - 1)]
+        selected = list(names or sample.keys())
+        return {name: sample.get(name) for name in selected}
+
+    def get_case_inputs(self, case_id: str) -> dict[str, object]:
+        return dict(self._case_inputs.get(case_id, {}))
+
+    def signal_width(self, signal_name: str) -> int | None:
+        return self._widths.get(signal_name)
+
+    def note_oracle_result(self, result: dict[str, object]) -> None:
+        self.oracle_results.append(dict(result))
+
+
+def _render_runtime_test_package(
+    tmp_path: Path,
+    *,
+    module_name: str,
+    check: OracleCheck,
+    observed_widths: dict[str, int | None],
+) -> object:
+    package_name = f"rendered_oracle_{uuid.uuid4().hex[:8]}"
+    package_dir = tmp_path / package_name
+    package_dir.mkdir(parents=True, exist_ok=True)
+    (package_dir / "__init__.py").write_text("", encoding="utf-8")
+
+    contract = DUTContract(
+        module_name=module_name,
+        ports=[
+            PortSpec(name="in_data", direction=PortDirection.INPUT, width=1),
+            *[
+                PortSpec(name=signal_name, direction=PortDirection.OUTPUT, width=width or 1)
+                for signal_name, width in observed_widths.items()
+            ],
+        ],
+        observable_outputs=list(observed_widths),
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.7),
+        contract_confidence=0.8,
+    )
+    oracle = OracleSpec(
+        module_name=module_name,
+        oracle_strategy="rule_based",
+        functional_oracles=[
+            OracleCase(
+                case_id="functional_basic_001",
+                linked_plan_case_id="basic_001",
+                category=TestCategory.BASIC,
+                checks=[check],
+                confidence=0.8,
+                source="hybrid_llm_enriched",
+            )
+        ],
+    )
+
+    runtime_content, _ = render_runtime_helpers_module(module_name)
+    oracle_content, _ = render_oracle_module(contract, oracle, runtime_module=f"{module_name}_runtime")
+    (package_dir / f"{module_name}_runtime.py").write_text(runtime_content, encoding="utf-8")
+    (package_dir / f"{module_name}_oracle.py").write_text(oracle_content, encoding="utf-8")
+
+    sys.path.insert(0, str(tmp_path))
+    try:
+        return importlib.import_module(f"{package_name}.{module_name}_oracle")
+    finally:
+        sys.path.remove(str(tmp_path))
 
 
 def test_simple_comb_renders_basic_and_edge_without_protocol_file(tmp_path: Path) -> None:
@@ -135,6 +238,7 @@ def test_render_metadata_tracks_llm_todo_blocks_and_template_names(tmp_path: Pat
     assert generated_files["cocotb_tests/test_simple_comb_basic.py"]["template_name"] == "test_module.py.tmpl"
     assert generated_files["cocotb_tests/simple_comb_env.py"]["todo_block_ids"] == ["stimulus_basic_001", "stimulus_edge_001"]
     assert generated_files["cocotb_tests/test_simple_comb_basic.py"]["todo_block_ids"] == ["testcase_setup_basic_001"]
+    assert "_apply_structured_semantic_check" in (package_dir / "simple_comb_oracle.py").read_text(encoding="utf-8")
     _compile_generated_python(package_dir)
 
 
@@ -260,6 +364,191 @@ def test_stage_render_cli_smoke(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
     assert "Render package generated for module 'simple_comb'" in result.stdout
     assert (tmp_path / "cli_render" / "render" / "metadata.json").exists()
+
+
+def test_rendered_oracle_applies_eventual_high_semantics_for_exact_scalar_checks(tmp_path: Path) -> None:
+    check = OracleCheck(
+        check_id="basic_001_functional_002",
+        check_type=OracleCheckType.FUNCTIONAL,
+        description="operation-specific semantic check",
+        observed_signals=["done"],
+        pass_condition="done must become high in a later cycle.",
+        temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED),
+        strictness=OracleStrictness.CONSERVATIVE,
+        signal_policies={
+            "done": SignalAssertionPolicy(
+                strength=AssertionStrength.EXACT,
+                definedness_mode=DefinednessMode.NOT_REQUIRED,
+                allow_unknown=False,
+                allow_high_impedance=False,
+                rationale="explicit_output_behavior",
+            )
+        },
+        semantic_tags=["operation_specific"],
+        source="hybrid_llm_generated",
+        confidence=0.8,
+    )
+    oracle_module = _render_runtime_test_package(tmp_path, module_name="demo_eventual", check=check, observed_widths={"done": 1})
+    env = _FakeEnv(samples=[{"done": 0}, {"done": 0}, {"done": 1}], widths={"done": 1}, case_inputs={"basic_001": {"in_data": 1}})
+
+    result = asyncio.run(oracle_module._evaluate_check(env, "basic_001", "functional_basic_001", check.model_dump(mode="json")))
+
+    assert result["semantic_status"] == "semantic_checked"
+    assert result["semantic_kind"] == "eventual_level"
+    assert result["semantic_details"]["matched_after_cycles"] == 2
+
+
+def test_rendered_oracle_skips_complex_premise_semantics_without_failing(tmp_path: Path) -> None:
+    check = OracleCheck(
+        check_id="basic_001_functional_002",
+        check_type=OracleCheckType.FUNCTIONAL,
+        description="sequence semantic check",
+        observed_signals=["sequence_detected"],
+        pass_condition="Following the stimulus that drives the bitstream 1,0,0,1 on data_in, sequence_detected must become high in a later cycle.",
+        temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED),
+        strictness=OracleStrictness.CONSERVATIVE,
+        signal_policies={
+            "sequence_detected": SignalAssertionPolicy(
+                strength=AssertionStrength.EXACT,
+                definedness_mode=DefinednessMode.NOT_REQUIRED,
+                allow_unknown=False,
+                allow_high_impedance=False,
+                rationale="explicit_output_behavior",
+            )
+        },
+        semantic_tags=["operation_specific"],
+        source="hybrid_llm_generated",
+        confidence=0.8,
+    )
+    oracle_module = _render_runtime_test_package(
+        tmp_path,
+        module_name="demo_sequence",
+        check=check,
+        observed_widths={"sequence_detected": 1},
+    )
+    env = _FakeEnv(
+        samples=[{"sequence_detected": 0}, {"sequence_detected": 0}, {"sequence_detected": 0}],
+        widths={"sequence_detected": 1},
+        case_inputs={"basic_001": {"data_in": 1}},
+    )
+
+    result = asyncio.run(oracle_module._evaluate_check(env, "basic_001", "functional_basic_001", check.model_dump(mode="json")))
+
+    assert result["semantic_status"] == "semantic_skipped_complex_premise"
+    assert result["semantic_kind"] == "eventual_level"
+
+
+def test_rendered_oracle_applies_conditional_defined_binary_semantics(tmp_path: Path) -> None:
+    check = OracleCheck(
+        check_id="edge_001_property_002",
+        check_type=OracleCheckType.PROPERTY,
+        description="conditional binary definedness",
+        observed_signals=["valid_out", "dout"],
+        pass_condition="Whenever valid_out is 1, dout must be a defined binary value (0 or 1) and must not be X or Z; no timing guarantee is required.",
+        temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED),
+        strictness=OracleStrictness.GUARDED,
+        signal_policies={
+            "valid_out": SignalAssertionPolicy(
+                strength=AssertionStrength.EXACT,
+                definedness_mode=DefinednessMode.NOT_REQUIRED,
+                allow_unknown=False,
+                allow_high_impedance=False,
+                rationale="explicit_output_behavior",
+            ),
+            "dout": SignalAssertionPolicy(
+                strength=AssertionStrength.EXACT,
+                definedness_mode=DefinednessMode.NOT_REQUIRED,
+                allow_unknown=False,
+                allow_high_impedance=False,
+                rationale="explicit_output_behavior",
+            ),
+        },
+        semantic_tags=["operation_specific", "ambiguity_preserving"],
+        source="hybrid_llm_generated",
+        confidence=0.75,
+    )
+    oracle_module = _render_runtime_test_package(
+        tmp_path,
+        module_name="demo_conditional",
+        check=check,
+        observed_widths={"valid_out": 1, "dout": 1},
+    )
+
+    good_env = _FakeEnv(
+        samples=[{"valid_out": 0, "dout": "x"}, {"valid_out": 1, "dout": 1}, {"valid_out": 0, "dout": 0}],
+        widths={"valid_out": 1, "dout": 1},
+        case_inputs={"basic_001": {"in_data": 1}},
+    )
+    good_result = asyncio.run(
+        oracle_module._evaluate_check(good_env, "basic_001", "functional_basic_001", check.model_dump(mode="json"))
+    )
+    assert good_result["semantic_status"] == "semantic_checked"
+    assert good_result["semantic_kind"] == "conditional_defined_binary"
+    assert good_result["semantic_details"]["activation_count"] == 1
+
+    bad_env = _FakeEnv(
+        samples=[{"valid_out": 1, "dout": "x"}],
+        widths={"valid_out": 1, "dout": 1},
+        case_inputs={"basic_001": {"in_data": 1}},
+    )
+    with pytest.raises(AssertionError, match="dout must not be unknown when valid_out=1"):
+        asyncio.run(oracle_module._evaluate_check(bad_env, "basic_001", "functional_basic_001", check.model_dump(mode="json")))
+
+
+def test_rendered_oracle_applies_exact_match_count_semantics(tmp_path: Path) -> None:
+    check = OracleCheck(
+        check_id="basic_001_functional_002",
+        check_type=OracleCheckType.FUNCTIONAL,
+        description="count valid output pulses",
+        observed_signals=["valid_out", "dout"],
+        pass_condition="After the input pattern is presented, within an unspecified number of clock cycles, exactly four cycles with valid_out=1 must be observed, each providing a dout bit.",
+        temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED),
+        strictness=OracleStrictness.CONSERVATIVE,
+        signal_policies={
+            "valid_out": SignalAssertionPolicy(
+                strength=AssertionStrength.EXACT,
+                definedness_mode=DefinednessMode.NOT_REQUIRED,
+                allow_unknown=False,
+                allow_high_impedance=False,
+                rationale="explicit_output_behavior",
+            ),
+            "dout": SignalAssertionPolicy(
+                strength=AssertionStrength.EXACT,
+                definedness_mode=DefinednessMode.NOT_REQUIRED,
+                allow_unknown=False,
+                allow_high_impedance=False,
+                rationale="explicit_output_behavior",
+            ),
+        },
+        semantic_tags=["operation_specific", "ambiguity_preserving"],
+        source="hybrid_llm_generated",
+        confidence=0.8,
+    )
+    oracle_module = _render_runtime_test_package(
+        tmp_path,
+        module_name="demo_count",
+        check=check,
+        observed_widths={"valid_out": 1, "dout": 1},
+    )
+    env = _FakeEnv(
+        samples=[
+            {"valid_out": 0, "dout": 0},
+            {"valid_out": 1, "dout": 1},
+            {"valid_out": 1, "dout": 0},
+            {"valid_out": 1, "dout": 1},
+            {"valid_out": 1, "dout": 0},
+            {"valid_out": 0, "dout": 0},
+            {"valid_out": 0, "dout": 0},
+        ],
+        widths={"valid_out": 1, "dout": 1},
+        case_inputs={"basic_001": {"in_data": 1}},
+    )
+
+    result = asyncio.run(oracle_module._evaluate_check(env, "basic_001", "functional_basic_001", check.model_dump(mode="json")))
+
+    assert result["semantic_status"] == "semantic_checked"
+    assert result["semantic_kind"] == "count_equals"
+    assert result["semantic_details"]["matched_count"] == 4
 
 
 def test_deterministic_stimulus_uses_available_inputs_for_serial_parallel_edge_case() -> None:

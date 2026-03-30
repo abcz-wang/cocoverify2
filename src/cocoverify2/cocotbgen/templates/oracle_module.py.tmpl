@@ -8,6 +8,7 @@ and control signals are never reintroduced as business outputs.
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from .${runtime_module} import assert_equal, assert_true, is_high_impedance, is_unknown, mask_width, to_sint, to_uint
@@ -18,6 +19,49 @@ ORACLE_SPEC = json.loads(${oracle_spec_literal})
 ORACLE_CASES_BY_PLAN = json.loads(${oracle_cases_by_plan_literal})
 TEMPORAL_MODES = ${temporal_modes_literal}
 UNRESOLVED_ITEMS = ${unresolved_items_literal}
+_EVENTUAL_LEVEL_RE = re.compile(
+    r"\b(?P<signal>[A-Za-z_][A-Za-z0-9_]*)\s+must\s+become\s+(?P<level>high|low)\b",
+    re.IGNORECASE,
+)
+_ASSERTED_RE = re.compile(
+    r"\b(?P<signal>[A-Za-z_][A-Za-z0-9_]*)\s+must\s+be\s+asserted\b",
+    re.IGNORECASE,
+)
+_EXACT_COUNT_RE = re.compile(
+    r"exactly\s+(?P<count>\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen)\s+cycles?\s+with\s+(?P<signal>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?P<value>[01])",
+    re.IGNORECASE,
+)
+_DEFINED_BINARY_WHEN_RE = re.compile(
+    r"Whenever\s+(?P<condition>[A-Za-z_][A-Za-z0-9_]*)\s+is\s+(?P<cond_value>[01]),\s+"
+    r"(?P<target>[A-Za-z_][A-Za-z0-9_]*)\s+must\s+be\s+a\s+defined\s+binary\s+value",
+    re.IGNORECASE,
+)
+_COMPLEX_PREMISE_HINTS = (
+    "bitstream",
+    "consecutive cycles where",
+    "msb-to-lsb",
+    "lsb-to-msb",
+    "order of bits",
+    "serial bits",
+)
+_NUMBER_WORDS = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+    "eleven": 11,
+    "twelve": 12,
+    "thirteen": 13,
+    "fourteen": 14,
+    "fifteen": 15,
+    "sixteen": 16,
+}
 
 
 def linked_oracle_case_ids_for_plan_case(plan_case_id: str) -> list[str]:
@@ -27,6 +71,97 @@ def linked_oracle_case_ids_for_plan_case(plan_case_id: str) -> list[str]:
 
 def _signal_policy(check: dict[str, Any], signal_name: str) -> dict[str, Any]:
     return dict(check.get("signal_policies", {}).get(signal_name, {}))
+
+
+def _normalize_observed_signal_name(name: str, observed_signals: list[str]) -> str | None:
+    lowered = str(name or "").strip().lower()
+    for signal_name in observed_signals:
+        if str(signal_name).strip().lower() == lowered:
+            return str(signal_name)
+    return None
+
+
+def _is_exact_scalar_signal(env, check: dict[str, Any], signal_name: str) -> bool:
+    policy = _signal_policy(check, signal_name)
+    if str(policy.get("strength", "unresolved") or "unresolved") != "exact":
+        return False
+    width = env.signal_width(signal_name)
+    return width in (None, 1)
+
+
+def _sample_matches_bit(value: Any, bit_value: int) -> bool:
+    if value is None or is_unknown(value) or is_high_impedance(value):
+        return False
+    try:
+        return to_uint(value, 1) == int(bit_value)
+    except AssertionError:
+        return False
+
+
+def _requires_complex_stimulus_history(pass_condition: str) -> bool:
+    lowered = str(pass_condition or "").strip().lower()
+    return any(token in lowered for token in _COMPLEX_PREMISE_HINTS)
+
+
+def _parse_count_token(raw_count: str) -> int | None:
+    token = str(raw_count or "").strip().lower()
+    if not token:
+        return None
+    if token.isdigit():
+        return int(token)
+    return _NUMBER_WORDS.get(token)
+
+
+def _parse_structured_semantic_expectation(pass_condition: str, observed_signals: list[str]) -> dict[str, Any] | None:
+    text = str(pass_condition or "").strip()
+    if not text:
+        return None
+
+    count_match = _EXACT_COUNT_RE.search(text)
+    if count_match:
+        signal_name = _normalize_observed_signal_name(count_match.group("signal"), observed_signals)
+        count_value = _parse_count_token(count_match.group("count"))
+        if signal_name and count_value is not None:
+            return {
+                "kind": "count_equals",
+                "signal": signal_name,
+                "count": count_value,
+                "value": int(count_match.group("value")),
+            }
+
+    defined_match = _DEFINED_BINARY_WHEN_RE.search(text)
+    if defined_match:
+        condition_name = _normalize_observed_signal_name(defined_match.group("condition"), observed_signals)
+        target_name = _normalize_observed_signal_name(defined_match.group("target"), observed_signals)
+        if condition_name and target_name:
+            return {
+                "kind": "conditional_defined_binary",
+                "condition_signal": condition_name,
+                "condition_value": int(defined_match.group("cond_value")),
+                "target_signal": target_name,
+            }
+
+    eventual_match = _EVENTUAL_LEVEL_RE.search(text)
+    if eventual_match:
+        signal_name = _normalize_observed_signal_name(eventual_match.group("signal"), observed_signals)
+        if signal_name:
+            return {
+                "kind": "eventual_level",
+                "signal": signal_name,
+                "value": 1 if eventual_match.group("level").lower() == "high" else 0,
+            }
+
+    asserted_match = _ASSERTED_RE.search(text)
+    if asserted_match:
+        signal_name = _normalize_observed_signal_name(asserted_match.group("signal"), observed_signals)
+        if signal_name:
+            return {
+                "kind": "eventual_level",
+                "signal": signal_name,
+                "value": 1,
+            }
+
+    return None
 
 
 async def _apply_structured_signal_policy(
@@ -76,6 +211,95 @@ async def _apply_structured_signal_policy(
     }
 
 
+async def _apply_structured_semantic_check(
+    env,
+    plan_case_id: str,
+    check: dict[str, Any],
+    observed_signals: list[str],
+    sampled_outputs: dict[str, Any],
+) -> dict[str, Any]:
+    """Apply a tiny set of high-confidence pass_condition semantics when the artifact supports it."""
+    if check.get("source") != "hybrid_llm_generated" and "operation_specific" not in set(check.get("semantic_tags", [])):
+        return {"status": "semantic_not_applicable", "kind": "", "reason": "non_llm_or_non_specific_check"}
+
+    if not env.get_case_inputs(plan_case_id):
+        return {"status": "semantic_skipped_no_inputs", "kind": "", "reason": "no_recorded_inputs"}
+
+    expectation = _parse_structured_semantic_expectation(check.get("pass_condition", ""), observed_signals)
+    if expectation is None:
+        return {"status": "semantic_not_applicable", "kind": "", "reason": "no_supported_pattern"}
+
+    if expectation["kind"] == "eventual_level":
+        if _requires_complex_stimulus_history(check.get("pass_condition", "")):
+            return {"status": "semantic_skipped_complex_premise", "kind": expectation["kind"], "reason": "complex_stimulus_history"}
+        signal_name = str(expectation["signal"])
+        if not _is_exact_scalar_signal(env, check, signal_name):
+            return {"status": "semantic_skipped_policy", "kind": expectation["kind"], "reason": "signal_not_exact_scalar"}
+        target_value = int(expectation["value"])
+        if _sample_matches_bit(sampled_outputs.get(signal_name), target_value):
+            return {"status": "semantic_checked", "kind": expectation["kind"], "matched_after_cycles": 0}
+        for cycle_index in range(1, 9):
+            await env.wait_event_based(label=f"{check['check_id']}_semantic_eventual")
+            future_sample = await env.sample_outputs([signal_name])
+            if _sample_matches_bit(future_sample.get(signal_name), target_value):
+                return {"status": "semantic_checked", "kind": expectation["kind"], "matched_after_cycles": cycle_index}
+        human_value = "high" if target_value else "low"
+        assert_true(False, f"{signal_name} did not become {human_value} within the conservative semantic observation window")
+
+    if expectation["kind"] == "count_equals":
+        signal_name = str(expectation["signal"])
+        if not _is_exact_scalar_signal(env, check, signal_name):
+            return {"status": "semantic_skipped_policy", "kind": expectation["kind"], "reason": "signal_not_exact_scalar"}
+        expected_count = int(expectation["count"])
+        expected_value = int(expectation["value"])
+        observation_cycles = max(8, expected_count * 2)
+        matched_count = 1 if _sample_matches_bit(sampled_outputs.get(signal_name), expected_value) else 0
+        for _ in range(observation_cycles):
+            await env.wait_event_based(label=f"{check['check_id']}_semantic_count")
+            future_sample = await env.sample_outputs([signal_name])
+            if _sample_matches_bit(future_sample.get(signal_name), expected_value):
+                matched_count += 1
+        assert_equal(f"{signal_name}_match_count", matched_count, expected_count)
+        return {"status": "semantic_checked", "kind": expectation["kind"], "matched_count": matched_count}
+
+    if expectation["kind"] == "conditional_defined_binary":
+        condition_signal = str(expectation["condition_signal"])
+        target_signal = str(expectation["target_signal"])
+        if not _is_exact_scalar_signal(env, check, condition_signal):
+            return {"status": "semantic_skipped_policy", "kind": expectation["kind"], "reason": "condition_not_exact_scalar"}
+        if not _is_exact_scalar_signal(env, check, target_signal):
+            return {"status": "semantic_skipped_policy", "kind": expectation["kind"], "reason": "target_not_exact_scalar"}
+        target_width = env.signal_width(target_signal)
+        if target_width not in (None, 1):
+            return {"status": "semantic_skipped_policy", "kind": expectation["kind"], "reason": "target_not_binary_scalar"}
+        condition_value = int(expectation["condition_value"])
+        activated = 0
+        current_sample = dict(sampled_outputs)
+        for _ in range(9):
+            if _sample_matches_bit(current_sample.get(condition_signal), condition_value):
+                activated += 1
+                target_value = current_sample.get(target_signal)
+                assert_true(target_value is not None, f"{target_signal} must be observable when {condition_signal}={condition_value}")
+                assert_true(not is_unknown(target_value), f"{target_signal} must not be unknown when {condition_signal}={condition_value}")
+                assert_true(
+                    not is_high_impedance(target_value),
+                    f"{target_signal} must not be high-impedance when {condition_signal}={condition_value}",
+                )
+                assert_true(
+                    to_uint(target_value, 1) in (0, 1),
+                    f"{target_signal} must be a defined binary value when {condition_signal}={condition_value}",
+                )
+            await env.wait_event_based(label=f"{check['check_id']}_semantic_conditional")
+            current_sample = await env.sample_outputs([condition_signal, target_signal])
+        return {
+            "status": "semantic_checked" if activated else "semantic_observed_only",
+            "kind": expectation["kind"],
+            "activation_count": activated,
+        }
+
+    return {"status": "semantic_not_applicable", "kind": "", "reason": "unsupported_kind"}
+
+
 async def run_linked_plan_case(env, plan_case_id: str) -> list[dict[str, Any]]:
     """Invoke all oracle helpers associated with a rendered test-plan case."""
     results: list[dict[str, Any]] = []
@@ -106,6 +330,13 @@ async def _evaluate_check(env, plan_case_id: str, oracle_case_id: str, check: di
     await env.wait_for_window(temporal_window, label=check["check_id"])
     observed_signals = [signal for signal in check.get("observed_signals", []) if signal not in CONTROL_SIGNALS]
     policy_result = await _apply_structured_signal_policy(env, plan_case_id, check, observed_signals)
+    semantic_result = await _apply_structured_semantic_check(
+        env,
+        plan_case_id,
+        check,
+        observed_signals,
+        dict(policy_result.get("sampled_outputs", {})),
+    )
     env.coverage.record_oracle_check(check["check_id"], check["check_type"], check["strictness"])
     await _apply_oracle_check_todo(env, plan_case_id, oracle_case_id, check, observed_signals)
     result = {
@@ -123,6 +354,13 @@ async def _evaluate_check(env, plan_case_id: str, oracle_case_id: str, check: di
         "checked_signals": list(policy_result["checked_signals"]),
         "skipped_signals": list(policy_result["skipped_signals"]),
         "sampled_outputs": dict(policy_result["sampled_outputs"]),
+        "semantic_status": semantic_result.get("status", ""),
+        "semantic_kind": semantic_result.get("kind", ""),
+        "semantic_details": {
+            key: value
+            for key, value in semantic_result.items()
+            if key not in {"status", "kind"}
+        },
         "notes": list(check.get("notes", [])),
     }
     env.note_oracle_result(result)

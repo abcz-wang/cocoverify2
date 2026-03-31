@@ -1,0 +1,51 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "functional",
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that the sum output S and carry-out C32 correspond to the arithmetic addition of inputs A and B.",
+          "notes": [],
+          "observed_signals": [
+            "A",
+            "B",
+            "S",
+            "C32"
+          ],
+          "pass_condition": "After inputs A and B stabilize, S equals (A + B) modulo 2^32 and C32 equals the carry-out of the 32-bit addition.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "strict",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the linked basic stimulus applies any legal input pattern to A and B."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "edge_001",
+      "oracle_class": "property",
+      "checks": [],
+      "notes": [],
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

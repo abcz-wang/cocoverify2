@@ -1,0 +1,107 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Each done pulse must be preceded by a distinct start pulse, ensuring back‑to‑back operations are not collapsed.",
+          "notes": [],
+          "observed_signals": [
+            "start",
+            "done"
+          ],
+          "pass_condition": "For every rising edge of done there exists a prior unmatched rising edge of start; no done may occur without a new start.",
+          "semantic_tags": [
+            "back_to_back",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "done_rise",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On each rising edge of done."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that yout equals the product of ain and bin when done is asserted for the basic operation.",
+          "notes": [],
+          "observed_signals": [
+            "yout",
+            "done",
+            "ain",
+            "bin"
+          ],
+          "pass_condition": "When done transitions high, yout must equal ain * bin (1 * 2 = 2) and remain stable thereafter.",
+          "semantic_tags": [
+            "operation_specific",
+            "value_level_check"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "done_rise",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On rising edge of done."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that yout equals the product of maximum‑value inputs when done is asserted for the edge case.",
+          "notes": [],
+          "observed_signals": [
+            "yout",
+            "done",
+            "ain",
+            "bin"
+          ],
+          "pass_condition": "When done transitions high, yout must equal ain * bin (65535 * 65535 = 4294836225) and remain stable thereafter.",
+          "semantic_tags": [
+            "operation_specific",
+            "value_level_check",
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "done_rise",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On rising edge of done."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

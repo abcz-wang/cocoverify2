@@ -1,0 +1,95 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "rdata must reflect written value after a write followed by a read",
+          "notes": [],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "When wenc=1 and renc=1 with matching addresses, rdata equals the previously driven wdata value",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After the stimulus sequence for basic_001 completes"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "rdata must return the written value when accessing the maximum address",
+          "notes": [],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "When waddr and raddr are set to the maximum address (DEPTH-1) and wenc=1, renc=1, rdata equals the driven wdata value",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After the edge case stimulus targeting boundary address completes"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Two back‑to‑back writes must be observed in FIFO order on successive reads",
+          "notes": [],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "When two writes with distinct wdata values are performed consecutively (wenc=1) and two reads (renc=1) follow, the first read returns the first wdata and the second read returns the second wdata",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 4,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After the back_to_back_001 stimulus sequence completes"
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

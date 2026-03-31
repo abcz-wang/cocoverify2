@@ -1,0 +1,77 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Each asserted mul_en_in must eventually cause a distinct mul_en_out high event with mul_out equal to the product of the inputs at that operation.",
+          "notes": [],
+          "observed_signals": [
+            "mul_en_in",
+            "mul_en_out",
+            "mul_out",
+            "mul_a",
+            "mul_b"
+          ],
+          "pass_condition": "Two separate rising edges on mul_en_out are observed, each preceded by a mul_en_in high pulse, and for each edge mul_out equals the unsigned multiplication of the mul_a and mul_b values captured when the corresponding mul_en_in was asserted.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "back_to_back_001",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When two back-to-back mul_en_in pulses are applied."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When mul_en_in is asserted and inputs are stable, the output product must eventually equal the unsigned multiplication of the inputs.",
+          "notes": [],
+          "observed_signals": [
+            "mul_en_in",
+            "mul_en_out",
+            "mul_out",
+            "mul_a",
+            "mul_b"
+          ],
+          "pass_condition": "If mul_en_out becomes 1, then mul_out must equal mul_a * mul_b evaluated at the cycle when mul_en_in was asserted.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When mul_en_in transitions high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

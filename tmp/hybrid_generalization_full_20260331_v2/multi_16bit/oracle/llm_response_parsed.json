@@ -1,0 +1,76 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When the multiplication completes (done asserted), the product output yout must equal the arithmetic product of the inputs ain and bin that were presented at start.",
+          "notes": [
+            "Uses the concrete stimulus from basic_001 where ain=1 and bin=2."
+          ],
+          "observed_signals": [
+            "yout",
+            "done",
+            "ain",
+            "bin"
+          ],
+          "pass_condition": "If done==1 then yout == ain * bin (32-bit unsigned multiplication).",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "done_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When done transitions to 1 after a start operation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "A done pulse must be preceded by a start pulse in the same execution scenario.",
+          "notes": [
+            "Ensures protocol ordering without assuming latency."
+          ],
+          "observed_signals": [
+            "start",
+            "done"
+          ],
+          "pass_condition": "For every occurrence of done==1, there exists a prior start==1 event that has not been matched to a previous done.",
+          "semantic_tags": [
+            "protocol",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "done_event",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever done transitions to 1."
+        }
+      ],
+      "linked_plan_case_id": "protocol_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

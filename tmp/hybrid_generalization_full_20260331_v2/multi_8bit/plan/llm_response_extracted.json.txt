@@ -1,0 +1,281 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "new_case_001",
+      "category": "basic",
+      "scenario_kind": "single_operation",
+      "goal": "Validate multiplication of small operands.",
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "8'h03",
+            "B": "8'h05"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "8'h03",
+            "B": "8'h05"
+          },
+          "text": ""
+        }
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "coverage_tags": [
+        "basic",
+        "operation_specific"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "priority": 5,
+      "timing_assumptions": [
+        "Do not assume fixed latency."
+      ]
+    },
+    {
+      "draft_id": "new_case_002",
+      "category": "edge",
+      "scenario_kind": "boundary_vector",
+      "goal": "Exercise maximum operand values to test width handling.",
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "8'hFF",
+            "B": "8'hFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "8'hFF",
+            "B": "8'hFF"
+          },
+          "text": ""
+        }
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "coverage_tags": [
+        "edge",
+        "width_sensitive"
+      ],
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "priority": 5,
+      "timing_assumptions": [
+        "Do not assume fixed latency."
+      ]
+    },
+    {
+      "draft_id": "new_case_003",
+      "category": "back_to_back",
+      "scenario_kind": "back_to_back_pair",
+      "goal": "Validate back-to-back multiplications without idle cycles.",
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "8'h0A",
+            "B": "8'h02"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "8'h0A",
+            "B": "8'h02"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "8'h04",
+            "B": "8'h03"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "8'h04",
+            "B": "8'h03"
+          },
+          "text": ""
+        }
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "coverage_tags": [
+        "back_to_back"
+      ],
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "priority": 5,
+      "timing_assumptions": [
+        "Do not assume fixed latency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "scenario_kind": "single_operation",
+      "goal": "Observe any externally visible progress without inventing unresolved stimulus semantics.",
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "8'h01",
+            "B": "8'h01"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "8'h01",
+            "B": "8'h01"
+          },
+          "text": ""
+        }
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "priority": 1,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "unknown"
+      ],
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "scenario_kind": "boundary_vector",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "stimulus_signals": [
+        "A",
+        "B"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "8'hFF",
+            "B": "8'h00"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "8'hFF",
+            "B": "8'h00"
+          },
+          "text": ""
+        }
+      ],
+      "observed_signals": [
+        "product"
+      ],
+      "priority": 1,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "timing_assumptions": [
+        "Do not assume fixed latency."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

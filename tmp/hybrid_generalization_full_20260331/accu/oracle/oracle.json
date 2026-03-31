@@ -1,0 +1,1688 @@
+{
+  "assumptions": [
+    "The valid_out signal is set to 1 when the data_out outputs 4 received data accumulation results. Otherwise, it is set to 0.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM hybrid fallback activated for plan stage: LLM request failed after 1 attempt(s): Request timed out.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints."
+  ],
+  "based_on_contract": "accu",
+  "based_on_plan": "accu",
+  "functional_oracles": [
+    {
+      "assumptions": [
+        "Operation-specific functional checks were emitted from stable interface patterns even though the broader contract remains conservative."
+      ],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.7650000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "expected_transition": "",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        {
+          "check_id": "basic_001_functional_899",
+          "check_type": "functional",
+          "comparison_operands": [
+            "data_in",
+            "valid_in",
+            "data_out",
+            "valid_out"
+          ],
+          "confidence": 0.8250000000000002,
+          "description": "Reject premature grouped output before a full valid group has been accepted.",
+          "expected_transition": "preclosure_quiet",
+          "notes": [
+            "Pre-closure quiet check is concrete because the deterministic stimulus drives only a finite prefix of one group."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "{\"allow_gaps\": false, \"expected_groups\": 0, \"group_size\": 4, \"require_no_output_before_group\": true, \"reset_active_level\": 0, \"reset_signal\": \"rst_n\"}",
+          "pass_condition": "Before 4 accepted valid samples have been observed, valid_out must remain low and no grouped output value is claimed.",
+          "reference_domain": "group_size=4;allow_gaps=0;expected_groups=0",
+          "relation_kind": "grouped_valid_accumulation",
+          "semantic_tags": [
+            "operation_specific",
+            "stream_grouping",
+            "accumulation_relation"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When fewer than one full grouped-valid accumulation window is driven."
+        }
+      ],
+      "confidence": 0.7950000000000002,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [
+        "Operation-specific functional checks were emitted from stable interface patterns even though the broader contract remains conservative."
+      ],
+      "case_id": "functional_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.7150000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "expected_transition": "",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        {
+          "check_id": "edge_001_functional_899",
+          "check_type": "functional",
+          "comparison_operands": [
+            "data_in",
+            "valid_in",
+            "data_out",
+            "valid_out"
+          ],
+          "confidence": 0.7750000000000001,
+          "description": "Observe one grouped accumulation closure and verify the concrete accumulated value relation.",
+          "expected_transition": "single_group_sum",
+          "notes": [
+            "Structured grouped-valid relation is derived from stable valid/data and output-valid/data naming plus finite plan stimulus."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "{\"allow_gaps\": false, \"expected_groups\": 1, \"group_size\": 4, \"require_no_output_before_group\": true, \"reset_active_level\": 0, \"reset_signal\": \"rst_n\"}",
+          "pass_condition": "Before 4 accepted valid samples, valid_out remains low; after the completed group, one output event occurs and data_out equals the accumulated sum.",
+          "reference_domain": "group_size=4;allow_gaps=0;expected_groups=1",
+          "relation_kind": "grouped_valid_accumulation",
+          "semantic_tags": [
+            "operation_specific",
+            "stream_grouping",
+            "accumulation_relation"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus drives one complete grouped valid stream."
+        }
+      ],
+      "confidence": 0.7450000000000001,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [
+        "Operation-specific functional checks were emitted from stable interface patterns even though the broader contract remains conservative."
+      ],
+      "case_id": "functional_back_to_back_001",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_001_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.6850000000000002,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "expected_transition": "",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        {
+          "check_id": "back_to_back_001_functional_899",
+          "check_type": "functional",
+          "comparison_operands": [
+            "data_in",
+            "valid_in",
+            "data_out",
+            "valid_out"
+          ],
+          "confidence": 0.7450000000000002,
+          "description": "Observe two grouped accumulation closures in one finite valid stream.",
+          "expected_transition": "multi_group_sum",
+          "notes": [
+            "Repeated-group relation remains event-based and avoids exact inter-group latency assumptions."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "{\"allow_gaps\": false, \"expected_groups\": 2, \"group_size\": 4, \"require_no_output_before_group\": true, \"reset_active_level\": 0, \"reset_signal\": \"rst_n\"}",
+          "pass_condition": "Before each completed group of 4 accepted valid samples, valid_out remains low; after each completed group, one output event occurs and data_out matches that group's accumulated sum.",
+          "reference_domain": "group_size=4;allow_gaps=0;expected_groups=2",
+          "relation_kind": "grouped_valid_accumulation",
+          "semantic_tags": [
+            "operation_specific",
+            "stream_grouping",
+            "accumulation_relation"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When two complete valid groups are driven in one deterministic stream."
+        }
+      ],
+      "confidence": 0.7150000000000002,
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [
+        "Operation-specific functional checks were emitted from stable interface patterns even though the broader contract remains conservative."
+      ],
+      "case_id": "functional_basic_002",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_002_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.7650000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "expected_transition": "",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        {
+          "check_id": "basic_002_functional_899",
+          "check_type": "functional",
+          "comparison_operands": [
+            "data_in",
+            "valid_in",
+            "data_out",
+            "valid_out"
+          ],
+          "confidence": 0.8250000000000002,
+          "description": "Observe one grouped accumulation closure and verify the concrete accumulated value relation.",
+          "expected_transition": "single_group_sum",
+          "notes": [
+            "Structured grouped-valid relation is derived from stable valid/data and output-valid/data naming plus finite plan stimulus."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "{\"allow_gaps\": false, \"expected_groups\": 1, \"group_size\": 4, \"require_no_output_before_group\": true, \"reset_active_level\": 0, \"reset_signal\": \"rst_n\"}",
+          "pass_condition": "Before 4 accepted valid samples, valid_out remains low; after the completed group, one output event occurs and data_out equals the accumulated sum.",
+          "reference_domain": "group_size=4;allow_gaps=0;expected_groups=1",
+          "relation_kind": "grouped_valid_accumulation",
+          "semantic_tags": [
+            "operation_specific",
+            "stream_grouping",
+            "accumulation_relation"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus drives one complete grouped valid stream."
+        },
+        {
+          "check_id": "basic_002_functional_003",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.8050000000000002,
+          "description": "After exactly four consecutive valid inputs, valid_out must assert for one cycle and data_out must equal the concrete sum of the driven inputs (1+2+3+4 = 10).",
+          "expected_transition": "",
+          "notes": [
+            "Uses the concrete stimulus defined in the plan; no exact-cycle latency is assumed."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "valid_out is low during the first three valid inputs, goes high for exactly one cycle after the fourth input, and data_out equals 10 during that high cycle.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "value_level_check"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus drives the four\u2011sample valid group defined in case basic_002."
+        }
+      ],
+      "confidence": 0.7983333333333335,
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [
+        "Operation-specific functional checks were emitted from stable interface patterns even though the broader contract remains conservative."
+      ],
+      "case_id": "functional_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.7650000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "expected_transition": "",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        {
+          "check_id": "edge_002_functional_899",
+          "check_type": "functional",
+          "comparison_operands": [
+            "data_in",
+            "valid_in",
+            "data_out",
+            "valid_out"
+          ],
+          "confidence": 0.8250000000000002,
+          "description": "Observe one grouped accumulation closure and verify the concrete accumulated value relation.",
+          "expected_transition": "single_group_sum",
+          "notes": [
+            "Structured grouped-valid relation is derived from stable valid/data and output-valid/data naming plus finite plan stimulus."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "{\"allow_gaps\": false, \"expected_groups\": 1, \"group_size\": 4, \"require_no_output_before_group\": true, \"reset_active_level\": 0, \"reset_signal\": \"rst_n\"}",
+          "pass_condition": "Before 4 accepted valid samples, valid_out remains low; after the completed group, one output event occurs and data_out equals the accumulated sum.",
+          "reference_domain": "group_size=4;allow_gaps=0;expected_groups=1",
+          "relation_kind": "grouped_valid_accumulation",
+          "semantic_tags": [
+            "operation_specific",
+            "stream_grouping",
+            "accumulation_relation"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus drives one complete grouped valid stream."
+        },
+        {
+          "check_id": "edge_002_functional_003",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.8050000000000002,
+          "description": "After four maximum\u2011width valid inputs, valid_out must assert for one cycle and data_out must equal the concrete sum (255*4 = 1020).",
+          "expected_transition": "",
+          "notes": [
+            "Boundary values are driven by the plan; timing remains event\u2011based."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "valid_out stays low for the first three inputs, goes high for a single cycle after the fourth input, and data_out equals 1020 during that high cycle.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "width_sensitive",
+            "value_level_check"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus drives the four\u2011sample maximum\u2011value group defined in case edge_002."
+        }
+      ],
+      "confidence": 0.7983333333333335,
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [
+        "Operation-specific functional checks were emitted from stable interface patterns even though the broader contract remains conservative."
+      ],
+      "case_id": "functional_protocol_001",
+      "category": "protocol",
+      "checks": [
+        {
+          "check_id": "protocol_001_functional_899",
+          "check_type": "functional",
+          "comparison_operands": [
+            "data_in",
+            "valid_in",
+            "data_out",
+            "valid_out"
+          ],
+          "confidence": 0.8250000000000002,
+          "description": "Count only valid-high samples toward grouped accumulation even when gaps occur between them.",
+          "expected_transition": "gapped_group_sum",
+          "notes": [
+            "Gap cycles are explicitly treated as non-accepting points in the grouped relation."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "{\"allow_gaps\": true, \"expected_groups\": 1, \"group_size\": 4, \"require_no_output_before_group\": true, \"reset_active_level\": 0, \"reset_signal\": \"rst_n\"}",
+          "pass_condition": "Only valid-high samples count toward the 4-sample accumulation group; after the full accepted group, valid_out asserts once and data_out equals the accumulated sum of the accepted samples.",
+          "reference_domain": "group_size=4;allow_gaps=1;expected_groups=1",
+          "relation_kind": "grouped_valid_accumulation",
+          "semantic_tags": [
+            "operation_specific",
+            "stream_grouping",
+            "accumulation_relation"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus applies valid-high samples separated by valid-low gaps."
+        },
+        {
+          "check_id": "protocol_001_functional_002",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.8050000000000002,
+          "description": "Only cycles with valid_in asserted contribute to the accumulation; after the four accepted samples, valid_out must assert once and data_out must equal the sum of the accepted values (1+2+3+4 = 10).",
+          "expected_transition": "",
+          "notes": [
+            "Gapped cycles are ignored per the plan; no exact latency is required."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "valid_out remains low throughout all gap cycles, asserts for a single cycle after the fourth accepted sample, and data_out equals 10 during that assertion.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "gapped_stream",
+            "value_level_check"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus with interleaved valid_low gaps drives the pattern defined in case protocol_001."
+        }
+      ],
+      "confidence": 0.8150000000000002,
+      "linked_plan_case_id": "protocol_001",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [
+        "Operation-specific functional checks were emitted from stable interface patterns even though the broader contract remains conservative."
+      ],
+      "case_id": "functional_regression_001",
+      "category": "regression",
+      "checks": [
+        {
+          "check_id": "regression_001_functional_899",
+          "check_type": "functional",
+          "comparison_operands": [
+            "data_in",
+            "valid_in",
+            "data_out",
+            "valid_out"
+          ],
+          "confidence": 0.8250000000000002,
+          "description": "Clear partial accumulation on reset and require the later full group to produce the only output event.",
+          "expected_transition": "reset_clears_partial_group",
+          "notes": [
+            "Structured grouped-valid relation uses reset only as a finite state-clear event."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "{\"allow_gaps\": false, \"expected_groups\": 1, \"group_size\": 4, \"require_no_output_before_group\": true, \"reset_active_level\": 0, \"reset_signal\": \"rst_n\", \"respect_reset_clear\": true}",
+          "pass_condition": "Before 4 accepted post-reset valid samples, valid_out remains low; after the later full post-reset group, one output event occurs and data_out equals the accumulated sum of that post-reset group.",
+          "reference_domain": "group_size=4;allow_gaps=0;expected_groups=1;respect_reset_clear=1",
+          "relation_kind": "grouped_valid_accumulation",
+          "semantic_tags": [
+            "operation_specific",
+            "stream_grouping",
+            "accumulation_relation"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a partial valid stream is interrupted by reset and a later full valid group is driven."
+        },
+        {
+          "check_id": "regression_001_functional_002",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.8050000000000002,
+          "description": "A reset asserted mid\u2011group must clear any partial accumulation; after reset release, a full group of four valid inputs must produce a single output event with data_out equal to the sum of the post\u2011reset inputs (5+6+7+8 = 26).",
+          "expected_transition": "",
+          "notes": [
+            "Partial pre\u2011reset samples are ignored; timing remains event\u2011based."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "No valid_out assertion occurs before the post\u2011reset group completes; after the fourth post\u2011reset input, valid_out asserts for one cycle and data_out equals 26.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "reset_clears_state",
+            "value_level_check"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus sequence defined in case regression_001 drives a partial group, asserts reset, then drives a full post\u2011reset group."
+        }
+      ],
+      "confidence": 0.8150000000000002,
+      "linked_plan_case_id": "regression_001",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [
+        "Operation-specific functional checks were emitted from stable interface patterns even though the broader contract remains conservative."
+      ],
+      "case_id": "functional_back_to_back_002",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_002_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.7650000000000001,
+          "description": "Observe externally visible state progress after a legal operation.",
+          "expected_transition": "",
+          "notes": [
+            "Sequential functional oracle remains event-based unless a future contract explicitly provides fixed latency."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "At least one observable output or progress indicator eventually updates in a manner consistent with state progress; no exact-cycle update is required.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies one or more legal sequential operations."
+        },
+        {
+          "check_id": "back_to_back_002_functional_899",
+          "check_type": "functional",
+          "comparison_operands": [
+            "data_in",
+            "valid_in",
+            "data_out",
+            "valid_out"
+          ],
+          "confidence": 0.8250000000000002,
+          "description": "Observe two grouped accumulation closures in one finite valid stream.",
+          "expected_transition": "multi_group_sum",
+          "notes": [
+            "Repeated-group relation remains event-based and avoids exact inter-group latency assumptions."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "{\"allow_gaps\": false, \"expected_groups\": 2, \"group_size\": 4, \"require_no_output_before_group\": true, \"reset_active_level\": 0, \"reset_signal\": \"rst_n\"}",
+          "pass_condition": "Before each completed group of 4 accepted valid samples, valid_out remains low; after each completed group, one output event occurs and data_out matches that group's accumulated sum.",
+          "reference_domain": "group_size=4;allow_gaps=0;expected_groups=2",
+          "relation_kind": "grouped_valid_accumulation",
+          "semantic_tags": [
+            "operation_specific",
+            "stream_grouping",
+            "accumulation_relation"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When two complete valid groups are driven in one deterministic stream."
+        },
+        {
+          "check_id": "back_to_back_002_functional_003",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.8050000000000002,
+          "description": "Two consecutive groups of four valid inputs must each generate a distinct output event; the first event must carry the sum of the first group (1+2+3+4 = 10) and the second event must carry the sum of the second group (10+11+12+13 = 46).",
+          "expected_transition": "",
+          "notes": [
+            "The stream is finite; no exact inter\u2011group latency is assumed."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "valid_out stays low until the fourth input of the first group, asserts for one cycle with data_out = 10, then stays low until the fourth input of the second group, asserts for one cycle with data_out = 46.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "repeated_group",
+            "value_level_check"
+          ],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_case_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus defined in case back_to_back_002 drives two back\u2011to\u2011back valid groups."
+        }
+      ],
+      "confidence": 0.7983333333333335,
+      "linked_plan_case_id": "back_to_back_002",
+      "notes": [],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": []
+    }
+  ],
+  "module_name": "accu",
+  "oracle_confidence": {
+    "functional_confidence": 0.7850000000000001,
+    "overall_confidence": 0.5687037037037038,
+    "property_confidence": 0.7561111111111113,
+    "protocol_confidence": 0.7650000000000001
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7750000000000001,
+          "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+          "expected_transition": "",
+          "notes": [
+            "Clock/reset remain anchors and are not emitted as business outputs."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'reset_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_001",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7250000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract_downgraded_for_status_edge_ambiguity",
+              "strength": "unresolved"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7250000000000001,
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'edge_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_back_to_back_001",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.6750000000000002,
+          "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+          "expected_transition": "",
+          "notes": [
+            "Stability-style property used instead of throughput-specific claims."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        }
+      ],
+      "confidence": 0.6750000000000002,
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'back_to_back_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_002",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_002_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "basic_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_002' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_edge_002",
+      "category": "edge",
+      "checks": [
+        {
+          "check_id": "edge_002_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "edge_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'edge_002' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_protocol_001",
+      "category": "protocol",
+      "checks": [
+        {
+          "check_id": "protocol_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "protocol_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'protocol_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_regression_001",
+      "category": "regression",
+      "checks": [
+        {
+          "check_id": "regression_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.7750000000000001,
+      "linked_plan_case_id": "regression_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'regression_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_back_to_back_002",
+      "category": "back_to_back",
+      "checks": [
+        {
+          "check_id": "back_to_back_002_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.7550000000000001,
+          "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+          "expected_transition": "",
+          "notes": [
+            "Stability-style property used instead of throughput-specific claims."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "property_guardrail_preserves_value_ambiguity",
+              "strength": "unresolved"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        }
+      ],
+      "confidence": 0.7550000000000001,
+      "linked_plan_case_id": "back_to_back_002",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'back_to_back_002' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_protocol_001",
+          "check_type": "protocol",
+          "comparison_operands": [],
+          "confidence": 0.7650000000000001,
+          "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+          "expected_transition": "",
+          "notes": [
+            "Reset is used as an anchor only; it is not treated as a business output."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "data_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior",
+              "strength": "exact"
+            },
+            "valid_out": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+        }
+      ],
+      "confidence": 0.7650000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Reset oracle focuses on control-safe behavior instead of value-specific output claims.",
+        "Protocol oracle strictness is downgraded because the contract or plan is weak."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "unresolved_items": [
+    "Detected valid_ready-like signal(s) ['valid_in'] without matching role(s) ['ready'] in group 'in'.",
+    "Detected valid_ready-like signal(s) ['valid_out'] without matching role(s) ['ready'] in group 'out'.",
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks."
+  ]
+}

@@ -1,0 +1,276 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "operation_specific"
+      ],
+      "dependencies": [],
+      "draft_id": "add_basic_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate typical addition without carry.",
+      "notes": [],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "Cin": "1'b0",
+            "a": "16'h1234",
+            "b": "16'h5678"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "width_sensitive"
+      ],
+      "dependencies": [],
+      "draft_id": "add_edge_overflow_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Test overflow when sum exceeds 16 bits.",
+      "notes": [],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "Cin": "1'b0",
+            "a": "16'hFFFF",
+            "b": "16'h0001"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "width_sensitive"
+      ],
+      "dependencies": [],
+      "draft_id": "add_edge_carryin_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Test addition with maximum operands and carry-in.",
+      "notes": [],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "Cin": "1'b1",
+            "a": "16'hFFFF",
+            "b": "16'hFFFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "operation_specific"
+      ],
+      "dependencies": [],
+      "draft_id": "add_back_to_back_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate two consecutive additions without intervening reset.",
+      "notes": [],
+      "observed_signals": [
+        "y",
+        "Co"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "Cin": "1'b0",
+            "a": "16'h0000",
+            "b": "16'h0000"
+          },
+          "text": "First operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {},
+          "text": "Record first result"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Inter-operation gap"
+        },
+        {
+          "action": "drive",
+          "cycles": 0,
+          "signals": {
+            "Cin": "1'b1",
+            "a": "16'hAAAA",
+            "b": "16'h5555"
+          },
+          "text": "Second operation"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 0,
+          "signals": {},
+          "text": "Record second result"
+        }
+      ],
+      "stimulus_signals": [
+        "a",
+        "b",
+        "Cin"
+      ],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

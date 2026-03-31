@@ -1,0 +1,140 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When rdy transitions to 1, the product output p must equal the unsigned multiplication of inputs a and b captured at the start of the operation.",
+          "notes": [
+            "Uses the contract's definition of ready signal as completion indicator."
+          ],
+          "observed_signals": [
+            "p",
+            "rdy",
+            "a",
+            "b"
+          ],
+          "pass_condition": "If rdy == 1 then p == a * b (unsigned 8‑bit multiplication yielding a 16‑bit result).",
+          "semantic_tags": [
+            "operation_specific",
+            "arithmetic_relation"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "rdy_asserted",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When rdy rises from 0 to 1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "The ready signal rdy must not be asserted while reset is asserted.",
+          "notes": [],
+          "observed_signals": [
+            "rdy",
+            "reset"
+          ],
+          "pass_condition": "During any cycle where reset == 1, rdy must be 0.",
+          "semantic_tags": [
+            "guarded"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Continuously while reset == 1."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "After reset deassertion, the interface must reach a stable state before any rdy transition is observed.",
+          "notes": [
+            "Ensures reset‑safe behavior without assuming exact latency."
+          ],
+          "observed_signals": [
+            "p",
+            "rdy"
+          ],
+          "pass_condition": "No change in rdy (including no rise) for at least two consecutive clock cycles after reset goes low.",
+          "semantic_tags": [
+            "reset",
+            "stability"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 2,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset transitions from 1 to 0."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When either operand is zero, the product must be zero upon ready.",
+          "notes": [],
+          "observed_signals": [
+            "p",
+            "rdy",
+            "a",
+            "b"
+          ],
+          "pass_condition": "If rdy == 1 and (a == 0 or b == 0) then p == 0.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "rdy_asserted",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When rdy rises."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

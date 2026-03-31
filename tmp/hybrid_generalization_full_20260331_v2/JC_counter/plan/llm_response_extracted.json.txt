@@ -1,0 +1,302 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "boundary"],
+      "dependencies": ["reset_001"],
+      "draft_id": "edge_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify the first transition from reset (0) to the initial Johnson pattern after reset release.",
+      "notes": [],
+      "observed_signals": ["Q"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "0"},
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "1"},
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow Q to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture Q after first cycle"
+        }
+      ],
+      "stimulus_signals": ["rst_n"],
+      "timing_assumptions": ["Advance through conservative clocked observations."]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back", "seq"],
+      "dependencies": ["reset_001"],
+      "draft_id": "b2b_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Check two consecutive counter updates after reset release.",
+      "notes": [],
+      "observed_signals": ["Q"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "1"},
+          "text": "Ensure reset deasserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "First clock edge"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture Q after first edge"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Second clock edge"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture Q after second edge"
+        }
+      ],
+      "stimulus_signals": ["rst_n"],
+      "timing_assumptions": ["Advance through conservative clocked observations."]
+    },
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset", "mid_progress"],
+      "dependencies": ["basic_001"],
+      "draft_id": "reset_mid_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Assert reset while counter is mid-sequence to verify reinitialization to zero.",
+      "notes": [],
+      "observed_signals": ["Q"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "1"},
+          "text": "Release reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Advance counter several cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "0"},
+          "text": "Assert reset mid-progress"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "1"},
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow Q to settle"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture Q after reset release"
+        }
+      ],
+      "stimulus_signals": ["rst_n"],
+      "timing_assumptions": ["Advance through conservative clocked observations."]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": ["metamorphic"],
+      "dependencies": ["reset_001"],
+      "draft_id": "meta_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Run two identical stimulus sequences with different reset deassertion timing and compare Q trajectories for consistency.",
+      "notes": [],
+      "observed_signals": ["Q"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "0"},
+          "text": "Assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "1"},
+          "text": "Deassert reset (first run)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Advance several cycles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture Q after first run"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "0"},
+          "text": "Re-assert reset for second run"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Hold reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "1"},
+          "text": "Deassert reset (second run)"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Advance same number of cycles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture Q after second run"
+        }
+      ],
+      "stimulus_signals": ["rst_n"],
+      "timing_assumptions": ["Advance through conservative clocked observations."]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity", "seq"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe clock-driven state progress after reset release.",
+      "notes": [],
+      "observed_signals": ["Q"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "1"},
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Observe three clock cycles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture Q after cycles"
+        }
+      ],
+      "stimulus_signals": ["rst_n"],
+      "timing_assumptions": ["Advance through conservative clocked observations."]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

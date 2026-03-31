@@ -1,0 +1,210 @@
+{
+  "additional_cases": [
+    {
+      "draft_id": "wrap_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["wrap_around","msb_lsb_transition"],
+      "dependencies": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify wrap-around from MSB to LSB after a full rotation of the 8‑bit ring counter.",
+      "notes": [],
+      "observed_signals": ["out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"reset": "0x1"},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"reset": "0x0"},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 7,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["reset"],
+      "timing_assumptions": [
+        "Conservative clocked observations; do not assume exact cycle latency."
+      ]
+    },
+    {
+      "draft_id": "shift_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["sequential_shift","multi_cycle"],
+      "dependencies": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe sequential shifting of the single '1' bit over three clock cycles after reset release.",
+      "notes": [],
+      "observed_signals": ["out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"reset": "0x1"},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"reset": "0x0"},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["reset"],
+      "timing_assumptions": [
+        "Conservative clocked observations; do not assume exact cycle latency."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": ["out"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"reset": "0x1"},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"reset": "0x0"},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["reset"],
+      "timing_assumptions": [
+        "Conservative clocked observations; do not assume exact cycle latency."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

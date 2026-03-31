@@ -1,0 +1,2016 @@
+{
+  "assumptions": [
+    "The product output (yout) is assigned the value of the product register (yout_r).",
+    "handshake_signals is a flattened compatibility view derived from handshake_groups.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM hybrid fallback activated for plan stage: LLM request failed after 1 attempt(s): Request timed out."
+  ],
+  "based_on_contract": "verified_multi_16bit",
+  "cases": [
+    {
+      "case_id": "reset_001",
+      "category": "reset",
+      "comparison_operands": [],
+      "confidence": 0.8350000000000002,
+      "coverage_tags": [
+        "reset",
+        "initialization",
+        "stability"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+        "No fixed-cycle completion is assumed during reset recovery."
+      ],
+      "expected_transition": "",
+      "goal": "Establish a stable post-reset baseline before functional checking.",
+      "notes": [
+        "Reset polarity may still be heuristic if the contract marks it ambiguous."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "Reset signal is available in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Assert the detected reset using the inferred polarity.",
+        "Release reset conservatively and observe interface stabilization."
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.7850000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['start', 'ain', 'bin']"
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "start",
+        "ain",
+        "bin"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['ain', 'bin', 'start']"
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "ain",
+        "bin",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "protocol_001",
+      "category": "protocol",
+      "comparison_operands": [],
+      "confidence": 0.7350000000000001,
+      "coverage_tags": [
+        "protocol",
+        "start_done",
+        "completion"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal start request eventually results in a visible completion or completion-related observation.",
+        "No exact completion latency is assumed."
+      ],
+      "expected_transition": "",
+      "goal": "Observe whether start eventually leads to externally visible completion.",
+      "notes": [
+        "Completion is checked conservatively because the contract does not guarantee exact latency."
+      ],
+      "observed_signals": [
+        "start",
+        "done",
+        "yout"
+      ],
+      "preconditions": [
+        "Start and done signals are both present."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Pulse or assert start conservatively and watch for done or related output progress."
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "confidence": 0.7050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "start",
+        "ain",
+        "bin"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_002",
+      "category": "basic",
+      "comparison_operands": [
+        "bin",
+        "start",
+        "yout",
+        "done"
+      ],
+      "confidence": 0.8150000000000002,
+      "coverage_tags": [
+        "basic",
+        "seq",
+        "group_closure"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "No output event is justified before 17 accepted valid samples have been presented.",
+        "After one complete group, exactly one output event becomes externally visible and its value matches the concrete accumulated sum."
+      ],
+      "expected_transition": "single_group_sum",
+      "goal": "Drive one complete valid input group and require exactly one accumulated output event.",
+      "notes": [
+        "Concrete grouped-valid closure case added because the contract gives enough structure to observe one accumulated output event."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "The contract documents grouped valid-gated accumulation semantics."
+      ],
+      "priority": 1,
+      "reference_domain": "group_size=17;allow_gaps=0;expected_groups=1",
+      "relation_kind": "grouped_valid_accumulation",
+      "scenario_kind": "grouped_valid_closure",
+      "semantic_tags": [
+        "operation_specific",
+        "stream_grouping"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Present 17 valid input samples with concrete low-magnitude values.",
+        "Deassert valid-like gating at case end so conservative post-stimulus observation cannot add extra accepted samples."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 2,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 3,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 4,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 5,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 6,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 7,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 8,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 9,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 10,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 11,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 12,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 13,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 14,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 15,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 16,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 17,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 17,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        }
+      ],
+      "stimulus_signals": [
+        "bin",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Do not assume an exact completion cycle for the grouped output event.",
+        "Use only the concrete finite valid-gated stream driven by the plan."
+      ]
+    },
+    {
+      "case_id": "edge_002",
+      "category": "edge",
+      "comparison_operands": [
+        "bin",
+        "start",
+        "yout",
+        "done"
+      ],
+      "confidence": 0.8050000000000002,
+      "coverage_tags": [
+        "edge",
+        "boundary",
+        "group_closure"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "The grouped output event remains externally visible without inventing an exact-cycle latency.",
+        "The emitted accumulated value reflects the concrete boundary input group."
+      ],
+      "expected_transition": "single_group_sum",
+      "goal": "Accumulate one full boundary-value group and observe the width-sensitive output closure.",
+      "notes": [
+        "Boundary-output closure case is concrete but still ambiguity-preserving about exact completion timing."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "The grouped valid accumulator exposes a width-sensitive data output."
+      ],
+      "priority": 2,
+      "reference_domain": "group_size=17;allow_gaps=0;expected_groups=1",
+      "relation_kind": "grouped_valid_accumulation",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific",
+        "width_sensitive",
+        "stream_grouping"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Present 17 maximum-width valid input samples.",
+        "Quiesce valid-like gating after the final boundary sample so the observed closure remains tied to one finite group."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 65535,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        }
+      ],
+      "stimulus_signals": [
+        "bin",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Boundary-value accumulation is checked as one finite group, not as an unbounded stream."
+      ]
+    },
+    {
+      "case_id": "protocol_002",
+      "category": "protocol",
+      "comparison_operands": [
+        "bin",
+        "start",
+        "yout",
+        "done"
+      ],
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "protocol",
+        "valid_gated_stream",
+        "group_closure"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Idle or gap cycles do not count toward group closure.",
+        "One accumulated output event eventually reflects only the accepted samples."
+      ],
+      "expected_transition": "gapped_group_sum",
+      "goal": "Use gaps in valid-like gating and confirm that only asserted valid cycles contribute to grouped accumulation.",
+      "notes": [
+        "Valid-gap case is finite and deterministic; it checks acceptance semantics rather than exact pipeline latency."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "The accumulator accepts data only when valid-like gating is asserted."
+      ],
+      "priority": 2,
+      "reference_domain": "group_size=17;allow_gaps=1;expected_groups=1",
+      "relation_kind": "grouped_valid_accumulation",
+      "scenario_kind": "gapped_valid_group",
+      "semantic_tags": [
+        "operation_specific",
+        "stream_grouping"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Drive a finite stream with 17 accepted samples separated by valid-low gaps.",
+        "End the case with valid-like gating low to avoid tail-cycle ambiguity during conservative observation."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 1,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 2,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 2,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 3,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 3,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 4,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 4,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 5,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 5,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 6,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 6,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 7,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 7,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 8,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 8,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 9,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 9,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 10,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 10,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 11,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 11,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 12,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 12,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 13,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 13,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 14,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 14,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 15,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 15,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 16,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 16,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 17,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 17,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        }
+      ],
+      "stimulus_signals": [
+        "bin",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Gap cycles are treated as non-accepting observation points."
+      ]
+    },
+    {
+      "case_id": "regression_001",
+      "category": "regression",
+      "comparison_operands": [
+        "bin",
+        "start",
+        "yout",
+        "done"
+      ],
+      "confidence": 0.7950000000000002,
+      "coverage_tags": [
+        "regression",
+        "reset_recovery",
+        "group_closure"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "reset_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Partial pre-reset progress is cleared by reset.",
+        "No output event is attributed to the truncated pre-reset group; any later output event matches only the post-reset group."
+      ],
+      "expected_transition": "reset_clears_partial_group",
+      "goal": "Reset mid-accumulation and confirm partial state is cleared before a later full group completes.",
+      "notes": [
+        "Reset-mid-progress case is concrete and avoids guessing exact recovery latency beyond externally visible grouped closure."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "A resolved reset is available and may be driven conservatively mid-stream."
+      ],
+      "priority": 3,
+      "reference_domain": "group_size=17;allow_gaps=0;expected_groups=1;reset_signal=rst_n;reset_active_level=0",
+      "relation_kind": "grouped_valid_accumulation",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": [
+        "operation_specific",
+        "stream_grouping"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply a partial valid group, assert reset, then drive one later full valid group.",
+        "End with valid-like gating quiesced so any later output event is attributable only to the post-reset group."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 1,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 2,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 2,
+            "rst_n": 0,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 2,
+            "rst_n": 1,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 5,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 6,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 7,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 8,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 9,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 10,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 11,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 12,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 13,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 14,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 15,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 16,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 17,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 18,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 19,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 20,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 21,
+            "rst_n": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 21,
+            "rst_n": 1,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        }
+      ],
+      "stimulus_signals": [
+        "bin",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Reset remains the only allowed state-clear event in this case."
+      ]
+    },
+    {
+      "case_id": "back_to_back_002",
+      "category": "back_to_back",
+      "comparison_operands": [
+        "bin",
+        "start",
+        "yout",
+        "done"
+      ],
+      "confidence": 0.8050000000000002,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation",
+        "group_closure"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated grouped closure produces repeated output events.",
+        "Each output event matches the concrete accumulated sum of its corresponding group."
+      ],
+      "expected_transition": "multi_group_sum",
+      "goal": "Drive multiple complete valid groups in one finite stream and require repeated output-closure behavior.",
+      "notes": [
+        "Multi-group stream case is finite and aims to check repeated closure behavior rather than open-ended streaming."
+      ],
+      "observed_signals": [
+        "yout",
+        "done"
+      ],
+      "preconditions": [
+        "Grouped accumulation may repeat over longer legal input streams."
+      ],
+      "priority": 3,
+      "reference_domain": "group_size=17;allow_gaps=0;expected_groups=2",
+      "relation_kind": "grouped_valid_accumulation",
+      "scenario_kind": "multi_group_stream",
+      "semantic_tags": [
+        "operation_specific",
+        "stream_grouping"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Present two complete groups of 17 accepted samples with no unbounded idle region between them.",
+        "Quiesce valid-like gating at case end so post-stimulus observation cannot accidentally extend the stream."
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 1,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 2,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 3,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 4,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 5,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 6,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 7,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 8,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 9,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 10,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 11,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 12,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 13,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 14,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 15,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 16,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 17,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 10,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 11,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 12,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 13,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 14,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 15,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 16,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 17,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 18,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 19,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 20,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 21,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 22,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 23,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 24,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 25,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 26,
+            "start": 1
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "bin": 26,
+            "start": 0
+          }
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1
+        }
+      ],
+      "stimulus_signals": [
+        "bin",
+        "start"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible.",
+        "Repeated grouped outputs are checked event-wise, not by assuming exact inter-group latency."
+      ]
+    }
+  ],
+  "module_name": "verified_multi_16bit",
+  "plan_confidence": 0.8550000000000002,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: If the start signal is inactive (!start), the shift count register (i) is reset to 0.",
+    "Spec/reset hint could not be mapped to a known reset port: If the shift count register (i) is equal to 17, the multiplication completion flag (done_r) is reset to 0.",
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage."
+  ]
+}

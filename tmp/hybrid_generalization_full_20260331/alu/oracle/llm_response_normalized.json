@@ -1,0 +1,77 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "value_level_operation_check",
+          "notes": [
+            "Verify that for each defined opcode the combinational result matches the arithmetic/logic definition."
+          ],
+          "observed_signals": [
+            "r",
+            "zero",
+            "carry",
+            "negative",
+            "overflow",
+            "flag"
+          ],
+          "pass_condition": "For each stimulus where aluc matches a defined operation, r equals the expected arithmetic result of a and b, zero is 1 iff r==0, negative is 1 iff r[31]==1, overflow and carry follow the semantics of the operation, and flag is 1 only for SLT/SLTU.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the plan case basic_001 drives concrete aluc values covering all defined opcodes."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "flag_high_impedance_property",
+          "notes": [
+            "Ensure flag is only driven for SLT and SLTU, otherwise it may be high-impedance."
+          ],
+          "observed_signals": [
+            "flag"
+          ],
+          "pass_condition": "If aluc equals SLT (6'b101010) or SLTU (6'b101011) then flag must be 1; for any other aluc, flag must be either 0 or high-impedance, never 1.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge_001 stimulates SLT, SLTU and other opcodes."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

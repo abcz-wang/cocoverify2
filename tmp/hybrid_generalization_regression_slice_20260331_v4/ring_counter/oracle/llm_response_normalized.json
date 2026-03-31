@@ -1,0 +1,98 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that the output 'out' remains one\u2011hot and rotates by exactly one position each clock cycle within the observation window.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "All sampled values of 'out' contain exactly one high bit and successive samples differ by a single\u2011bit left rotation (wrapping from MSB to LSB).",
+          "semantic_tags": [
+            "operation_specific",
+            "one_hot_rotation"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 6,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is released and the clock\u2011driven observation begins."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: do not require a fixed number of cycles for the rotation; any number of cycles up to the bounded window is acceptable.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The property is satisfied as long as the one\u2011hot rotation condition holds; no exact\u2011cycle latency is asserted.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "guardrail"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 6,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "During the same observation window used for the functional rotation check."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "Ensure that after reset release the output stabilizes before any rotation is observed.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "No change in 'out' occurs within the first two clock cycles after reset deassertion; subsequent changes follow the one\u2011hot rotation rule.",
+          "semantic_tags": [
+            "reset",
+            "stability"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 4,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "Immediately after reset is deasserted."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

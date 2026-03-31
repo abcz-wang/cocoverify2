@@ -1,0 +1,182 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "linked_plan_case_id": "basic_002",
+      "oracle_class": "functional",
+      "assumptions": [],
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After exactly four consecutive valid inputs, valid_out must assert for one cycle and data_out must equal the concrete sum of the driven inputs (1+2+3+4 = 10).",
+          "notes": [
+            "Uses the concrete stimulus defined in the plan; no exact-cycle latency is assumed."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "valid_out is low during the first three valid inputs, goes high for exactly one cycle after the fourth input, and data_out equals 10 during that high cycle.",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "value_level_check"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus drives the four‑sample valid group defined in case basic_002."
+        }
+      ]
+    },
+    {
+      "linked_plan_case_id": "edge_002",
+      "oracle_class": "functional",
+      "assumptions": [],
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After four maximum‑width valid inputs, valid_out must assert for one cycle and data_out must equal the concrete sum (255*4 = 1020).",
+          "notes": [
+            "Boundary values are driven by the plan; timing remains event‑based."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "valid_out stays low for the first three inputs, goes high for a single cycle after the fourth input, and data_out equals 1020 during that high cycle.",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "width_sensitive",
+            "value_level_check"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus drives the four‑sample maximum‑value group defined in case edge_002."
+        }
+      ]
+    },
+    {
+      "linked_plan_case_id": "protocol_001",
+      "oracle_class": "functional",
+      "assumptions": [],
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Only cycles with valid_in asserted contribute to the accumulation; after the four accepted samples, valid_out must assert once and data_out must equal the sum of the accepted values (1+2+3+4 = 10).",
+          "notes": [
+            "Gapped cycles are ignored per the plan; no exact latency is required."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "valid_out remains low throughout all gap cycles, asserts for a single cycle after the fourth accepted sample, and data_out equals 10 during that assertion.",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "gapped_stream",
+            "value_level_check"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus with interleaved valid_low gaps drives the pattern defined in case protocol_001."
+        }
+      ]
+    },
+    {
+      "linked_plan_case_id": "regression_001",
+      "oracle_class": "functional",
+      "assumptions": [],
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "A reset asserted mid‑group must clear any partial accumulation; after reset release, a full group of four valid inputs must produce a single output event with data_out equal to the sum of the post‑reset inputs (5+6+7+8 = 26).",
+          "notes": [
+            "Partial pre‑reset samples are ignored; timing remains event‑based."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "No valid_out assertion occurs before the post‑reset group completes; after the fourth post‑reset input, valid_out asserts for one cycle and data_out equals 26.",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "reset_clears_state",
+            "value_level_check"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus sequence defined in case regression_001 drives a partial group, asserts reset, then drives a full post‑reset group."
+        }
+      ]
+    },
+    {
+      "linked_plan_case_id": "back_to_back_002",
+      "oracle_class": "functional",
+      "assumptions": [],
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Two consecutive groups of four valid inputs must each generate a distinct output event; the first event must carry the sum of the first group (1+2+3+4 = 10) and the second event must carry the sum of the second group (10+11+12+13 = 46).",
+          "notes": [
+            "The stream is finite; no exact inter‑group latency is assumed."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "valid_out stays low until the fourth input of the first group, asserts for one cycle with data_out = 10, then stays low until the fourth input of the second group, asserts for one cycle with data_out = 46.",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "repeated_group",
+            "value_level_check"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus defined in case back_to_back_002 drives two back‑to‑back valid groups."
+        }
+      ]
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

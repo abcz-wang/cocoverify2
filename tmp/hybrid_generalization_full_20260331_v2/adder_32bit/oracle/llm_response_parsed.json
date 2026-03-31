@@ -1,0 +1,74 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "S equals A plus B modulo 2^32 and C32 equals the carry\u2011out of the addition.",
+          "notes": [],
+          "observed_signals": [
+            "A",
+            "B",
+            "S",
+            "C32"
+          ],
+          "pass_condition": "After inputs A and B have stabilized, S matches the 32\u2011bit sum of A and B (ignoring overflow) and C32 is 1 iff the addition generates a carry out of the most\u2011significant bit.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the basic stimulus drives a concrete vector to A and B."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Outputs remain stable while inputs are held constant.",
+          "notes": [],
+          "observed_signals": [
+            "A",
+            "B",
+            "S",
+            "C32"
+          ],
+          "pass_condition": "If A and B do not change for a period, S and C32 also do not change during that period.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever A and B are observed to be unchanged."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

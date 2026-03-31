@@ -7,9 +7,19 @@ from pprint import pformat
 from cocoverify2.cocotbgen.template_loader import render_template
 from cocoverify2.cocotbgen.todo_blocks import build_todo_block
 from cocoverify2.core.models import DUTContract, TestPlan
-from cocoverify2.core.types import PortDirection
+from cocoverify2.core.types import PortDirection, SequentialKind
 from cocoverify2.utils.numeric_literals import normalize_deterministic_literal
-from cocoverify2.utils.semantic_families import infer_grouped_valid_accumulator_family
+from cocoverify2.utils.semantic_families import (
+    infer_divide_relation_family,
+    infer_fifo_readback_family,
+    infer_fixed_point_add_family,
+    infer_grouped_valid_accumulator_family,
+    infer_packed_stream_conversion_family,
+    infer_pipelined_multiply_family,
+    infer_sequence_detect_family,
+    infer_serial_to_parallel_family,
+    infer_traffic_light_phase_family,
+)
 
 _ENV_TEMPLATE = "env_module.py.tmpl"
 
@@ -243,15 +253,32 @@ def _build_deterministic_stimulus_steps(*, contract: DUTContract, case) -> list[
     if accumulator_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=accumulator_steps)
 
-    fifo_steps = _fifo_style_steps(signal_names=available_input_names, widths=widths, case_category=case_category)
+    fifo_steps = _fifo_style_steps(
+        contract=contract,
+        case=case,
+        signal_names=available_input_names,
+        widths=widths,
+        case_category=case_category,
+    )
     if fifo_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=fifo_steps)
 
-    packing_steps = _packing_pair_steps(signal_names=available_input_names, widths=widths, case_category=case_category)
+    packing_steps = _packing_pair_steps(
+        contract=contract,
+        case=case,
+        signal_names=available_input_names,
+        widths=widths,
+        case_category=case_category,
+    )
     if packing_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=packing_steps)
 
-    sequence_steps = _sequence_pattern_steps(contract=contract, signal_names=available_input_names, case_category=case_category)
+    sequence_steps = _sequence_pattern_steps(
+        contract=contract,
+        case=case,
+        signal_names=available_input_names,
+        case_category=case_category,
+    )
     if sequence_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=sequence_steps)
 
@@ -259,19 +286,42 @@ def _build_deterministic_stimulus_steps(*, contract: DUTContract, case) -> list[
     if pulse_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=pulse_steps)
 
-    multiply_steps = _multiply_style_steps(contract=contract, signal_names=available_input_names, widths=widths, case_category=case_category)
+    multiply_steps = _multiply_style_steps(
+        contract=contract,
+        case=case,
+        signal_names=available_input_names,
+        widths=widths,
+        case_category=case_category,
+    )
     if multiply_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=multiply_steps)
 
-    divide_steps = _divide_style_steps(contract=contract, signal_names=available_input_names, widths=widths, case_category=case_category)
+    divide_steps = _divide_style_steps(
+        contract=contract,
+        case=case,
+        signal_names=available_input_names,
+        widths=widths,
+        case_category=case_category,
+    )
     if divide_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=divide_steps)
 
-    fixed_point_steps = _fixed_point_adder_steps(contract=contract, signal_names=available_input_names, widths=widths, case_category=case_category)
+    fixed_point_steps = _fixed_point_adder_steps(
+        contract=contract,
+        case=case,
+        signal_names=available_input_names,
+        widths=widths,
+        case_category=case_category,
+    )
     if fixed_point_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=fixed_point_steps)
 
-    traffic_steps = _traffic_light_steps(contract=contract, signal_names=available_input_names, case_category=case_category)
+    traffic_steps = _traffic_light_steps(
+        contract=contract,
+        case=case,
+        signal_names=available_input_names,
+        case_category=case_category,
+    )
     if traffic_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=traffic_steps)
 
@@ -279,7 +329,12 @@ def _build_deterministic_stimulus_steps(*, contract: DUTContract, case) -> list[
     if stack_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=stack_steps)
 
-    serial_steps = _serial_parallel_steps(signal_names=available_input_names, case_category=case_category)
+    serial_steps = _serial_parallel_steps(
+        contract=contract,
+        case=case,
+        signal_names=available_input_names,
+        case_category=case_category,
+    )
     if serial_steps:
         return _finalize_deterministic_stimulus_steps(contract=contract, case=case, steps=serial_steps)
 
@@ -409,55 +464,65 @@ def _structured_program_is_actionable(
     lowered = {name.lower(): name for name in available_input_names}
     drive_steps = [step for step in steps if step.get("action") == "drive" and isinstance(step.get("signals"), dict)]
 
-    if {"din_serial", "din_valid"}.issubset(lowered):
-        valid_name = lowered["din_valid"]
-        serial_name = lowered["din_serial"]
+    serial_family = infer_serial_to_parallel_family(
+        contract,
+        additional_texts=_case_semantic_texts(case),
+    )
+    if serial_family is not None:
+        valid_name = str(serial_family["input_gate_signal"])
+        serial_name = str(serial_family["serial_input_signal"])
         valid_drives = [
             step for step in drive_steps
             if int(bool(step["signals"].get(valid_name, 0))) == 1 and serial_name in step["signals"]
         ]
-        return len(valid_drives) >= 8
+        return len(valid_drives) >= int(serial_family["bit_count"]) and _has_explicit_tail_cleanup(drive_steps, valid_name)
 
-    if {"data_in", "valid_in"}.issubset(lowered):
-        valid_name = lowered["valid_in"]
-        data_name = lowered["data_in"]
+    accumulator_family = infer_grouped_valid_accumulator_family(
+        contract,
+        additional_texts=_case_semantic_texts(case),
+    )
+    if accumulator_family is not None:
+        valid_name = str(accumulator_family["input_gate_signal"])
+        data_name = str(accumulator_family["input_data_signal"])
         valid_drives = [
             step for step in drive_steps
             if int(bool(step["signals"].get(valid_name, 0))) == 1 and data_name in step["signals"]
         ]
-        accumulator_family = infer_grouped_valid_accumulator_family(
-            contract,
-            additional_texts=_case_semantic_texts(case),
-        )
-        if accumulator_family is not None:
-            group_size = int(accumulator_family["group_size"])
-            transition = str(getattr(case, "expected_transition", "") or "").lower()
-            minimum_valids = 1
-            if "multi_group" in transition:
-                minimum_valids = group_size * 2
-            elif "single_group" in transition or str(getattr(case, "scenario_kind", "") or "") in {
-                "grouped_valid_closure",
-                "gapped_valid_group",
-                "reset_mid_progress",
-            }:
-                minimum_valids = group_size
-            elif str(case.category) in {"edge", "back_to_back", "protocol", "regression"}:
-                minimum_valids = group_size
-            if len(valid_drives) < minimum_valids:
-                return False
-            return _has_explicit_tail_cleanup(drive_steps, valid_name)
-        return len(valid_drives) >= 2 and _has_explicit_tail_cleanup(drive_steps, valid_name)
+        group_size = int(accumulator_family["group_size"])
+        transition = str(getattr(case, "expected_transition", "") or "").lower()
+        minimum_valids = 1
+        if "multi_group" in transition:
+            minimum_valids = group_size * 2
+        elif "single_group" in transition or str(getattr(case, "scenario_kind", "") or "") in {
+            "grouped_valid_closure",
+            "gapped_valid_group",
+            "reset_mid_progress",
+        }:
+            minimum_valids = group_size
+        elif str(case.category) in {"edge", "back_to_back", "protocol", "regression"}:
+            minimum_valids = group_size
+        if len(valid_drives) < minimum_valids:
+            return False
+        return _has_explicit_tail_cleanup(drive_steps, valid_name)
 
-    if {"winc", "rinc", "wdata"}.issubset(lowered):
-        write_name = lowered["winc"]
-        read_name = lowered["rinc"]
+    fifo_family = infer_fifo_readback_family(
+        contract,
+        additional_texts=_case_semantic_texts(case),
+    )
+    if fifo_family is not None:
+        write_name = str(fifo_family["write_enable_signal"])
+        read_name = str(fifo_family["read_enable_signal"])
         saw_write = any(int(bool(step["signals"].get(write_name, 0))) == 1 for step in drive_steps)
         saw_read = any(int(bool(step["signals"].get(read_name, 0))) == 1 for step in drive_steps)
         return saw_write and saw_read
 
-    if _looks_like_sequence_detector(contract) and "data_in" in lowered:
-        data_name = lowered["data_in"]
-        return sum(1 for step in drive_steps if data_name in step["signals"]) >= 4
+    sequence_family = infer_sequence_detect_family(
+        contract,
+        additional_texts=_case_semantic_texts(case),
+    )
+    if sequence_family is not None:
+        data_name = str(sequence_family["input_signal"])
+        return sum(1 for step in drive_steps if data_name in step["signals"]) >= len(str(sequence_family["bit_pattern"]))
 
     if _looks_like_pulse_detector(contract) and "data_in" in lowered:
         data_name = lowered["data_in"]
@@ -535,8 +600,16 @@ def _quiesce_signal_names(*, contract: DUTContract, case, driven_signals: dict[s
             continue
         if any(token in lower_name for token in ("valid", "enable", "_en", "start", "req", "inc", "load")):
             result.append(original_name)
-    if infer_grouped_valid_accumulator_family(contract, additional_texts=[case_text]) is not None and "valid_in" in lowered:
-        result.append(lowered["valid_in"])
+    accumulator_family = infer_grouped_valid_accumulator_family(contract, additional_texts=[case_text])
+    if accumulator_family is not None:
+        gate_name = str(accumulator_family["input_gate_signal"])
+        if gate_name.lower() in lowered:
+            result.append(lowered[gate_name.lower()])
+    serial_family = infer_serial_to_parallel_family(contract, additional_texts=[case_text])
+    if serial_family is not None:
+        gate_name = str(serial_family["input_gate_signal"])
+        if gate_name.lower() in lowered:
+            result.append(lowered[gate_name.lower()])
     return sorted(set(result))
 
 
@@ -574,11 +647,10 @@ def _accumulator_style_steps(
     )
     if family is None:
         return []
-    lowered = {name.lower(): name for name in signal_names}
-    if not {"data_in", "valid_in"}.issubset(lowered):
+    data_in = str(family["input_data_signal"])
+    valid_in = str(family["input_gate_signal"])
+    if data_in not in signal_names or valid_in not in signal_names:
         return []
-    data_in = lowered["data_in"]
-    valid_in = lowered["valid_in"]
     group_size = int(family["group_size"])
     data_mask = _mask_from_width(widths.get(data_in))
     case_category = str(case.category)
@@ -591,6 +663,9 @@ def _accumulator_style_steps(
     if "gapped" in transition or scenario_kind == "gapped_valid_group" or case_category == "protocol":
         values = [index & data_mask for index in range(1, group_size + 1)]
         return _accumulator_gapped_program(valid_in=valid_in, data_in=data_in, values=values)
+    if "single_group" in transition or scenario_kind == "grouped_valid_closure":
+        values = [index & data_mask for index in range(1, group_size + 1)]
+        return _accumulator_group_program(valid_in=valid_in, data_in=data_in, values=values)
     if case_category == "edge":
         return _accumulator_group_program(valid_in=valid_in, data_in=data_in, values=[data_mask] * group_size)
     if case_category == "back_to_back":
@@ -613,17 +688,20 @@ def _accumulator_style_steps(
 
 def _fifo_style_steps(
     *,
+    contract: DUTContract,
+    case,
     signal_names: list[str],
     widths: dict[str, int | None],
     case_category: str,
 ) -> list[dict[str, object]]:
-    lowered = {name.lower(): name for name in signal_names}
-    required = {"winc", "rinc", "wdata"}
-    if not required.issubset(lowered):
+    family = infer_fifo_readback_family(contract, additional_texts=_case_semantic_texts(case))
+    if family is None:
         return []
-    winc = lowered["winc"]
-    rinc = lowered["rinc"]
-    wdata = lowered["wdata"]
+    winc = str(family["write_enable_signal"])
+    rinc = str(family["read_enable_signal"])
+    wdata = str(family["write_data_signal"])
+    if not {winc, rinc, wdata}.issubset(set(signal_names)):
+        return []
     data_basic = 0xA5 & _mask_from_width(widths.get(wdata))
     data_edge = _mask_from_width(widths.get(wdata))
     write_value = data_edge if case_category == "edge" else data_basic
@@ -700,16 +778,19 @@ def _accumulator_gapped_program(*, valid_in: str, data_in: str, values: list[int
 
 def _packing_pair_steps(
     *,
+    contract: DUTContract,
+    case,
     signal_names: list[str],
     widths: dict[str, int | None],
     case_category: str,
 ) -> list[dict[str, object]]:
-    lowered = {name.lower(): name for name in signal_names}
-    required = {"valid_in", "data_in"}
-    if not required.issubset(lowered):
+    family = infer_packed_stream_conversion_family(contract, additional_texts=_case_semantic_texts(case))
+    if family is None:
         return []
-    valid_in = lowered["valid_in"]
-    data_in = lowered["data_in"]
+    valid_in = str(family["input_gate_signal"])
+    data_in = str(family["input_data_signal"])
+    if not {valid_in, data_in}.issubset(set(signal_names)):
+        return []
     first = 0x12 & _mask_from_width(widths.get(data_in))
     second = 0x34 & _mask_from_width(widths.get(data_in))
     if case_category == "edge":
@@ -759,17 +840,18 @@ def _stack_buffer_steps(
         {"action": "wait_cycles", "cycles": 1},
     ]
 
-
-def _serial_parallel_steps(*, signal_names: list[str], case_category: str) -> list[dict[str, object]]:
-    lowered = {name.lower(): name for name in signal_names}
-    required = {"din_serial", "din_valid"}
-    if not required.issubset(lowered):
+def _serial_parallel_steps(*, contract: DUTContract, case, signal_names: list[str], case_category: str) -> list[dict[str, object]]:
+    family = infer_serial_to_parallel_family(contract, additional_texts=_case_semantic_texts(case))
+    if family is None:
         return []
-    din_serial = lowered["din_serial"]
-    din_valid = lowered["din_valid"]
-    pattern = [1, 0, 1, 0, 1, 0, 1, 0]
+    din_serial = str(family["serial_input_signal"])
+    din_valid = str(family["input_gate_signal"])
+    if not {din_serial, din_valid}.issubset(set(signal_names)):
+        return []
+    bit_count = int(family["bit_count"])
+    pattern = [1 if index % 2 == 0 else 0 for index in range(bit_count)]
     if case_category == "edge":
-        pattern = [1] * 8
+        pattern = [1] * bit_count
     steps: list[dict[str, object]] = []
     for bit in pattern:
         steps.append({"action": "drive", "signals": {din_serial: bit, din_valid: 1}})
@@ -779,14 +861,16 @@ def _serial_parallel_steps(*, signal_names: list[str], case_category: str) -> li
     return steps
 
 
-def _sequence_pattern_steps(*, contract: DUTContract, signal_names: list[str], case_category: str) -> list[dict[str, object]]:
-    lowered = {name.lower(): name for name in signal_names}
-    if "data_in" not in lowered or not _looks_like_sequence_detector(contract):
+def _sequence_pattern_steps(*, contract: DUTContract, case, signal_names: list[str], case_category: str) -> list[dict[str, object]]:
+    family = infer_sequence_detect_family(contract, additional_texts=_case_semantic_texts(case))
+    if family is None:
         return []
-    data_in = lowered["data_in"]
-    pattern = [1, 0, 0, 1]
+    data_in = str(family["input_signal"])
+    if data_in not in signal_names:
+        return []
+    pattern = [int(bit) for bit in str(family["bit_pattern"])]
     if case_category == "edge":
-        pattern = [1, 0, 0, 1, 0]
+        pattern = [*pattern, 0]
     steps: list[dict[str, object]] = []
     for bit in pattern:
         steps.append({"action": "drive", "signals": {data_in: bit}})
@@ -812,22 +896,30 @@ def _pulse_detect_steps(*, contract: DUTContract, signal_names: list[str], case_
 def _multiply_style_steps(
     *,
     contract: DUTContract,
+    case,
     signal_names: list[str],
     widths: dict[str, int | None],
     case_category: str,
 ) -> list[dict[str, object]]:
-    lowered = {name.lower(): name for name in signal_names}
-    required = {"mul_a", "mul_b"}
-    if not required.issubset(lowered):
+    family = infer_pipelined_multiply_family(contract, additional_texts=_case_semantic_texts(case))
+    if family is None:
         return []
-    mul_a = lowered["mul_a"]
-    mul_b = lowered["mul_b"]
-    enable_name = lowered.get("mul_en_in")
+    mul_a = str(family["left_operand_signal"])
+    mul_b = str(family["right_operand_signal"])
+    enable_name = str(family.get("input_gate_signal") or "")
+    if not {mul_a, mul_b}.issubset(set(signal_names)):
+        return []
     first = 13 & _mask_from_width(widths.get(mul_a))
     second = 11 & _mask_from_width(widths.get(mul_b))
     if case_category == "edge":
         first = _mask_from_width(widths.get(mul_a)) >> 1
         second = 3 & _mask_from_width(widths.get(mul_b))
+    product_name = str(family["product_signal"])
+    operand_width = max(int(widths.get(mul_a) or 0), int(widths.get(mul_b) or 0), 1)
+    product_width = max(int(widths.get(product_name) or 0), operand_width)
+    wait_cycles = 1
+    if contract.timing.sequential_kind == SequentialKind.SEQ:
+        wait_cycles = max(4, operand_width * 2, product_width)
     drive = {mul_a: first, mul_b: second}
     if enable_name:
         drive[enable_name] = 1
@@ -836,7 +928,7 @@ def _multiply_style_steps(
         settle[enable_name] = 0
     return [
         {"action": "drive", "signals": drive},
-        {"action": "wait_cycles", "cycles": 4 if contract.timing.sequential_kind == "seq" else 1},
+        {"action": "wait_cycles", "cycles": wait_cycles},
         {"action": "drive", "signals": settle},
         {"action": "wait_cycles", "cycles": 1},
     ]
@@ -845,18 +937,18 @@ def _multiply_style_steps(
 def _divide_style_steps(
     *,
     contract: DUTContract,
+    case,
     signal_names: list[str],
     widths: dict[str, int | None],
     case_category: str,
 ) -> list[dict[str, object]]:
-    lowered = {name.lower(): name for name in signal_names}
-    required = {"a", "b"}
-    if not required.issubset(lowered):
+    family = infer_divide_relation_family(contract, additional_texts=_case_semantic_texts(case))
+    if family is None:
         return []
-    if contract.module_name.lower() != "div_16bit":
+    dividend = str(family["dividend_signal"])
+    divisor = str(family["divisor_signal"])
+    if not {dividend, divisor}.issubset(set(signal_names)):
         return []
-    dividend = lowered["a"]
-    divisor = lowered["b"]
     a_value = 0x00C8 & _mask_from_width(widths.get(dividend))
     b_value = 0x0A & _mask_from_width(widths.get(divisor))
     if case_category == "edge":
@@ -873,18 +965,18 @@ def _divide_style_steps(
 def _fixed_point_adder_steps(
     *,
     contract: DUTContract,
+    case,
     signal_names: list[str],
     widths: dict[str, int | None],
     case_category: str,
 ) -> list[dict[str, object]]:
-    lowered = {name.lower(): name for name in signal_names}
-    required = {"a", "b"}
-    if not required.issubset(lowered):
+    family = infer_fixed_point_add_family(contract, additional_texts=_case_semantic_texts(case))
+    if family is None:
         return []
-    if contract.module_name.lower() != "fixed_point_adder":
+    a_name = str(family["left_operand_signal"])
+    b_name = str(family["right_operand_signal"])
+    if not {a_name, b_name}.issubset(set(signal_names)):
         return []
-    a_name = lowered["a"]
-    b_name = lowered["b"]
     width = max(2, int(widths.get(a_name) or widths.get(b_name) or 16))
     magnitude_mask = (1 << (width - 1)) - 1
     pos_three = 3 & magnitude_mask
@@ -898,13 +990,13 @@ def _fixed_point_adder_steps(
     return _ensure_recorded_inputs([{"action": "drive", "signals": drive}, {"action": "wait_for_settle"}])
 
 
-def _traffic_light_steps(*, contract: DUTContract, signal_names: list[str], case_category: str) -> list[dict[str, object]]:
-    lowered = {name.lower(): name for name in signal_names}
-    if "pass_request" not in lowered:
+def _traffic_light_steps(*, contract: DUTContract, case, signal_names: list[str], case_category: str) -> list[dict[str, object]]:
+    family = infer_traffic_light_phase_family(contract, additional_texts=_case_semantic_texts(case))
+    if family is None or not family.get("request_signal"):
         return []
-    if not {"red", "yellow", "green"}.issubset({name.lower() for name in contract.observable_outputs}):
+    pass_request = str(family["request_signal"])
+    if pass_request not in signal_names:
         return []
-    pass_request = lowered["pass_request"]
     wait_before = 3 if case_category == "edge" else 6
     return [
         {"action": "drive", "signals": {pass_request: 0}},

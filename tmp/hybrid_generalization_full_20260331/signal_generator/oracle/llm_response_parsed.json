@@ -1,0 +1,38 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "wave must change by exactly +1 or -1 on each clock edge, never jump more than 1, and remain within the range 0 to 31; direction reversal occurs only when wave reaches 0 or 31",
+          "notes": [],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "For every rising edge of clk after reset release, the absolute difference between successive wave values is 1, the value stays in [0,31], and a change from +1 to -1 (or vice\u2011versa) occurs only when wave equals 31 or 0 respectively.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "clk_rising_edge",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On each rising edge of clk after reset has been released."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

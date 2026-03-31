@@ -1,0 +1,531 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["grouped_valid_closure","operation_specific"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Complete a single division operation with opn_valid gating and observe a valid result.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "grouped_valid_closure",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h12",
+            "divisor": "8'h03",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h12",
+            "divisor": "8'h03",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["gapped_valid_group","width_sensitive"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Introduce a gap in opn_valid during an ongoing division to test handling of interrupted valid.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "gapped_valid_group",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'hAA",
+            "divisor": "8'h05",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h33",
+            "divisor": "8'h02",
+            "sign": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h33",
+            "divisor": "8'h02",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset_mid_progress","operation_specific"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Assert reset while a division is in progress to verify proper reset handling.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h7F",
+            "divisor": "8'h04",
+            "sign": "1'b0",
+            "res_ready": "1'b1",
+            "rst": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b0",
+            "opn_valid": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "rst": "1'b0",
+            "opn_valid": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready", "rst"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["multi_group_stream","operation_specific"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_case_004",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Issue multiple back-to-back division operations without idle cycles to test stream handling.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "multi_group_stream",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h10",
+            "divisor": "8'h02",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "dividend": "8'h20",
+            "divisor": "8'h04"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "dividend": "8'h30",
+            "divisor": "8'h05"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h30",
+            "divisor": "8'h05",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "protocol",
+      "comparison_operands": [],
+      "coverage_tags": ["backpressure","operation_specific"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_case_005",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Hold res_ready low to create backpressure, then release it and observe result acceptance.",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "backpressure_wait",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h55",
+            "divisor": "8'h03",
+            "sign": "1'b0",
+            "res_ready": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'h55",
+            "divisor": "8'h03",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["boundary_vector","width_sensitive"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": ["res_valid", "result"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'hFF",
+            "divisor": "8'h01",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b1",
+            "dividend": "8'hFF",
+            "divisor": "8'h01",
+            "sign": "1'b0",
+            "res_ready": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "opn_valid": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["opn_valid", "dividend", "divisor", "sign", "res_ready"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

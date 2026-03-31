@@ -1,0 +1,324 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that asserting reset mid‑operation correctly reinitializes internal state and that the multiplier can resume after reset deassertion.",
+      "notes": [],
+      "observed_signals": ["p", "rdy"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "reset": "1" },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "reset": "0", "a": "8'h55", "b": "8'hAA" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "reset": "1" },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "reset": "0" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture p and rdy after reset release"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise maximum‑value inputs to verify width‑sensitive accumulation and correct product generation.",
+      "notes": [],
+      "observed_signals": ["p", "rdy"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'hFF", "b": "8'hFF" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture final product and ready"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate that two consecutive multiplications complete correctly without intermediate reset.",
+      "notes": [],
+      "observed_signals": ["p", "rdy"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h12", "b": "8'h34" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture first product and ready"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h56", "b": "8'h78" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture second product and ready"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h01", "b": "8'h02" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture product and ready after single operation"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'hFF", "b": "8'h01" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture product and ready for boundary inputs"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    },
+    {
+      "case_id": "back_to_back_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h0A", "b": "8'h0B" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture first product and ready"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": { "a": "8'h0C", "b": "8'h0D" },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture second product and ready"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": []
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

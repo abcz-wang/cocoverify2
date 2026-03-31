@@ -1,0 +1,209 @@
+{
+  "assumptions": [
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract."
+  ],
+  "based_on_contract": "dual_port_RAM",
+  "cases": [
+    {
+      "case_id": "basic_001",
+      "category": "basic",
+      "comparison_operands": [],
+      "confidence": 0.5350000000000001,
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "defer_reason": "",
+      "dependencies": [],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "A legal operation causes an observable state or output change after conservative observation.",
+        "The plan does not assume a completion event before it is externally visible."
+      ],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [
+        "Case intent is conservative when the contract is weak or timing is unresolved."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [
+        "Use only ports and observable signals present in the contract."
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "source": "hybrid_llm_enriched",
+      "stimulus_intent": [
+        "Drive a representative legal input pattern across known non-control inputs: ['wenc', 'waddr', 'wdata', 'renc', 'raddr']"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "signals": {
+            "waddr": 1,
+            "wdata": 15,
+            "wenc": 1
+          }
+        },
+        {
+          "action": "wait_for_settle"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2
+        },
+        {
+          "action": "drive",
+          "signals": {
+            "wenc": 0
+          }
+        }
+      ],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata",
+        "renc",
+        "raddr"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "category": "edge",
+      "comparison_operands": [],
+      "confidence": 0.48500000000000015,
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+        "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+      ],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [
+        "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [
+        "At least one input or symbolic-width input is available."
+      ],
+      "priority": 2,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Use zero-like, one-like, and boundary patterns on ['waddr', 'wdata', 'raddr', 'wenc', 'renc']"
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "waddr",
+        "wdata",
+        "raddr",
+        "wenc",
+        "renc"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "confidence": 0.4550000000000001,
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_operation"
+      ],
+      "defer_reason": "",
+      "dependencies": [
+        "basic_001"
+      ],
+      "execution_policy": "deterministic",
+      "expected_properties": [
+        "Repeated operations do not rely on hidden fixed-latency assumptions.",
+        "The second operation is observed only through externally visible acceptance, completion, or output change."
+      ],
+      "expected_transition": "",
+      "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+      "notes": [
+        "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+      ],
+      "observed_signals": [
+        "rdata"
+      ],
+      "preconditions": [
+        "At least one legal operation is already defined by the basic case."
+      ],
+      "priority": 3,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "source": "rule_based",
+      "stimulus_intent": [
+        "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+      ],
+      "stimulus_program": [],
+      "stimulus_signals": [
+        "wenc",
+        "waddr",
+        "wdata"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "module_name": "dual_port_RAM",
+  "plan_confidence": 0.20500000000000015,
+  "plan_strategy": "hybrid_rule_based_plus_llm",
+  "unresolved_items": [
+    "Golden interface mentioned port 'wrstn', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'rrstn', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'winc', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'rinc', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'wfull', but it was not found in the RTL header.",
+    "Golden interface mentioned port 'rempty', but it was not found in the RTL header.",
+    "Golden interface described reset 'wrstn', but the signal was not found in the RTL ports.",
+    "Golden interface described reset 'rrstn', but the signal was not found in the RTL ports.",
+    "Spec/reset hint could not be mapped to a known reset port: wrstn: Write reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: rrstn: Read reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: The write pointer is incremented on the positive edge of the write clock (posedge wclk) and reset to 0 on write reset (~wrstn).",
+    "Spec/reset hint could not be mapped to a known reset port: The read pointer is incremented on the positive edge of the read clock (posedge rclk) and reset to 0 on read reset (~rrstn).",
+    "Spec/reset hint could not be mapped to a known reset port: The buffer registers are updated on the positive edge of the respective clocks and reset to 0 on the respective resets (~wrstn and ~rrstn).",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions."
+  ]
+}

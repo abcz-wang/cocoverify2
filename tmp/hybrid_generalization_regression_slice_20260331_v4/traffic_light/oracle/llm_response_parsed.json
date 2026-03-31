@@ -1,0 +1,106 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [
+        "If pass_request is active while green is active, the counter (clock) is set to 10 per contract assumption."
+      ],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When pass_request=1 and green=1, the clock output must become 10 within a few cycles.",
+          "notes": [],
+          "observed_signals": [
+            "clock",
+            "green",
+            "pass_request"
+          ],
+          "pass_condition": "clock equals 10 at some observation point after the condition holds, without assuming a fixed exact cycle.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "condition_met",
+            "max_cycles": 3,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When pass_request transitions to 1 while green is observed high."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "clock",
+            "green",
+            "pass_request"
+          ],
+          "pass_condition": "If pass_request is driven high and green is high, the clock output reflects the counter value consistent with the contract (10) after a bounded number of cycles.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 3,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the basic_001 stimulus drives pass_request=1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "clock",
+            "red",
+            "yellow",
+            "green"
+          ],
+          "pass_condition": "No output changes are claimed during the asserted reset; after deassertion, outputs stabilize without X values.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When rst_n transitions from low to high."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

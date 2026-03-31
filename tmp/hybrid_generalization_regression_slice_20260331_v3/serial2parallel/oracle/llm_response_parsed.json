@@ -1,0 +1,100 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After eight consecutive cycles where din_valid is asserted, dout_valid must assert for one cycle and dout_parallel must equal the 8\u2011bit value formed by the serial bits presented on din_serial (MSB first).",
+          "notes": [],
+          "observed_signals": [
+            "dout_parallel",
+            "dout_valid"
+          ],
+          "pass_condition": "When a sequence of eight valid serial bits is observed, exactly one dout_valid pulse occurs and the parallel output matches the captured byte in the documented bit order.",
+          "semantic_tags": [
+            "operation_specific",
+            "serial_history"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 8,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus drives a legal eight\u2011bit serial transfer (din_valid high for eight cycles)."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Each group of eight valid serial bits must generate its own distinct dout_valid pulse; pulses must not be merged across back\u2011to\u2011back groups.",
+          "notes": [],
+          "observed_signals": [
+            "dout_valid"
+          ],
+          "pass_condition": "The number of dout_valid pulses observed equals the number of completed 8\u2011bit groups driven by the stimulus.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When two or more eight\u2011bit serial groups are applied back\u2011to\u2011back."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "During reset assertion and release, dout_parallel and dout_valid must remain stable (no toggling) until reset is deasserted.",
+          "notes": [],
+          "observed_signals": [
+            "dout_parallel",
+            "dout_valid"
+          ],
+          "pass_condition": "No change on the observed signals while rst_n is low; after release, signals may change only under normal operation.",
+          "semantic_tags": [
+            "reset",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or during its release."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

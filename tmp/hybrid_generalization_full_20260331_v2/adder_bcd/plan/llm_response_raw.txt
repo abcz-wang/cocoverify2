@@ -1,0 +1,299 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity"],
+      "dependencies": [],
+      "draft_id": "basic_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate addition without correction when sum <= 9.",
+      "notes": [],
+      "observed_signals": ["Sum", "Cout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h5",
+            "B": "4'h3",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Sum": "",
+            "Cout": ""
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B", "Cin"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "boundary"],
+      "dependencies": [],
+      "draft_id": "edge_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate BCD correction and carry generation when binary sum exceeds 9.",
+      "notes": [],
+      "observed_signals": ["Sum", "Cout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h9",
+            "B": "4'h9",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Sum": "",
+            "Cout": ""
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B", "Cin"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "carry_in"],
+      "dependencies": [],
+      "draft_id": "basic_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate addition with a carry‑in input.",
+      "notes": [],
+      "observed_signals": ["Sum", "Cout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h4",
+            "B": "4'h5",
+            "Cin": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Sum": "",
+            "Cout": ""
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B", "Cin"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": ["negative", "illegal_input"],
+      "dependencies": [],
+      "draft_id": "negative_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Check behavior when an input digit is outside the BCD range (>9).",
+      "notes": [],
+      "observed_signals": ["Sum", "Cout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["invalid_illegal_input"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'hA",
+            "B": "4'h2",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Sum": "",
+            "Cout": ""
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B", "Cin"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "category": "metamorphic",
+      "comparison_operands": [],
+      "coverage_tags": ["metamorphic", "equivalence"],
+      "dependencies": [],
+      "draft_id": "metamorphic_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Two different input orders that should produce identical Sum and Cout.",
+      "notes": [],
+      "observed_signals": ["Sum", "Cout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "metamorphic_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h5",
+            "B": "4'h4",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Sum": "",
+            "Cout": ""
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h4",
+            "B": "4'h5",
+            "Cin": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "Sum": "",
+            "Cout": ""
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B", "Cin"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

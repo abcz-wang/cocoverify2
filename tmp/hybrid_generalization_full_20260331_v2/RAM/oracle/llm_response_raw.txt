@@ -1,0 +1,99 @@
+{
+  "assumptions": [],
+  "oracle_notes": [],
+  "unresolved_items": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "read_data must never assume unknown (X) or high‑impedance (Z) values during edge stimulus.",
+          "notes": [],
+          "observed_signals": [
+            "read_data"
+          ],
+          "pass_condition": "At all sampled cycles while edge_001 stimulus is active, read_data is a defined 0/1 value (no X or Z).",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the edge_001 plan applies boundary‑value patterns."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "read_data must equal the data written to the same address when a read follows a write.",
+          "notes": [],
+          "observed_signals": [
+            "read_data"
+          ],
+          "pass_condition": "If write_en was asserted with write_addr = A and write_data = D, and subsequently read_en is asserted with read_addr = A, then read_data equals D.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 plan performs a write followed by a readback of the same address."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "read_data must be cleared to zero after reset deassertion and remain stable before any functional operation.",
+          "notes": [],
+          "observed_signals": [
+            "read_data"
+          ],
+          "pass_condition": "Following the release of rst_n, read_data settles to 0 and does not change until the first non‑reset operation is applied.",
+          "semantic_tags": [
+            "reset",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset is asserted and then released according to the plan's reset_001 case."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ]
+}

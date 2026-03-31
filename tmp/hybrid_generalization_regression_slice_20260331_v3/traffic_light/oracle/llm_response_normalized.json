@@ -1,0 +1,148 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Mutually exclusive traffic-light phases: exactly one of red, yellow, green is high at any time.",
+          "notes": [
+            "Derived from traffic-light safety requirement."
+          ],
+          "observed_signals": [
+            "red",
+            "yellow",
+            "green"
+          ],
+          "pass_condition": "For every observed cycle, the sum of red, yellow, green signals equals 1.",
+          "semantic_tags": [
+            "operation_specific",
+            "fsm_progression"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "any_time",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously monitor during any stimulus."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When pass_request is asserted while green is high, the counter output (clock) should be set to 10 within a bounded number of cycles.",
+          "notes": [
+            "Based on contract assumption about pass_request and green."
+          ],
+          "observed_signals": [
+            "clock",
+            "green",
+            "pass_request"
+          ],
+          "pass_condition": "If pass_request=1 and green=1, then clock equals 10 within at most 5 cycles.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When pass_request transitions to 1 while green is observed high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When green transitions from high to low, the counter (clock) should be set to 60 within a bounded number of cycles.",
+          "notes": [
+            "From contract assumption about green deactivation."
+          ],
+          "observed_signals": [
+            "clock",
+            "green"
+          ],
+          "pass_condition": "If previous green (p_green)=1 and current green=0, then clock equals 60 within at most 5 cycles.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On detection of green falling edge."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "Post-reset output stabilization: after reset is deasserted, red, yellow, green, and clock should become defined (0/1) within a bounded number of cycles.",
+          "notes": [
+            "Conservative stabilization requirement."
+          ],
+          "observed_signals": [
+            "clock",
+            "red",
+            "yellow",
+            "green"
+          ],
+          "pass_condition": "All observed signals assume a defined 0/1 value within at most 10 cycles after reset release.",
+          "semantic_tags": [
+            "reset",
+            "stability"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 10,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset signal transitions from asserted to deasserted."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: The second always block handles the counting logic of the internal counter (cnt). The counter is decremented by 1 on every positive edge of the clock or negative edge of the reset signal. The counter values are adjusted based on various conditions:",
+    "Spec/reset hint could not be mapped to a known reset port: The final always block handles the output signals. It assigns the previous values (p_red, p_yellow, p_green) to the output signals (red, yellow, green) on the positive edge of the clock or negative edge of the reset signal."
+  ]
+}

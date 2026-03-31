@@ -853,6 +853,118 @@ def test_oracle_emits_grouped_valid_accumulation_relation_for_accumulator_family
     assert grouped_check.expected_transition == "single_group_sum"
 
 
+def test_oracle_emits_grouped_valid_accumulation_relation_for_noncanonical_accumulator_family(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="stream_accumulator",
+        ports=[
+            PortSpec(name="clk_i", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_ni", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="sample_bus", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="accept_i", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="sum_done", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="sum_total", direction=PortDirection.OUTPUT, width=10),
+        ],
+        observable_outputs=["sum_done", "sum_total"],
+        assumptions=["After four accepted samples, emit one grouped accumulation result."],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        contract_confidence=0.82,
+    )
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description="Accumulate every four accepted samples and emit one grouped sum output.",
+        spec_text="After four valid input samples, assert a completion pulse and present the accumulated sum.",
+        out_dir=tmp_path / "plan_noncanonical",
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "oracle_noncanonical",
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    closure_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "basic_002")
+    grouped_check = next(check for check in closure_case.checks if check.relation_kind == "grouped_valid_accumulation")
+
+    assert grouped_check.comparison_operands == ["sample_bus", "accept_i", "sum_total", "sum_done"]
+    assert "\"group_size\": 4" in grouped_check.oracle_pattern
+
+
+def test_oracle_emits_generalized_serial_and_fifo_relations(tmp_path: Path) -> None:
+    serial_contract = DUTContract(
+        module_name="stream_deserializer",
+        ports=[
+            PortSpec(name="clk_i", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_ni", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="bit_i", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="sample_gate", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="byte_out", direction=PortDirection.OUTPUT, width=8),
+            PortSpec(name="byte_ready", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["byte_out", "byte_ready"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        contract_confidence=0.8,
+    )
+    serial_plan = TestPlanGenerator().run(
+        contract=serial_contract,
+        task_description="Convert a serial bit stream into one parallel byte after eight valid bits.",
+        spec_text="A completion pulse indicates the byte is ready after one full serial transfer.",
+        out_dir=tmp_path / "serial_plan",
+    )
+    serial_oracle = OracleGenerator().run(
+        contract=serial_contract,
+        plan=serial_plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "serial_oracle",
+        based_on_contract="serial_contract.json",
+        based_on_plan="serial_plan.json",
+    )
+    serial_case = next(case for case in serial_oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
+    serial_check = next(check for check in serial_case.checks if check.relation_kind == "serial_to_parallel_byte")
+    assert serial_check.comparison_operands == ["bit_i", "sample_gate", "byte_out", "byte_ready"]
+    edge_case = next(case for case in serial_oracle.functional_oracles if case.linked_plan_case_id == "edge_001")
+    assert all(check.relation_kind != "serial_to_parallel_byte" for check in edge_case.checks)
+
+    fifo_contract = DUTContract(
+        module_name="queue_buffer",
+        ports=[
+            PortSpec(name="wr_clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rd_clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="push_req", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="push_payload", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="pop_req", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="pop_payload", direction=PortDirection.OUTPUT, width=8),
+            PortSpec(name="empty_o", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="full_o", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["pop_payload", "empty_o", "full_o"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        contract_confidence=0.8,
+    )
+    fifo_plan = TestPlanGenerator().run(
+        contract=fifo_contract,
+        task_description="FIFO queue with one pushed byte later read back from the output.",
+        spec_text="Write then readback while checking empty and full flags.",
+        out_dir=tmp_path / "fifo_plan",
+    )
+    fifo_oracle = OracleGenerator().run(
+        contract=fifo_contract,
+        plan=fifo_plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "fifo_oracle",
+        based_on_contract="fifo_contract.json",
+        based_on_plan="fifo_plan.json",
+    )
+    fifo_case = next(case for case in fifo_oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
+    fifo_check = next(check for check in fifo_case.checks if check.relation_kind == "fifo_write_readback")
+    assert fifo_check.comparison_operands == ["push_payload", "push_req", "pop_req", "pop_payload", "empty_o", "full_o"]
+
+
 def test_oracle_emits_ring_and_traffic_relations_for_autonomous_stateful_families(tmp_path: Path) -> None:
     ring_contract = DUTContract(
         module_name="ring_counter",
@@ -897,11 +1009,39 @@ def test_oracle_emits_ring_and_traffic_relations_for_autonomous_stateful_familie
         timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
         contract_confidence=0.8,
     )
-    traffic_plan = TestPlanGenerator().run(
-        contract=traffic_contract,
-        task_description="Traffic light controller",
-        spec_text="Respond to pass_request by progressing through green, yellow, and red phases.",
-        out_dir=tmp_path / "traffic_plan",
+    traffic_plan = PlanModel(
+        module_name="traffic_light",
+        based_on_contract="traffic_contract.json",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.8,
+        cases=[
+            PlanCaseModel(
+                case_id="basic_001",
+                goal="Observe basic output activity after reset release.",
+                category=PlanCategory.BASIC,
+                stimulus_intent=["Release reset and observe state outputs conservatively."],
+                stimulus_signals=["pass_request"],
+                expected_properties=["Outputs eventually reflect legal controller activity."],
+                observed_signals=["red", "yellow", "green"],
+                timing_assumptions=["Do not assume an exact phase dwell count in the basic case."],
+                coverage_tags=["basic"],
+                semantic_tags=["ambiguity_preserving"],
+                confidence=0.78,
+            ),
+            PlanCaseModel(
+                case_id="protocol_001",
+                goal="Pulse the pedestrian request and observe bounded phase progression.",
+                category=PlanCategory.PROTOCOL,
+                stimulus_intent=["Pulse pass_request during a legal observation window."],
+                stimulus_signals=["pass_request"],
+                expected_properties=["A request-driven phase progression eventually includes green, then yellow, then red."],
+                observed_signals=["red", "yellow", "green"],
+                timing_assumptions=["Remain event-based and avoid exact phase dwell counts."],
+                coverage_tags=["protocol", "fsm"],
+                semantic_tags=["operation_specific", "fsm_progression"],
+                confidence=0.8,
+            ),
+        ],
     )
     traffic_oracle = OracleGenerator().run(
         contract=traffic_contract,
@@ -913,7 +1053,131 @@ def test_oracle_emits_ring_and_traffic_relations_for_autonomous_stateful_familie
         based_on_plan="traffic_plan.json",
     )
     basic_case = next(case for case in traffic_oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
-    assert any(check.relation_kind == "traffic_light_phase_progression" for check in basic_case.checks)
+    assert all(check.relation_kind != "traffic_light_phase_progression" for check in basic_case.checks)
+    protocol_case = next(case for case in traffic_oracle.functional_oracles if case.linked_plan_case_id == "protocol_001")
+    assert any(check.relation_kind == "traffic_light_phase_progression" for check in protocol_case.checks)
+
+
+def test_oracle_does_not_emit_grouped_accumulation_for_multiplier_like_start_done_family(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="iterative_multiplier",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="start", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="ain", direction=PortDirection.INPUT, width=16),
+            PortSpec(name="bin", direction=PortDirection.INPUT, width=16),
+            PortSpec(name="done", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="yout", direction=PortDirection.OUTPUT, width=32),
+        ],
+        observable_outputs=["done", "yout"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.82),
+        contract_confidence=0.84,
+    )
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description="Start a 16-bit multiplication and assert done when the product is ready.",
+        spec_text="Multiply ain by bin after start and present the product on yout when done is asserted.",
+        out_dir=tmp_path / "multiplier_plan",
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "multiplier_oracle",
+        based_on_contract="multiplier_contract.json",
+        based_on_plan="multiplier_plan.json",
+    )
+
+    assert all(
+        check.relation_kind != "grouped_valid_accumulation"
+        for case in oracle.functional_oracles
+        for check in case.checks
+    )
+
+
+def test_oracle_emits_exact_unsigned_product_only_for_basic_unsigned_multiply_cases(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="unsigned_multiplier",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="start", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="ain", direction=PortDirection.INPUT, width=16),
+            PortSpec(name="bin", direction=PortDirection.INPUT, width=16),
+            PortSpec(name="done", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="yout", direction=PortDirection.OUTPUT, width=32),
+        ],
+        observable_outputs=["done", "yout"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.82),
+        contract_confidence=0.84,
+    )
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description="Implement an unsigned 16-bit multiplier with start and done.",
+        spec_text="Perform unsigned multiplication and assert done when the product becomes available.",
+        out_dir=tmp_path / "unsigned_multiplier_plan",
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "unsigned_multiplier_oracle",
+        based_on_contract="unsigned_multiplier_contract.json",
+        based_on_plan="unsigned_multiplier_plan.json",
+    )
+
+    basic_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
+    assert any(check.relation_kind == "pipelined_unsigned_product" for check in basic_case.checks)
+    assert all(
+        check.relation_kind != "pipelined_unsigned_product"
+        for case in oracle.functional_oracles
+        if case.linked_plan_case_id != "basic_001"
+        for check in case.checks
+    )
+
+
+def test_oracle_skips_exact_unsigned_product_for_booth_style_multiplier(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="multi_booth_8bit",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="reset", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="a", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="b", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="p", direction=PortDirection.OUTPUT, width=16),
+            PortSpec(name="rdy", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["p", "rdy"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.82),
+        contract_confidence=0.84,
+    )
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description="Implement an 8-bit Radix-4 Booth multiplier with a ready pulse.",
+        spec_text="Use the Booth algorithm and sign-extended partial products before asserting rdy.",
+        out_dir=tmp_path / "booth_plan",
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "booth_oracle",
+        based_on_contract="booth_contract.json",
+        based_on_plan="booth_plan.json",
+    )
+
+    assert all(
+        check.relation_kind != "pipelined_unsigned_product"
+        for case in oracle.functional_oracles
+        for check in case.checks
+    )
 
 
 def test_oracle_reset_data_outputs_do_not_require_immediate_definedness_without_reset_specific_evidence(tmp_path: Path) -> None:

@@ -1,0 +1,67 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When mul_a=1 and mul_b=2 are driven, mul_out must eventually equal the product 2 within a conservative observation window.",
+          "notes": [],
+          "observed_signals": [
+            "mul_out"
+          ],
+          "pass_condition": "mul_out equals 2 (binary 0010) at any observation point after the inputs are applied and before any further input changes.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 10,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the stimulus program for case basic_001 drives mul_a=1, mul_b=2 and rst_n=1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "The product output mul_out must never contain unknown (X) or high-impedance (Z) values after reset release.",
+          "notes": [],
+          "observed_signals": [
+            "mul_out"
+          ],
+          "pass_condition": "All bits of mul_out are 0 or 1 (no X/Z) in every observation after reset is deasserted.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While monitoring post-reset behavior in any case."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

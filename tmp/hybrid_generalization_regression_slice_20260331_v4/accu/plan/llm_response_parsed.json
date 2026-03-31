@@ -1,0 +1,130 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "group_closure",
+        "single_group"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "single_group_sum",
+      "goal": "Drive a single complete group of four valid inputs and verify that exactly one output event (valid_out=1 with correct data_out) is produced.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "group_size=4;allow_gaps=0;expected_groups=1",
+      "relation_kind": "grouped_valid_accumulation",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific",
+        "grouped_valid_closure"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h01",
+            "valid_in": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h02",
+            "valid_in": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h03",
+            "valid_in": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h04",
+            "valid_in": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_note",
+          "cycles": 0,
+          "signals": {},
+          "text": "Expect valid_out=1 and data_out = 8'h01+8'h02+8'h03+8'h04 = 10'h0014 on this cycle."
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h00",
+            "valid_in": "1'b0"
+          },
+          "text": "Cleanup: deassert valid_in after group completion."
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "data_in",
+        "valid_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -491,6 +491,77 @@ def test_accumulator_like_contract_generates_group_closure_cases(tmp_path: Path)
     assert any(step["action"] == "drive" and "rst_n" in step["signals"] for step in reset_case.stimulus_program)
 
 
+def test_accumulator_like_contract_with_noncanonical_roles_generates_group_closure_cases(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="stream_accumulator",
+        ports=[
+            PortSpec(name="clk_i", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_ni", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="sample_bus", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="accept_i", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="sum_total", direction=PortDirection.OUTPUT, width=10),
+            PortSpec(name="sum_done", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["sum_total", "sum_done"],
+        assumptions=["One output event occurs after four accepted samples have been accumulated."],
+        contract_confidence=0.82,
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        clocks=[{"name": "clk_i", "source": "rtl_heuristic", "confidence": 0.9}],
+        resets=[{"name": "rst_ni", "active_level": 0, "source": "rtl_heuristic", "confidence": 0.9}],
+    )
+
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description="Accumulate every four accepted samples and emit one grouped sum output.",
+        spec_text="After four valid input samples, assert a completion pulse and present the accumulated sum.",
+        out_dir=tmp_path,
+    )
+
+    closure_case = next(case for case in plan.cases if case.scenario_kind == "grouped_valid_closure")
+    valid_drives = [
+        step
+        for step in closure_case.stimulus_program
+        if step["action"] == "drive" and step["signals"].get("accept_i") == 1
+    ]
+
+    assert len(valid_drives) == 4
+    assert closure_case.comparison_operands == ["sample_bus", "accept_i", "sum_total", "sum_done"]
+    assert closure_case.stimulus_program[-2] == {"action": "drive", "signals": {"accept_i": 0, "sample_bus": 4}}
+
+
+def test_multiplier_like_start_done_design_does_not_get_grouped_accumulator_cases(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="iterative_multiplier",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="start", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="ain", direction=PortDirection.INPUT, width=16),
+            PortSpec(name="bin", direction=PortDirection.INPUT, width=16),
+            PortSpec(name="done", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="yout", direction=PortDirection.OUTPUT, width=32),
+        ],
+        observable_outputs=["done", "yout"],
+        contract_confidence=0.82,
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        clocks=[{"name": "clk", "source": "rtl_heuristic", "confidence": 0.9}],
+        resets=[{"name": "rst_n", "active_level": 0, "source": "rtl_heuristic", "confidence": 0.9}],
+    )
+
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description="Start a 16-bit multiplication and assert done when the product is ready.",
+        spec_text="Multiply ain by bin after start and present the product on yout when done is asserted.",
+        out_dir=tmp_path / "multiplier_plan",
+    )
+
+    assert all(case.relation_kind != "grouped_valid_accumulation" for case in plan.cases)
+    assert all(
+        case.scenario_kind not in {"grouped_valid_closure", "gapped_valid_group", "reset_mid_progress", "multi_group_stream"}
+        for case in plan.cases
+    )
+
+
 def test_seq_without_business_inputs_keeps_clock_driven_basic_case_deterministic(tmp_path: Path) -> None:
     contract = DUTContract(
         module_name="counter_like",

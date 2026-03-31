@@ -1,0 +1,273 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge","overflow"],
+      "dependencies": [],
+      "draft_id": "edge_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify carry-out generation on maximum operand values.",
+      "notes": [],
+      "observed_signals": ["S","C32"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'hFFFFFFFF",
+            "B": "32'hFFFFFFFF"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'hFFFFFFFF",
+            "B": "32'hFFFFFFFF"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A","B"],
+      "timing_assumptions": []
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge","boundary_vector"],
+      "dependencies": [],
+      "draft_id": "edge_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Check behavior at sign‑bit boundary values.",
+      "notes": [],
+      "observed_signals": ["S","C32"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h80000000",
+            "B": "32'h80000000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h80000000",
+            "B": "32'h80000000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A","B"],
+      "timing_assumptions": []
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back"],
+      "dependencies": [],
+      "draft_id": "b2b_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Apply two distinct operand pairs in successive cycles to ensure combinational stability.",
+      "notes": [],
+      "observed_signals": ["S","C32"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h0000AAAA",
+            "B": "32'h00005555"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h0000AAAA",
+            "B": "32'h00005555"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h12345678",
+            "B": "32'h9ABCDEF0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h12345678",
+            "B": "32'h9ABCDEF0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A","B"],
+      "timing_assumptions": []
+    },
+    {
+      "category": "regression",
+      "comparison_operands": [],
+      "coverage_tags": ["regression"],
+      "dependencies": [],
+      "draft_id": "reg_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate adder with a deterministic mixed pattern.",
+      "notes": [],
+      "observed_signals": ["S","C32"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h12345678",
+            "B": "32'h9ABCDEF0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h12345678",
+            "B": "32'h9ABCDEF0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A","B"],
+      "timing_assumptions": []
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic","sanity","comb"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise representative legal input combinations and observe output mapping.",
+      "notes": [],
+      "observed_signals": ["S","C32"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h00000000",
+            "B": "32'h00000000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "32'h00000000",
+            "B": "32'h00000000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A","B"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

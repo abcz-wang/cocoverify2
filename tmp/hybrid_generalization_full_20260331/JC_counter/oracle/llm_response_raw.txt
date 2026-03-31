@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "After reset deassertion, the counter output Q must be zero.",
+          "notes": [],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "Q equals 0 within one clock cycle after the reset signal is released.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset (rst_n) transitions from low to high."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Johnson counter progression: on each rising clock edge, Q updates according to its LSB.",
+          "notes": [
+            "If Q[0] == 0, Q_next = {1'b1, Q[63:1]}; else Q_next = {1'b0, Q[63:1]}."
+          ],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "The value of Q after a clock edge matches the Johnson update rule applied to the pre‑edge value.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "clock_edge",
+            "max_cycles": 1,
+            "min_cycles": 1,
+            "mode": "exact_cycle"
+          },
+          "trigger_condition": "On every rising edge of clk when reset is not asserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

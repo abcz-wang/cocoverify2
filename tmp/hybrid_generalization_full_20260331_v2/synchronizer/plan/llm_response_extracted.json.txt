@@ -1,0 +1,730 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset","mid_progress","reset_during_enable"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_reset_mid_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that asserting brstn while data_en is active resets internal state and clears dataout.",
+      "notes": [],
+      "observed_signals": ["dataout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": ["operation_specific","reset"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "arstn": "1",
+            "brstn": "1",
+            "data_in": "0x3",
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "brstn": "0"
+          },
+          "text": "assert reset B"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "brstn": "1"
+          },
+          "text": "deassert reset B"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataout": "0x0"
+          },
+          "text": "expect dataout cleared after reset"
+        }
+      ],
+      "stimulus_signals": ["arstn","brstn","data_in","data_en","dataout"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge","width_sensitive","max_value"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_boundary_vector_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise the maximum 4‑bit data value while data_en is asserted for the required window.",
+      "notes": [],
+      "observed_signals": ["dataout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "arstn": "1",
+            "brstn": "1",
+            "data_in": "0xF",
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "hold enable for minimum window"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataout": "0xF"
+          },
+          "text": "expect max value propagated"
+        }
+      ],
+      "stimulus_signals": ["arstn","brstn","data_in","data_en","dataout"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["grouped_valid","closure","full_window"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_grouped_valid_closure_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Complete a full valid‑gated group (data_en high for 3 clk_b cycles) and verify a single dataout update.",
+      "notes": [],
+      "observed_signals": ["dataout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "grouped_valid_closure",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "arstn": "1",
+            "brstn": "1",
+            "data_in": "0x5",
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "1"
+          },
+          "text": "start valid window"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "hold enable for required 3 cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "0"
+          },
+          "text": "close valid window"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataout": "0x5"
+          },
+          "text": "expect dataout updated after closure"
+        }
+      ],
+      "stimulus_signals": ["arstn","brstn","data_in","data_en","dataout"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["grouped_valid","gapped","interrupted"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_gapped_valid_group_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Introduce a gap inside the enable window (data_en low before reaching 3 cycles) and verify that no output is produced.",
+      "notes": [],
+      "observed_signals": ["dataout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "gapped_valid_group",
+      "semantic_tags": ["operation_specific","invalid_illegal_input"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "arstn": "1",
+            "brstn": "1",
+            "data_in": "0x2",
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "1"
+          },
+          "text": "start enable"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "only two cycles high"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "0"
+          },
+          "text": "gap before full window"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "1"
+          },
+          "text": "resume enable"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "complete second window"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "0"
+          },
+          "text": "close"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataout": "0x2"
+          },
+          "text": "output appears only after second full window"
+        }
+      ],
+      "stimulus_signals": ["arstn","brstn","data_in","data_en","dataout"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back","repeated_group"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_back_to_back_pair_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Execute two consecutive valid groups with only one idle cycle between them and verify two distinct dataout updates.",
+      "notes": [],
+      "observed_signals": ["dataout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "arstn": "1",
+            "brstn": "1",
+            "data_in": "0x1",
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "1"
+          },
+          "text": "first group start"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "0"
+          },
+          "text": "first group end"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "minimal gap"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "0x9",
+            "data_en": "1"
+          },
+          "text": "second group start with new data"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "0"
+          },
+          "text": "second group end"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataout": "0x9"
+          },
+          "text": "final dataout reflects second group"
+        }
+      ],
+      "stimulus_signals": ["arstn","brstn","data_in","data_en","dataout"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": ["invalid_illegal_input","data_change_during_enable"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_negative_illegal_input_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Change data_in while data_en remains high (illegal) and verify that dataout does not reflect the mid‑window change.",
+      "notes": [],
+      "observed_signals": ["dataout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["invalid_illegal_input"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "arstn": "1",
+            "brstn": "1",
+            "data_in": "0x4",
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "1"
+          },
+          "text": "enable asserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "0x7"
+          },
+          "text": "illegal data change during enable"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "0"
+          },
+          "text": "disable"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataout": "0x4"
+          },
+          "text": "output should reflect original value, not mid‑window change"
+        }
+      ],
+      "stimulus_signals": ["arstn","brstn","data_in","data_en","dataout"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "regression",
+      "comparison_operands": [],
+      "coverage_tags": ["regression","basic_flow"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_regression_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Re‑exercise a basic write‑then‑readback scenario with a different data pattern to guard against regressions.",
+      "notes": [],
+      "observed_signals": ["dataout"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "arstn": "1",
+            "brstn": "1",
+            "data_in": "0xA",
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataout": "0xA"
+          },
+          "text": "verify dataout matches written pattern"
+        }
+      ],
+      "stimulus_signals": ["arstn","brstn","data_in","data_en","dataout"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["edge","boundary","max_value"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise boundary‑value pattern with maximum data_in while data_en is asserted for the required window.",
+      "notes": [],
+      "observed_signals": ["dataout"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "arstn": "1",
+            "brstn": "1",
+            "data_in": "0xF",
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "hold enable for minimum window"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_en": "0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dataout": "0xF"
+          },
+          "text": "expect max value propagated"
+        }
+      ],
+      "stimulus_signals": ["arstn","brstn","data_in","data_en","dataout"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

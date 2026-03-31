@@ -1,0 +1,461 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset",
+        "mid_progress"
+      ],
+      "dependencies": [],
+      "draft_id": "new_case_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Assert reset while the counter is mid-count and observe proper reinitialization after deassertion.",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": "Assert active-low reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset for two clock cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow post-reset stabilization"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture initial counter and output states after reset"
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "pedestrian_request"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "new_case_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Issue a pass_request during green when remaining count >10 and verify counter shortens to 10.",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Allow traffic light to reach green state"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b1"
+          },
+          "text": "Assert pass_request while green is active"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow counter to adjust"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b0"
+          },
+          "text": "Deassert pass_request"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture counter value and outputs after request"
+        }
+      ],
+      "stimulus_signals": [
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Assert pass_request when green remaining count equals 10 and verify counter remains unchanged.",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Reach green state with exactly 10 cycles remaining"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b1"
+          },
+          "text": "Assert pass_request at boundary condition"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow any internal adjustments"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b0"
+          },
+          "text": "Deassert pass_request"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture counter and output states to confirm no change"
+        }
+      ],
+      "stimulus_signals": [
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "repeated_request"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "new_case_004",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Issue two consecutive pass_requests and verify each shortens the green period appropriately.",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Enter green state with sufficient remaining time"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b1"
+          },
+          "text": "First pass_request assertion"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow first adjustment"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b0"
+          },
+          "text": "Deassert first request"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One cycle gap"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b1"
+          },
+          "text": "Second pass_request assertion"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow second adjustment"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b0"
+          },
+          "text": "Deassert second request"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture final counter and outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Apply one legal operation and observe stable post-operation behavior.",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b0"
+          },
+          "text": "Ensure pass_request is deasserted"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow system to stabilize after reset"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture initial state of outputs"
+        }
+      ],
+      "stimulus_signals": [
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise boundary-value and width-sensitive input patterns.",
+      "notes": [],
+      "observed_signals": [
+        "clock",
+        "red",
+        "yellow",
+        "green"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Reach a state where green counter is at a boundary value (e.g., 5 cycles)"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b1"
+          },
+          "text": "Assert pass_request at boundary condition"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": "Allow any internal adjustments"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "pass_request": "1'b0"
+          },
+          "text": "Deassert pass_request"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {},
+          "text": "Capture resulting counter and output states"
+        }
+      ],
+      "stimulus_signals": [
+        "pass_request"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

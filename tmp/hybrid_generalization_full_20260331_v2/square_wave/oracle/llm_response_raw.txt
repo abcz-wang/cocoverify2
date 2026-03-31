@@ -1,0 +1,69 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When freq is driven to a concrete value, wave_out must toggle at least once within 2*freq clock cycles, reflecting the counter reset and toggle behavior.",
+          "notes": [],
+          "observed_signals": [
+            "wave_out"
+          ],
+          "pass_condition": "wave_out changes value at least once within the specified window.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": 10,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After driving freq in basic_001 stimulus."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "wave_out must not toggle again before the counter has had a chance to reach (freq-1) cycles, preventing premature toggles.",
+          "notes": [],
+          "observed_signals": [
+            "wave_out"
+          ],
+          "pass_condition": "No change in wave_out observed for at least (freq-1) cycles after a toggle event.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "toggle_event",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "After each observed toggle of wave_out in any case."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,76 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "valid_out may only be asserted after two consecutive valid_in cycles have occurred since the last reset.",
+          "notes": [],
+          "observed_signals": [
+            "valid_in",
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "Whenever valid_out is 1, the two immediately preceding clock cycles must have had valid_in = 1. No assertion of valid_out is permitted without this history.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "valid_out_assertion",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When valid_out transitions to 1."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "valid_in",
+            "data_in",
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "If valid_in is high on cycle N with data_in = X and also high on cycle N+1 with data_in = Y, then on cycle N+2 valid_out must be 1 and data_out must equal {X,Y} (X as high byte, Y as low byte).",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "second_valid_cycle",
+            "max_cycles": 1,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When two back-to-back cycles with valid_in = 1 are observed."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [
+    "Functional enrichment uses the spec\u2011provided latency of one clock cycle after the second valid input to form the 16\u2011bit output.",
+    "Property enrichment guards against premature valid_out assertions when the input history is insufficient."
+  ],
+  "unresolved_items": []
+}

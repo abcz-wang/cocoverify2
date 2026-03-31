@@ -41,7 +41,18 @@ from cocoverify2.llm.validators import (
 )
 from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_text, write_yaml
 from cocoverify2.utils.logging import get_logger
-from cocoverify2.utils.semantic_families import infer_grouped_valid_accumulator_family
+from cocoverify2.utils.semantic_families import (
+    infer_divide_relation_family,
+    infer_fifo_readback_family,
+    infer_fixed_point_add_family,
+    infer_grouped_valid_accumulator_family,
+    infer_packed_stream_conversion_family,
+    infer_pipelined_multiply_family,
+    infer_ring_progression_family,
+    infer_sequence_detect_family,
+    infer_serial_to_parallel_family,
+    infer_traffic_light_phase_family,
+)
 
 
 class OracleGenerator:
@@ -1054,85 +1065,109 @@ def _build_operation_specific_functional_checks(*, contract: DUTContract, plan_c
     checks: list[OracleCheck] = []
     if plan_case.category == "reset":
         return checks
-    lower_ports = {port.name.lower(): port.name for port in contract.ports}
-    lower_outputs = {signal.lower() for signal in contract.observable_outputs}
-    module_name = contract.module_name.lower()
+    additional_texts = [
+        plan_case.goal,
+        *plan_case.stimulus_intent,
+        *plan_case.expected_properties,
+        str(plan_case.reference_domain or ""),
+        str(plan_case.expected_transition or ""),
+    ]
     accumulator_family = infer_grouped_valid_accumulator_family(
         contract,
-        additional_texts=[
-            plan_case.goal,
-            *plan_case.stimulus_intent,
-            *plan_case.expected_properties,
-            str(plan_case.reference_domain or ""),
-            str(plan_case.expected_transition or ""),
-        ],
+        additional_texts=additional_texts,
     )
+    serial_family = infer_serial_to_parallel_family(contract, additional_texts=additional_texts)
+    packed_family = infer_packed_stream_conversion_family(contract, additional_texts=additional_texts)
+    fifo_family = infer_fifo_readback_family(contract, additional_texts=additional_texts)
+    multiply_family = infer_pipelined_multiply_family(contract, additional_texts=additional_texts)
+    fixed_point_family = infer_fixed_point_add_family(contract, additional_texts=additional_texts)
+    divide_family = infer_divide_relation_family(contract, additional_texts=additional_texts)
+    sequence_family = infer_sequence_detect_family(contract, additional_texts=additional_texts)
+    ring_family = infer_ring_progression_family(contract, additional_texts=additional_texts)
+    traffic_family = infer_traffic_light_phase_family(contract, additional_texts=additional_texts)
 
     accumulator_check = _build_grouped_valid_accumulation_check(
         contract=contract,
         plan_case=plan_case,
-        lower_ports=lower_ports,
-        lower_outputs=lower_outputs,
         accumulator_family=accumulator_family,
     )
     if accumulator_check is not None:
         checks.append(accumulator_check)
 
-    if _supports_serial_to_parallel(lower_ports, lower_outputs):
+    if serial_family is not None and plan_case.category in {"basic", "back_to_back"}:
         checks.append(
             _make_check(
                 case_id=plan_case.case_id,
                 check_type=OracleCheckType.FUNCTIONAL,
                 ordinal=900,
                 description="Collect eight valid serial bits and verify the reconstructed parallel byte when dout_valid pulses.",
-                observed_signals=_deduped([lower_ports["dout_parallel"], lower_ports["dout_valid"]]),
+                observed_signals=_deduped(
+                    [serial_family["parallel_output_signal"], serial_family["output_gate_signal"]]
+                ),
                 trigger_condition="When the rendered stimulus drives a legal eight-bit serial transfer.",
-                pass_condition="After eight legal serial input bits, dout_valid must pulse exactly once and dout_parallel must equal the captured byte in the documented bit order.",
+                pass_condition="After one complete legal serial transfer, the output-valid signal must pulse exactly once and the parallel output must equal the captured byte in the documented or ambiguity-preserving bit order.",
                 temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="operation_applied"),
                 strictness=OracleStrictness.CONSERVATIVE,
                 confidence=_oracle_case_confidence(contract=contract, plan_case=plan_case, bonus=0.03),
-                notes=["Structured serial-history relation check derived from stable interface names."],
+                notes=["Structured serial-history relation check is derived from role-level stream metadata, not exact canonical names."],
                 semantic_tags=["operation_specific", "serial_history"],
                 relation_kind="serial_to_parallel_byte",
                 comparison_operands=[
-                    lower_ports["din_serial"],
-                    lower_ports["din_valid"],
-                    lower_ports["dout_parallel"],
-                    lower_ports["dout_valid"],
+                    serial_family["serial_input_signal"],
+                    serial_family["input_gate_signal"],
+                    serial_family["parallel_output_signal"],
+                    serial_family["output_gate_signal"],
                 ],
-                reference_domain="msb_to_lsb",
-                expected_transition="eight_valid_bits_then_single_valid_pulse",
+                reference_domain=str(serial_family["bit_order"]),
+                expected_transition=f'{serial_family["bit_count"]}_valid_bits_then_single_output_event',
+                oracle_pattern=json.dumps(
+                    {
+                        "bit_count": int(serial_family["bit_count"]),
+                        "bit_order": str(serial_family["bit_order"]),
+                    },
+                    sort_keys=True,
+                ),
             )
         )
 
-    if accumulator_family is None and _supports_packed_byte_output(lower_ports, lower_outputs):
+    if packed_family is not None:
         checks.append(
             _make_check(
                 case_id=plan_case.case_id,
                 check_type=OracleCheckType.FUNCTIONAL,
                 ordinal=901,
-                description="Capture two valid 8-bit inputs and verify the 16-bit packed output when valid_out asserts.",
-                observed_signals=_deduped([lower_ports["data_out"], lower_ports["valid_out"]]),
-                trigger_condition="When the rendered stimulus presents two legal valid input bytes.",
-                pass_condition="After two valid input bytes, valid_out must assert and data_out must present the first byte in the high bits and the second byte in the low bits.",
+                description="Capture one complete packed input group and verify the aggregated output when output-valid asserts.",
+                observed_signals=_deduped(
+                    [packed_family["output_data_signal"], packed_family["output_gate_signal"]]
+                ),
+                trigger_condition="When the rendered stimulus presents one finite legal group of valid input elements.",
+                pass_condition="After one complete valid input group, the output-valid signal must assert and the packed output must reflect the finite input group in the documented or ambiguity-preserving element order.",
                 temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="operation_applied"),
                 strictness=OracleStrictness.CONSERVATIVE,
                 confidence=_oracle_case_confidence(contract=contract, plan_case=plan_case, bonus=0.03),
-                notes=["Structured byte-packing relation check avoids hidden exact-cycle assumptions while still checking value semantics."],
+                notes=["Structured packing relation avoids hidden exact-cycle assumptions while still checking externally visible grouped value semantics."],
                 semantic_tags=["operation_specific", "data_packing"],
                 relation_kind="byte_pack_pair",
                 comparison_operands=[
-                    lower_ports["data_in"],
-                    lower_ports["valid_in"],
-                    lower_ports["data_out"],
-                    lower_ports["valid_out"],
+                    packed_family["input_data_signal"],
+                    packed_family["input_gate_signal"],
+                    packed_family["output_data_signal"],
+                    packed_family["output_gate_signal"],
                 ],
-                reference_domain="high_byte_first",
-                expected_transition="two_valid_bytes_then_output_valid",
+                reference_domain=str(packed_family["pack_order"]),
+                expected_transition=f'{packed_family["element_count"]}_valid_elements_then_output_valid',
+                oracle_pattern=json.dumps(
+                    {
+                        "element_count": int(packed_family["element_count"]),
+                        "element_width": int(packed_family["input_width"]),
+                        "pack_order": str(packed_family["pack_order"]),
+                    },
+                    sort_keys=True,
+                ),
             )
         )
 
-    if _supports_fifo_readback(lower_ports, lower_outputs):
+    if fifo_family is not None:
         checks.append(
             _make_check(
                 case_id=plan_case.case_id,
@@ -1140,68 +1175,90 @@ def _build_operation_specific_functional_checks(*, contract: DUTContract, plan_c
                 ordinal=902,
                 description="Write one FIFO entry, then read it back while checking empty/full consistency.",
                 observed_signals=_deduped(
-                    [signal for signal in [lower_ports.get("rdata"), lower_ports.get("rempty"), lower_ports.get("wfull")] if signal]
+                    [
+                        signal
+                        for signal in [
+                            fifo_family["read_data_signal"],
+                            fifo_family["empty_signal"],
+                            fifo_family["full_signal"],
+                        ]
+                        if signal
+                    ]
                 ),
                 trigger_condition="When the rendered stimulus performs a legal write phase followed by a legal read phase.",
                 pass_condition="A value written into the FIFO must later become observable on rdata during a legal read sequence, and rempty/wfull must remain externally consistent.",
                 temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="operation_applied"),
                 strictness=OracleStrictness.CONSERVATIVE,
                 confidence=_oracle_case_confidence(contract=contract, plan_case=plan_case, bonus=0.02),
-                notes=["Structured FIFO relation check uses only externally visible write/read behavior."],
+                notes=["Structured FIFO relation check uses only externally visible write/read behavior and role-level interface inference."],
                 semantic_tags=["operation_specific", "fifo_relation"],
                 relation_kind="fifo_write_readback",
                 comparison_operands=[
-                    lower_ports["wdata"],
-                    lower_ports["winc"],
-                    lower_ports["rinc"],
-                    lower_ports["rdata"],
-                    lower_ports["rempty"],
-                    lower_ports.get("wfull", ""),
+                    fifo_family["write_data_signal"],
+                    fifo_family["write_enable_signal"],
+                    fifo_family["read_enable_signal"],
+                    fifo_family["read_data_signal"],
+                    fifo_family["empty_signal"],
+                    fifo_family["full_signal"],
                 ],
                 reference_domain="single_write_single_read",
                 expected_transition="write_then_readback",
             )
         )
 
-    if _supports_pipelined_multiply(lower_ports, lower_outputs):
+    if multiply_family is not None:
+        multiply_domain = str(multiply_family.get("arithmetic_domain") or "unknown")
         operands = [
-            lower_ports["mul_a"],
-            lower_ports["mul_b"],
-            lower_ports["mul_out"],
+            multiply_family["left_operand_signal"],
+            multiply_family["right_operand_signal"],
+            multiply_family["product_signal"],
         ]
-        if "mul_en_in" in lower_ports:
-            operands.append(lower_ports["mul_en_in"])
-        if "mul_en_out" in lower_ports:
-            operands.append(lower_ports["mul_en_out"])
-        checks.append(
-            _make_check(
-                case_id=plan_case.case_id,
-                check_type=OracleCheckType.FUNCTIONAL,
-                ordinal=903,
-                description="Verify that a legal enabled multiply operation eventually produces the exact unsigned product.",
-                observed_signals=_deduped([signal for signal in [lower_ports["mul_out"], lower_ports.get("mul_en_out")] if signal]),
-                trigger_condition="When the rendered stimulus drives legal multiplicand and multiplier values.",
-                pass_condition="The observable product must equal mul_a * mul_b once the output becomes valid.",
-                temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="operation_applied"),
-                strictness=OracleStrictness.CONSERVATIVE,
-                confidence=_oracle_case_confidence(contract=contract, plan_case=plan_case, bonus=0.03),
-                notes=["Structured pipeline-product relation uses recorded operands and observed valid gating only."],
-                semantic_tags=["operation_specific", "arithmetic_relation"],
-                relation_kind="pipelined_unsigned_product",
-                comparison_operands=operands,
-                reference_domain="unsigned",
-                expected_transition="enabled_operation_then_exact_product",
+        if multiply_family["input_gate_signal"]:
+            operands.append(multiply_family["input_gate_signal"])
+        if multiply_family["output_gate_signal"]:
+            operands.append(multiply_family["output_gate_signal"])
+        if multiply_domain == "unsigned" and str(plan_case.category) == "basic":
+            checks.append(
+                _make_check(
+                    case_id=plan_case.case_id,
+                    check_type=OracleCheckType.FUNCTIONAL,
+                    ordinal=903,
+                    description="Verify that a legal enabled multiply operation eventually produces the exact unsigned product.",
+                    observed_signals=_deduped(
+                        [
+                            signal
+                            for signal in [
+                                multiply_family["product_signal"],
+                                multiply_family["output_gate_signal"],
+                            ]
+                            if signal
+                        ]
+                    ),
+                    trigger_condition="When the rendered stimulus drives one concrete legal multiplicand/multiplier pair.",
+                    pass_condition="The observable product must equal mul_a * mul_b once the output becomes valid.",
+                    temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="operation_applied"),
+                    strictness=OracleStrictness.CONSERVATIVE,
+                    confidence=_oracle_case_confidence(contract=contract, plan_case=plan_case, bonus=0.03),
+                    notes=[
+                        "Structured pipeline-product relation is limited to one finite unsigned operation.",
+                        "Back-to-back or signed/Booth-style multiply cases stay on weaker progress/property checks unless the contract is more explicit.",
+                    ],
+                    semantic_tags=["operation_specific", "arithmetic_relation"],
+                    relation_kind="pipelined_unsigned_product",
+                    comparison_operands=operands,
+                    reference_domain="unsigned",
+                    expected_transition="enabled_operation_then_exact_product",
+                )
             )
-        )
 
-    if _supports_fixed_point_sign_magnitude(lower_ports, module_name, contract):
+    if fixed_point_family is not None:
         checks.append(
             _make_check(
                 case_id=plan_case.case_id,
                 check_type=OracleCheckType.FUNCTIONAL,
                 ordinal=904,
                 description="Verify the sign-magnitude fixed-point addition relation on non-overflowing operands.",
-                observed_signals=[lower_ports["c"]],
+                observed_signals=[fixed_point_family["result_signal"]],
                 trigger_condition="When the rendered stimulus applies legal fixed-point operands whose magnitude relation is unambiguous.",
                 pass_condition="Output c must equal the sign-magnitude addition/subtraction result of a and b for the observed operands.",
                 temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="input_stable"),
@@ -1210,20 +1267,26 @@ def _build_operation_specific_functional_checks(*, contract: DUTContract, plan_c
                 notes=["Structured fixed-point relation only fires on non-overflowing sign-magnitude operands."],
                 semantic_tags=["operation_specific", "arithmetic_relation"],
                 relation_kind="fixed_point_sign_magnitude_add",
-                comparison_operands=[lower_ports["a"], lower_ports["b"], lower_ports["c"]],
+                comparison_operands=[
+                    fixed_point_family["left_operand_signal"],
+                    fixed_point_family["right_operand_signal"],
+                    fixed_point_family["result_signal"],
+                ],
                 reference_domain="sign_magnitude",
                 expected_transition="exact_combinational_result",
             )
         )
 
-    if _supports_divide_relation(lower_ports, module_name, lower_outputs):
+    if divide_family is not None:
         checks.append(
             _make_check(
                 case_id=plan_case.case_id,
                 check_type=OracleCheckType.FUNCTIONAL,
                 ordinal=905,
                 description="Verify the quotient/remainder relation for the observed dividend and divisor.",
-                observed_signals=_deduped([lower_ports["result"], lower_ports["odd"]]),
+                observed_signals=_deduped(
+                    [divide_family["quotient_signal"], divide_family["remainder_signal"]]
+                ),
                 trigger_condition="When the rendered stimulus applies a non-zero divisor.",
                 pass_condition="result must equal A divided by B and odd must carry the zero-extended remainder for the observed inputs.",
                 temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="input_stable"),
@@ -1232,42 +1295,45 @@ def _build_operation_specific_functional_checks(*, contract: DUTContract, plan_c
                 notes=["Structured divide relation stays combinational and avoids any benchmark-only reference model."],
                 semantic_tags=["operation_specific", "arithmetic_relation"],
                 relation_kind="unsigned_divide_16_by_8",
-                comparison_operands=[lower_ports["a"], lower_ports["b"], lower_ports["result"], lower_ports["odd"]],
+                comparison_operands=[
+                    divide_family["dividend_signal"],
+                    divide_family["divisor_signal"],
+                    divide_family["quotient_signal"],
+                    divide_family["remainder_signal"],
+                ],
                 reference_domain="zero_extend_remainder",
                 expected_transition="exact_combinational_result",
             )
         )
 
-    if _supports_sequence_detect(lower_ports, module_name):
-        output_name = lower_ports.get("sequence_detected") or lower_ports.get("data_out")
-        if output_name is not None:
-            pattern = "010" if "pulse" in module_name else "1001"
-            checks.append(
-                _make_check(
-                    case_id=plan_case.case_id,
-                    check_type=OracleCheckType.FUNCTIONAL,
-                    ordinal=906,
-                    description="Verify that the documented input bit pattern leads to an observable detect pulse.",
-                    observed_signals=[output_name],
-                    trigger_condition="When the rendered stimulus drives the documented detection pattern on data_in.",
-                    pass_condition=f"After the documented input pattern {pattern}, the detect output must become high within a conservative observation window.",
-                    temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="operation_applied"),
-                    strictness=OracleStrictness.CONSERVATIVE,
-                    confidence=_oracle_case_confidence(contract=contract, plan_case=plan_case, bonus=0.02),
-                    notes=["Structured pattern-detect relation uses only the driven input history and observed output pulse."],
-                    semantic_tags=["operation_specific", "serial_history"],
-                    relation_kind="sequence_pattern_detect",
-                    comparison_operands=[lower_ports["data_in"], output_name],
-                    reference_domain="bit_pattern",
-                    expected_transition=pattern,
-                )
+    if sequence_family is not None:
+        pattern = str(sequence_family["bit_pattern"])
+        checks.append(
+            _make_check(
+                case_id=plan_case.case_id,
+                check_type=OracleCheckType.FUNCTIONAL,
+                ordinal=906,
+                description="Verify that the documented input bit pattern leads to an observable detect pulse.",
+                observed_signals=[sequence_family["output_signal"]],
+                trigger_condition="When the rendered stimulus drives the documented detection pattern on the resolved scalar input stream.",
+                pass_condition=f"After the documented input pattern {pattern}, the detect output must become high within a conservative observation window.",
+                temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="operation_applied"),
+                strictness=OracleStrictness.CONSERVATIVE,
+                confidence=_oracle_case_confidence(contract=contract, plan_case=plan_case, bonus=0.02),
+                notes=["Structured pattern-detect relation uses only driven input history and observed detect output."],
+                semantic_tags=["operation_specific", "serial_history"],
+                relation_kind="sequence_pattern_detect",
+                comparison_operands=[sequence_family["input_signal"], sequence_family["output_signal"]],
+                reference_domain="bit_pattern",
+                expected_transition=pattern,
+                oracle_pattern=json.dumps({"bit_pattern": pattern}, sort_keys=True),
             )
+        )
 
     ring_check = _build_ring_counter_progression_check(
         contract=contract,
         plan_case=plan_case,
-        lower_ports=lower_ports,
-        lower_outputs=lower_outputs,
+        ring_family=ring_family,
     )
     if ring_check is not None:
         checks.append(ring_check)
@@ -1275,8 +1341,7 @@ def _build_operation_specific_functional_checks(*, contract: DUTContract, plan_c
     traffic_light_check = _build_traffic_light_progression_check(
         contract=contract,
         plan_case=plan_case,
-        lower_ports=lower_ports,
-        lower_outputs=lower_outputs,
+        traffic_family=traffic_family,
     )
     if traffic_light_check is not None:
         checks.append(traffic_light_check)
@@ -1288,15 +1353,9 @@ def _build_grouped_valid_accumulation_check(
     *,
     contract: DUTContract,
     plan_case: TestCasePlan,
-    lower_ports: dict[str, str],
-    lower_outputs: set[str],
     accumulator_family: dict[str, object] | None,
 ) -> OracleCheck | None:
     if accumulator_family is None:
-        return None
-    if not {"data_in", "valid_in", "data_out", "valid_out"}.issubset(lower_ports):
-        return None
-    if not {"data_out", "valid_out"}.issubset(lower_outputs):
         return None
 
     group_size = int(accumulator_family["group_size"])
@@ -1308,7 +1367,12 @@ def _build_grouped_valid_accumulation_check(
         check_type=OracleCheckType.FUNCTIONAL,
         ordinal=899,
         description=pattern["description"],
-        observed_signals=_deduped([lower_ports["valid_out"], lower_ports["data_out"]]),
+        observed_signals=_deduped(
+            [
+                str(accumulator_family["output_gate_signal"]),
+                str(accumulator_family["output_data_signal"]),
+            ]
+        ),
         trigger_condition=pattern["trigger_condition"],
         pass_condition=pattern["pass_condition"],
         temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="operation_applied"),
@@ -1318,10 +1382,10 @@ def _build_grouped_valid_accumulation_check(
         semantic_tags=["operation_specific", "stream_grouping", "accumulation_relation"],
         relation_kind="grouped_valid_accumulation",
         comparison_operands=[
-            lower_ports["data_in"],
-            lower_ports["valid_in"],
-            lower_ports["data_out"],
-            lower_ports["valid_out"],
+            str(accumulator_family["input_data_signal"]),
+            str(accumulator_family["input_gate_signal"]),
+            str(accumulator_family["output_data_signal"]),
+            str(accumulator_family["output_gate_signal"]),
         ],
         reference_domain=pattern["reference_domain"],
         expected_transition=pattern["expected_transition"],
@@ -1344,7 +1408,7 @@ def _grouped_valid_pattern(
         "group_size": group_size,
         "allow_gaps": False,
         "expected_groups": 1,
-        "require_no_output_before_group": True,
+        "require_no_output_before_group": False,
     }
     if reset_name:
         pattern["reset_signal"] = reset_name
@@ -1362,7 +1426,7 @@ def _grouped_valid_pattern(
             "expected_transition": "reset_clears_partial_group",
             "oracle_pattern": pattern,
         }
-    if scenario_kind == "multi_group_stream" or "multi_group" in transition or category == "back_to_back":
+    if scenario_kind == "multi_group_stream" or "multi_group" in transition:
         pattern["expected_groups"] = 2
         return {
             "description": "Observe two grouped accumulation closures in one finite valid stream.",
@@ -1373,7 +1437,7 @@ def _grouped_valid_pattern(
             "expected_transition": "multi_group_sum",
             "oracle_pattern": pattern,
         }
-    if scenario_kind == "gapped_valid_group" or "gapped" in transition or category == "protocol":
+    if scenario_kind == "gapped_valid_group" or "gapped" in transition:
         pattern["allow_gaps"] = True
         return {
             "description": "Count only valid-high samples toward grouped accumulation even when gaps occur between them.",
@@ -1397,6 +1461,7 @@ def _grouped_valid_pattern(
         }
     if category == "basic" and scenario_kind in {"single_operation", ""}:
         pattern["expected_groups"] = 0
+        pattern["require_no_output_before_group"] = True
         return {
             "description": "Reject premature grouped output before a full valid group has been accepted.",
             "trigger_condition": "When fewer than one full grouped-valid accumulation window is driven.",
@@ -1421,14 +1486,11 @@ def _build_ring_counter_progression_check(
     *,
     contract: DUTContract,
     plan_case: TestCasePlan,
-    lower_ports: dict[str, str],
-    lower_outputs: set[str],
+    ring_family: dict[str, object] | None,
 ) -> OracleCheck | None:
-    if contract.module_name.lower() != "ring_counter":
+    if ring_family is None:
         return None
-    output_name = lower_ports.get("out")
-    if output_name is None or "out" not in lower_outputs:
-        return None
+    output_name = str(ring_family["state_output_signal"])
     if plan_case.category != "basic":
         return None
     return _make_check(
@@ -1456,22 +1518,25 @@ def _build_traffic_light_progression_check(
     *,
     contract: DUTContract,
     plan_case: TestCasePlan,
-    lower_ports: dict[str, str],
-    lower_outputs: set[str],
+    traffic_family: dict[str, object] | None,
 ) -> OracleCheck | None:
-    required_outputs = {"red", "yellow", "green"}
-    if contract.module_name.lower() != "traffic_light":
+    if traffic_family is None:
         return None
-    if not required_outputs.issubset(lower_ports) or not required_outputs.issubset(lower_outputs):
+    if plan_case.category != "protocol":
         return None
-    if "pass_request" not in lower_ports or plan_case.category not in {"basic", "protocol"}:
-        return None
+    request_signal = str(traffic_family.get("request_signal") or "")
+    observed_signals = [
+        str(traffic_family["red_signal"]),
+        str(traffic_family["yellow_signal"]),
+        str(traffic_family["green_signal"]),
+    ]
+    operands = [request_signal, *observed_signals]
     return _make_check(
         case_id=plan_case.case_id,
         check_type=OracleCheckType.FUNCTIONAL,
         ordinal=908,
         description="Observe mutually exclusive traffic-light phases and a bounded request-driven phase progression.",
-        observed_signals=[lower_ports["red"], lower_ports["yellow"], lower_ports["green"]],
+        observed_signals=observed_signals,
         trigger_condition="When pass_request is pulsed during a conservative legal observation window.",
         pass_condition="Exactly one traffic-light phase is active at a time; a request-driven observation window eventually includes yellow and later red after green has been observed.",
         temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED, anchor="operation_applied"),
@@ -1480,41 +1545,11 @@ def _build_traffic_light_progression_check(
         notes=["Traffic-light progression check remains event-based and does not assume exact phase dwell counts."],
         semantic_tags=["operation_specific", "fsm_progression"],
         relation_kind="traffic_light_phase_progression",
-        comparison_operands=[lower_ports["pass_request"], lower_ports["red"], lower_ports["yellow"], lower_ports["green"]],
+        comparison_operands=operands,
         reference_domain="mutually_exclusive_phases",
         expected_transition="green_then_yellow_then_red",
         oracle_pattern=json.dumps({"sample_count": 20}, sort_keys=True),
     )
-
-
-def _supports_serial_to_parallel(lower_ports: dict[str, str], lower_outputs: set[str]) -> bool:
-    return {"din_serial", "din_valid", "dout_parallel", "dout_valid"}.issubset(lower_ports) and {"dout_parallel", "dout_valid"}.issubset(lower_outputs)
-
-
-def _supports_packed_byte_output(lower_ports: dict[str, str], lower_outputs: set[str]) -> bool:
-    return {"data_in", "valid_in", "data_out", "valid_out"}.issubset(lower_ports) and {"data_out", "valid_out"}.issubset(lower_outputs)
-
-
-def _supports_fifo_readback(lower_ports: dict[str, str], lower_outputs: set[str]) -> bool:
-    return {"winc", "rinc", "wdata", "rdata", "rempty"}.issubset(lower_ports) and {"rdata", "rempty"}.issubset(lower_outputs)
-
-
-def _supports_pipelined_multiply(lower_ports: dict[str, str], lower_outputs: set[str]) -> bool:
-    return {"mul_a", "mul_b", "mul_out"}.issubset(lower_ports) and "mul_out" in lower_outputs
-
-
-def _supports_fixed_point_sign_magnitude(lower_ports: dict[str, str], module_name: str, contract: DUTContract) -> bool:
-    return module_name == "fixed_point_adder" and {"a", "b", "c"}.issubset(lower_ports) and contract.timing.sequential_kind == SequentialKind.COMB
-
-
-def _supports_divide_relation(lower_ports: dict[str, str], module_name: str, lower_outputs: set[str]) -> bool:
-    return module_name == "div_16bit" and {"a", "b", "result", "odd"}.issubset(lower_ports) and {"result", "odd"}.issubset(lower_outputs)
-
-
-def _supports_sequence_detect(lower_ports: dict[str, str], module_name: str) -> bool:
-    if "data_in" not in lower_ports:
-        return False
-    return "pulse_detect" in module_name
 
 
 def _oracle_case_confidence(

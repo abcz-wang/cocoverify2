@@ -1,0 +1,431 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "operation_specific", "add"],
+      "dependencies": [],
+      "draft_id": "add_basic_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify ADD operation produces correct sum and carry flag.",
+      "notes": [],
+      "observed_signals": ["r", "zero", "carry", "negative", "overflow", "flag"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0001",
+            "b": "32'h0000_0001",
+            "aluc": "6'b100000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0001",
+            "b": "32'h0000_0001",
+            "aluc": "6'b100000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "aluc"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "overflow", "boundary"],
+      "dependencies": [],
+      "draft_id": "sub_overflow_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Test SUB operation with signed overflow (MIN_INT - 1).",
+      "notes": [],
+      "observed_signals": ["r", "zero", "carry", "negative", "overflow", "flag"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h8000_0000",
+            "b": "32'h0000_0001",
+            "aluc": "6'b100010"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h8000_0000",
+            "b": "32'h0000_0001",
+            "aluc": "6'b100010"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "aluc"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "shift", "boundary"],
+      "dependencies": [],
+      "draft_id": "shift_left_boundary_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Test SLL with maximum shift amount (31).",
+      "notes": [],
+      "observed_signals": ["r", "zero", "carry", "negative", "overflow", "flag"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_001F",
+            "b": "32'h0000_0001",
+            "aluc": "6'b000000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_001F",
+            "b": "32'h0000_0001",
+            "aluc": "6'b000000"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "aluc"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "slt", "flag"],
+      "dependencies": [],
+      "draft_id": "slt_flag_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify SLT sets flag correctly for signed less‑than.",
+      "notes": [],
+      "observed_signals": ["r", "zero", "carry", "negative", "overflow", "flag"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFF_FFFE",
+            "b": "32'h0000_0001",
+            "aluc": "6'b101010"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hFFFF_FFFE",
+            "b": "32'h0000_0001",
+            "aluc": "6'b101010"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "aluc"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sltu", "flag"],
+      "dependencies": [],
+      "draft_id": "sltu_flag_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify SLTU sets flag correctly for unsigned less‑than.",
+      "notes": [],
+      "observed_signals": ["r", "zero", "carry", "negative", "overflow", "flag"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0001",
+            "b": "32'hFFFF_FFFE",
+            "aluc": "6'b101011"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'h0000_0001",
+            "b": "32'hFFFF_FFFE",
+            "aluc": "6'b101011"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "aluc"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "and", "operation_specific"],
+      "dependencies": [],
+      "draft_id": "and_operation_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify AND operation produces bitwise conjunction.",
+      "notes": [],
+      "observed_signals": ["r", "zero", "carry", "negative", "overflow", "flag"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hAA55_AA55",
+            "b": "32'h55AA_55AA",
+            "aluc": "6'b100100"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hAA55_AA55",
+            "b": "32'h55AA_55AA",
+            "aluc": "6'b100100"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "aluc"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "or", "operation_specific"],
+      "dependencies": [],
+      "draft_id": "or_operation_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify OR operation produces bitwise disjunction.",
+      "notes": [],
+      "observed_signals": ["r", "zero", "carry", "negative", "overflow", "flag"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hAA55_AA55",
+            "b": "32'h55AA_55AA",
+            "aluc": "6'b100101"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "a": "32'hAA55_AA55",
+            "b": "32'h55AA_55AA",
+            "aluc": "6'b100101"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b", "aluc"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity", "comb", "enriched_wait"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "boundary", "enriched_wait"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,100 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "sequence_detected may only be asserted when the most recent four data_in bits form the pattern 1001.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected",
+            "data_in"
+          ],
+          "pass_condition": "For every cycle where sequence_detected == 1, the four-cycle sliding window of data_in ending at that cycle must equal 1,0,0,1.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "any_cycle",
+            "max_cycles": null,
+            "min_cycles": 4,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever sequence_detected transitions high."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After presenting the exact 4-bit sequence 1001 on data_in, sequence_detected should become high within a conservative observation window.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "If data_in is driven 1,0,0,1 on four consecutive cycles, then within the next few cycles (unbounded safe) sequence_detected must be observed high at least once.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "pattern_complete",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the four-cycle pattern 1001 has been applied."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When two back-to-back 1001 patterns are presented with minimal spacing, sequence_detected should assert twice, each after its respective pattern.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "Two distinct high pulses of sequence_detected must be observed, each preceded by its own 1001 pattern, without merging into a single pulse.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "second_pattern_complete",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "After the second occurrence of the 1001 pattern."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

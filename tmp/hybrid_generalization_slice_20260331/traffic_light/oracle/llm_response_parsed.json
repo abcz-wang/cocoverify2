@@ -1,0 +1,76 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When pass_request is asserted while green is high, the counter output 'clock' must transition to the value 10.",
+          "notes": [
+            "Based on contract assumption about counter reset on pass_request during green."
+          ],
+          "observed_signals": [
+            "clock",
+            "green",
+            "pass_request"
+          ],
+          "pass_condition": "After pass_request asserted during green, 'clock' equals 10 within a bounded observation window.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When pass_request transitions from 0 to 1 while green is 1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "required",
+          "notes": [
+            "Enforce mutual exclusivity of traffic light phases."
+          ],
+          "observed_signals": [
+            "red",
+            "yellow",
+            "green"
+          ],
+          "pass_condition": "At any observation point, at most one of red, yellow, green is high.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Continuously during simulation after reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

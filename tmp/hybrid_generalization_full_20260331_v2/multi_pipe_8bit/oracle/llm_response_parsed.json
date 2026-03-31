@@ -1,0 +1,101 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Output enable should not assert without a prior input enable assertion.",
+          "notes": [],
+          "observed_signals": [
+            "mul_en_in",
+            "mul_en_out"
+          ],
+          "pass_condition": "If mul_en_out == 1 then at some earlier cycle (within a reasonable window) mul_en_in was 1.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever mul_en_out transitions to 1."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When output enable is low, product output must be zero.",
+          "notes": [],
+          "observed_signals": [
+            "mul_en_out",
+            "mul_out"
+          ],
+          "pass_condition": "If mul_en_out == 0 then mul_out == 0.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously monitor after stimulus."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "If output enable is high, product output must equal the unsigned multiplication of the last latched inputs.",
+          "notes": [],
+          "observed_signals": [
+            "mul_en_out",
+            "mul_out",
+            "mul_a",
+            "mul_b"
+          ],
+          "pass_condition": "If mul_en_out == 1 then mul_out == mul_a * mul_b (unsigned).",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When mul_en_out becomes 1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

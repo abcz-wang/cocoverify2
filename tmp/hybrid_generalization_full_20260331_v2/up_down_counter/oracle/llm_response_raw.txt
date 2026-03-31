@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "The count output must always remain within the 16‑bit unsigned range 0 to 65535.",
+          "notes": [],
+          "observed_signals": [
+            "count"
+          ],
+          "pass_condition": "At all observed times, 0 <= count <= 65535.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "any_time",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously during the edge_001 stimulus."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After a single increment operation, the count output must increase by exactly one relative to its previous stable value.",
+          "notes": [],
+          "observed_signals": [
+            "count"
+          ],
+          "pass_condition": "If count_prev is the last stable observed value before the operation, then count_next == (count_prev + 1) modulo 65536.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the basic_001 plan drives up_down=1 for one clock cycle."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

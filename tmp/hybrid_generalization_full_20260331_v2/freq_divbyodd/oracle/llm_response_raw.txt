@@ -1,0 +1,71 @@
+{
+  "assumptions": [],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Golden interface described clock 'clk_div', but the RTL port is not a scalar input-like signal.",
+    "Reset polarity for 'clk' is unresolved."
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "functional",
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "clk_div must exhibit at least one transition (0→1 or 1→0) within a bounded observation window after reset release.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "A change in the value of clk_div is observed within the specified window.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "min_cycles": 0,
+            "max_cycles": 20,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is released and the design is allowed to run for a limited number of clock cycles."
+        }
+      ]
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "reset_001",
+      "oracle_class": "property",
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "clk_div must be defined (not X or Z) for a short period after reset release.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div remains a binary value (0 or 1) for every cycle in the observation window.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "min_cycles": 0,
+            "max_cycles": 5,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "Immediately after reset is deasserted."
+        }
+      ]
+    }
+  ]
+}

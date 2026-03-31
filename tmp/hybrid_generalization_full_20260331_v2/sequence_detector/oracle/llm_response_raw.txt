@@ -1,0 +1,67 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "sequence_detected must never assert for any input pattern that does not contain the 4-bit sequence 1001.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "sequence_detected remains low for all observed cycles where the input pattern does not contain the target sequence.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "During any stimulus that does not present the full 1001 pattern."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Detect sequence detection after presenting the exact 4-bit pattern 1001.",
+          "notes": [],
+          "observed_signals": [
+            "sequence_detected"
+          ],
+          "pass_condition": "sequence_detected transitions high after the fourth bit of the pattern and stays high until the next detection.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus program drives data_in = 1,0,0,1 over four consecutive clock cycles."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

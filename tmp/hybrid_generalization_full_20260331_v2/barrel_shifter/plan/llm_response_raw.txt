@@ -1,0 +1,156 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["operation_specific", "boundary_vector"],
+      "dependencies": [],
+      "draft_id": "new_case_shift_zero",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that zero shift leaves the input unchanged.",
+      "notes": [],
+      "observed_signals": ["out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "in": "8'hAA",
+            "ctrl": "3'b000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "out": "8'hAA"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["in", "ctrl"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["operation_specific", "boundary_vector"],
+      "dependencies": [],
+      "draft_id": "new_case_shift_max",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe output behavior for maximum shift amount (ctrl=111).",
+      "notes": [],
+      "observed_signals": ["out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "in": "8'hFF",
+            "ctrl": "3'b111"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "out": "8'hFF"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["in", "ctrl"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity", "unknown"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe any externally visible progress without inventing unresolved stimulus semantics.",
+      "notes": [],
+      "observed_signals": ["out"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "write_then_readback",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "in": "8'h00",
+            "ctrl": "3'b000"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "out": "8'h00"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["in", "ctrl"],
+      "timing_assumptions": [
+        "Do not assume fixed latency.",
+        "Use reset-safe or protocol-safe observation windows only."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

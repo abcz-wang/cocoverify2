@@ -1,0 +1,372 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["grouped_valid_closure", "wrap_around"],
+      "dependencies": ["reset_001"],
+      "draft_id": "closure_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Run a full counting cycle from 0 to 11 with valid_count continuously high, verifying wrap to 0.",
+      "notes": [],
+      "observed_signals": ["out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "grouped_valid_closure",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0",
+            "valid_count": "1'b0"
+          },
+          "text": "Apply reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1",
+            "valid_count": "1'b1"
+          },
+          "text": "Release reset and enable counting"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": "Allow counter to count through 0..11 and wrap"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_count": "1'b0"
+          },
+          "text": "Deactivate valid_count to stop counting"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["gapped_valid_group", "pause_resume"],
+      "dependencies": ["reset_001"],
+      "draft_id": "gapped_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Test handling of a gap in valid_count while counting is paused, then resumed.",
+      "notes": [],
+      "observed_signals": ["out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "gapped_valid_group",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0",
+            "valid_count": "1'b0"
+          },
+          "text": "Apply reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1",
+            "valid_count": "1'b1"
+          },
+          "text": "Release reset and start counting"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Count a few cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_count": "1'b0"
+          },
+          "text": "Pause counting"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold while paused"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_count": "1'b1"
+          },
+          "text": "Resume counting"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Continue counting"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_count": "1'b0"
+          },
+          "text": "Deactivate valid_count at end of case"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset_mid_progress"],
+      "dependencies": ["reset_001"],
+      "draft_id": "reset_mid_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Assert reset while counter is mid-count to verify immediate reset to zero.",
+      "notes": [],
+      "observed_signals": ["out"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1",
+            "valid_count": "1'b1"
+          },
+          "text": "Release reset and enable counting"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 4,
+          "signals": {},
+          "text": "Allow counter to advance"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": "Assert reset mid-count"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1",
+            "valid_count": "1'b0"
+          },
+          "text": "Release reset and keep counting disabled"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["single_operation"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": ["out"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0",
+            "valid_count": "1'b0"
+          },
+          "text": "Apply reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1",
+            "valid_count": "1'b1"
+          },
+          "text": "Release reset and enable counting for one cycle"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": ["boundary_vector"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": ["out"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0",
+            "valid_count": "1'b0"
+          },
+          "text": "Apply reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1",
+            "valid_count": "1'b1"
+          },
+          "text": "Release reset and enable counting"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 12,
+          "signals": {},
+          "text": "Count through full range to hit boundary value 4'd11 and wrap"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_count": "1'b0"
+          },
+          "text": "Deactivate valid_count"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

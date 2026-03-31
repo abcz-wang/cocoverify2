@@ -1,0 +1,73 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When the counter output reaches the maximum value 4'd11 and valid_count remains asserted, the next observable output must be 4'b0000, confirming correct wrap-around behavior.",
+          "notes": [
+            "Relies only on observable signals defined in the contract."
+          ],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "If out == 4'd11 and valid_count == 1 for a clock edge, then on the subsequent clock edge (with no reset) out must equal 4'b0000.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 1,
+            "mode": "exact_cycle"
+          },
+          "trigger_condition": "Observed when out equals 4'd11 while valid_count is high."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "Value-level relation between current and next output when counting is enabled."
+          ],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "If valid_count == 1 and reset is not asserted, then out_next = (out == 4'd11) ? 4'b0000 : out + 1.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a clock edge occurs with valid_count asserted and reset deasserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,77 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Outputs must remain at 0 while reset is asserted.",
+          "notes": [],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "During any cycle where RST is high, each output equals 0.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "reset_stability"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever RST is high."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "All observable output clocks must resolve to a defined binary value (0 or 1) after reset release.",
+          "notes": [],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "pass_condition": "During the observation window, each signal never takes an X or Z value.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "output_definedness"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [
+    "Functional and property checks are limited to definedness and reset stability due to ambiguities in counter mapping and unknown timing guarantees."
+  ],
+  "unresolved_items": [
+    "Mapping of internal counters cnt_10 and cnt_100 to observable behavior remains ambiguous; no value\u2011level division ratio checks are emitted."
+  ]
+}

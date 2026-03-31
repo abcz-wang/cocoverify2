@@ -1,0 +1,69 @@
+{
+  "assumptions": [],
+  "oracle_notes": [],
+  "unresolved_items": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When inputs are equal, the subtraction result must be zero and the sign bit cleared.",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c == 0",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a == b"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "c must equal the two's‑complement subtraction of a and b, masked to N bits.",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c == (a - b) & ((1 << N) - 1)",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When any legal input pattern on a and b is applied"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "The wave output must never assume an X or Z value during normal operation.",
+          "notes": [
+            "Ensures definedness despite unknown latency."
+          ],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "wave is always a defined 5\u2011bit value (0 to 31) after reset release.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously after reset release."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset release, on each clock edge the wave output must change by exactly +1 while counting up and -1 while counting down, staying within 0..31.",
+          "notes": [
+            "Spec defines deterministic increment/decrement by 1 per cycle.",
+            "State is internal; observable effect is monotonic change until bounds."
+          ],
+          "observed_signals": [
+            "wave"
+          ],
+          "pass_condition": "For every consecutive pair of sampled cycles after reset, the absolute difference of wave is 1 and wave remains within 0 to 31 inclusive.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "clock_edge",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset has been released and the design is observed on successive clock edges."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

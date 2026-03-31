@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify LFSR state transition matches defined feedback: new out = {out[2:0], ~ (prev_out[3] ^ prev_out[2]) } after each clock edge post\u2011reset.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "For every clock rising edge after reset release, the 4\u2011bit output equals the previous output shifted left by one with the inverted XOR of bits 3 and 2 inserted as LSB.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "strict",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On each rising edge of clk when rst is low."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "During active reset, the LFSR output must be held at zero.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "Whenever rst is high, out equals 4'b0000.",
+          "semantic_tags": [
+            "reset",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever rst signal is asserted."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

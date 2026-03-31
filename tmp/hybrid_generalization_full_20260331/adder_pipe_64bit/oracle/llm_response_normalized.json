@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Boundary-value stimulation must not rely on undocumented fixed latency; the design must eventually reflect correct output for edge inputs.",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "o_en"
+          ],
+          "pass_condition": "For any edge-case operand values applied, the module eventually produces a stable sum and asserts o_en, without assuming a specific cycle count.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When edge-case values are driven on adda and addb with i_en asserted."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When i_en is asserted with concrete operand values, the adder must eventually output the exact sum on result and assert o_en.",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "o_en"
+          ],
+          "pass_condition": "result equals (adda + addb) and o_en == 1 after any number of cycles following the operation, without requiring a fixed-cycle guarantee.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When i_en transitions high with valid adda and addb values."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

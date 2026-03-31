@@ -1,0 +1,131 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "valid_out must remain low after a single valid_in without a subsequent valid_in, indicating no premature output generation.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out"
+          ],
+          "pass_condition": "valid_out stays 0 throughout the observation window following the single valid_in stimulus.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When a single valid_in is driven and no second valid_in occurs within the observation window."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After two sequential valid inputs (0 then 255), valid_out must assert and data_out must equal the concatenation of the first and second data_in values.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "valid_out is 1 and data_out equals (first_data << 8) | second_data, i.e., 0x00FF for the given stimulus.",
+          "semantic_tags": [
+            "width_sensitive",
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the edge_001 stimulus drives two valid inputs with values 0 and 255."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After two back-to-back valid inputs (17 then 34), valid_out must assert and data_out must equal the concatenation of the first and second data_in values.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "valid_out is 1 and data_out equals (first_data << 8) | second_data, i.e., 0x1122 for the given stimulus.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the back_to_back_001 stimulus drives two consecutive valid inputs with values 17 and 34."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Do not require a fixed-cycle latency for valid_out or data_out generation; any latency that eventually produces correct output is acceptable.",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "The oracle does not enforce a specific number of cycles between the second valid_in and the appearance of valid_out/data_out.",
+          "semantic_tags": [
+            "guarded",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the edge_001 stimulus is executed."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

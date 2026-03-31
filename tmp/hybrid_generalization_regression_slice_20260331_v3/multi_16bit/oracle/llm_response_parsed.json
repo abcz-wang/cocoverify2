@@ -1,0 +1,134 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that the product output equals the unsigned multiplication of the driven inputs for the basic stimulus.",
+          "notes": [],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "When done becomes asserted, yout must equal 1 * 2 (decimal 2).",
+          "semantic_tags": [
+            "operation_specific",
+            "value_level"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 stimulus drives ain=1, bin=2 and start is asserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that the product output equals the unsigned multiplication of the maximum 16\u2011bit inputs for the edge stimulus.",
+          "notes": [],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "When done becomes asserted, yout must equal 65535 * 65535 (decimal 4294836225).",
+          "semantic_tags": [
+            "operation_specific",
+            "value_level",
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the edge_001 stimulus drives ain=65535, bin=65535 and start is asserted."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "Ensure that a done pulse is only considered a completion after a preceding start event in the same scenario.",
+          "notes": [],
+          "observed_signals": [
+            "start",
+            "done"
+          ],
+          "pass_condition": "Every observed done must be preceded by a start that occurred earlier in simulation time without an intervening reset.",
+          "semantic_tags": [
+            "protocol",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "protocol_event",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the protocol_001 case observes start and done signals."
+        }
+      ],
+      "linked_plan_case_id": "protocol_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "Verify that after reset release, yout and done settle to a defined stable state before any start is issued.",
+          "notes": [],
+          "observed_signals": [
+            "yout",
+            "done"
+          ],
+          "pass_condition": "No transition of yout or done occurs for at least two clock cycles after rst_n is deasserted.",
+          "semantic_tags": [
+            "reset",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 2,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the reset_001 case releases rst_n."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

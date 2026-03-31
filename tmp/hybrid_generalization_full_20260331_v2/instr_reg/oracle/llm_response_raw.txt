@@ -1,0 +1,97 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "When fetch selects source 2 (binary 10), the output ad2 must reflect the input data within a bounded observation window, without assuming exact cycle latency.",
+          "notes": [],
+          "observed_signals": [
+            "ad2",
+            "data",
+            "fetch"
+          ],
+          "pass_condition": "If fetch=2'b10 and data changes, ad2 eventually equals the same data value within at most one clock cycle.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When fetch is driven to 2'b10 with a new data value."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "ins",
+            "ad1",
+            "ad2",
+            "fetch",
+            "data"
+          ],
+          "pass_condition": "If fetch=2'b01 and data=D, then after at most one clock cycle ins equals D[7:5] and ad1 equals D[4:0]; ad2 remains unchanged.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When fetch is driven to 2'b01 with a concrete data pattern."
+        },
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "ins",
+            "ad1",
+            "ad2",
+            "fetch",
+            "data"
+          ],
+          "pass_condition": "If fetch=2'b10 and data=D, then after at most one clock cycle ad2 equals D; ins and ad1 retain their previous values.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When fetch is driven to 2'b10 with a concrete data pattern."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

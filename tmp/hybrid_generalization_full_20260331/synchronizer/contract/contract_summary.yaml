@@ -1,0 +1,111 @@
+module_name: verified_synchronizer
+rtl_sources:
+- /workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/synchronizer/verified_synchronizer.v
+parameters: {}
+port_count: 7
+ports:
+- name: clk_a
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: clk_b
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: arstn
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: brstn
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: data_in
+  direction: input
+  width: 4
+  raw_range: '[3:0]'
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: data_en
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: dataout
+  direction: output
+  width: 4
+  raw_range: '[3:0]'
+  signed: false
+  data_type: reg
+  source: rtl_header
+  confidence: 1.0
+clock_names:
+- clk_a
+- clk_b
+reset_names:
+- arstn
+- brstn
+handshake_groups: []
+handshake_signals: []
+timing:
+  sequential_kind: seq
+  latency_model: unknown
+  fixed_latency_cycles: null
+  variable_latency_range: null
+  sampling_window_cycles: null
+  source: rtl_heuristic
+  confidence: 0.9
+observable_outputs:
+- dataout
+ambiguities:
+- 'Spec/reset hint could not be mapped to a known reset port: On the positive edge
+  of clock signal A (clk_a) or the falling edge of reset signal A (arstn), the module
+  updates the register. If the reset signal A (arstn) is low, indicating a reset condition,
+  the register (data_reg) is set to 0. If the reset signal A (arstn) is high, the
+  register (data_reg) is updated with the input data signal (data_in).'
+- 'Spec/reset hint could not be mapped to a known reset port: On the positive edge
+  of clock signal A (clk_a) or the falling edge of reset signal A (arstn), the module
+  updates the register. If the reset signal A (arstn) is low, the register (en_data_reg)
+  is set to 0. If the reset signal A (arstn) is high, the register (en_data_reg) is
+  updated with the input enable signal (data_en).'
+- 'Spec/reset hint could not be mapped to a known reset port: The module includes
+  two registers, en_clap_one and en_clap_two, to control the selection of the input
+  data. On the positive edge of clock signal B (clk_b) or the falling edge of reset
+  signal B (brstn), the module updates the registers. If the reset signal B (brstn)
+  is low, indicating a reset condition, both registers (en_clap_one and en_clap_two)
+  are set to 0.'
+- 'Spec/reset hint could not be mapped to a known reset port: If the reset signal
+  B (brstn) is high, the registers (en_clap_one and en_clap_two) are updated based
+  on the value of en_data_reg. The register en_clap_one is assigned the value of en_data_reg,
+  and en_clap_two is assigned the previous value of en_clap_one.'
+- 'Spec/reset hint could not be mapped to a known reset port: On the positive edge
+  of clock signal B (clk_b) or the falling edge of reset signal B (brstn), the module
+  assigns the output data value. If the reset signal B (brstn) is low, indicating
+  a reset condition, the output data (dataout) is set to 0. If the reset signal B
+  (brstn) is high and the control signal (en_clap_two) is active, the output data
+  (dataout) is assigned the value of the data register (data_reg). If the control
+  signal (en_clap_two) is inactive, the output data (dataout) retains its previous
+  value.'
+extraction_warnings: []
+contract_confidence: 0.6350000000000001

@@ -1,0 +1,139 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset release, clk_div must become a defined (0 or 1) value within a few clock cycles and remain stable without X or Z.",
+          "notes": [
+            "Conservative check due to unknown exact latency."
+          ],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div is not X/Z within max_cycles after reset_release and stays constant for at least one subsequent cycle.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "reset"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "clk_div must not toggle while reset is asserted.",
+          "notes": [
+            "Ensures reset does not cause unintended output activity."
+          ],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "No change in clk_div value during any cycle where rst_n is low.",
+          "semantic_tags": [
+            "reset",
+            "guardrail"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While rst_n is low."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset release, clk_div should exhibit at least one transition (toggle) within a bounded number of clock cycles, indicating fractional division activity.",
+          "notes": [
+            "Uses value-level progress without assuming exact period."
+          ],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div changes value at least once within max_cycles after reset_release.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "basic"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 10,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset is deasserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Do not assume a fixed-cycle period for clk_div; only require that it remains defined and may change.",
+          "notes": [
+            "Guardrail against over-specific timing assumptions."
+          ],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div never takes X/Z after reset_release.",
+          "semantic_tags": [
+            "basic",
+            "guardrail"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "post_reset",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Continuously after reset_release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Golden interface described clock 'clk_div', but the RTL port is not a scalar input-like signal.",
+    "Reset polarity for 'clk' is unresolved."
+  ]
+}

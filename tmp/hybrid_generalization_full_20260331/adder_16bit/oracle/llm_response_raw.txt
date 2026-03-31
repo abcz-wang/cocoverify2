@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that y and Co equal the arithmetic sum of a, b, and Cin for each driven input vector.",
+          "notes": [],
+          "observed_signals": [
+            "y",
+            "Co"
+          ],
+          "pass_condition": "y and Co match the expected combinational sum computed from the current values of a, b, and Cin.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the basic stimulus applies a legal input vector."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Check that y and Co correctly reflect addition for boundary patterns (all zeros, all ones, max values, and variations of Cin).",
+          "notes": [],
+          "observed_signals": [
+            "y",
+            "Co"
+          ],
+          "pass_condition": "y and Co match the expected combinational sum for each boundary input pattern.",
+          "semantic_tags": [
+            "width_sensitive",
+            "edge"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the edge stimulus applies zero-like, one-like, or max-value patterns on a and b."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

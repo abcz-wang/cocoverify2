@@ -1,0 +1,206 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "sanity"],
+      "dependencies": [],
+      "draft_id": "basic_op_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate subtraction of two positive operands where a > b, expecting correct two's complement result.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"a": "16'h0010", "b": "16'h0004"},
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {"a": "16'h0010", "b": "16'h0004"},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b"],
+      "timing_assumptions": [
+        "Observe output c after input stabilization.",
+        "Do not infer internal state beyond combinational behavior."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "boundary", "width_sensitive"],
+      "dependencies": [],
+      "draft_id": "edge_boundary_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise boundary vectors: max positive operand and min negative operand to verify sign handling and width sensitivity.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive", "operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"a": "16'h7FFF", "b": "16'h8000"},
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {"a": "16'h7FFF", "b": "16'h8000"},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b"],
+      "timing_assumptions": [
+        "Observe output c after input stabilization.",
+        "Do not infer internal state beyond combinational behavior."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "zero_case"],
+      "dependencies": [],
+      "draft_id": "zero_result_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Confirm that subtracting zero from zero yields zero with sign bit cleared.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific", "ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"a": "16'h0000", "b": "16'h0000"},
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {"a": "16'h0000", "b": "16'h0000"},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b"],
+      "timing_assumptions": [
+        "Observe output c after input stabilization.",
+        "Do not infer internal state beyond combinational behavior."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back", "pair"],
+      "dependencies": [],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate that two consecutive subtraction operations produce correct independent results without intermediate resets.",
+      "notes": [],
+      "observed_signals": ["c"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"a": "16'h0010", "b": "16'h0004"},
+          "text": "First subtraction"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {"a": "16'h0010", "b": "16'h0004"},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"a": "16'h0005", "b": "16'h0002"},
+          "text": "Second subtraction"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {"a": "16'h0005", "b": "16'h0002"},
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["a", "b"],
+      "timing_assumptions": [
+        "Observe output c after each input stabilization.",
+        "Do not infer internal state beyond combinational behavior."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,82 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Boundary-value property: for each valid fetch code, the corresponding output fields must reflect the input data bits without assuming a fixed latency.",
+          "notes": [
+            "Ensures that fetch=01 drives opcode and address fields, and fetch=10 drives the full data field.",
+            "No exact-cycle timing is required; the relation may be observed after an arbitrary but finite number of clock cycles."
+          ],
+          "observed_signals": [
+            "ins",
+            "ad1",
+            "ad2",
+            "fetch",
+            "data"
+          ],
+          "pass_condition": "If fetch == 2'b01 then ins == data[7:5] and ad1 == data[4:0]; if fetch == 2'b10 then ad2 == data. The condition must become true within a conservative observation window after the fetch stimulus.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the linked plan applies a fetch value of either 2'b01 or 2'b10 together with a concrete data pattern."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Value-level functional relation for a concrete legal operation: when fetch=2'b01 and data=8'hA5, the opcode and address outputs must reflect the corresponding bits of the data word.",
+          "notes": [
+            "Provides a concrete stimulus–response check while preserving ambiguity about exact latency.",
+            "The check allows the output to become valid within up to two clock cycles after the stimulus."
+          ],
+          "observed_signals": [
+            "ins",
+            "ad1",
+            "fetch",
+            "data"
+          ],
+          "pass_condition": "After applying fetch=2'b01 and data=8'hA5, within at most 2 cycles ins == 3'b101 and ad1 == 5'b00101.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the stimulus program drives fetch=2'b01 and data=8'hA5."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

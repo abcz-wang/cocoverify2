@@ -1,0 +1,69 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Output enable must not be asserted when input enable is low, preserving functional gating.",
+          "notes": [],
+          "observed_signals": [
+            "mul_en_out",
+            "mul_en_in"
+          ],
+          "pass_condition": "Whenever mul_en_in is 0, mul_en_out must remain 0.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On every clock cycle after reset release."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When mul_en_in is asserted with specific operand values, mul_out must eventually reflect the correct product and mul_en_out must become high.",
+          "notes": [],
+          "observed_signals": [
+            "mul_en_out",
+            "mul_out"
+          ],
+          "pass_condition": "If mul_en_in=1 and mul_a=A and mul_b=B, then within up to 5 cycles mul_en_out=1 and mul_out = A*B.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a stimulus sets mul_en_in high with concrete A and B values."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

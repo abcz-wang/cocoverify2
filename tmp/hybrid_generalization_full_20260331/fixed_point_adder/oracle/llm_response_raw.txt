@@ -1,0 +1,75 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "functional",
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Output c must be a defined (0/1) value after inputs a and b have stabilized.",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c is not X or Z (i.e., defined) once inputs are stable.",
+          "semantic_tags": [
+            "output_definedness"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "min_cycles": 0,
+            "max_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When any legal input pattern is applied in basic_001."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "edge_001",
+      "oracle_class": "property",
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Output c must not toggle erratically when boundary inputs are applied.",
+          "notes": [],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c remains stable (no unexpected transitions) across consecutive cycles after applying a boundary input pattern.",
+          "semantic_tags": [
+            "stability_boundary"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "boundary_inputs_stable",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge_001 stimulus applies zero-like, one-like, or max-width patterns."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "oracle_class": "property",
+      "linked_plan_case_id": "edge_001",
+      "checks": [],
+      "notes": [],
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

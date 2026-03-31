@@ -1,0 +1,191 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic", "operation_specific"],
+      "dependencies": [],
+      "draft_id": "add_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate comparator for a typical non-equal case where A > B.",
+      "notes": [],
+      "observed_signals": ["A_greater", "A_equal", "A_less"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h5",
+            "B": "4'h3"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h5",
+            "B": "4'h3"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge", "width_sensitive"],
+      "dependencies": [],
+      "draft_id": "add_002",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise maximum-value boundary where A is all ones and B is zero.",
+      "notes": [],
+      "observed_signals": ["A_greater", "A_equal", "A_less"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": ["width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'hF",
+            "B": "4'h0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "4'hF",
+            "B": "4'h0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back", "operation_specific"],
+      "dependencies": [],
+      "draft_id": "add_003",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Validate back-to-back comparisons without intervening idle cycles.",
+      "notes": [],
+      "observed_signals": ["A_greater", "A_equal", "A_less"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h2",
+            "B": "4'h2"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h2",
+            "B": "4'h2"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h1",
+            "B": "4'h3"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "A": "4'h1",
+            "B": "4'h3"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": ["A", "B"],
+      "timing_assumptions": [
+        "Observe outputs after input stabilization.",
+        "Do not infer internal state or undocumented storage."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

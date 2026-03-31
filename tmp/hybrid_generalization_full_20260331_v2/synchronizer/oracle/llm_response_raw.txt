@@ -1,0 +1,98 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When data_en is asserted and data_in is stable, dataout should reflect data_in after the two-cycle enable synchronization.",
+          "notes": [],
+          "observed_signals": [
+            "dataout"
+          ],
+          "pass_condition": "dataout equals the captured data_reg value once en_clap_two becomes high.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "en_clap_two_asserted",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After data_en is asserted and data_in is stable for at least 3 clk_b cycles."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Maximum data_in value propagates to dataout after enable synchronization.",
+          "notes": [],
+          "observed_signals": [
+            "dataout"
+          ],
+          "pass_condition": "When data_in = 0b1111 and data_en asserted, dataout becomes 0b1111 after en_clap_two is high.",
+          "semantic_tags": [
+            "edge",
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "en_clap_two_asserted",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "During edge_001 case stimulus."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "dataout follows data_reg when en_clap_two is high.",
+          "notes": [],
+          "observed_signals": [
+            "dataout"
+          ],
+          "pass_condition": "If en_clap_two == 1 then dataout == data_reg else dataout retains previous value.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "en_clap_two_change",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On any change of en_clap_two."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

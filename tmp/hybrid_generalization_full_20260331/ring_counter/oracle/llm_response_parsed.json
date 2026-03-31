@@ -1,0 +1,89 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset is released, the output 'out' must become the LSB\u2011only one\u2011hot pattern 0000_0001 within two clock cycles.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The observed value of out equals 8'b0000_0001 at any sample taken within the bounded window after reset release.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset transitions from asserted to deasserted."
+        },
+        {
+          "check_type": "functional",
+          "description": "During normal operation, successive clock edges must rotate the single high bit of 'out' by exactly one position, preserving the one\u2011hot property.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "For any two consecutive samples taken on successive clock edges, the high\u2011bit position in out must shift left by one (wrapping from MSB to LSB).",
+          "semantic_tags": [
+            "operation_specific",
+            "one_hot_rotation_progression"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "On each rising edge of clk after reset has been released."
+        },
+        {
+          "check_type": "property",
+          "description": "The output 'out' must always be one\u2011hot (exactly one bit high) throughout simulation.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "At every sampled time point, the reduction XOR of out must be 1 and the reduction OR of out must equal the reduction XOR (i.e., exactly one bit is 1).",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "simulation_start",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously throughout the simulation after reset deassertion."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,73 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: avoid assuming a fixed-cycle latency for edge cases where timing is ambiguous.",
+          "notes": [
+            "The contract does not specify exact latency; therefore the oracle only requires observable progress without cycle-precise claims."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "The test must not rely on a specific number of cycles between input stimulus and output assertion; any externally visible change that respects the grouping semantics is acceptable.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the edge case stimulus (case edge_001) is applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "After exactly four consecutive valid_in=1 samples are presented, valid_out must assert for one cycle and data_out must equal the sum of the four data_in values driven in the plan (e.g., 1+2+3+4 = 10). No output may be asserted before the fourth sample.",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the deterministic stimulus drives four consecutive valid_in=1 samples as defined in case basic_001."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

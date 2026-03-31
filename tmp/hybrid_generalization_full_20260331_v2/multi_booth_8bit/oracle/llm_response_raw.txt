@@ -1,0 +1,73 @@
+{
+  "assumptions": [],
+  "oracle_notes": [],
+  "unresolved_items": [],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ready signal must remain asserted until a reset occurs.",
+          "notes": [],
+          "observed_signals": [
+            "rdy",
+            "reset"
+          ],
+          "pass_condition": "rdy does not transition from 1 to 0 before reset is asserted again.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "post_ready",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When rdy transitions to 1."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When ready is asserted, the product output must equal the unsigned multiplication of the inputs.",
+          "notes": [],
+          "observed_signals": [
+            "p",
+            "rdy",
+            "a",
+            "b"
+          ],
+          "pass_condition": "If rdy == 1 then p == a * b (unsigned 8‑bit multiplication).",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "rdy_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When rdy transitions to 1."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ]
+}

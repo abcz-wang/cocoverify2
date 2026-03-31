@@ -1,0 +1,133 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Post-reset outputs must be deasserted.",
+          "notes": [
+            "Ensures that after the active-low reset is released, both edge indicators start in a known low state."
+          ],
+          "observed_signals": [
+            "rise",
+            "down"
+          ],
+          "pass_condition": "Both rise and down remain 0 for at least one clock cycle after reset deassertion.",
+          "semantic_tags": [
+            "reset",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When rst_n transitions from asserted (0) to deasserted (1)."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Rising edge detection: rise must be asserted one clock after a transitions from 0 to 1, and down must be deasserted.",
+          "notes": [
+            "Based on the specification that edge indicators are set on the next positive clock edge after the corresponding input transition."
+          ],
+          "observed_signals": [
+            "a",
+            "rise",
+            "down"
+          ],
+          "pass_condition": "If a changes from 0 to 1 at cycle N, then at cycle N+1 rise == 1 and down == 0; otherwise rise == 0.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "a_transition_rising",
+            "max_cycles": 1,
+            "min_cycles": 1,
+            "mode": "exact_cycle"
+          },
+          "trigger_condition": "When a transitions from 0 to 1."
+        },
+        {
+          "check_type": "functional",
+          "description": "Falling edge detection: down must be asserted one clock after a transitions from 1 to 0, and rise must be deasserted.",
+          "notes": [
+            "Derived from the same specification as the rising edge case."
+          ],
+          "observed_signals": [
+            "a",
+            "rise",
+            "down"
+          ],
+          "pass_condition": "If a changes from 1 to 0 at cycle N, then at cycle N+1 down == 1 and rise == 0; otherwise down == 0.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "a_transition_falling",
+            "max_cycles": 1,
+            "min_cycles": 1,
+            "mode": "exact_cycle"
+          },
+          "trigger_condition": "When a transitions from 1 to 0."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Output stability between edges: rise and down must not be simultaneously asserted.",
+          "notes": [
+            "The design guarantees mutually exclusive edge indicators."
+          ],
+          "observed_signals": [
+            "rise",
+            "down"
+          ],
+          "pass_condition": "At any clock cycle, not (rise == 1 && down == 1).",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "continuous_monitor",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously during simulation after reset release."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

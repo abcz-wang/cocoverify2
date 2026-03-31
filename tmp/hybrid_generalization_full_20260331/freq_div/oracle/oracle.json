@@ -1,0 +1,383 @@
+{
+  "assumptions": [
+    "On every positive edge of CLK_in or RST, if RST is active, CLK_50 is set to 0.",
+    "On every positive edge of CLK_in or RST, if RST is active, CLK_10 is set to 0, and the counter cnt_10 is reset to 0.",
+    "On every positive edge of CLK_in or RST, if RST is active, CLK_1 is set to 0, and the counter cnt_100 is reset to 0.",
+    "Task description was provided and only used as a low-risk planning hint.",
+    "Spec text was provided and only used where it did not contradict the contract.",
+    "LLM hybrid fallback activated for plan stage: LLM request failed after 1 attempt(s): Request timed out.",
+    "Task description was provided and only used as a low-risk oracle hint.",
+    "Spec text was provided and only used where it reinforced already-known contract or plan constraints.",
+    "LLM oracle note: Functional and property checks are limited to definedness and reset stability due to ambiguities in counter mapping and unknown timing guarantees."
+  ],
+  "based_on_contract": "freq_div",
+  "based_on_plan": "freq_div",
+  "functional_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "functional_reset_001",
+      "category": "reset",
+      "checks": [],
+      "confidence": 0.05,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'reset_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "functional_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_functional_001",
+          "check_type": "functional",
+          "comparison_operands": [],
+          "confidence": 0.40500000000000014,
+          "description": "All observable output clocks must resolve to a defined binary value (0 or 1) after reset release.",
+          "expected_transition": "",
+          "notes": [],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "During the observation window, each signal never takes an X or Z value.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "output_definedness"
+          ],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_10": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_50": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted."
+        }
+      ],
+      "confidence": 0.40500000000000014,
+      "linked_plan_case_id": "basic_001",
+      "notes": [
+        "Weak-contract path emits an explicit empty functional oracle case instead of guessing values."
+      ],
+      "source": "hybrid_llm_enriched",
+      "unresolved_items": [
+        "Value-level functional oracle for case 'basic_001' is intentionally deferred because timing or interface confidence is too weak."
+      ]
+    }
+  ],
+  "module_name": "freq_div",
+  "oracle_confidence": {
+    "functional_confidence": 0.22750000000000006,
+    "overall_confidence": 0.05,
+    "property_confidence": 0.3825000000000001,
+    "protocol_confidence": 0.3650000000000001
+  },
+  "oracle_strategy": "hybrid_rule_based_plus_llm",
+  "property_oracles": [
+    {
+      "assumptions": [],
+      "case_id": "property_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.3750000000000001,
+          "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+          "expected_transition": "",
+          "notes": [
+            "Clock/reset remain anchors and are not emitted as business outputs."
+          ],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_10": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_50": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While reset is asserted or being released."
+        },
+        {
+          "check_id": "reset_001_property_002",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.40500000000000014,
+          "description": "Outputs must remain at 0 while reset is asserted.",
+          "expected_transition": "",
+          "notes": [],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "During any cycle where RST is high, each output equals 0.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "reset_stability"
+          ],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_10": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_50": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "hybrid_llm_generated",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever RST is high."
+        }
+      ],
+      "confidence": 0.3900000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "source": "hybrid_llm_generated",
+      "unresolved_items": [
+        "Property oracle for case 'reset_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    },
+    {
+      "assumptions": [],
+      "case_id": "property_basic_001",
+      "category": "basic",
+      "checks": [
+        {
+          "check_id": "basic_001_property_001",
+          "check_type": "property",
+          "comparison_operands": [],
+          "confidence": 0.3750000000000001,
+          "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+          "expected_transition": "",
+          "notes": [
+            "Default property oracle protects against over-specific later render behavior."
+          ],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_10": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_50": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        }
+      ],
+      "confidence": 0.3750000000000001,
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "source": "rule_based",
+      "unresolved_items": [
+        "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+      ]
+    }
+  ],
+  "protocol_oracles": [
+    {
+      "assumptions": [
+        "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+      ],
+      "case_id": "protocol_reset_001",
+      "category": "reset",
+      "checks": [
+        {
+          "check_id": "reset_001_protocol_001",
+          "check_type": "protocol",
+          "comparison_operands": [],
+          "confidence": 0.3650000000000001,
+          "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+          "expected_transition": "",
+          "notes": [
+            "Reset is used as an anchor only; it is not treated as a business output."
+          ],
+          "observed_signals": [
+            "CLK_50",
+            "CLK_10",
+            "CLK_1"
+          ],
+          "oracle_pattern": "",
+          "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+          "reference_domain": "",
+          "relation_kind": "",
+          "semantic_tags": [],
+          "signal_policies": {
+            "CLK_1": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_10": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            },
+            "CLK_50": {
+              "allow_high_impedance": false,
+              "allow_unknown": false,
+              "definedness_mode": "not_required",
+              "rationale": "explicit_output_behavior_downgraded_for_weak_contract",
+              "strength": "guarded"
+            }
+          },
+          "source": "rule_based",
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When reset 'RST' is asserted and later released according to the inferred polarity."
+        }
+      ],
+      "confidence": 0.3650000000000001,
+      "linked_plan_case_id": "reset_001",
+      "notes": [
+        "Reset oracle focuses on control-safe behavior instead of value-specific output claims.",
+        "Protocol oracle strictness is downgraded because the contract or plan is weak."
+      ],
+      "source": "rule_based",
+      "unresolved_items": []
+    }
+  ],
+  "unresolved_items": [
+    "Golden interface described clock 'CLK_50', but the RTL port is not a scalar input-like signal.",
+    "Golden interface described clock 'CLK_10', but the RTL port is not a scalar input-like signal.",
+    "Golden interface described clock 'CLK_1', but the RTL port is not a scalar input-like signal.",
+    "Spec/reset hint could not be mapped to a known reset port: If the counter cnt_10 reaches a value of 4, CLK_10 is toggled by inverting its current value, and the counter cnt_10 is reset to 0.",
+    "Spec/reset hint could not be mapped to a known reset port: If the counter cnt_100 reaches a value of 49, CLK_1 is toggled by inverting its current value, and the counter cnt_100 is reset to 0.",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+    "Mapping of internal counters cnt_10 and cnt_100 to observable behavior remains ambiguous; no value\u2011level division ratio checks are emitted."
+  ]
+}

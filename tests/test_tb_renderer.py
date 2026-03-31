@@ -574,6 +574,7 @@ def test_rendered_oracle_applies_serial_to_parallel_relation_from_stimulus_histo
         comparison_operands=["din_serial", "din_valid", "dout_parallel", "dout_valid"],
         reference_domain="msb_to_lsb",
         expected_transition="eight_valid_bits_then_single_valid_pulse",
+        oracle_pattern=json.dumps({"bit_count": 8, "bit_order": "msb_to_lsb"}),
         semantic_tags=["operation_specific", "serial_history"],
         source="rule_based",
         confidence=0.85,
@@ -604,7 +605,7 @@ def test_rendered_oracle_applies_serial_to_parallel_relation_from_stimulus_histo
 
     assert result["semantic_status"] == "semantic_checked"
     assert result["semantic_kind"] == "serial_to_parallel_byte"
-    assert result["semantic_details"]["expected_value"] == 0xAA
+    assert result["semantic_details"]["expected_values"] == [0xAA]
 
 
 def test_rendered_oracle_applies_byte_pack_pair_relation_from_stimulus_history(tmp_path: Path) -> None:
@@ -620,6 +621,7 @@ def test_rendered_oracle_applies_byte_pack_pair_relation_from_stimulus_history(t
         comparison_operands=["data_in", "valid_in", "data_out", "valid_out"],
         reference_domain="high_byte_first",
         expected_transition="two_valid_bytes_then_output_valid",
+        oracle_pattern=json.dumps({"element_count": 2, "element_width": 8, "pack_order": "high_to_low"}),
         semantic_tags=["operation_specific", "data_packing"],
         source="rule_based",
         confidence=0.85,
@@ -652,7 +654,54 @@ def test_rendered_oracle_applies_byte_pack_pair_relation_from_stimulus_history(t
 
     assert result["semantic_status"] == "semantic_checked"
     assert result["semantic_kind"] == "byte_pack_pair"
-    assert result["semantic_details"]["expected_value"] == 0x1234
+    assert result["semantic_details"]["expected_values"] == [0x1234]
+
+
+def test_rendered_oracle_applies_generalized_serial_relation_with_noncanonical_names(tmp_path: Path) -> None:
+    check = OracleCheck(
+        check_id="basic_001_functional_900",
+        check_type=OracleCheckType.FUNCTIONAL,
+        description="generalized serial to parallel relation",
+        observed_signals=["byte_out", "byte_ready"],
+        pass_condition="After one complete legal serial transfer, the output-valid signal must pulse exactly once and the parallel output must equal the captured byte in the documented or ambiguity-preserving bit order.",
+        temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED),
+        strictness=OracleStrictness.CONSERVATIVE,
+        relation_kind="serial_to_parallel_byte",
+        comparison_operands=["bit_i", "sample_gate", "byte_out", "byte_ready"],
+        reference_domain="either",
+        expected_transition="8_valid_bits_then_single_output_event",
+        oracle_pattern=json.dumps({"bit_count": 8, "bit_order": "either"}),
+        semantic_tags=["operation_specific", "serial_history"],
+        source="rule_based",
+        confidence=0.85,
+    )
+    oracle_module = _render_runtime_test_package(
+        tmp_path,
+        module_name="demo_serial_relation_alias",
+        check=check,
+        observed_widths={"byte_out": 8, "byte_ready": 1},
+    )
+    history = []
+    for bit in [1, 0, 1, 0, 1, 0, 1, 0]:
+        history.append({"action": "drive", "signals": {"bit_i": bit, "sample_gate": 1}})
+        history.append({"action": "wait_cycles", "cycles": 1})
+    env = _FakeEnv(
+        samples=[
+            {"byte_out": 0x00, "byte_ready": 0},
+            {"byte_out": 0x00, "byte_ready": 0},
+            {"byte_out": 0xAA, "byte_ready": 1},
+            {"byte_out": 0xAA, "byte_ready": 0},
+        ],
+        widths={"byte_out": 8, "byte_ready": 1},
+        case_inputs={"basic_001": {"bit_i": 0, "sample_gate": 0}},
+        stimulus_history={"basic_001": history},
+    )
+
+    result = asyncio.run(oracle_module._evaluate_check(env, "basic_001", "functional_basic_001", check.model_dump(mode="json")))
+
+    assert result["semantic_status"] == "semantic_checked"
+    assert result["semantic_kind"] == "serial_to_parallel_byte"
+    assert 0xAA in result["semantic_details"]["expected_values"]
 
 
 def test_rendered_oracle_applies_fifo_readback_relation(tmp_path: Path) -> None:
@@ -826,6 +875,64 @@ def test_rendered_oracle_applies_grouped_valid_accumulation_relation(tmp_path: P
     assert result["semantic_details"]["expected_values"] == [10]
 
 
+def test_rendered_oracle_applies_grouped_valid_accumulation_relation_with_noncanonical_roles(tmp_path: Path) -> None:
+    check = OracleCheck(
+        check_id="basic_002_functional_899",
+        check_type=OracleCheckType.FUNCTIONAL,
+        description="grouped valid accumulation alias relation",
+        observed_signals=["sum_done", "sum_total"],
+        pass_condition="Before 4 accepted valid samples, sum_done remains low; after the completed group, one output event occurs and sum_total equals the accumulated sum.",
+        temporal_window=TemporalWindow(mode=TemporalWindowMode.EVENT_BASED),
+        strictness=OracleStrictness.CONSERVATIVE,
+        relation_kind="grouped_valid_accumulation",
+        comparison_operands=["sample_bus", "accept_i", "sum_total", "sum_done"],
+        expected_transition="single_group_sum",
+        reference_domain="group_size=4;allow_gaps=0;expected_groups=1",
+        oracle_pattern=json.dumps({"group_size": 4, "allow_gaps": False, "expected_groups": 1}),
+        semantic_tags=["operation_specific", "stream_grouping"],
+        source="rule_based",
+        confidence=0.85,
+    )
+    oracle_module = _render_runtime_test_package(
+        tmp_path,
+        module_name="demo_accu_alias_relation",
+        check=check,
+        observed_widths={"sum_done": 1, "sum_total": 10},
+    )
+    history = []
+    for value in [1, 2, 3, 4]:
+        history.append({"action": "drive", "signals": {"accept_i": 1, "sample_bus": value}})
+        history.append({"action": "wait_cycles", "cycles": 1})
+    history.append({"action": "drive", "signals": {"accept_i": 0, "sample_bus": 4}})
+    history.append({"action": "wait_cycles", "cycles": 1})
+    observation_history = {
+        "basic_002": [
+            {"step_index": 1, "action": "wait_cycles", "sampled_outputs": {"sum_done": 0, "sum_total": 0}},
+            {"step_index": 3, "action": "wait_cycles", "sampled_outputs": {"sum_done": 0, "sum_total": 0}},
+            {"step_index": 5, "action": "wait_cycles", "sampled_outputs": {"sum_done": 0, "sum_total": 0}},
+            {"step_index": 7, "action": "wait_cycles", "sampled_outputs": {"sum_done": 1, "sum_total": 10}},
+            {"step_index": 9, "action": "wait_cycles", "sampled_outputs": {"sum_done": 0, "sum_total": 10}},
+        ]
+    }
+    env = _FakeEnv(
+        samples=[
+            {"sum_done": 0, "sum_total": 0},
+            {"sum_done": 1, "sum_total": 10},
+            {"sum_done": 0, "sum_total": 10},
+        ],
+        widths={"sum_done": 1, "sum_total": 10},
+        case_inputs={"basic_002": {"accept_i": 0, "sample_bus": 4}},
+        stimulus_history={"basic_002": history},
+        observation_history=observation_history,
+    )
+
+    result = asyncio.run(oracle_module._evaluate_check(env, "basic_002", "functional_basic_002", check.model_dump(mode="json")))
+
+    assert result["semantic_status"] == "semantic_checked"
+    assert result["semantic_kind"] == "grouped_valid_accumulation"
+    assert result["semantic_details"]["expected_values"] == [10]
+
+
 def test_rendered_oracle_applies_ring_counter_progression_relation(tmp_path: Path) -> None:
     check = OracleCheck(
         check_id="basic_001_functional_907",
@@ -898,7 +1005,44 @@ def test_deterministic_stimulus_uses_available_inputs_for_serial_parallel_edge_c
 
     assert len(drive_steps) >= 9
     assert all("din_serial" in step["signals"] and "din_valid" in step["signals"] for step in drive_steps[:-1])
-    assert drive_steps[-1]["signals"]["din_valid"] == 0
+
+
+def test_deterministic_stimulus_uses_generalized_accumulator_roles_and_tail_cleanup() -> None:
+    contract = DUTContract(
+        module_name="stream_accumulator",
+        ports=[
+            PortSpec(name="clk_i", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_ni", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="sample_bus", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="accept_i", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="sum_done", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="sum_total", direction=PortDirection.OUTPUT, width=10),
+        ],
+        observable_outputs=["sum_done", "sum_total"],
+        assumptions=["After four accepted samples, emit one grouped accumulation result."],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+    )
+    case = TestCasePlan(
+        case_id="basic_002",
+        goal="Drive one complete valid input group and require one accumulated output event.",
+        category=TestCategory.BASIC,
+        stimulus_intent=["Present four valid input samples with concrete values."],
+        stimulus_signals=["sample_bus", "accept_i"],
+        expected_properties=["After one full group, one output event becomes visible."],
+        observed_signals=["sum_done", "sum_total"],
+        timing_assumptions=["Conservative clocked observation."],
+        scenario_kind="grouped_valid_closure",
+        expected_transition="single_group_sum",
+        reference_domain="group_size=4;allow_gaps=0;expected_groups=1",
+        confidence=0.8,
+    )
+
+    steps = _build_deterministic_stimulus_steps(contract=contract, case=case)
+    drive_steps = [step for step in steps if step["action"] == "drive"]
+
+    assert len([step for step in drive_steps if step["signals"].get("accept_i") == 1]) == 4
+    assert drive_steps[-1]["signals"]["accept_i"] == 0
+    assert drive_steps[-1]["signals"]["sample_bus"] == 4
 
 
 def test_deterministic_stimulus_ignores_weak_structured_serial_program_and_uses_richer_history() -> None:
@@ -1048,6 +1192,45 @@ def test_deterministic_stimulus_uses_tail_safe_accumulator_sequences() -> None:
 
     assert len(valid_high_drives) >= 8
     assert drive_steps[-1]["signals"]["valid_in"] == 0
+
+
+def test_deterministic_stimulus_waits_long_enough_for_sequential_multiplier_family() -> None:
+    contract = DUTContract(
+        module_name="iterative_multiplier",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="start", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="ain", direction=PortDirection.INPUT, width=16),
+            PortSpec(name="bin", direction=PortDirection.INPUT, width=16),
+            PortSpec(name="done", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="yout", direction=PortDirection.OUTPUT, width=32),
+        ],
+        observable_outputs=["done", "yout"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+    )
+    case = TestCasePlan(
+        case_id="basic_001",
+        goal="Multiply two operands and observe done.",
+        category=TestCategory.BASIC,
+        stimulus_intent=["Drive a legal multiply request."],
+        stimulus_signals=["start", "ain", "bin"],
+        expected_properties=["Observe the product after conservative sequential latency."],
+        observed_signals=["done", "yout"],
+        timing_assumptions=["Clocked observation without exact completion cycle assumptions."],
+        semantic_tags=["operation_specific"],
+        confidence=0.8,
+    )
+
+    steps = _build_deterministic_stimulus_steps(contract=contract, case=case)
+
+    assert steps[0]["action"] == "drive"
+    assert steps[0]["signals"]["start"] == 1
+    assert {steps[0]["signals"]["ain"], steps[0]["signals"]["bin"]} == {11, 13}
+    assert steps[1] == {"action": "wait_cycles", "cycles": 32}
+    assert steps[2]["action"] == "drive"
+    assert steps[2]["signals"]["start"] == 0
+    assert {steps[2]["signals"]["ain"], steps[2]["signals"]["bin"]} == {11, 13}
 
 
 def test_deterministic_stimulus_prefers_structured_program_and_records_inputs() -> None:

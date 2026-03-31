@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset release, clk_div must resolve to a defined logic level (0) within two clock cycles and remain stable until the first toggle.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div is 0 and does not change until a toggle is observed.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "reset_behavior"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 2,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted (rst_n goes high)."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe that clk_div toggles at least once within 20 clock cycles after reset, indicating frequency division progress.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "At least one rising or falling edge of clk_div is observed within the window.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "progress"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "post_reset_stable",
+            "max_cycles": 20,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After clk_div has been observed stable following reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

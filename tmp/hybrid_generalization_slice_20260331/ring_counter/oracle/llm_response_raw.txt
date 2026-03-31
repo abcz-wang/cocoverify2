@@ -1,0 +1,92 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "linked_plan_case_id": "reset_001",
+      "oracle_class": "functional",
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset release, the output 'out' must be one-hot with LSB set (0x01) within a conservative observation window.",
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "The first observed stable value of out after reset deassertion equals 8'b0000_0001 and remains one-hot.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "min_cycles": 0,
+            "max_cycles": 2,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset transitions from asserted to deasserted."
+        }
+      ],
+      "assumptions": [],
+      "notes": []
+    },
+    {
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "functional",
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Observe one-hot rotation of 'out' across successive clock edges after reset.",
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "Within eight consecutive clock cycles, each observed value of out is one-hot and each successive value is a left rotate by one bit of the previous value.",
+          "semantic_tags": [
+            "operation_specific",
+            "one_hot_rotation_progression"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 1,
+            "max_cycles": 8,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset release, monitor out for up to eight clock cycles."
+        }
+      ],
+      "assumptions": [],
+      "notes": []
+    },
+    {
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "property",
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "One-hotness property: at any observed time, exactly one bit of out is high.",
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "For every sampled value of out, the bitwise population count equals 1.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously while the design is not in reset."
+        }
+      ],
+      "assumptions": [],
+      "notes": []
+    }
+  ],
+  "additional_oracle_cases": [],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

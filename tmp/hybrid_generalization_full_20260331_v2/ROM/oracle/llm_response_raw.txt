@@ -1,0 +1,117 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "dout must not become high‑impedance or unknown without a preceding change in addr.",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "If dout transitions to X or Z, a change in addr must have occurred earlier.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Any change in dout."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When addr is 8'h00, dout should equal 16'hA0A0.",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "After addr stabilizes to 8'h00, dout eventually becomes 16'hA0A0 and remains stable while addr stays unchanged.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "addr changes to 8'h00."
+        },
+        {
+          "check_type": "functional",
+          "description": "When addr is 8'h01, dout should equal 16'hB1B1.",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "After addr stabilizes to 8'h01, dout eventually becomes 16'hB1B1 and remains stable while addr stays unchanged.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "addr changes to 8'h01."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When addr is 8'hFF, dout should become a defined 16‑bit value (not X/Z).",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "After addr stabilizes to 8'hFF, dout eventually resolves to a known 16‑bit value and does not remain X or Z while addr stays unchanged.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "addr changes to 8'hFF."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

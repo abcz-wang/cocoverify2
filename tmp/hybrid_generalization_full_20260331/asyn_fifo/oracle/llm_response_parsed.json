@@ -1,0 +1,38 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When a write enable with address A and data D occurs, a subsequent read enable with the same address A must eventually produce D on rdata.",
+          "notes": [],
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "If renc is asserted and raddr equals the most recent waddr where wenc was asserted, then rdata must eventually equal the corresponding wdata value, or may remain unknown/hi-z if not yet resolved.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "On each occurrence of wenc=1 followed later by renc=1 with matching address."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

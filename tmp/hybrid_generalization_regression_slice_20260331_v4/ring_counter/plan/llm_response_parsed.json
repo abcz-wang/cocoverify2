@@ -1,0 +1,354 @@
+{
+  "additional_cases": [
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "wrap_around",
+        "boundary_vector"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "wrap_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that after the MSB is set, the next clock edge wraps the '1' back to the LSB.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b1"
+          },
+          "text": "Apply reset to initialize LSB"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One cycle with reset asserted"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 8,
+          "signals": {},
+          "text": "Run eight clock cycles to observe wrap from MSB to LSB"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Capture final reset state"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "consecutive_clocks"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "back_to_back_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Confirm that two back\u2011to\u2011back clock edges produce two distinct output states.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Ensure reset is deasserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "First clock edge"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Second immediate clock edge"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Capture reset state after back\u2011to\u2011back edges"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "mid_sequence_reset"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "reset_mid_progress_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Assert reset while the counter is mid\u2011sequence and verify it returns to the LSB state.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Start with reset deasserted"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "Allow counter to advance three positions"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b1"
+          },
+          "text": "Assert reset mid\u2011sequence"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One cycle with reset asserted"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "Observe post\u2011reset state"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Capture reset state after recovery"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "negative",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "no_reset"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "negative_reset_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe normal counting when reset is never asserted, confirming stable operation without explicit reset.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Keep reset deasserted throughout"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Run several clock cycles to see counting progression"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Capture reset state at end of observation"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "basic",
+        "sanity",
+        "seq"
+      ],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe clock\u2011driven state progress after reset or conservative initialization.",
+      "notes": [],
+      "observed_signals": [
+        "out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [
+        "ambiguity_preserving"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b1"
+          },
+          "text": "Apply reset to initialize LSB"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": "One cycle with reset asserted"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Observe two subsequent clock cycles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "reset": "1'b0"
+          },
+          "text": "Capture reset state after observation"
+        }
+      ],
+      "stimulus_signals": [],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,128 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After exactly eight consecutive cycles where din_valid is high, dout_valid must transition high for one cycle and dout_parallel must equal the concatenation of the eight din_serial bits in the order they were received (MSB first).",
+          "notes": [],
+          "observed_signals": [
+            "dout_parallel",
+            "dout_valid"
+          ],
+          "pass_condition": "When a sequence of eight valid serial bits is presented, a single-cycle dout_valid pulse occurs and the parallel output matches the captured byte.",
+          "semantic_tags": [
+            "operation_specific",
+            "serial_history"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus drives eight consecutive valid serial bits."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "dout_valid must remain low until eight valid serial bits have been received.",
+          "notes": [],
+          "observed_signals": [
+            "dout_valid"
+          ],
+          "pass_condition": "dout_valid is 0 for all cycles before the eighth valid din_valid assertion.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "During any serial transfer of up to eight bits."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "The interface must not assert dout_valid or change dout_parallel before a complete group of eight valid serial bits has been received.",
+          "notes": [],
+          "observed_signals": [
+            "dout_valid",
+            "dout_parallel"
+          ],
+          "pass_condition": "No change in dout_parallel and dout_valid stays low until the eighth valid din_valid cycle.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "During serial input sequence."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "protocol",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After a dout_valid pulse, the next dout_valid pulse must occur only after another eight valid serial bits, ensuring the counter restarts for a new byte.",
+          "notes": [],
+          "observed_signals": [
+            "dout_valid"
+          ],
+          "pass_condition": "The interval between consecutive dout_valid pulses corresponds to exactly eight din_valid cycles.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After a completed byte transfer."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

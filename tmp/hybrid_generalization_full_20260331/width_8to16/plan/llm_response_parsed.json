@@ -1,0 +1,846 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "grouped_valid",
+        "closure"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "closure_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Complete a full two\u2011valid\u2011cycle group to produce a single externally visible output event.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "grouped_valid_closure",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "drive first valid data",
+        "drive second valid data",
+        "capture concatenated output",
+        "cleanup valid_in"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h12",
+            "valid_in": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h34",
+            "valid_in": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'h1234",
+            "valid_out": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0"
+          },
+          "text": "cleanup deassert valid_in"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in",
+        "valid_out",
+        "data_out"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "grouped_valid",
+        "gapped"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "gapped_valid_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise a gapped\u2011valid scenario where a valid cycle is separated by an idle cycle before completing the group.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "gapped_valid_group",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "drive first valid data",
+        "insert idle cycle",
+        "drive second valid data",
+        "capture output",
+        "cleanup valid_in"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'hAA",
+            "valid_in": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0"
+          },
+          "text": "idle gap"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h55",
+            "valid_in": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'hAA55",
+            "valid_out": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0"
+          },
+          "text": "cleanup deassert valid_in"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in",
+        "valid_out",
+        "data_out"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "reset",
+        "mid_progress"
+      ],
+      "dependencies": [
+        "reset_001"
+      ],
+      "draft_id": "reset_mid_progress_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Assert reset while a valid group is in progress to verify state clearing and no spurious output.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "drive first valid data",
+        "assert reset",
+        "release reset",
+        "verify no output",
+        "cleanup"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h01",
+            "valid_in": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": "assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'h0000",
+            "valid_out": "1'b0"
+          },
+          "text": "verify no spurious output after reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0"
+          },
+          "text": "cleanup deassert valid_in"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in",
+        "rst_n",
+        "valid_out",
+        "data_out"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "back_to_back",
+        "multi_group"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "multi_group_stream_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Provide a finite multi\u2011group stream of four valid inputs, generating two output events, to verify repeated accumulation behavior.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "multi_group_stream",
+      "semantic_tags": [
+        "operation_specific"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "drive four valid data cycles",
+        "capture two concatenated outputs",
+        "cleanup valid_in"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h11",
+            "valid_in": "1'b1"
+          },
+          "text": "first data of group 1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h22",
+            "valid_in": "1'b1"
+          },
+          "text": "second data of group 1"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'h1122",
+            "valid_out": "1'b1"
+          },
+          "text": "output after first pair"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h33",
+            "valid_in": "1'b1"
+          },
+          "text": "first data of group 2"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h44",
+            "valid_in": "1'b1"
+          },
+          "text": "second data of group 2"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'h3344",
+            "valid_out": "1'b1"
+          },
+          "text": "output after second pair"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0"
+          },
+          "text": "cleanup deassert valid_in"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in",
+        "valid_out",
+        "data_out"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": [
+        "edge",
+        "boundary"
+      ],
+      "dependencies": [
+        "basic_001"
+      ],
+      "draft_id": "boundary_vector_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Exercise extreme boundary values (0x00 and 0xFF) to verify width\u2011concatenation handling.",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [
+        "width_sensitive"
+      ],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "drive min value",
+        "drive max value",
+        "capture concatenated output",
+        "cleanup valid_in"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h00",
+            "valid_in": "1'b1"
+          },
+          "text": "first data = 0x00"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'hFF",
+            "valid_in": "1'b1"
+          },
+          "text": "second data = 0xFF"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'h00FF",
+            "valid_out": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0"
+          },
+          "text": "cleanup deassert valid_in"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in",
+        "valid_out",
+        "data_out"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "reset_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "assert reset",
+        "release reset",
+        "verify outputs cleared"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": "assert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'h0000",
+            "valid_out": "1'b0"
+          },
+          "text": ""
+        }
+      ],
+      "stimulus_signals": [
+        "rst_n"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "drive single valid data",
+        "verify no immediate output",
+        "cleanup valid_in"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'hAB",
+            "valid_in": "1'b1"
+          },
+          "text": "first valid data"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'h0000",
+            "valid_out": "1'b0"
+          },
+          "text": "no output yet"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0"
+          },
+          "text": "cleanup deassert valid_in"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "edge_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "boundary_vector",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "drive min value",
+        "drive max value",
+        "capture concatenated output",
+        "cleanup valid_in"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h00",
+            "valid_in": "1'b1"
+          },
+          "text": "first data = 0x00"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'hFF",
+            "valid_in": "1'b1"
+          },
+          "text": "second data = 0xFF"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'h00FF",
+            "valid_out": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0"
+          },
+          "text": "cleanup deassert valid_in"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "case_id": "back_to_back_001",
+      "comparison_operands": [],
+      "coverage_tags": [],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "",
+      "notes": [],
+      "observed_signals": [
+        "valid_out",
+        "data_out"
+      ],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": [],
+      "settle_requirement": "",
+      "stimulus_intent": [
+        "drive two consecutive valid data cycles",
+        "capture concatenated output",
+        "cleanup valid_in"
+      ],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h11",
+            "valid_in": "1'b1"
+          },
+          "text": "first data"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "data_in": "8'h22",
+            "valid_in": "1'b1"
+          },
+          "text": "second data"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "data_out": "16'h1122",
+            "valid_out": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "valid_in": "1'b0"
+          },
+          "text": "cleanup deassert valid_in"
+        }
+      ],
+      "stimulus_signals": [
+        "valid_in",
+        "data_in"
+      ],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that after reset release, Secs increments by 1 on each clock edge until it reaches 59, then wraps to 0 and increments Mins by 1.",
+          "notes": [],
+          "observed_signals": [
+            "Secs",
+            "Mins"
+          ],
+          "pass_condition": "For a sequence of up to 61 clock cycles, Secs follows a modulo-60 count and Mins increments exactly when Secs wraps from 59 to 0.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 61,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset has been released and the clock is running."
+        },
+        {
+          "check_type": "functional",
+          "description": "Verify that Hours increments by 1 when both Mins and Secs wrap from 59 to 0, and wraps to 0 after reaching 23.",
+          "notes": [],
+          "observed_signals": [
+            "Hours",
+            "Mins",
+            "Secs"
+          ],
+          "pass_condition": "Within a window of up to 86402 clock cycles, Hours follows a modulo-24 count, incrementing only on the simultaneous wrap of Mins and Secs.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 86402,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "After reset release and sufficient clock cycles to observe a full hour transition."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

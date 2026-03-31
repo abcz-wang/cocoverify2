@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When data_in follows the 0\u21921\u21920 three\u2011cycle pattern, data_out must be 1 on the third cycle (the pulse end) and 0 otherwise.",
+          "notes": [],
+          "observed_signals": [
+            "data_out"
+          ],
+          "pass_condition": "data_out == 1 exactly on the cycle where data_in returns to 0 completing a three\u2011cycle pulse; data_out == 0 on all other cycles.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 0,
+            "min_cycles": 0,
+            "mode": "exact_cycle"
+          },
+          "trigger_condition": "When the stimulus program drives the 0\u21921\u21920 pattern on data_in as defined in basic_001."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guardrail: edge\u2011case checks must not assume hidden latency; data_out may change only in response to observable input transitions.",
+          "notes": [],
+          "observed_signals": [
+            "data_out"
+          ],
+          "pass_condition": "No violation occurs if data_out transitions only after a visible change on data_in; the property does not require a fixed number of cycles between input change and output response.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever edge_001 stimulus is applied (zero\u2011like, one\u2011like, and boundary patterns on data_in)."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [
+    "The functional enrichment for basic_001 captures the pulse\u2011detect specification: a three\u2011cycle 0\u21921\u21920 input sequence must produce a single-cycle high on data_out at the pulse end.",
+    "Property enrichment for edge_001 ensures that any observed output changes are justified by visible input activity, preserving ambiguity where timing is not concretely defined."
+  ],
+  "unresolved_items": []
+}

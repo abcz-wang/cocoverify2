@@ -1,0 +1,178 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "After exactly four consecutive valid_in cycles, valid_out must assert for one cycle and data_out must equal the sum of the four data_in values."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "valid_out is low before the fourth valid sample, goes high for exactly one cycle after the fourth sample, and data_out equals the accumulated sum of the four accepted data_in values.",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a deterministic stimulus drives four consecutive valid_in=1 samples."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "Boundary values (maximum 8‑bit data) must still produce a correct accumulated sum and a single-cycle valid_out."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "After four consecutive valid_in cycles with data_in=255, valid_out asserts for one cycle and data_out equals 4*255 = 1020 (fits in 10 bits).",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive",
+            "grouped_valid_accumulation"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a deterministic stimulus drives four consecutive valid_in=1 samples with data_in set to the maximum 8‑bit value."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "Valid-low gaps must not be counted toward the four‑sample group; only cycles with valid_in=1 contribute to accumulation."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "When a stimulus interleaves valid_in=1 samples with valid_in=0 gaps, exactly four valid samples trigger a single valid_out pulse and data_out equals the sum of the four accepted data_in values.",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "protocol"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a deterministic stimulus drives four valid_in=1 samples separated by valid_in=0 cycles."
+        }
+      ],
+      "linked_plan_case_id": "protocol_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "A reset asserted mid‑group must clear any partial accumulation; only the post‑reset group may produce an output."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "If reset is asserted before a group of four valid samples completes, valid_out must remain low for the incomplete group and only assert after a later full group of four valid samples, with data_out reflecting the sum of the post‑reset samples.",
+          "semantic_tags": [
+            "operation_specific",
+            "reset",
+            "grouped_valid_accumulation"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a deterministic stimulus drives a partial group, asserts reset, then drives a complete group."
+        }
+      ],
+      "linked_plan_case_id": "regression_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "required",
+          "notes": [
+            "Two consecutive groups of four valid samples must each produce a distinct valid_out pulse and correct accumulated sum."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "data_out"
+          ],
+          "pass_condition": "After the first four valid samples, valid_out pulses once with the correct sum; after the next four valid samples, a second pulse occurs with the sum of the second group, with no extra pulses in between.",
+          "semantic_tags": [
+            "operation_specific",
+            "grouped_valid_accumulation",
+            "repeated_group"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When a deterministic stimulus drives eight consecutive valid_in=1 samples (two groups of four)."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_002",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

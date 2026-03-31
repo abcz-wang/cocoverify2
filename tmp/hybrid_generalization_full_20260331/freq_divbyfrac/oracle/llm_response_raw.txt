@@ -1,0 +1,69 @@
+{
+  "assumptions": [],
+  "oracle_notes": [],
+  "unresolved_items": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "functional",
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Over a bounded window of 7 input clock cycles after reset release, clk_div must exhibit exactly two rising edges, reflecting the 3.5x fractional division.",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "Count of rising edges on clk_div within the window equals 2.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "min_cycles": 0,
+            "max_cycles": 7,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset is deasserted and the clock is running."
+        }
+      ]
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "linked_plan_case_id": "reset_001",
+      "oracle_class": "property",
+      "notes": [],
+      "unresolved_items": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "clk_div must remain stable (no transitions) while rst_n is asserted (active low).",
+          "notes": [],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "No change in clk_div value during reset assertion.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "While rst_n is low."
+        }
+      ]
+    }
+  ]
+}

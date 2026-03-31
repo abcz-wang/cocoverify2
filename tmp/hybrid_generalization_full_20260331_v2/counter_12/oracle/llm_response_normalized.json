@@ -1,0 +1,96 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When valid_count is asserted, out must increment by one modulo 12 on the next clock edge.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "out_next == (out_current == 4'd11 ? 4'd0 : out_current + 1)",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "clk_rising_edge",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "valid_count == 1 at clk rising edge"
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "out must remain unchanged when valid_count is deasserted.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "out_next == out_current when valid_count == 0 at clk rising edge",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "clk_rising_edge",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "valid_count == 0 at clk rising edge"
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Two consecutive valid_count pulses must result in two distinct increment steps without collapsing.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "out after second pulse == (out after first pulse == 4'd11 ? 4'd0 : out after first pulse + 1)",
+          "semantic_tags": [
+            "operation_specific",
+            "back_to_back"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "clk_rising_edge",
+            "max_cycles": 2,
+            "min_cycles": 1,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "Two back-to-back clk rising edges with valid_count == 1"
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

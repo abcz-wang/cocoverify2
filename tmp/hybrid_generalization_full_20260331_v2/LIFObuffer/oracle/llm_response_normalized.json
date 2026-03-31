@@ -1,0 +1,133 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "checks": [
+        {
+          "check_type": "protocol",
+          "description": "After reset deassertion, observable outputs must settle to a defined non-X state before any functional observation.",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "EMPTY and FULL are stable (no X or Z) and dataOut is stable for at least one clock cycle after reset release.",
+          "semantic_tags": [
+            "reset",
+            "stability",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When Rst transitions from high to low."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "protocol"
+    },
+    {
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Write a value then read it back; dataOut must equal the written value and EMPTY/FULL flags must reflect buffer state.",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "After the write (RW=0) with EN=1, EMPTY becomes 0 and FULL remains 0 (since depth 4). After subsequent read (RW=1) with EN=1, dataOut equals the previously written dataIn (2) and EMPTY becomes 1.",
+          "semantic_tags": [
+            "basic",
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus program for basic_001 completes."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional"
+    },
+    {
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Boundary values on dataIn and EN must not cause illegal state transitions.",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL",
+            "dataOut"
+          ],
+          "pass_condition": "For dataIn=0 and dataIn=15 with EN=1, the buffer respects full/empty flags and never drives X on outputs.",
+          "semantic_tags": [
+            "edge",
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When edge stimulus patterns are applied."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property"
+    },
+    {
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Two consecutive write operations must be reflected in buffer depth and flags without collapsing into a single observable change.",
+          "notes": [],
+          "observed_signals": [
+            "EMPTY",
+            "FULL"
+          ],
+          "pass_condition": "After first write, EMPTY=0 and FULL=0; after second write, FULL remains 0 (capacity 4) and EMPTY=0. No X on flags.",
+          "semantic_tags": [
+            "back_to_back",
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When two back-to-back write stimuli are issued."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "functional"
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: If the reset signal is low, the buffer checks if it is full or empty and processes data accordingly:"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When valid_out is asserted, dout must output the bits of the most recent parallel input d in MSB-to-LSB order over four consecutive cycles.",
+          "notes": [
+            "The check assumes the module captures d when valid_out transitions low→high and then serializes it.",
+            "No exact-cycle latency is assumed beyond the ordering guarantee."
+          ],
+          "observed_signals": [
+            "valid_out",
+            "dout"
+          ],
+          "pass_condition": "For each occurrence where valid_out rises from 0 to 1 after a stable d value, the first cycle with valid_out=1 must have dout == d[3]; the next three cycles with valid_out=1 must produce dout == d[2], dout == d[1], and dout == d[0] respectively, after which valid_out may deassert.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "min_cycles": 0,
+            "max_cycles": 4,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a new parallel input d is presented and valid_out transitions from 0 to 1."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

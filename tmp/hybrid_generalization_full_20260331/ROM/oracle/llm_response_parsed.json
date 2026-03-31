@@ -1,0 +1,68 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When addr is driven to 0, dout must output the initialized ROM value 0xA0A0.",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "dout equals 16'hA0A0 after address stabilizes.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "strict",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When addr changes to 0."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When addr is driven to 255, dout must remain stable (no change) after address stabilizes.",
+          "notes": [],
+          "observed_signals": [
+            "dout"
+          ],
+          "pass_condition": "dout does not change for at least one cycle after address settles.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When addr changes to 255."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

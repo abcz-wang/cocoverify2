@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "For boundary input patterns, the result must not exceed the 65-bit width and o_en must reflect valid output availability.",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "o_en"
+          ],
+          "pass_condition": "result[64:0] matches the sum of inputs modulo 2^65 and o_en is 1 when the sum is valid.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When edge_001 stimulus applies zero-like, one-like, or max-value patterns."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When i_en is asserted with adda=1 and addb=2, result should equal 3 and o_en should become 1 after a bounded number of cycles.",
+          "notes": [],
+          "observed_signals": [
+            "result",
+            "o_en"
+          ],
+          "pass_condition": "result == 65'd3 && o_en == 1 within the temporal window.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the basic_001 stimulus program applies the specified inputs."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

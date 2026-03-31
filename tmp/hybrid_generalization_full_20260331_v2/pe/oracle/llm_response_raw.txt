@@ -1,0 +1,103 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "c equals the product of a and b after the operation settles.",
+          "notes": [
+            "Basic case drives concrete inputs a=10, b=20; expected c = 200."
+          ],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c == 200",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the basic_001 plan case applies its stimulus."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "c remains unchanged when a is zero, regardless of b.",
+          "notes": [
+            "Edge case drives a=0, b=4294967295; multiplication yields zero, so accumulator should not change."
+          ],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c after operation == c before operation",
+          "semantic_tags": [
+            "width_sensitive",
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the edge_001 plan case applies its stimulus."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "c equals the sum of two consecutive products after both operations settle.",
+          "notes": [
+            "Back-to-back case drives (a=4,b=5) then (a=6,b=7); expected c = (4*5)+(6*7) = 62."
+          ],
+          "observed_signals": [
+            "c"
+          ],
+          "pass_condition": "c == 62",
+          "semantic_tags": [
+            "operation_specific",
+            "back_to_back"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the back_to_back_001 plan case completes its stimulus sequence."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

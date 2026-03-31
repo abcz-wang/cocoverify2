@@ -1,0 +1,97 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset release, Q must become a defined 64‑bit value (no X or Z) within a bounded number of clock cycles.",
+          "notes": [],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "Q transitions from undefined to a fully defined value and remains stable for at least one clock edge within the window.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 10,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When rst_n is deasserted (goes high) in the stimulus."
+        }
+      ],
+      "linked_plan_case_id": "reset_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "After reset release and a few clock cycles, Q should exhibit at least one value change, demonstrating state progression of the Johnson counter.",
+          "notes": [],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "Q observed to differ from its value at the start of the observation window within the bounded range.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 10,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When the plan executes the wait_cycles action after reset release."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Q must never assume X or Z after the reset has been released.",
+          "notes": [],
+          "observed_signals": [
+            "Q"
+          ],
+          "pass_condition": "Throughout the simulation, Q is always a defined 64‑bit value (no X/Z).",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Continuously after reset release."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

@@ -1,0 +1,68 @@
+{
+  "assumptions": [],
+  "additional_oracle_cases": [],
+  "case_enrichments": [
+    {
+      "linked_plan_case_id": "basic_001",
+      "oracle_class": "functional",
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When data_en is asserted for at least three consecutive clk_b cycles, dataout must equal the value captured in data_reg (which mirrors data_in) after the enable pipeline latency.",
+          "notes": [],
+          "observed_signals": [
+            "dataout"
+          ],
+          "pass_condition": "dataout holds the captured data_in value for the duration that en_clap_two remains high, and does not change while en_clap_two is low.",
+          "semantic_tags": [
+            "operation_specific",
+            "width_sensitive"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "en_clap_two_asserted",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When en_clap_two transitions high after a sustained data_en high period."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    },
+    {
+      "linked_plan_case_id": "edge_001",
+      "oracle_class": "functional",
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "For boundary values of data_in (0x0 and 0xF) with data_en high, dataout must reflect the same boundary value after the synchronization latency.",
+          "notes": [],
+          "observed_signals": [
+            "dataout"
+          ],
+          "pass_condition": "If data_in is driven to 0x0 (or 0xF) while data_en stays high for the required cycles, dataout becomes 0x0 (or 0xF) once en_clap_two asserts.",
+          "semantic_tags": [
+            "width_sensitive",
+            "boundary_vector"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "en_clap_two_asserted",
+            "min_cycles": 0,
+            "max_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When data_en is high and data_in is at a boundary value."
+        }
+      ],
+      "notes": [],
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

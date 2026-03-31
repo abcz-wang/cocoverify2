@@ -480,12 +480,23 @@ async def _apply_structured_relation_check(
         if len(operands) < 4:
             return {"status": "semantic_not_applicable", "kind": kind, "reason": "missing_operands"}
         serial_name, valid_name, data_name, valid_out_name = operands[:4]
+        bit_count = int(oracle_pattern.get("bit_count") or env.signal_width(data_name) or 8)
+        bit_order = str(oracle_pattern.get("bit_order") or expectation.get("reference_domain") or "either")
         bits = _history_values(history, signal_name=serial_name, gate_signal=valid_name, gate_value=1)
-        if len(bits) < 8:
-            return {"status": "semantic_skipped_no_history", "kind": kind, "reason": "fewer_than_eight_valid_bits"}
-        expected = 0
-        for bit in bits[:8]:
-            expected = (expected << 1) | (bit & 1)
+        if len(bits) < bit_count:
+            return {"status": "semantic_skipped_no_history", "kind": kind, "reason": "fewer_than_required_valid_bits"}
+        expected_msb = 0
+        for bit in bits[:bit_count]:
+            expected_msb = (expected_msb << 1) | (bit & 1)
+        expected_lsb = 0
+        for index, bit in enumerate(bits[:bit_count]):
+            expected_lsb |= (bit & 1) << index
+        if bit_order == "msb_to_lsb":
+            expected_values = [expected_msb]
+        elif bit_order == "lsb_to_msb":
+            expected_values = [expected_lsb]
+        else:
+            expected_values = sorted({expected_msb, expected_lsb})
         activations: list[dict[str, int]] = []
         observation_history = _case_observation_history(env, plan_case_id)
         previous_valid_out = 0
@@ -511,17 +522,40 @@ async def _apply_structured_relation_check(
                 await env.wait_event_based(label=f"{check['check_id']}_serial_relation")
                 current_sample = await env.sample_outputs([data_name, valid_out_name])
         assert_equal(f"{valid_out_name}_activation_count", len(activations), 1)
-        assert_equal(data_name, activations[0]["value"], expected)
-        return {"status": "semantic_checked", "kind": kind, "expected_value": expected, "activation_cycle": activations[0]["cycle"]}
+        assert_true(
+            activations[0]["value"] in expected_values,
+            f"{data_name} must match one of the permitted reconstructed serial values {expected_values}",
+        )
+        return {
+            "status": "semantic_checked",
+            "kind": kind,
+            "expected_values": expected_values,
+            "activation_cycle": activations[0]["cycle"],
+        }
 
     if kind == "byte_pack_pair":
         if len(operands) < 4:
             return {"status": "semantic_not_applicable", "kind": kind, "reason": "missing_operands"}
         data_in_name, valid_in_name, data_out_name, valid_out_name = operands[:4]
+        element_count = int(oracle_pattern.get("element_count") or 2)
+        pack_order = str(oracle_pattern.get("pack_order") or expectation.get("reference_domain") or "either")
+        element_width = int(oracle_pattern.get("element_width") or env.signal_width(data_in_name) or 8)
         values = _history_values(history, signal_name=data_in_name, gate_signal=valid_in_name, gate_value=1)
-        if len(values) < 2:
-            return {"status": "semantic_skipped_no_history", "kind": kind, "reason": "fewer_than_two_valid_bytes"}
-        expected = ((values[0] & 0xFF) << 8) | (values[1] & 0xFF)
+        if len(values) < element_count:
+            return {"status": "semantic_skipped_no_history", "kind": kind, "reason": "fewer_than_required_valid_elements"}
+        packed_values = [value & mask_width(element_width) for value in values[:element_count]]
+        expected_high_to_low = 0
+        for value in packed_values:
+            expected_high_to_low = (expected_high_to_low << element_width) | value
+        expected_low_to_high = 0
+        for index, value in enumerate(packed_values):
+            expected_low_to_high |= value << (index * element_width)
+        if pack_order == "high_to_low":
+            expected_values = [expected_high_to_low]
+        elif pack_order == "low_to_high":
+            expected_values = [expected_low_to_high]
+        else:
+            expected_values = sorted({expected_high_to_low, expected_low_to_high})
         activations: list[dict[str, int]] = []
         observation_history = _case_observation_history(env, plan_case_id)
         previous_valid_out = 0
@@ -547,8 +581,16 @@ async def _apply_structured_relation_check(
                 await env.wait_event_based(label=f"{check['check_id']}_pack_relation")
                 current_sample = await env.sample_outputs([data_out_name, valid_out_name])
         assert_equal(f"{valid_out_name}_activation_count", len(activations), 1)
-        assert_equal(data_out_name, activations[0]["value"], expected)
-        return {"status": "semantic_checked", "kind": kind, "expected_value": expected, "activation_cycle": activations[0]["cycle"]}
+        assert_true(
+            activations[0]["value"] in expected_values,
+            f"{data_out_name} must match one of the permitted packed values {expected_values}",
+        )
+        return {
+            "status": "semantic_checked",
+            "kind": kind,
+            "expected_values": expected_values,
+            "activation_cycle": activations[0]["cycle"],
+        }
 
     if kind == "fifo_write_readback":
         if len(operands) < 5:
@@ -592,7 +634,8 @@ async def _apply_structured_relation_check(
         expected = (a_values[-1] * b_values[-1]) & mask_width(env.signal_width(mul_out_name))
         current_sample = dict(sampled_outputs)
         matched_cycle = None
-        for cycle_index in range(12):
+        observation_cycles = max(12, int(env.signal_width(mul_out_name) or 0))
+        for cycle_index in range(observation_cycles):
             valid_active = True
             if mul_en_out_name:
                 valid_bit = _sample_bit_if_defined(current_sample, mul_en_out_name)
@@ -602,7 +645,7 @@ async def _apply_structured_relation_check(
                 if observed_value is not None and observed_value == expected:
                     matched_cycle = cycle_index
                     break
-            if cycle_index < 11:
+            if cycle_index < observation_cycles - 1:
                 await env.wait_event_based(label=f"{check['check_id']}_product_relation")
                 current_sample = await env.sample_outputs([name for name in [mul_out_name, mul_en_out_name] if name])
         assert_true(matched_cycle is not None, f"{mul_out_name} did not present the expected unsigned product")

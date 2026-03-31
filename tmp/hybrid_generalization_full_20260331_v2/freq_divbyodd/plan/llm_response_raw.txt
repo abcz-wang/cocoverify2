@@ -1,0 +1,177 @@
+{
+  "additional_cases": [
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset","mid_progress"],
+      "dependencies": ["basic_001"],
+      "draft_id": "new_case_reset_mid",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Verify that asserting and deasserting the active-low reset during operation correctly re-initializes the divider without spurious output glitches.",
+      "notes": [],
+      "observed_signals": ["clk_div"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "0"},
+          "text": "Assert active-low reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "Hold reset for two cycles"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {"rst_n": "1"},
+          "text": "Deassert reset"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Allow divider to resume operation"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {"clk_div": "0x0"},
+          "text": "Capture post‑reset clk_div state"
+        }
+      ],
+      "stimulus_signals": ["rst_n","clk"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["edge","odd_division"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_case_edge_odd",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe the toggling pattern of clk_div to ensure it reflects division by the odd parameter (default 5).",
+      "notes": [],
+      "observed_signals": ["clk_div"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 20,
+          "signals": {},
+          "text": "Let the divider run for enough cycles to see multiple toggles"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {"clk_div": "0x0"},
+          "text": "Capture clk_div waveform snapshot"
+        }
+      ],
+      "stimulus_signals": ["clk"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["basic","sanity"],
+      "dependencies": ["reset_001"],
+      "draft_id": "new_case_basic_observe",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Confirm that clk_div produces a stable output after reset and initial clock cycles.",
+      "notes": [],
+      "observed_signals": ["clk_div"],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 5,
+          "signals": {},
+          "text": "Allow divider to settle after reset"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {"clk_div": "0x0"},
+          "text": "Capture initial clk_div state"
+        }
+      ],
+      "stimulus_signals": ["clk"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "assumptions": [],
+  "baseline_case_enrichments": [
+    {
+      "case_id": "basic_001",
+      "comparison_operands": [],
+      "coverage_tags": ["basic","sanity","seq"],
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Observe clock-driven state progress after reset or conservative initialization.",
+      "notes": [],
+      "observed_signals": ["clk_div"],
+      "priority": 1,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "single_operation",
+      "semantic_tags": ["ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "wait_cycles",
+          "cycles": 10,
+          "signals": {},
+          "text": "Run the divider for several cycles to see progression"
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {"clk_div": "0x0"},
+          "text": "Capture clk_div after progression"
+        }
+      ],
+      "stimulus_signals": ["clk"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "planning_notes": [],
+  "unresolved_items": []
+}

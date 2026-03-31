@@ -1,0 +1,135 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ready signal must not be asserted before the multiplier has observed at least one clock cycle after inputs are stable.",
+          "notes": [
+            "Prevents premature rdy without any processing."
+          ],
+          "observed_signals": [
+            "rdy"
+          ],
+          "pass_condition": "rdy can only transition high after at least one rising edge of clk following input stabilization.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "temporal_guard"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "input_stable",
+            "max_cycles": null,
+            "min_cycles": 1,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When inputs a and b become stable after reset."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property"
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When the ready signal rdy transitions to 1, the product output p must equal the unsigned multiplication of the last applied inputs a and b.",
+          "notes": [
+            "Uses the concrete input values driven by the plan; no exact-cycle latency is assumed."
+          ],
+          "observed_signals": [
+            "p",
+            "rdy"
+          ],
+          "pass_condition": "p == a * b at the cycle where rdy == 1.",
+          "semantic_tags": [
+            "operation_specific",
+            "unsigned_product"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "rdy_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When rdy rises from 0 to 1 after a legal operation."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional"
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "For boundary input patterns (all zeros, all ones, min/max values), the ready signal must eventually assert and p must reflect the correct unsigned product.",
+          "notes": [
+            "Covers width-sensitive edge cases without assuming fixed latency."
+          ],
+          "observed_signals": [
+            "p",
+            "rdy"
+          ],
+          "pass_condition": "When rdy becomes 1, p equals a*b for each boundary stimulus.",
+          "semantic_tags": [
+            "width_sensitive",
+            "boundary_vector"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "rdy_asserted",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "event_based"
+          },
+          "trigger_condition": "After applying each edge stimulus pattern."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional"
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Repeated operations must produce distinct ready assertions; rdy should deassert between consecutive multiplications.",
+          "notes": [
+            "Ensures back-to-back operations are observable as separate completions."
+          ],
+          "observed_signals": [
+            "rdy"
+          ],
+          "pass_condition": "rdy transitions high then low before the next operation's rdy can go high.",
+          "semantic_tags": [
+            "operation_specific",
+            "repeated_operation"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_boundary",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When two legal operations are issued back-to-back."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "property"
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

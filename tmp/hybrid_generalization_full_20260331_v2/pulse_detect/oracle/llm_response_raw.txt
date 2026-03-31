@@ -1,0 +1,73 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Guard against false pulse detection when the input does not form a valid 0‑1‑0 pattern within three cycles.",
+          "notes": [
+            "Ensures data_out remains 0 for any input sequence that is not a single‑cycle pulse."
+          ],
+          "observed_signals": [
+            "data_out"
+          ],
+          "pass_condition": "If data_in does not exhibit a 0→1→0 transition over three consecutive clock cycles, data_out must stay 0 throughout the observation window.",
+          "semantic_tags": [
+            "invalid_illegal_input",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 3,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When a three‑cycle window of data_in fails to match the 0‑1‑0 pulse pattern."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Value‑level pulse detection: data_out must be 1 exactly on the cycle when a 0‑1‑0 pulse on data_in completes.",
+          "notes": [
+            "Uses the concrete stimulus sequence defined in the basic_001 plan."
+          ],
+          "observed_signals": [
+            "data_out"
+          ],
+          "pass_condition": "When data_in follows the pattern 0 → 1 → 0 over three consecutive clock cycles, data_out shall be 0 on the first two cycles and 1 on the third cycle; otherwise data_out shall be 0.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 3,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "Whenever the driven stimulus in basic_001 produces a 0‑1‑0 transition on data_in."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

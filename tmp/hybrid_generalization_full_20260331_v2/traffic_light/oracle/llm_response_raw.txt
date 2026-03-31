@@ -1,0 +1,87 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "no_output_change_during_reset",
+          "notes": [
+            "Ensures that red, yellow, green, and clock remain stable (or X) while reset is asserted."
+          ],
+          "observed_signals": [
+            "clock",
+            "red",
+            "yellow",
+            "green"
+          ],
+          "pass_condition": "All observed signals stay unchanged (or remain X) throughout the reset assertion interval.",
+          "semantic_tags": [
+            "reset",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "reset_asserted",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the reset signal (rst_n) is low."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [
+    "If the pass_request signal is active and the green signal is active, the counter is set to 10.",
+    "If the green signal is inactive and the previous green signal (p_green) was active, the counter is set to 60.",
+    "If the yellow signal is inactive and the previous yellow signal (p_yellow) was active, the counter is set to 5.",
+    "If the red signal is inactive and the previous red signal (p_red) was active, the counter is set to 10."
+  ],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "counter_set_on_pass_request_when_green",
+          "notes": [
+            "Value-level relation between pass_request, green, and the clock output (counter).",
+            "Conservative bounded latency of one clock cycle."
+          ],
+          "observed_signals": [
+            "clock",
+            "green",
+            "pass_request"
+          ],
+          "pass_condition": "If pass_request == 1 and green == 1, then clock output equals 10 within one clock cycle.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When pass_request is asserted while green is high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": [
+    "Spec/reset hint could not be mapped to a known reset port: The second always block handles the counting logic of the internal counter (cnt). The counter is decremented by 1 on every positive edge of the clock or negative edge of the reset signal. The counter values are adjusted based on various conditions:",
+    "Spec/reset hint could not be mapped to a known reset port: The final always block handles the output signals. It assigns the previous values (p_red, p_yellow, p_green) to the output signals (red, yellow, green) on the positive edge of the clock or negative edge of the reset signal."
+  ]
+}

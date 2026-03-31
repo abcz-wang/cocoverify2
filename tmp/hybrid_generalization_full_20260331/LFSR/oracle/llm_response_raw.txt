@@ -1,0 +1,38 @@
+{
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify LFSR shift and feedback relation: on each rising edge of clk after reset release, out_next must equal {out[2:0], ~ (out[3] ^ out[2])}.",
+          "notes": [],
+          "observed_signals": [
+            "out"
+          ],
+          "pass_condition": "For every observed clock edge, the next sampled value of out matches the defined shift-feedback expression, ensuring deterministic progression.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "strict",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": 1,
+            "min_cycles": 0,
+            "mode": "exact_cycle"
+          },
+          "trigger_condition": "When a rising edge of clk occurs and reset is deasserted."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "additional_oracle_cases": [],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

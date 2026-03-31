@@ -1,0 +1,40 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "clk_div must become a defined (0 or 1) value and may change at most once within the observation window after reset release, reflecting a toggle of the divided clock.",
+          "notes": [
+            "The check avoids exact-cycle expectations; it only requires that the output stabilizes to a binary value and exhibits at most one transition in the bounded window."
+          ],
+          "observed_signals": [
+            "clk_div"
+          ],
+          "pass_condition": "clk_div is not X/Z throughout the window and the number of value changes is \u22641.",
+          "semantic_tags": [
+            "ambiguity_preserving",
+            "operation_specific"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "reset_release",
+            "max_cycles": 5,
+            "min_cycles": 0,
+            "mode": "bounded_range"
+          },
+          "trigger_condition": "When reset has been released and the observation window starts."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

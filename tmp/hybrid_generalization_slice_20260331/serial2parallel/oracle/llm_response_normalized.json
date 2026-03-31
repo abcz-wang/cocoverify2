@@ -1,0 +1,70 @@
+{
+  "additional_oracle_cases": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "Ensure dout_valid never asserts high before eight valid serial bits have been received.",
+          "notes": [
+            "Preserves safety without assuming exact latency."
+          ],
+          "observed_signals": [
+            "dout_valid"
+          ],
+          "pass_condition": "dout_valid must remain low until a count of eight din_valid=1 cycles has been observed; after that it may pulse high exactly once per group.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "mode": "event_based"
+          },
+          "trigger_condition": "When din_valid is driven high for any sequence of cycles."
+        }
+      ],
+      "linked_plan_case_id": "back_to_back_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "Verify that after eight consecutive din_valid=1 cycles, dout_valid pulses high and dout_parallel equals the assembled byte in MSB\u2011first order.",
+          "notes": [
+            "Uses the concrete grouping of eight valid bits as defined in the contract."
+          ],
+          "observed_signals": [
+            "dout_parallel",
+            "dout_valid"
+          ],
+          "pass_condition": "When a sequence of eight din_valid=1 cycles with associated din_serial bits is observed, dout_valid must transition high for at least one cycle and dout_parallel must match the concatenated bits [din_serial[7],...,din_serial[0]] captured during that sequence.",
+          "semantic_tags": [
+            "operation_specific",
+            "serial_history"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "mode": "event_based"
+          },
+          "trigger_condition": "When the stimulus drives a legal eight\u2011bit serial transfer."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

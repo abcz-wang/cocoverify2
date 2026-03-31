@@ -1,0 +1,88 @@
+module_name: verified_calendar
+rtl_sources:
+- /workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/calendar/verified_calendar.v
+parameters: {}
+port_count: 5
+ports:
+- name: CLK
+  direction: input
+  width: null
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_body_declaration
+  confidence: 0.85
+- name: RST
+  direction: input
+  width: null
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_body_declaration
+  confidence: 0.85
+- name: Hours
+  direction: output
+  width: 6
+  raw_range: '[5:0]'
+  signed: false
+  data_type: null
+  source: rtl_body_declaration
+  confidence: 0.85
+- name: Mins
+  direction: output
+  width: 6
+  raw_range: '[5:0]'
+  signed: false
+  data_type: null
+  source: rtl_body_declaration
+  confidence: 0.85
+- name: Secs
+  direction: output
+  width: 6
+  raw_range: '[5:0]'
+  signed: false
+  data_type: null
+  source: rtl_body_declaration
+  confidence: 0.85
+clock_names:
+- CLK
+reset_names:
+- RST
+handshake_groups: []
+handshake_signals: []
+timing:
+  sequential_kind: seq
+  latency_model: unknown
+  fixed_latency_cycles: null
+  variable_latency_range: null
+  sampling_window_cycles: null
+  source: rtl_heuristic
+  confidence: 0.9
+observable_outputs:
+- Hours
+- Mins
+- Secs
+ambiguities:
+- 'Spec/reset hint could not be mapped to a known reset port: The calendar module
+  uses three always blocks to update the values of seconds, minutes, and hours based
+  on the clock signal and reset signal.'
+- 'Spec/reset hint could not be mapped to a known reset port: The second always block
+  also triggers on the positive edge of the clock signal or the positive edge of the
+  reset signal. It handles the minutes value (Mins). If the reset signal is active,
+  it sets the minutes value to 0. If both the minutes and seconds values are 59, it
+  wraps around and sets the minutes value to 0. If the seconds value is 59, it increments
+  the minutes value by 1. Otherwise, it keeps the minutes value unchanged.'
+- 'Spec/reset hint could not be mapped to a known reset port: The third always block
+  triggers on the positive edge of the clock signal or the positive edge of the reset
+  signal. It handles the hours value (Hours). If the reset signal is active, it sets
+  the hours value to 0. If the hours, minutes, and seconds values are all at their
+  maximum (23, 59, and 59 respectively), it wraps around and sets the hours value
+  to 0. If the minutes and seconds values are both 59, it increments the hours value
+  by 1. Otherwise, it keeps the hours value unchanged.'
+extraction_warnings:
+- 'Port segment is missing a direction keyword: CLK'
+- 'Port segment is missing a direction keyword: RST'
+- 'Port segment is missing a direction keyword: Hours'
+- 'Port segment is missing a direction keyword: Mins'
+- 'Port segment is missing a direction keyword: Secs'
+contract_confidence: 0.4850000000000001

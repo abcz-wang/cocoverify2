@@ -1,0 +1,74 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When a constant frequency value (freq) is applied, the output wave_out must toggle after at most freq+1 clock cycles.",
+          "notes": [
+            "Derived from the specification that count increments each clk and toggles when count reaches (freq-1).",
+            "Conservative bound adds one extra cycle to accommodate possible off\u2011by\u2011one in implementation."
+          ],
+          "observed_signals": [
+            "wave_out"
+          ],
+          "pass_condition": "Within the bounded observation window, a change in wave_out (0\u21921 or 1\u21920) is observed; absence of toggle within the window fails the check.",
+          "semantic_tags": [
+            "operation_specific",
+            "value_dependent"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When freq is driven to a concrete constant and wave_out is observed."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "property",
+          "description": "wave_out must not toggle more frequently than once every freq clock cycles.",
+          "notes": [
+            "Ensures the implementation respects the minimum period implied by the frequency control.",
+            "Applicable for all concrete freq values exercised in the edge case."
+          ],
+          "observed_signals": [
+            "wave_out"
+          ],
+          "pass_condition": "The interval (in clock cycles) between successive toggles of wave_out is always greater than or equal to the current freq value.",
+          "semantic_tags": [
+            "width_sensitive",
+            "ambiguity_preserving"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "Whenever wave_out changes state while freq is held constant."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "property",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

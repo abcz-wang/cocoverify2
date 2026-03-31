@@ -1,0 +1,71 @@
+{
+  "additional_oracle_cases": [],
+  "assumptions": [],
+  "case_enrichments": [
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "When a legal operation request (opn_valid) is presented and the consumer is ready (res_ready), the module must eventually assert res_valid and present a stable 16‑bit result that does not change while res_valid remains asserted and res_ready stays low.",
+          "notes": [],
+          "observed_signals": [
+            "opn_valid",
+            "res_ready",
+            "res_valid",
+            "result"
+          ],
+          "pass_condition": "After opn_valid rises with res_ready high, a later cycle where res_valid is high must be observed; from that point until res_ready goes high, result must remain constant.",
+          "semantic_tags": [
+            "operation_specific",
+            "ambiguity_preserving"
+          ],
+          "strictness": "conservative",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "On each rising edge of opn_valid when res_ready is high."
+        }
+      ],
+      "linked_plan_case_id": "basic_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    },
+    {
+      "assumptions": [],
+      "checks": [
+        {
+          "check_type": "functional",
+          "description": "For boundary input values (dividend or divisor equal to 0 or 255), the 16‑bit result must respect the defined format: lower 8 bits hold the quotient, upper 8 bits hold the remainder, each fitting within 8 bits.",
+          "notes": [],
+          "observed_signals": [
+            "result"
+          ],
+          "pass_condition": "result[7:0] (quotient) and result[15:8] (remainder) are each 8‑bit values; no overflow beyond 8 bits is observable.",
+          "semantic_tags": [
+            "width_sensitive",
+            "operation_specific"
+          ],
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": 0,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When opn_valid is asserted with dividend or divisor at their min or max values."
+        }
+      ],
+      "linked_plan_case_id": "edge_001",
+      "notes": [],
+      "oracle_class": "functional",
+      "unresolved_items": []
+    }
+  ],
+  "oracle_notes": [],
+  "unresolved_items": []
+}

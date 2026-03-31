@@ -1,0 +1,651 @@
+{
+  "additional_cases": [
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["grouped_valid_closure", "full_group"],
+      "dependencies": ["reset_001"],
+      "draft_id": "full_group_closure_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Drive a full 8-bit valid group to produce a single dout_parallel output with dout_valid asserted, then clean up the valid signal.",
+      "notes": [],
+      "observed_signals": ["dout_parallel", "dout_valid"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "grouped_valid_closure",
+      "semantic_tags": ["operation_specific", "width_sensitive"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "0x??",
+            "dout_valid": "0x1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "cleanup: deassert din_valid after output captured"
+        }
+      ],
+      "stimulus_signals": ["din_serial", "din_valid"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "edge",
+      "comparison_operands": [],
+      "coverage_tags": ["gapped_valid_group", "gap_midstream"],
+      "dependencies": ["reset_001"],
+      "draft_id": "gapped_valid_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Introduce a gap in din_valid during an 8‑bit accumulation to verify that the module correctly pauses and resumes without spurious output.",
+      "notes": [],
+      "observed_signals": ["dout_parallel", "dout_valid"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "gapped_valid_group",
+      "semantic_tags": ["operation_specific", "ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "gap start"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "idle cycles while valid low"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b1"
+          },
+          "text": "gap end"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "0x??",
+            "dout_valid": "0x1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "cleanup"
+        }
+      ],
+      "stimulus_signals": ["din_serial", "din_valid"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "reset",
+      "comparison_operands": [],
+      "coverage_tags": ["reset_mid_progress", "midstream_reset"],
+      "dependencies": ["reset_001"],
+      "draft_id": "reset_mid_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Assert reset while a valid group is partially accumulated to verify that internal state clears and no output is produced.",
+      "notes": [],
+      "observed_signals": ["dout_parallel", "dout_valid"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "reset_mid_progress",
+      "semantic_tags": ["operation_specific", "ambiguity_preserving"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": ""
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b0"
+          },
+          "text": "assert reset mid‑group"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "rst_n": "1'b1"
+          },
+          "text": "deassert reset"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "0x0",
+            "dout_valid": "0x0"
+          },
+          "text": "verify no valid output after reset"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "cleanup"
+        }
+      ],
+      "stimulus_signals": ["din_serial", "din_valid", "rst_n"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "back_to_back",
+      "comparison_operands": [],
+      "coverage_tags": ["back_to_back_pair", "continuous_groups"],
+      "dependencies": ["reset_001"],
+      "draft_id": "back_to_back_pair_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Transmit two consecutive 8‑bit groups without idle cycles to verify back‑to‑back handling.",
+      "notes": [],
+      "observed_signals": ["dout_parallel", "dout_valid"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "back_to_back_pair",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 8,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": "first group (all ones)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "0xFF",
+            "dout_valid": "0x1"
+          },
+          "text": "capture first output"
+        },
+        {
+          "action": "drive",
+          "cycles": 8,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "second group (all zeros) immediately after"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "0x00",
+            "dout_valid": "0x1"
+          },
+          "text": "capture second output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "cleanup"
+        }
+      ],
+      "stimulus_signals": ["din_serial", "din_valid"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    },
+    {
+      "category": "basic",
+      "comparison_operands": [],
+      "coverage_tags": ["multi_group_stream", "repeated_groups"],
+      "dependencies": ["reset_001"],
+      "draft_id": "multi_group_001",
+      "expected_properties": [],
+      "expected_transition": "",
+      "goal": "Send three separate 8‑bit groups with idle cycles between them to verify proper re‑initialization of the counter.",
+      "notes": [],
+      "observed_signals": ["dout_parallel", "dout_valid"],
+      "preconditions": [],
+      "priority": 5,
+      "reference_domain": "",
+      "relation_kind": "",
+      "scenario_kind": "multi_group_stream",
+      "semantic_tags": ["operation_specific"],
+      "settle_requirement": "",
+      "stimulus_intent": [],
+      "stimulus_program": [
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b1"
+          },
+          "text": ""
+        },
+        {
+          "action": "drive",
+          "cycles": 8,
+          "signals": {
+            "din_serial": "1'b0"
+          },
+          "text": "group 1 (all zeros)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "0x00",
+            "dout_valid": "0x1"
+          },
+          "text": "capture group 1 output"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 2,
+          "signals": {},
+          "text": "idle between groups"
+        },
+        {
+          "action": "drive",
+          "cycles": 8,
+          "signals": {
+            "din_serial": "1'b1"
+          },
+          "text": "group 2 (all ones)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "0xFF",
+            "dout_valid": "0x1"
+          },
+          "text": "capture group 2 output"
+        },
+        {
+          "action": "wait_cycles",
+          "cycles": 3,
+          "signals": {},
+          "text": "idle before third group"
+        },
+        {
+          "action": "drive",
+          "cycles": 8,
+          "signals": {
+            "din_serial": "1'b10101010"
+          },
+          "text": "group 3 (pattern 0xAA)"
+        },
+        {
+          "action": "wait_for_settle",
+          "cycles": 1,
+          "signals": {},
+          "text": ""
+        },
+        {
+          "action": "record_inputs",
+          "cycles": 1,
+          "signals": {
+            "dout_parallel": "0xAA",
+            "dout_valid": "0x1"
+          },
+          "text": "capture group 3 output"
+        },
+        {
+          "action": "drive",
+          "cycles": 1,
+          "signals": {
+            "din_valid": "1'b0"
+          },
+          "text": "cleanup"
+        }
+      ],
+      "stimulus_signals": ["din_serial", "din_valid"],
+      "timing_assumptions": [
+        "Advance through conservative clocked observations.",
+        "Do not assume completion before it becomes externally visible."
+      ]
+    }
+  ],
+  "baseline_case_enrichments": [],
+  "assumptions": [],
+  "planning_notes": [],
+  "unresolved_items": []
+}

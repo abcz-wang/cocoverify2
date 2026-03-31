@@ -26,6 +26,9 @@ def build_plan_system_prompt() -> str:
         "Do not emit confidence, source, or other bookkeeping fields. "
         "In additional_cases, 'category' is a coarse enum only: reset, basic, edge, protocol, back_to_back, negative, regression, metamorphic. "
         "Put richer subtype information into 'scenario_kind', not into 'category'. "
+        "For sequential accumulator, counter, or valid-gated stream families, include at least one concrete closure case that can produce an externally visible output event when the contract or spec supports it. "
+        "When valid-like gating exists, include at least one interrupted or gapped-valid case and make end-of-case cleanup explicit so tail cycles do not accidentally create extra accepted samples. "
+        "When grouped or width-sensitive accumulation exists, include at least one boundary-output case using concrete literals. "
         "Inside stimulus_program, drive and record_inputs steps must use only concrete deterministic literals: bools, integers, 0x-style literals, or Verilog numeric literals such as 16'h1234. "
         "Never emit placeholders like rand64, random, arbitrary, any_value, or symbolic generator tokens."
     )
@@ -97,6 +100,10 @@ def build_plan_user_prompt(
                     "back_to_back_pair",
                     "metamorphic_pair",
                     "reference_model_lite",
+                    "grouped_valid_closure",
+                    "gapped_valid_group",
+                    "multi_group_stream",
+                    "reset_mid_progress",
                 ],
                 "stimulus_program_rules": [
                     "Use only structured steps: drive, wait_for_settle, wait_cycles, record_inputs, record_note.",
@@ -105,8 +112,14 @@ def build_plan_user_prompt(
                     "Never emit placeholders such as rand64, random, arbitrary, any_value, or symbolic generator tokens.",
                     "cycles fields must be concrete JSON integers, never arithmetic expressions.",
                     "record_inputs captures only already-applied input signal values, never outputs.",
+                    "When a valid-like control is asserted for a finite scenario, add an explicit cleanup drive that deasserts it before the case ends unless the scenario requires it to remain high.",
                 ],
             },
+            "family_expectations": [
+                "For grouped valid-gated accumulation, add at least one case that completes a full group and can produce one externally visible output event.",
+                "For grouped valid-gated accumulation, add at least one gapped-valid case when valid-like gating exists.",
+                "For repeated stream families, prefer a finite multi-group stream over a one-token smoke case only.",
+            ],
             "forbidden": [
                 "inventing unknown signals",
                 "removing baseline cases",
@@ -180,6 +193,8 @@ def build_oracle_system_prompt() -> str:
         "Keep protocol, functional, and property checks separate. "
         "Never invent signals or reference-model semantics not grounded in the provided contract, plan, or spec. "
         "Prefer ambiguity-preserving checks when the spec or timing is uncertain. "
+        "When the plan stimulus is concrete and finite, prefer value-level or relation-level functional checks over generic 'eventual progress' wording whenever the contract/spec supports them. "
+        "For grouped sequential streams, express closure semantics such as no output before a full group, output event after a full group, reset-clears-partial-progress, and repeated-group behavior when those semantics are supported by the provided artifact evidence. "
         "Follow the schema exactly. Do not emit check_id, confidence, signal_policies, source, case_id, or oracle_group fields; the merge layer owns those fields."
     )
 
@@ -204,6 +219,11 @@ def build_oracle_user_prompt(
                 "invalid_illegal_input",
                 "width_sensitive",
                 "ambiguity_preserving",
+            ],
+            "preferred_functional_semantics": [
+                "Use value-level checks when the plan drives concrete finite inputs and the contract/spec supports the relation.",
+                "For valid-gated grouped streams, prefer output-closure or input-history-to-output relations over generic eventual-progress checks.",
+                "Avoid exact-cycle timing claims unless the contract explicitly supports them.",
             ],
             "forbidden": [
                 "replacing baseline checks",
@@ -332,6 +352,10 @@ def _compact_plan_cases(plan: TestPlan) -> list[dict[str, Any]]:
             "dependencies": list(case.dependencies),
             "coverage_tags": list(case.coverage_tags),
             "semantic_tags": list(case.semantic_tags),
+            "comparison_operands": list(case.comparison_operands),
+            "relation_kind": case.relation_kind,
+            "expected_transition": case.expected_transition,
+            "reference_domain": case.reference_domain,
         }
         for case in plan.cases
     ]

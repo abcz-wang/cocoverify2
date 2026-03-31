@@ -605,6 +605,317 @@ def test_oracle_preserves_scalar_status_output_ambiguity_for_width_sensitive_seq
     assert check.signal_policies["FULL"].strength == AssertionStrength.UNRESOLVED
 
 
+def test_oracle_emits_fifo_readback_relation_for_weak_async_fifo_contract(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="asyn_fifo",
+        ports=[
+            PortSpec(name="wclk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rclk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="wrstn", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rrstn", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="winc", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rinc", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="wdata", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="wfull", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="rempty", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="rdata", direction=PortDirection.OUTPUT, width=8),
+        ],
+        observable_outputs=["wfull", "rempty", "rdata"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.75),
+        contract_confidence=0.68,
+        ambiguities=["a", "b", "c"],
+    )
+    plan = PlanModel(
+        module_name="asyn_fifo",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.82,
+        cases=[
+            PlanCaseModel(
+                case_id="basic_001",
+                goal="write then read",
+                category=PlanCategory.BASIC,
+                stimulus_intent=["write a value then read it back"],
+                stimulus_signals=["winc", "rinc", "wdata"],
+                expected_properties=["observe fifo behavior"],
+                observed_signals=["wfull", "rempty", "rdata"],
+                timing_assumptions=["clocked"],
+                coverage_tags=["basic", "seq"],
+                semantic_tags=["operation_specific"],
+                confidence=0.8,
+            )
+        ],
+        unresolved_items=["generic ambiguity 1", "generic ambiguity 2", "generic ambiguity 3"],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    functional_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
+    assert any(check.relation_kind == "fifo_write_readback" for check in functional_case.checks)
+
+
+def test_oracle_emits_packing_and_divide_relations_for_operation_specific_cases(tmp_path: Path) -> None:
+    width_contract = DUTContract(
+        module_name="width_8to16",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="valid_in", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="data_in", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="valid_out", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="data_out", direction=PortDirection.OUTPUT, width=16),
+        ],
+        observable_outputs=["valid_out", "data_out"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.82),
+        contract_confidence=0.8,
+    )
+    width_plan = PlanModel(
+        module_name="width_8to16",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.82,
+        cases=[
+            PlanCaseModel(
+                case_id="basic_001",
+                goal="pack bytes",
+                category=PlanCategory.BASIC,
+                stimulus_intent=["drive two input bytes"],
+                stimulus_signals=["valid_in", "data_in"],
+                expected_properties=["observe packed output"],
+                observed_signals=["valid_out", "data_out"],
+                timing_assumptions=["clocked"],
+                coverage_tags=["basic"],
+                semantic_tags=["operation_specific"],
+                confidence=0.8,
+            )
+        ],
+    )
+
+    width_oracle = OracleGenerator().run(
+        contract=width_contract,
+        plan=width_plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "width",
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+    width_case = next(case for case in width_oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
+    assert any(check.relation_kind == "byte_pack_pair" for check in width_case.checks)
+
+    div_contract = DUTContract(
+        module_name="div_16bit",
+        ports=[
+            PortSpec(name="A", direction=PortDirection.INPUT, width=16),
+            PortSpec(name="B", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="result", direction=PortDirection.OUTPUT, width=16),
+            PortSpec(name="odd", direction=PortDirection.OUTPUT, width=16),
+        ],
+        observable_outputs=["result", "odd"],
+        timing=TimingSpec(sequential_kind=SequentialKind.COMB, latency_model="unknown", confidence=0.72),
+        contract_confidence=0.71,
+    )
+    div_plan = PlanModel(
+        module_name="div_16bit",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.82,
+        cases=[
+            PlanCaseModel(
+                case_id="basic_001",
+                goal="divide operands",
+                category=PlanCategory.BASIC,
+                stimulus_intent=["drive dividend/divisor"],
+                stimulus_signals=["A", "B"],
+                expected_properties=["observe quotient/remainder"],
+                observed_signals=["result", "odd"],
+                timing_assumptions=["settle"],
+                coverage_tags=["basic"],
+                semantic_tags=["operation_specific"],
+                confidence=0.8,
+            )
+        ],
+    )
+
+    div_oracle = OracleGenerator().run(
+        contract=div_contract,
+        plan=div_plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "div",
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+    div_case = next(case for case in div_oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
+    assert any(check.relation_kind == "unsigned_divide_16_by_8" for check in div_case.checks)
+
+
+def test_oracle_does_not_force_pattern_detect_relation_for_generic_sequence_detector(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="sequence_detector",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="data_in", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="sequence_detected", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["sequence_detected"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        contract_confidence=0.8,
+    )
+    plan = PlanModel(
+        module_name="sequence_detector",
+        based_on_contract="demo",
+        plan_strategy="rule_based_conservative",
+        plan_confidence=0.82,
+        cases=[
+            PlanCaseModel(
+                case_id="edge_001",
+                goal="probe sequence",
+                category=PlanCategory.EDGE,
+                stimulus_intent=["drive a representative sequence"],
+                stimulus_signals=["data_in"],
+                expected_properties=["observe output progress"],
+                observed_signals=["sequence_detected"],
+                timing_assumptions=["clocked"],
+                coverage_tags=["edge"],
+                semantic_tags=["operation_specific"],
+                confidence=0.8,
+            )
+        ],
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "sequence",
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+    functional_case = next(case for case in oracle.functional_oracles if case.linked_plan_case_id == "edge_001")
+
+    assert all(check.relation_kind != "sequence_pattern_detect" for check in functional_case.checks)
+
+
+def test_oracle_emits_grouped_valid_accumulation_relation_for_accumulator_family(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="accu",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="data_in", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="valid_in", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="valid_out", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="data_out", direction=PortDirection.OUTPUT, width=10),
+        ],
+        observable_outputs=["valid_out", "data_out"],
+        assumptions=["valid_out is asserted after 4 valid input accumulation samples have been accepted."],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        contract_confidence=0.82,
+    )
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description="Accumulate every four valid inputs and emit one output event.",
+        spec_text="Use valid_in gating and allow reset to clear partial progress.",
+        out_dir=tmp_path / "plan_src",
+    )
+
+    oracle = OracleGenerator().run(
+        contract=contract,
+        plan=plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path,
+        based_on_contract="demo_contract.json",
+        based_on_plan="demo_plan.json",
+    )
+
+    grouped_cases = [
+        case
+        for case in oracle.functional_oracles
+        if any(check.relation_kind == "grouped_valid_accumulation" for check in case.checks)
+    ]
+    assert grouped_cases
+    closure_case = next(case for case in grouped_cases if case.linked_plan_case_id == "basic_002")
+    grouped_check = next(check for check in closure_case.checks if check.relation_kind == "grouped_valid_accumulation")
+    assert grouped_check.oracle_pattern
+    assert "\"group_size\": 4" in grouped_check.oracle_pattern
+    assert grouped_check.expected_transition == "single_group_sum"
+
+
+def test_oracle_emits_ring_and_traffic_relations_for_autonomous_stateful_families(tmp_path: Path) -> None:
+    ring_contract = DUTContract(
+        module_name="ring_counter",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="reset", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="out", direction=PortDirection.OUTPUT, width=8),
+        ],
+        observable_outputs=["out"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        contract_confidence=0.8,
+    )
+    ring_plan = TestPlanGenerator().run(
+        contract=ring_contract,
+        task_description="Ring counter",
+        spec_text="Rotate a single asserted bit across the output register.",
+        out_dir=tmp_path / "ring_plan",
+    )
+    ring_oracle = OracleGenerator().run(
+        contract=ring_contract,
+        plan=ring_plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "ring_oracle",
+        based_on_contract="ring_contract.json",
+        based_on_plan="ring_plan.json",
+    )
+    ring_case = next(case for case in ring_oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
+    assert any(check.relation_kind == "one_hot_rotation_progression" for check in ring_case.checks)
+
+    traffic_contract = DUTContract(
+        module_name="traffic_light",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="pass_request", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="red", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="yellow", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="green", direction=PortDirection.OUTPUT, width=1),
+        ],
+        observable_outputs=["red", "yellow", "green"],
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        contract_confidence=0.8,
+    )
+    traffic_plan = TestPlanGenerator().run(
+        contract=traffic_contract,
+        task_description="Traffic light controller",
+        spec_text="Respond to pass_request by progressing through green, yellow, and red phases.",
+        out_dir=tmp_path / "traffic_plan",
+    )
+    traffic_oracle = OracleGenerator().run(
+        contract=traffic_contract,
+        plan=traffic_plan,
+        task_description=None,
+        spec_text=None,
+        out_dir=tmp_path / "traffic_oracle",
+        based_on_contract="traffic_contract.json",
+        based_on_plan="traffic_plan.json",
+    )
+    basic_case = next(case for case in traffic_oracle.functional_oracles if case.linked_plan_case_id == "basic_001")
+    assert any(check.relation_kind == "traffic_light_phase_progression" for check in basic_case.checks)
+
+
 def test_oracle_reset_data_outputs_do_not_require_immediate_definedness_without_reset_specific_evidence(tmp_path: Path) -> None:
     contract = DUTContract(
         module_name="demo_seq_ram",

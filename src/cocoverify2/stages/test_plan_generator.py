@@ -20,6 +20,7 @@ from cocoverify2.llm.validators import (
 )
 from cocoverify2.utils.files import ensure_dir, read_json, write_json, write_text, write_yaml
 from cocoverify2.utils.logging import get_logger
+from cocoverify2.utils.semantic_families import infer_grouped_valid_accumulator_family
 
 
 class TestPlanGenerator:
@@ -165,6 +166,17 @@ class TestPlanGenerator:
             )
         elif weak_contract and contract.timing.sequential_kind == SequentialKind.UNKNOWN:
             unresolved_items.append("Negative or illegal-input behavior is not planned because the contract does not provide reliable constraints.")
+
+        if not minimal_plan_only:
+            cases.extend(
+                self._build_grouped_valid_accumulator_cases(
+                    contract=contract,
+                    counters=counters,
+                    observed_signals=observed_signals,
+                    task_description=task_description,
+                    spec_text=spec_text,
+                )
+            )
 
         if task_description:
             assumptions.append("Task description was provided and only used as a low-risk planning hint.")
@@ -709,6 +721,213 @@ class TestPlanGenerator:
             notes=["Negative planning is limited to constraints explicitly present in the contract or spec hints."],
         )
 
+    def _build_grouped_valid_accumulator_cases(
+        self,
+        *,
+        contract: DUTContract,
+        counters: dict[str, int],
+        observed_signals: list[str],
+        task_description: str | None,
+        spec_text: str | None,
+    ) -> list[TestCasePlan]:
+        family = infer_grouped_valid_accumulator_family(
+            contract,
+            task_description=task_description,
+            spec_text=spec_text,
+        )
+        if family is None:
+            return []
+
+        data_in = str(family["data_in"])
+        valid_in = str(family["valid_in"])
+        data_out = str(family["data_out"])
+        valid_out = str(family["valid_out"])
+        group_size = int(family["group_size"])
+        data_width = family.get("data_width") if isinstance(family.get("data_width"), int) else 8
+        max_value = (1 << max(1, data_width)) - 1
+        relation_operands = [data_in, valid_in, data_out, valid_out]
+
+        cases: list[TestCasePlan] = []
+        cases.append(
+            self._make_case(
+                counters=counters,
+                category=TestCategory.BASIC,
+                goal="Drive one complete valid input group and require exactly one accumulated output event.",
+                preconditions=["The contract documents grouped valid-gated accumulation semantics."],
+                stimulus_intent=[
+                    f"Present {group_size} valid input samples with concrete low-magnitude values.",
+                    "Deassert valid-like gating at case end so conservative post-stimulus observation cannot add extra accepted samples.",
+                ],
+                stimulus_signals=[data_in, valid_in],
+                expected_properties=[
+                    f"No output event is justified before {group_size} accepted valid samples have been presented.",
+                    "After one complete group, exactly one output event becomes externally visible and its value matches the concrete accumulated sum.",
+                ],
+                observed_signals=_merge_signals(observed_signals, [valid_out, data_out]),
+                timing_assumptions=_safe_timing_assumptions(contract)
+                + [
+                    "Do not assume an exact completion cycle for the grouped output event.",
+                    "Use only the concrete finite valid-gated stream driven by the plan.",
+                ],
+                dependencies=["reset_001"] if contract.resets else [],
+                coverage_tags=["basic", "seq", "group_closure"],
+                semantic_tags=["operation_specific", "stream_grouping"],
+                scenario_kind="grouped_valid_closure",
+                stimulus_program=_accumulator_group_program(valid_in=valid_in, data_in=data_in, values=list(range(1, group_size + 1))),
+                comparison_operands=relation_operands,
+                relation_kind="grouped_valid_accumulation",
+                expected_transition="single_group_sum",
+                reference_domain=f"group_size={group_size};allow_gaps=0;expected_groups=1",
+                priority=1,
+                confidence=_case_confidence(contract, bonus=0.03),
+                notes=["Concrete grouped-valid closure case added because the contract gives enough structure to observe one accumulated output event."],
+            )
+        )
+        cases.append(
+            self._make_case(
+                counters=counters,
+                category=TestCategory.EDGE,
+                goal="Accumulate one full boundary-value group and observe the width-sensitive output closure.",
+                preconditions=["The grouped valid accumulator exposes a width-sensitive data output."],
+                stimulus_intent=[
+                    f"Present {group_size} maximum-width valid input samples.",
+                    "Quiesce valid-like gating after the final boundary sample so the observed closure remains tied to one finite group.",
+                ],
+                stimulus_signals=[data_in, valid_in],
+                expected_properties=[
+                    "The grouped output event remains externally visible without inventing an exact-cycle latency.",
+                    "The emitted accumulated value reflects the concrete boundary input group.",
+                ],
+                observed_signals=_merge_signals(observed_signals, [valid_out, data_out]),
+                timing_assumptions=_safe_timing_assumptions(contract)
+                + ["Boundary-value accumulation is checked as one finite group, not as an unbounded stream."],
+                dependencies=["basic_001"],
+                coverage_tags=["edge", "boundary", "group_closure"],
+                semantic_tags=["operation_specific", "width_sensitive", "stream_grouping"],
+                scenario_kind="boundary_vector",
+                stimulus_program=_accumulator_group_program(valid_in=valid_in, data_in=data_in, values=[max_value] * group_size),
+                comparison_operands=relation_operands,
+                relation_kind="grouped_valid_accumulation",
+                expected_transition="single_group_sum",
+                reference_domain=f"group_size={group_size};allow_gaps=0;expected_groups=1",
+                priority=2,
+                confidence=_case_confidence(contract, bonus=0.02),
+                notes=["Boundary-output closure case is concrete but still ambiguity-preserving about exact completion timing."],
+            )
+        )
+        cases.append(
+            self._make_case(
+                counters=counters,
+                category=TestCategory.PROTOCOL,
+                goal="Use gaps in valid-like gating and confirm that only asserted valid cycles contribute to grouped accumulation.",
+                preconditions=["The accumulator accepts data only when valid-like gating is asserted."],
+                stimulus_intent=[
+                    f"Drive a finite stream with {group_size} accepted samples separated by valid-low gaps.",
+                    "End the case with valid-like gating low to avoid tail-cycle ambiguity during conservative observation.",
+                ],
+                stimulus_signals=[data_in, valid_in],
+                expected_properties=[
+                    "Idle or gap cycles do not count toward group closure.",
+                    "One accumulated output event eventually reflects only the accepted samples.",
+                ],
+                observed_signals=_merge_signals(observed_signals, [valid_out, data_out]),
+                timing_assumptions=_safe_timing_assumptions(contract)
+                + ["Gap cycles are treated as non-accepting observation points."],
+                dependencies=["basic_001"],
+                coverage_tags=["protocol", "valid_gated_stream", "group_closure"],
+                semantic_tags=["operation_specific", "stream_grouping"],
+                scenario_kind="gapped_valid_group",
+                stimulus_program=_accumulator_gapped_program(valid_in=valid_in, data_in=data_in, values=list(range(1, group_size + 1))),
+                comparison_operands=relation_operands,
+                relation_kind="grouped_valid_accumulation",
+                expected_transition="gapped_group_sum",
+                reference_domain=f"group_size={group_size};allow_gaps=1;expected_groups=1",
+                priority=2,
+                confidence=_case_confidence(contract, bonus=0.01),
+                notes=["Valid-gap case is finite and deterministic; it checks acceptance semantics rather than exact pipeline latency."],
+            )
+        )
+        if family.get("reset_name"):
+            cases.append(
+                self._make_case(
+                    counters=counters,
+                    category=TestCategory.REGRESSION,
+                    goal="Reset mid-accumulation and confirm partial state is cleared before a later full group completes.",
+                    preconditions=["A resolved reset is available and may be driven conservatively mid-stream."],
+                    stimulus_intent=[
+                        "Apply a partial valid group, assert reset, then drive one later full valid group.",
+                        "End with valid-like gating quiesced so any later output event is attributable only to the post-reset group.",
+                    ],
+                    stimulus_signals=[data_in, valid_in, str(family["reset_name"])],
+                    expected_properties=[
+                        "Partial pre-reset progress is cleared by reset.",
+                        "No output event is attributed to the truncated pre-reset group; any later output event matches only the post-reset group.",
+                    ],
+                    observed_signals=_merge_signals(observed_signals, [valid_out, data_out]),
+                    timing_assumptions=_safe_timing_assumptions(contract)
+                    + ["Reset remains the only allowed state-clear event in this case."],
+                    dependencies=["reset_001"],
+                    coverage_tags=["regression", "reset_recovery", "group_closure"],
+                    semantic_tags=["operation_specific", "stream_grouping"],
+                    scenario_kind="reset_mid_progress",
+                    stimulus_program=_accumulator_reset_mid_program(
+                        valid_in=valid_in,
+                        data_in=data_in,
+                        reset_name=str(family["reset_name"]),
+                        reset_active_level=int(family["reset_active_level"] or 0),
+                        values_before=[1, 2],
+                        values_after=list(range(5, 5 + group_size)),
+                    ),
+                    comparison_operands=relation_operands,
+                    relation_kind="grouped_valid_accumulation",
+                    expected_transition="reset_clears_partial_group",
+                    reference_domain=(
+                        f"group_size={group_size};allow_gaps=0;expected_groups=1;"
+                        f"reset_signal={family['reset_name']};reset_active_level={int(family['reset_active_level'] or 0)}"
+                    ),
+                    priority=3,
+                    confidence=_case_confidence(contract, bonus=0.01),
+                    notes=["Reset-mid-progress case is concrete and avoids guessing exact recovery latency beyond externally visible grouped closure."],
+                )
+            )
+        cases.append(
+            self._make_case(
+                counters=counters,
+                category=TestCategory.BACK_TO_BACK,
+                goal="Drive multiple complete valid groups in one finite stream and require repeated output-closure behavior.",
+                preconditions=["Grouped accumulation may repeat over longer legal input streams."],
+                stimulus_intent=[
+                    f"Present two complete groups of {group_size} accepted samples with no unbounded idle region between them.",
+                    "Quiesce valid-like gating at case end so post-stimulus observation cannot accidentally extend the stream.",
+                ],
+                stimulus_signals=[data_in, valid_in],
+                expected_properties=[
+                    "Repeated grouped closure produces repeated output events.",
+                    "Each output event matches the concrete accumulated sum of its corresponding group.",
+                ],
+                observed_signals=_merge_signals(observed_signals, [valid_out, data_out]),
+                timing_assumptions=_safe_timing_assumptions(contract)
+                + ["Repeated grouped outputs are checked event-wise, not by assuming exact inter-group latency."],
+                dependencies=["basic_001"],
+                coverage_tags=["back_to_back", "repeated_operation", "group_closure"],
+                semantic_tags=["operation_specific", "stream_grouping"],
+                scenario_kind="multi_group_stream",
+                stimulus_program=_accumulator_group_program(
+                    valid_in=valid_in,
+                    data_in=data_in,
+                    values=list(range(1, group_size + 1)) + list(range(10, 10 + group_size)),
+                ),
+                comparison_operands=relation_operands,
+                relation_kind="grouped_valid_accumulation",
+                expected_transition="multi_group_sum",
+                reference_domain=f"group_size={group_size};allow_gaps=0;expected_groups=2",
+                priority=3,
+                confidence=_case_confidence(contract, bonus=0.02),
+                notes=["Multi-group stream case is finite and aims to check repeated closure behavior rather than open-ended streaming."],
+            )
+        )
+        return cases
+
     def _make_case(
         self,
         *,
@@ -727,6 +946,13 @@ class TestPlanGenerator:
         notes: list[str],
         stimulus_signals: list[str] | None = None,
         semantic_tags: list[str] | None = None,
+        scenario_kind: str = "",
+        stimulus_program: list[dict[str, object]] | None = None,
+        settle_requirement: str = "",
+        comparison_operands: list[str] | None = None,
+        relation_kind: str = "",
+        expected_transition: str = "",
+        reference_domain: str = "",
     ) -> TestCasePlan:
         counters[category.value] += 1
         case_id = f"{category.value}_{counters[category.value]:03d}"
@@ -743,6 +969,13 @@ class TestPlanGenerator:
             dependencies=dependencies,
             coverage_tags=coverage_tags,
             semantic_tags=list(semantic_tags or []),
+            scenario_kind=scenario_kind,
+            stimulus_program=list(stimulus_program or []),
+            settle_requirement=settle_requirement,
+            comparison_operands=list(comparison_operands or []),
+            relation_kind=relation_kind,
+            expected_transition=expected_transition,
+            reference_domain=reference_domain,
             priority=priority,
             confidence=confidence,
             source="rule_based",
@@ -967,6 +1200,10 @@ def _append_unique(existing: list[str], additions: list[str]) -> list[str]:
     return _deduped(list(existing) + list(additions))
 
 
+def _merge_signals(primary: list[str], extra: list[str]) -> list[str]:
+    return _deduped(list(primary) + list(extra))
+
+
 def _case_counters(cases: list[TestCasePlan]) -> dict[str, int]:
     counters: dict[str, int] = defaultdict(int)
     for case in cases:
@@ -1001,3 +1238,56 @@ def _classify_plan_fallback_reason(reason: str) -> str:
 
 def _single_line(text: str) -> str:
     return " ".join(str(text or "").split())
+
+
+def _accumulator_group_program(*, valid_in: str, data_in: str, values: list[int]) -> list[dict[str, object]]:
+    steps: list[dict[str, object]] = []
+    for value in values:
+        steps.append({"action": "drive", "signals": {valid_in: 1, data_in: int(value)}})
+        steps.append({"action": "wait_cycles", "cycles": 1})
+    final_value = int(values[-1]) if values else 0
+    steps.append({"action": "drive", "signals": {valid_in: 0, data_in: final_value}})
+    steps.append({"action": "wait_cycles", "cycles": 1})
+    return steps
+
+
+def _accumulator_gapped_program(*, valid_in: str, data_in: str, values: list[int]) -> list[dict[str, object]]:
+    steps: list[dict[str, object]] = []
+    for index, value in enumerate(values):
+        steps.append({"action": "drive", "signals": {valid_in: 1, data_in: int(value)}})
+        steps.append({"action": "wait_cycles", "cycles": 1})
+        if index < len(values) - 1:
+            steps.append({"action": "drive", "signals": {valid_in: 0, data_in: int(value)}})
+            steps.append({"action": "wait_cycles", "cycles": 1})
+    final_value = int(values[-1]) if values else 0
+    steps.append({"action": "drive", "signals": {valid_in: 0, data_in: final_value}})
+    steps.append({"action": "wait_cycles", "cycles": 1})
+    return steps
+
+
+def _accumulator_reset_mid_program(
+    *,
+    valid_in: str,
+    data_in: str,
+    reset_name: str,
+    reset_active_level: int,
+    values_before: list[int],
+    values_after: list[int],
+) -> list[dict[str, object]]:
+    release_level = 1 - int(reset_active_level)
+    steps: list[dict[str, object]] = []
+    for value in values_before:
+        steps.append({"action": "drive", "signals": {valid_in: 1, data_in: int(value), reset_name: release_level}})
+        steps.append({"action": "wait_cycles", "cycles": 1})
+    hold_value = int(values_before[-1]) if values_before else 0
+    steps.append({"action": "drive", "signals": {valid_in: 0, data_in: hold_value, reset_name: int(reset_active_level)}})
+    steps.append({"action": "wait_cycles", "cycles": 1})
+    steps.append({"action": "drive", "signals": {valid_in: 0, data_in: hold_value, reset_name: release_level}})
+    steps.append({"action": "wait_cycles", "cycles": 1})
+    for value in values_after:
+        steps.append({"action": "drive", "signals": {valid_in: 1, data_in: int(value), reset_name: release_level}})
+        steps.append({"action": "wait_cycles", "cycles": 1})
+    final_value = int(values_after[-1]) if values_after else hold_value
+    steps.append({"action": "drive", "signals": {valid_in: 0, data_in: final_value, reset_name: release_level}})
+    steps.append({"action": "wait_cycles", "cycles": 1})
+    return steps

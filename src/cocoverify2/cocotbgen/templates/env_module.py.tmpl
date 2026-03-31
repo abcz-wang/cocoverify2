@@ -35,6 +35,8 @@ class ${class_name}:
         self.coverage = ${coverage_class}()
         self.observation_log: list[dict[str, object]] = []
         self.case_inputs: dict[str, dict[str, object]] = {}
+        self.case_stimulus_history: dict[str, list[dict[str, object]]] = {}
+        self.case_observation_history: dict[str, list[dict[str, object]]] = {}
         self.case_notes: dict[str, list[str]] = {}
         self._last_driven_inputs: dict[str, object] = {}
         self._clock_tasks: list[object] = []
@@ -160,6 +162,46 @@ ${exact_cycle_dispatch}        await self.wait_event_based(label=label)
         """Return the recorded applied inputs for a plan case."""
         return dict(self.case_inputs.get(case_id, {}))
 
+    def record_case_stimulus_step(self, case_id: str, step: dict[str, object]) -> None:
+        """Persist a deterministic stimulus step so semantic checks can inspect input history."""
+        signals = step.get("signals")
+        normalized_step = {"action": str(step.get("action", ""))}
+        if isinstance(signals, dict):
+            normalized_step["signals"] = dict(signals)
+        if "cycles" in step:
+            normalized_step["cycles"] = int(step.get("cycles") or 1)
+        if "text" in step:
+            normalized_step["text"] = str(step.get("text") or "")
+        self.case_stimulus_history.setdefault(case_id, []).append(normalized_step)
+
+    def get_case_stimulus_history(self, case_id: str) -> list[dict[str, object]]:
+        """Return the deterministic step history recorded for a plan case."""
+        return [dict(step) for step in self.case_stimulus_history.get(case_id, [])]
+
+    def record_case_observation(
+        self,
+        case_id: str,
+        *,
+        step_index: int,
+        action: str,
+        sampled_outputs: dict[str, object],
+        cycle_index: int | None = None,
+    ) -> None:
+        """Persist sampled outputs taken during deterministic stimulus execution."""
+        observation = {
+            "step_index": int(step_index),
+            "action": str(action),
+            "sampled_outputs": dict(sampled_outputs),
+            "driven_inputs": dict(self._last_driven_inputs),
+        }
+        if cycle_index is not None:
+            observation["cycle_index"] = int(cycle_index)
+        self.case_observation_history.setdefault(case_id, []).append(observation)
+
+    def get_case_observation_history(self, case_id: str) -> list[dict[str, object]]:
+        """Return sampled outputs collected during deterministic case execution."""
+        return [dict(item) for item in self.case_observation_history.get(case_id, [])]
+
     def record_case_note(self, case_id: str, text: str) -> None:
         """Attach a lightweight note to a rendered case execution."""
         self.case_notes.setdefault(case_id, []).append(str(text))
@@ -218,16 +260,32 @@ ${stimulus_helper_blocks}    def note_oracle_result(self, result: dict[str, obje
     async def _apply_deterministic_case(self, case_id: str) -> None:
         """Apply deterministic rule-based stimulus steps rendered for one case."""
         case = PLAN_CASES[case_id]
-        for step in case.get("deterministic_stimulus_steps", []):
+        for step_index, step in enumerate(case.get("deterministic_stimulus_steps", [])):
             action = step.get("action", "")
+            self.record_case_stimulus_step(case_id, dict(step))
             if action == "drive":
                 await self.drive_inputs(**dict(step.get("signals", {})))
                 continue
             if action == "wait_for_settle":
                 await self.wait_for_settle()
+                self.record_case_observation(
+                    case_id,
+                    step_index=step_index,
+                    action=action,
+                    sampled_outputs=await self.sample_outputs(),
+                )
                 continue
             if action == "wait_cycles":
-                await self.wait_bounded_safe(int(step.get("cycles") or 1), label=f"{case_id}_stimulus")
+                cycles = int(step.get("cycles") or 1)
+                for cycle_index in range(max(1, cycles)):
+                    await self.wait_event_based(label=f"{case_id}_stimulus")
+                    self.record_case_observation(
+                        case_id,
+                        step_index=step_index,
+                        action=action,
+                        cycle_index=cycle_index,
+                        sampled_outputs=await self.sample_outputs(),
+                    )
                 continue
             if action == "record_inputs":
                 self.record_case_inputs(case_id, dict(step.get("signals", {})))

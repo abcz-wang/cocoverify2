@@ -440,7 +440,55 @@ def test_build_plan_user_prompt_uses_compact_context() -> None:
         "dependencies",
         "coverage_tags",
         "semantic_tags",
+        "comparison_operands",
+        "relation_kind",
+        "expected_transition",
+        "reference_domain",
     }
+
+
+def test_accumulator_like_contract_generates_group_closure_cases(tmp_path: Path) -> None:
+    contract = DUTContract(
+        module_name="accu",
+        ports=[
+            PortSpec(name="clk", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="rst_n", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="data_in", direction=PortDirection.INPUT, width=8),
+            PortSpec(name="valid_in", direction=PortDirection.INPUT, width=1),
+            PortSpec(name="valid_out", direction=PortDirection.OUTPUT, width=1),
+            PortSpec(name="data_out", direction=PortDirection.OUTPUT, width=10),
+        ],
+        observable_outputs=["valid_out", "data_out"],
+        assumptions=["The valid_out signal is set to 1 when the data_out outputs 4 received data accumulation results."],
+        contract_confidence=0.83,
+        timing=TimingSpec(sequential_kind=SequentialKind.SEQ, latency_model="unknown", confidence=0.8),
+        clocks=[{"name": "clk", "source": "rtl_heuristic", "confidence": 0.9}],
+        resets=[{"name": "rst_n", "active_level": 0, "source": "rtl_heuristic", "confidence": 0.9}],
+    )
+
+    plan = TestPlanGenerator().run(
+        contract=contract,
+        task_description="Accumulate every 4 valid input bytes into one output group.",
+        spec_text="Use valid_in gating; only accepted valid cycles count toward the four-sample accumulation window.",
+        out_dir=tmp_path,
+    )
+
+    scenario_kinds = {case.scenario_kind for case in plan.cases}
+    assert {"grouped_valid_closure", "gapped_valid_group", "reset_mid_progress", "multi_group_stream"} <= scenario_kinds
+
+    closure_case = next(case for case in plan.cases if case.scenario_kind == "grouped_valid_closure")
+    valid_drives = [
+        step
+        for step in closure_case.stimulus_program
+        if step["action"] == "drive" and step["signals"].get("valid_in") == 1
+    ]
+    assert len(valid_drives) == 4
+    assert closure_case.relation_kind == "grouped_valid_accumulation"
+    assert closure_case.comparison_operands == ["data_in", "valid_in", "data_out", "valid_out"]
+    assert closure_case.stimulus_program[-2] == {"action": "drive", "signals": {"valid_in": 0, "data_in": 4}}
+
+    reset_case = next(case for case in plan.cases if case.scenario_kind == "reset_mid_progress")
+    assert any(step["action"] == "drive" and "rst_n" in step["signals"] for step in reset_case.stimulus_program)
 
 
 def test_seq_without_business_inputs_keeps_clock_driven_basic_case_deterministic(tmp_path: Path) -> None:

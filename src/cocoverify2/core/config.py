@@ -61,6 +61,7 @@ class VerificationConfig(BaseModel):
             StageName.REPORT,
         ]
     )
+    max_repair_rounds: int = Field(default=1, ge=0)
     log_level: str = Field(default="INFO")
 
 

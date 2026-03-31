@@ -7,12 +7,14 @@ from pathlib import Path
 from typing import Sequence
 
 from cocoverify2 import __version__
-from cocoverify2.core.config import LLMConfig
+from cocoverify2.core.config import ArtifactConfig, LLMConfig, VerificationConfig
 from cocoverify2.core.errors import CocoverifyError, ConfigurationError, PhaseNotImplementedError
+from cocoverify2.core.orchestrator import VerificationOrchestrator
 from cocoverify2.core.models import SimulationConfig
 from cocoverify2.core.types import GenerationMode, SimulationMode
 from cocoverify2.stages.contract_extractor import ContractExtractor, load_optional_text
 from cocoverify2.stages.oracle_generator import OracleGenerator
+from cocoverify2.stages.repair import RepairPlannerStage, earliest_repair_stage
 from cocoverify2.stages.simulator_runner import SimulatorRunnerStage
 from cocoverify2.stages.tb_renderer import TBRenderer
 from cocoverify2.stages.todo_fill import TodoFillStage
@@ -41,6 +43,40 @@ def build_parser() -> argparse.ArgumentParser:
     verify_parser.add_argument("--spec", type=Path, help="Optional specification file path.")
     verify_parser.add_argument("--golden-tb", type=Path, help="Optional golden testbench path.")
     verify_parser.add_argument("--out-dir", type=Path, required=False, help="Output directory for generated artifacts.")
+    verify_parser.add_argument("--filelist", type=Path, help="Optional RTL filelist path for the run stage.")
+    verify_parser.add_argument("--include-dir", action="append", default=[], help="Include directory. May be passed multiple times.")
+    verify_parser.add_argument("--simulator", default="icarus", help="Simulator backend name for the run stage.")
+    verify_parser.add_argument(
+        "--mode",
+        choices=[mode.value for mode in SimulationMode],
+        default=SimulationMode.AUTO.value,
+        help="Execution mode for the run stage.",
+    )
+    verify_parser.add_argument("--top-module", default="", help="Optional HDL toplevel override for the run stage.")
+    verify_parser.add_argument("--test-module", default="", help="Optional Python test module override for the run stage.")
+    verify_parser.add_argument("--timeout-seconds", type=int, default=60, help="Execution timeout for the run stage.")
+    verify_parser.add_argument("--waves", action="store_true", help="Enable waveform collection when supported.")
+    verify_parser.add_argument("--junit", action="store_true", help="Request JUnit output when supported.")
+    verify_parser.add_argument("--parameter", action="append", default=[], help="Parameter override in KEY=VALUE form.")
+    verify_parser.add_argument("--env", action="append", default=[], help="Extra environment entry in KEY=VALUE form.")
+    verify_parser.add_argument("--plusarg", action="append", default=[], help="Plusarg passed through to the runner.")
+    verify_parser.add_argument("--make-target", action="append", default=[], help="Optional make target override.")
+    verify_parser.add_argument("--working-dir", type=Path, help="Optional working directory override for runner execution.")
+    verify_parser.add_argument("--clean-build", action="store_true", help="Request a clean build when the backend supports it.")
+    verify_parser.add_argument(
+        "--generation-mode",
+        choices=[mode.value for mode in GenerationMode],
+        default=GenerationMode.RULE_BASED.value,
+        help="Generation mode for the plan/oracle stages.",
+    )
+    verify_parser.add_argument("--llm-provider", default="", help="Optional LLM provider override for the plan/oracle stages.")
+    verify_parser.add_argument("--llm-model", default="", help="Optional LLM model override for the plan/oracle stages.")
+    verify_parser.add_argument("--llm-base-url", default="", help="Optional LLM base_url override for the plan/oracle stages.")
+    verify_parser.add_argument("--llm-api-key", default="", help="Optional LLM API key override for the plan/oracle stages.")
+    verify_parser.add_argument("--llm-temperature", type=float, default=None, help="Optional LLM temperature override for the plan/oracle stages.")
+    verify_parser.add_argument("--llm-timeout-seconds", type=int, default=None, help="Optional LLM timeout override for the plan/oracle stages.")
+    verify_parser.add_argument("--llm-max-retries", type=int, default=None, help="Optional LLM retry-count override for the plan/oracle stages.")
+    verify_parser.add_argument("--max-repair-rounds", type=int, default=1, help="Maximum number of repair rounds in the verify loop.")
     verify_parser.set_defaults(handler=_handle_verify)
 
     stage_parser = subparsers.add_parser(
@@ -114,6 +150,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Plan or execute a targeted repair step.",
         description="Plan or execute a targeted repair step.",
     )
+    repair_parser.add_argument("--in-dir", type=Path, help="Artifact root or triage directory for repair planning.")
     repair_parser.add_argument("--out-dir", type=Path, help="Artifact root for repair planning.")
     repair_parser.add_argument("--triage", type=Path, help="Optional triage artifact path.")
     repair_parser.set_defaults(handler=_handle_repair)
@@ -122,11 +159,34 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _handle_verify(args: argparse.Namespace) -> int:
-    """Handle the placeholder verify command."""
-    _ = args
-    raise PhaseNotImplementedError(
-        "Phase 6 implements the contract, plan, oracle, render, run, and triage stages only; verify is not implemented yet."
+    """Handle the end-to-end verify command."""
+    out_dir = args.out_dir or Path("out")
+    llm_config = _build_llm_config(args)
+    orchestrator = VerificationOrchestrator(
+        config=VerificationConfig(
+            llm=llm_config,
+            artifacts=ArtifactConfig(out_dir=out_dir),
+            max_repair_rounds=args.max_repair_rounds,
+        )
     )
+    report = orchestrator.verify(
+        rtl=[Path(path) for path in args.rtl],
+        task_id=args.task_id,
+        task_description=args.task_description,
+        spec=args.spec,
+        golden_tb=args.golden_tb,
+        out_dir=out_dir,
+        generation_mode=GenerationMode(args.generation_mode),
+        llm_config=llm_config,
+        simulation_config=_build_simulation_config(args),
+        max_repair_rounds=args.max_repair_rounds,
+    )
+    module_name = report.contract.module_name if report.contract else "<unknown>"
+    print(
+        "Verification completed for module "
+        f"'{module_name}' with verdict '{report.final_verdict.verdict}' -> {out_dir / 'report' / 'verification_report.json'}"
+    )
+    return 0
 
 
 def _handle_stage(args: argparse.Namespace) -> int:
@@ -263,17 +323,43 @@ def _handle_stage(args: argparse.Namespace) -> int:
         )
         return 0
 
+    if args.stage_name == "repair":
+        if args.in_dir is None:
+            raise ConfigurationError("The repair stage requires --in-dir pointing to a phase root or triage directory.")
+        out_dir = args.out_dir or args.in_dir
+        stage = RepairPlannerStage()
+        actions = stage.run_from_dir(in_dir=args.in_dir, out_dir=out_dir)
+        target_stage = earliest_repair_stage(actions) or "none"
+        print(
+            "Repair planning completed with "
+            f"{len(actions)} action(s); earliest target stage '{target_stage}' -> {out_dir / 'repair' / 'repair_actions.json'}"
+        )
+        return 0
+
     raise PhaseNotImplementedError(
-        "cocoverify2 currently implements the contract, plan, oracle, render, fill, run, and triage stages only; other stage commands are not implemented yet."
+        "cocoverify2 currently implements the contract, plan, oracle, render, fill, run, triage, and repair stages only; other stage commands are not implemented yet."
     )
 
 
 def _handle_repair(args: argparse.Namespace) -> int:
-    """Handle the placeholder repair command."""
-    _ = args
-    raise PhaseNotImplementedError(
-        "Phase 6 implements the contract, plan, oracle, render, run, and triage stages only; repair is not implemented yet."
+    """Handle repair planning from existing artifacts."""
+    stage = RepairPlannerStage()
+    if args.triage is not None:
+        artifact_root = args.triage.parent.parent
+        out_dir = args.out_dir or artifact_root
+        actions = stage.run_from_artifact(triage_path=args.triage, out_dir=out_dir)
+    else:
+        artifact_root = args.in_dir or args.out_dir
+        if artifact_root is None:
+            raise ConfigurationError("The repair command requires --triage or --in-dir/--out-dir pointing to existing artifacts.")
+        out_dir = args.out_dir or artifact_root
+        actions = stage.run_from_dir(in_dir=artifact_root, out_dir=out_dir)
+    target_stage = earliest_repair_stage(actions) or "none"
+    print(
+        "Repair planning completed with "
+        f"{len(actions)} action(s); earliest target stage '{target_stage}' -> {out_dir / 'repair' / 'repair_actions.json'}"
     )
+    return 0
 
 
 def _discover_rtl_paths(in_dir: Path | None) -> list[Path]:

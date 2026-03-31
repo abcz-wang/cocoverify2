@@ -1,12 +1,9 @@
-"""Minimal integration smoke coverage for Phase 0."""
+"""Minimal integration smoke coverage for the orchestrator shell."""
 
-import pytest
-
-from cocoverify2.core.errors import PhaseNotImplementedError
 from cocoverify2.core.orchestrator import VerificationOrchestrator
 
 
-def test_orchestrator_verify_is_declared_but_not_implemented() -> None:
+def test_orchestrator_exposes_default_stage_dependencies() -> None:
     orchestrator = VerificationOrchestrator()
-    with pytest.raises(PhaseNotImplementedError):
-        orchestrator.verify(task_id="demo", task_description="phase 0 smoke")
+    assert "contract" in orchestrator.stages
+    assert "repair" in orchestrator.stages

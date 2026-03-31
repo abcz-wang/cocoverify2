@@ -1,0 +1,26 @@
+module_name: dual_port_RAM
+based_on_contract: tmp/phase7_golden_slice_verify_tools/asyn_fifo/contract/contract.json
+plan_strategy: hybrid_rule_based_plus_llm
+case_count: 3
+categories:
+- basic
+- edge
+- back_to_back
+unresolved_items:
+- 'Spec/reset hint could not be mapped to a known reset port: wrstn: Write reset signal.
+  Defined as 0 for reset and 1 for reset signal inactive.'
+- 'Spec/reset hint could not be mapped to a known reset port: rrstn: Read reset signal.
+  Defined as 0 for reset and 1 for reset signal inactive.'
+- 'Spec/reset hint could not be mapped to a known reset port: The write pointer is
+  incremented on the positive edge of the write clock (posedge wclk) and reset to
+  0 on write reset (~wrstn).'
+- 'Spec/reset hint could not be mapped to a known reset port: The read pointer is
+  incremented on the positive edge of the read clock (posedge rclk) and reset to 0
+  on read reset (~rrstn).'
+- 'Spec/reset hint could not be mapped to a known reset port: The buffer registers
+  are updated on the positive edge of the respective clocks and reset to 0 on the
+  respective resets (~wrstn and ~rrstn).'
+- Contract strength is limited; generated cases favor safe observation over precise
+  timing assumptions.
+- Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.
+plan_confidence: 0.25500000000000017

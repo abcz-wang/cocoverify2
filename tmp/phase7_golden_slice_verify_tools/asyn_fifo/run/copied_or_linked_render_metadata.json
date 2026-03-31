@@ -1,0 +1,1027 @@
+{
+  "artifact_stage": "render",
+  "based_on_contract": "tmp/phase7_golden_slice_verify_tools/asyn_fifo/contract/contract.json",
+  "based_on_oracle": "tmp/phase7_golden_slice_verify_tools/asyn_fifo/oracle/oracle.json",
+  "based_on_plan": "tmp/phase7_golden_slice_verify_tools/asyn_fifo/plan/test_plan.json",
+  "based_on_render_metadata": "",
+  "coverage_summary": {
+    "case_categories": [
+      "back_to_back",
+      "basic",
+      "edge"
+    ],
+    "class_name": "DualPortRamCoverage",
+    "coverage_tags": [
+      "back_to_back",
+      "basic",
+      "boundary",
+      "edge",
+      "repeated_operation",
+      "sanity",
+      "seq"
+    ]
+  },
+  "env_summary": {
+    "case_count": 3,
+    "class_name": "DualPortRamEnv",
+    "driver_helpers": [
+      "exercise_case",
+      "drive_inputs",
+      "wait_for_settle",
+      "record_case_inputs"
+    ],
+    "has_reset_helper": false,
+    "llm_todo_blocks": [
+      {
+        "block_id": "stimulus_basic_001",
+        "case_id": "basic_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "wenc",
+            "waddr",
+            "wdata",
+            "renc",
+            "raddr"
+          ],
+          "business_outputs": [
+            "rdata"
+          ],
+          "case_id": "basic_001",
+          "category": "basic",
+          "goal": "Apply one legal operation and observe stable post-operation behavior.",
+          "semantic_tags": [
+            "ambiguity_preserving"
+          ],
+          "signal_widths": {
+            "raddr": null,
+            "rclk": 1,
+            "rdata": null,
+            "renc": 1,
+            "waddr": null,
+            "wclk": 1,
+            "wdata": null,
+            "wenc": 1
+          },
+          "stimulus_intent": [
+            "Drive a representative legal input pattern across known non-control inputs: ['wenc', 'waddr', 'wdata', 'renc', 'raddr']"
+          ],
+          "stimulus_signals": [
+            "wenc",
+            "waddr",
+            "wdata",
+            "renc",
+            "raddr"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_edge_001",
+        "case_id": "edge_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "wenc",
+            "waddr",
+            "wdata",
+            "renc",
+            "raddr"
+          ],
+          "business_outputs": [
+            "rdata"
+          ],
+          "case_id": "edge_001",
+          "category": "edge",
+          "goal": "Exercise boundary-value and width-sensitive input patterns.",
+          "semantic_tags": [
+            "width_sensitive"
+          ],
+          "signal_widths": {
+            "raddr": null,
+            "rclk": 1,
+            "rdata": null,
+            "renc": 1,
+            "waddr": null,
+            "wclk": 1,
+            "wdata": null,
+            "wenc": 1
+          },
+          "stimulus_intent": [
+            "Use zero-like, one-like, and boundary patterns on ['waddr', 'wdata', 'raddr', 'wenc', 'renc']"
+          ],
+          "stimulus_signals": [
+            "waddr",
+            "wdata",
+            "raddr",
+            "wenc",
+            "renc"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+        "template_name": "env_module.py.tmpl"
+      },
+      {
+        "block_id": "stimulus_back_to_back_001",
+        "case_id": "back_to_back_001",
+        "check_id": "",
+        "context": {
+          "business_inputs": [
+            "wenc",
+            "waddr",
+            "wdata",
+            "renc",
+            "raddr"
+          ],
+          "business_outputs": [
+            "rdata"
+          ],
+          "case_id": "back_to_back_001",
+          "category": "back_to_back",
+          "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+          "semantic_tags": [
+            "operation_specific"
+          ],
+          "signal_widths": {
+            "raddr": null,
+            "rclk": 1,
+            "rdata": null,
+            "renc": 1,
+            "waddr": null,
+            "wclk": 1,
+            "wdata": null,
+            "wenc": 1
+          },
+          "stimulus_intent": [
+            "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+          ],
+          "stimulus_signals": [
+            "wenc",
+            "waddr",
+            "wdata"
+          ],
+          "timing_assumptions": [
+            "Advance through conservative clocked observations.",
+            "Do not assume completion before it becomes externally visible."
+          ]
+        },
+        "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+        "file_role": "",
+        "fill_kind": "stimulus",
+        "instructions": [
+          "Drive concrete legal values onto business inputs for this plan case.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Preserve conservative timing assumptions when exact behavior is unclear."
+        ],
+        "oracle_case_id": "",
+        "relative_path": "",
+        "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+        "template_name": "env_module.py.tmpl"
+      }
+    ],
+    "monitor_helpers": [
+      "safe_observe",
+      "note_oracle_result",
+      "sample_outputs"
+    ],
+    "oracle_helper_module": "dual_port_RAM_oracle",
+    "template_name": "env_module.py.tmpl",
+    "unresolved_items": [
+      "Spec/reset hint could not be mapped to a known reset port: wrstn: Write reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+      "Spec/reset hint could not be mapped to a known reset port: rrstn: Read reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+      "Spec/reset hint could not be mapped to a known reset port: The write pointer is incremented on the positive edge of the write clock (posedge wclk) and reset to 0 on write reset (~wrstn).",
+      "Spec/reset hint could not be mapped to a known reset port: The read pointer is incremented on the positive edge of the read clock (posedge rclk) and reset to 0 on read reset (~rrstn).",
+      "Spec/reset hint could not be mapped to a known reset port: The buffer registers are updated on the positive edge of the respective clocks and reset to 0 on the respective resets (~wrstn and ~rrstn).",
+      "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage."
+    ],
+    "wait_helpers": [
+      "wait_event_based",
+      "wait_bounded_safe",
+      "wait_unbounded_safe"
+    ]
+  },
+  "fill_status": "experimental_available",
+  "fill_warnings": [
+    "Experimental TODO fill metadata is present, but the default mainline pipeline remains render -> run -> triage."
+  ],
+  "filled_todo_block_ids": [],
+  "generated_files": [
+    {
+      "description": "Marks the rendered cocotb test directory as a Python package.",
+      "relative_path": "cocotb_tests/__init__.py",
+      "role": "package_init",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Conservative DUT interface helpers derived from the contract artifact.",
+      "relative_path": "cocotb_tests/dual_port_RAM_interface.py",
+      "role": "interface",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Thin environment wrapper that composes interface, timing-safe waits, and coverage helpers.",
+      "relative_path": "cocotb_tests/dual_port_RAM_env.py",
+      "role": "env",
+      "template_name": "env_module.py.tmpl",
+      "todo_block_ids": [
+        "stimulus_basic_001",
+        "stimulus_edge_001",
+        "stimulus_back_to_back_001"
+      ]
+    },
+    {
+      "description": "Structured oracle helper functions rendered from the oracle artifact.",
+      "relative_path": "cocotb_tests/dual_port_RAM_oracle.py",
+      "role": "oracle",
+      "template_name": "oracle_module.py.tmpl",
+      "todo_block_ids": [
+        "oracle_basic_001_property_001",
+        "oracle_edge_001_property_001",
+        "oracle_back_to_back_001_property_001"
+      ]
+    },
+    {
+      "description": "Stable runtime helpers exposed to LLM-filled stimulus and oracle TODO blocks.",
+      "relative_path": "cocotb_tests/dual_port_RAM_runtime.py",
+      "role": "runtime",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Coverage scaffold rendered from plan coverage tags for later execution stages.",
+      "relative_path": "cocotb_tests/dual_port_RAM_coverage.py",
+      "role": "coverage",
+      "template_name": "",
+      "todo_block_ids": []
+    },
+    {
+      "description": "Rendered basic cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_dual_port_RAM_basic.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_basic_001",
+        "testcase_setup_back_to_back_001"
+      ]
+    },
+    {
+      "description": "Rendered edge cocotb tests aligned to structured plan cases.",
+      "relative_path": "cocotb_tests/test_dual_port_RAM_edge.py",
+      "role": "test_module",
+      "template_name": "test_module.py.tmpl",
+      "todo_block_ids": [
+        "testcase_setup_edge_001"
+      ]
+    },
+    {
+      "description": "Phase 4 executable Makefile shell; Phase 5 injects run-time variables and executes it.",
+      "relative_path": "cocotb_tests/Makefile",
+      "role": "makefile",
+      "template_name": "",
+      "todo_block_ids": []
+    }
+  ],
+  "interface_summary": {
+    "business_inputs": [
+      "wenc",
+      "waddr",
+      "wdata",
+      "renc",
+      "raddr"
+    ],
+    "business_outputs": [
+      "rdata"
+    ],
+    "class_name": "DualPortRamInterface",
+    "clock_signals": [
+      "wclk",
+      "rclk"
+    ],
+    "optional_signals": [],
+    "protocol_signal_names": [],
+    "reset_signals": [],
+    "unknown_direction_signals": [],
+    "unresolved_items": [
+      "Spec/reset hint could not be mapped to a known reset port: wrstn: Write reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+      "Spec/reset hint could not be mapped to a known reset port: rrstn: Read reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+      "Spec/reset hint could not be mapped to a known reset port: The write pointer is incremented on the positive edge of the write clock (posedge wclk) and reset to 0 on write reset (~wrstn).",
+      "Spec/reset hint could not be mapped to a known reset port: The read pointer is incremented on the positive edge of the read clock (posedge rclk) and reset to 0 on read reset (~rrstn).",
+      "Spec/reset hint could not be mapped to a known reset port: The buffer registers are updated on the positive edge of the respective clocks and reset to 0 on the respective resets (~wrstn and ~rrstn).",
+      "Multiple module headers were found in generated_asyn_fifo.v; using the first module 'dual_port_RAM'."
+    ]
+  },
+  "llm_todo_blocks": [
+    {
+      "block_id": "stimulus_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "wenc",
+          "waddr",
+          "wdata",
+          "renc",
+          "raddr"
+        ],
+        "business_outputs": [
+          "rdata"
+        ],
+        "case_id": "basic_001",
+        "category": "basic",
+        "goal": "Apply one legal operation and observe stable post-operation behavior.",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "signal_widths": {
+          "raddr": null,
+          "rclk": 1,
+          "rdata": null,
+          "renc": 1,
+          "waddr": null,
+          "wclk": 1,
+          "wdata": null,
+          "wenc": 1
+        },
+        "stimulus_intent": [
+          "Drive a representative legal input pattern across known non-control inputs: ['wenc', 'waddr', 'wdata', 'renc', 'raddr']"
+        ],
+        "stimulus_signals": [
+          "wenc",
+          "waddr",
+          "wdata",
+          "renc",
+          "raddr"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_basic_001 case_id=basic_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/dual_port_RAM_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_basic_001 case_id=basic_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "wenc",
+          "waddr",
+          "wdata",
+          "renc",
+          "raddr"
+        ],
+        "business_outputs": [
+          "rdata"
+        ],
+        "case_id": "edge_001",
+        "category": "edge",
+        "goal": "Exercise boundary-value and width-sensitive input patterns.",
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "signal_widths": {
+          "raddr": null,
+          "rclk": 1,
+          "rdata": null,
+          "renc": 1,
+          "waddr": null,
+          "wclk": 1,
+          "wdata": null,
+          "wenc": 1
+        },
+        "stimulus_intent": [
+          "Use zero-like, one-like, and boundary patterns on ['waddr', 'wdata', 'raddr', 'wenc', 'renc']"
+        ],
+        "stimulus_signals": [
+          "waddr",
+          "wdata",
+          "raddr",
+          "wenc",
+          "renc"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_edge_001 case_id=edge_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/dual_port_RAM_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_edge_001 case_id=edge_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "stimulus_back_to_back_001",
+      "case_id": "back_to_back_001",
+      "check_id": "",
+      "context": {
+        "business_inputs": [
+          "wenc",
+          "waddr",
+          "wdata",
+          "renc",
+          "raddr"
+        ],
+        "business_outputs": [
+          "rdata"
+        ],
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "signal_widths": {
+          "raddr": null,
+          "rclk": 1,
+          "rdata": null,
+          "renc": 1,
+          "waddr": null,
+          "wclk": 1,
+          "wdata": null,
+          "wenc": 1
+        },
+        "stimulus_intent": [
+          "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+        ],
+        "stimulus_signals": [
+          "wenc",
+          "waddr",
+          "wdata"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      "end_marker": "        # TODO(cocoverify2:stimulus) END block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+      "file_role": "env",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "stimulus",
+      "fill_status": "pending",
+      "instructions": [
+        "Drive concrete legal values onto business inputs for this plan case.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Preserve conservative timing assumptions when exact behavior is unclear."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/dual_port_RAM_env.py",
+      "start_marker": "        # TODO(cocoverify2:stimulus) BEGIN block_id=stimulus_back_to_back_001 case_id=back_to_back_001",
+      "template_name": "env_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_basic_001_property_001",
+      "case_id": "basic_001",
+      "check_id": "basic_001_property_001",
+      "context": {
+        "observed_signals": [
+          "rdata"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "rdata": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "raddr": null,
+          "rclk": 1,
+          "rdata": null,
+          "renc": 1,
+          "waddr": null,
+          "wclk": 1,
+          "wdata": null,
+          "wenc": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_basic_001",
+      "relative_path": "cocotb_tests/dual_port_RAM_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_edge_001_property_001",
+      "case_id": "edge_001",
+      "check_id": "edge_001_property_001",
+      "context": {
+        "observed_signals": [
+          "rdata"
+        ],
+        "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "rdata": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "raddr": null,
+          "rclk": 1,
+          "rdata": null,
+          "renc": 1,
+          "waddr": null,
+          "wclk": 1,
+          "wdata": null,
+          "wenc": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "operation_applied",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "event_based"
+        },
+        "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_edge_001",
+      "relative_path": "cocotb_tests/dual_port_RAM_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "oracle_back_to_back_001_property_001",
+      "case_id": "back_to_back_001",
+      "check_id": "back_to_back_001_property_001",
+      "context": {
+        "observed_signals": [
+          "rdata"
+        ],
+        "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+        "semantic_tags": [],
+        "signal_policies": {
+          "rdata": {
+            "allow_high_impedance": true,
+            "allow_unknown": true,
+            "definedness_mode": "not_required",
+            "rationale": "insufficient_structured_evidence",
+            "strength": "unresolved"
+          }
+        },
+        "signal_widths": {
+          "raddr": null,
+          "rclk": 1,
+          "rdata": null,
+          "renc": 1,
+          "waddr": null,
+          "wclk": 1,
+          "wdata": null,
+          "wenc": 1
+        },
+        "strictness": "guarded",
+        "temporal_window": {
+          "anchor": "repeated_operations",
+          "max_cycles": null,
+          "min_cycles": null,
+          "mode": "unbounded_safe"
+        },
+        "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+      },
+      "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+      "file_role": "oracle",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "oracle_check",
+      "fill_status": "pending",
+      "instructions": [
+        "Read observable DUT outputs and add concrete assertions for this oracle check.",
+        "Keep edits inside this TODO block so regeneration stays stable.",
+        "Respect the rendered temporal window and strictness metadata."
+      ],
+      "oracle_case_id": "property_back_to_back_001",
+      "relative_path": "cocotb_tests/dual_port_RAM_oracle.py",
+      "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+      "template_name": "oracle_module.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_basic_001",
+      "case_id": "basic_001",
+      "check_id": "",
+      "context": {
+        "case_id": "basic_001",
+        "category": "basic",
+        "coverage_tags": [
+          "basic",
+          "sanity",
+          "seq"
+        ],
+        "dependencies": [],
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "stimulus_signals": [
+          "wenc",
+          "waddr",
+          "wdata",
+          "renc",
+          "raddr"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_basic_001 case_id=basic_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_dual_port_RAM_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_basic_001 case_id=basic_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_back_to_back_001",
+      "case_id": "back_to_back_001",
+      "check_id": "",
+      "context": {
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "coverage_tags": [
+          "back_to_back",
+          "repeated_operation"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "stimulus_signals": [
+          "wenc",
+          "waddr",
+          "wdata"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_back_to_back_001 case_id=back_to_back_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_dual_port_RAM_basic.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_back_to_back_001 case_id=back_to_back_001",
+      "template_name": "test_case.py.tmpl"
+    },
+    {
+      "block_id": "testcase_setup_edge_001",
+      "case_id": "edge_001",
+      "check_id": "",
+      "context": {
+        "case_id": "edge_001",
+        "category": "edge",
+        "coverage_tags": [
+          "edge",
+          "boundary"
+        ],
+        "dependencies": [
+          "basic_001"
+        ],
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "stimulus_signals": [
+          "waddr",
+          "wdata",
+          "raddr",
+          "wenc",
+          "renc"
+        ]
+      },
+      "end_marker": "    # TODO(cocoverify2:testcase_setup) END block_id=testcase_setup_edge_001 case_id=edge_001",
+      "file_role": "test_module",
+      "fill_attempts": 0,
+      "fill_errors": [],
+      "fill_kind": "testcase_setup",
+      "fill_status": "pending",
+      "instructions": [
+        "Add optional per-case setup before env.exercise_case().",
+        "Keep edits inside this TODO block so regeneration stays stable."
+      ],
+      "oracle_case_id": "",
+      "relative_path": "cocotb_tests/test_dual_port_RAM_edge.py",
+      "start_marker": "    # TODO(cocoverify2:testcase_setup) BEGIN block_id=testcase_setup_edge_001 case_id=edge_001",
+      "template_name": "test_case.py.tmpl"
+    }
+  ],
+  "module_name": "dual_port_RAM",
+  "oracle_summary": {
+    "empty_functional_cases": [
+      "basic_001",
+      "edge_001"
+    ],
+    "functional_case_count": 2,
+    "llm_todo_blocks": [
+      {
+        "block_id": "oracle_basic_001_property_001",
+        "case_id": "basic_001",
+        "check_id": "basic_001_property_001",
+        "context": {
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "raddr": null,
+            "rclk": 1,
+            "rdata": null,
+            "renc": 1,
+            "waddr": null,
+            "wclk": 1,
+            "wdata": null,
+            "wenc": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_basic_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_basic_001_property_001 case_id=basic_001 oracle_case_id=property_basic_001 check_id=basic_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_edge_001_property_001",
+        "case_id": "edge_001",
+        "check_id": "edge_001_property_001",
+        "context": {
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "raddr": null,
+            "rclk": 1,
+            "rdata": null,
+            "renc": 1,
+            "waddr": null,
+            "wclk": 1,
+            "wdata": null,
+            "wenc": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "operation_applied",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "event_based"
+          },
+          "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_edge_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_edge_001_property_001 case_id=edge_001 oracle_case_id=property_edge_001 check_id=edge_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      },
+      {
+        "block_id": "oracle_back_to_back_001_property_001",
+        "case_id": "back_to_back_001",
+        "check_id": "back_to_back_001_property_001",
+        "context": {
+          "observed_signals": [
+            "rdata"
+          ],
+          "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+          "semantic_tags": [],
+          "signal_policies": {
+            "rdata": {
+              "allow_high_impedance": true,
+              "allow_unknown": true,
+              "definedness_mode": "not_required",
+              "rationale": "insufficient_structured_evidence",
+              "strength": "unresolved"
+            }
+          },
+          "signal_widths": {
+            "raddr": null,
+            "rclk": 1,
+            "rdata": null,
+            "renc": 1,
+            "waddr": null,
+            "wclk": 1,
+            "wdata": null,
+            "wenc": 1
+          },
+          "strictness": "guarded",
+          "temporal_window": {
+            "anchor": "repeated_operations",
+            "max_cycles": null,
+            "min_cycles": null,
+            "mode": "unbounded_safe"
+          },
+          "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+        },
+        "end_marker": "    # TODO(cocoverify2:oracle_check) END block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+        "file_role": "",
+        "fill_kind": "oracle_check",
+        "instructions": [
+          "Read observable DUT outputs and add concrete assertions for this oracle check.",
+          "Keep edits inside this TODO block so regeneration stays stable.",
+          "Respect the rendered temporal window and strictness metadata."
+        ],
+        "oracle_case_id": "property_back_to_back_001",
+        "relative_path": "",
+        "start_marker": "    # TODO(cocoverify2:oracle_check) BEGIN block_id=oracle_back_to_back_001_property_001 case_id=back_to_back_001 oracle_case_id=property_back_to_back_001 check_id=back_to_back_001_property_001",
+        "template_name": "oracle_module.py.tmpl"
+      }
+    ],
+    "preserves_temporal_modes": [
+      "event_based",
+      "unbounded_safe"
+    ],
+    "property_case_count": 3,
+    "protocol_case_count": 0,
+    "runtime_helper_module": "dual_port_RAM_runtime",
+    "template_name": "oracle_module.py.tmpl",
+    "temporal_modes": [
+      "event_based",
+      "unbounded_safe"
+    ],
+    "unresolved_items": [
+      "Spec/reset hint could not be mapped to a known reset port: wrstn: Write reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+      "Spec/reset hint could not be mapped to a known reset port: rrstn: Read reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+      "Spec/reset hint could not be mapped to a known reset port: The write pointer is incremented on the positive edge of the write clock (posedge wclk) and reset to 0 on write reset (~wrstn).",
+      "Spec/reset hint could not be mapped to a known reset port: The read pointer is incremented on the positive edge of the read clock (posedge rclk) and reset to 0 on read reset (~rrstn).",
+      "Spec/reset hint could not be mapped to a known reset port: The buffer registers are updated on the positive edge of the respective clocks and reset to 0 on the respective resets (~wrstn and ~rrstn).",
+      "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+      "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+      "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks."
+    ]
+  },
+  "render_confidence": 0.05,
+  "render_warnings": [
+    "Multiple module headers were found in generated_asyn_fifo.v; using the first module 'dual_port_RAM'.",
+    "Spec/reset hint could not be mapped to a known reset port: wrstn: Write reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: rrstn: Read reset signal. Defined as 0 for reset and 1 for reset signal inactive.",
+    "Spec/reset hint could not be mapped to a known reset port: The write pointer is incremented on the positive edge of the write clock (posedge wclk) and reset to 0 on write reset (~wrstn).",
+    "Spec/reset hint could not be mapped to a known reset port: The read pointer is incremented on the positive edge of the read clock (posedge rclk) and reset to 0 on read reset (~rrstn).",
+    "Spec/reset hint could not be mapped to a known reset port: The buffer registers are updated on the positive edge of the respective clocks and reset to 0 on the respective resets (~wrstn and ~rrstn).",
+    "Contract strength is limited; generated cases favor safe observation over precise timing assumptions.",
+    "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+    "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+    "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks.",
+    "Contract confidence is low; interface and testcase rendering remain conservative.",
+    "Plan confidence is limited; testcase grouping avoids inventing stronger sequencing semantics.",
+    "Oracle confidence is limited; rendered checks preserve unresolved items and avoid stronger value-level assertions.",
+    "Some functional oracle cases are intentionally empty; render output preserves them as conservative protocol/property-driven tests.",
+    "Rendered Makefile is an executable Phase 4 shell; Phase 5 injects execution variables and selects the backend.",
+    "Spec text was provided to the render stage but only upstream artifacts were trusted for code generation.",
+    "Deterministic render remains the default mainline; post-render TODO fill is experimental and not required by the benchmark path."
+  ],
+  "template_inventory": [
+    "env_module.py.tmpl",
+    "oracle_module.py.tmpl",
+    "test_case.py.tmpl",
+    "test_module.py.tmpl"
+  ],
+  "test_modules": [
+    "test_dual_port_RAM_basic",
+    "test_dual_port_RAM_edge"
+  ],
+  "unfilled_todo_block_ids": []
+}

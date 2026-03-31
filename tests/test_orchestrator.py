@@ -61,9 +61,12 @@ class _FakeRunStage:
     def __init__(self, statuses: list[ExecutionStatus]) -> None:
         self.calls = 0
         self._statuses = list(statuses)
+        self.rtl_history: list[list[Path]] = []
 
-    def run_from_artifact(self, **_: object) -> SimulationResult:
+    def run_from_artifact(self, **kwargs: object) -> SimulationResult:
         self.calls += 1
+        config = kwargs["config"]
+        self.rtl_history.append(list(config.rtl_sources))
         status = self._statuses.pop(0)
         return SimulationResult(
             module_name="demo",
@@ -181,6 +184,40 @@ def test_verify_reruns_only_downstream_stages_after_repair(tmp_path: Path) -> No
     assert report.coverage_summary["repair_rounds_used"] == 1
 
 
+def test_verify_uses_golden_rtl_for_initial_and_repair_runs(tmp_path: Path) -> None:
+    stages = _build_stages(
+        run_statuses=[ExecutionStatus.RUNTIME_ERROR, ExecutionStatus.SUCCESS],
+        triage_categories=["runtime_test_failure", "no_failure"],
+        repair_sequences=[
+            [
+                RepairAction(
+                    target_stage="render",
+                    reason="rerender and rerun",
+                    artifacts_to_keep=["contract", "plan", "oracle"],
+                    artifacts_to_regenerate=["render", "run", "triage"],
+                )
+            ]
+        ],
+    )
+    generation_rtl = tmp_path / "generation_demo.v"
+    golden_rtl = tmp_path / "verified_demo.v"
+
+    report = VerificationOrchestrator(config=VerificationConfig(max_repair_rounds=1), stages=stages).verify(
+        rtl=[generation_rtl],
+        golden_rtl=[golden_rtl],
+        task_id="demo",
+        task_description="demo golden",
+        out_dir=tmp_path / "out",
+        simulation_config=SimulationConfig(),
+    )
+
+    assert report.final_verdict.verdict == VerdictKind.PASS
+    assert stages["run"].rtl_history == [[golden_rtl], [golden_rtl]]
+    assert report.coverage_summary["validation_inputs"]["generation_rtl_sources"] == [str(generation_rtl)]
+    assert report.coverage_summary["validation_inputs"]["golden_rtl_sources"] == [str(golden_rtl)]
+    assert report.coverage_summary["validation_inputs"]["golden_rtl_fallback_used"] is False
+
+
 def test_verify_stops_at_repair_cap_when_failure_persists(tmp_path: Path) -> None:
     stages = _build_stages(
         run_statuses=[ExecutionStatus.RUNTIME_ERROR, ExecutionStatus.RUNTIME_ERROR],
@@ -212,3 +249,24 @@ def test_verify_stops_at_repair_cap_when_failure_persists(tmp_path: Path) -> Non
     assert stages["run"].calls == 2
     assert stages["triage"].calls == 2
     assert stages["repair"].calls == 1
+
+
+def test_verify_records_rtl_fallback_when_golden_rtl_is_absent(tmp_path: Path) -> None:
+    stages = _build_stages(
+        run_statuses=[ExecutionStatus.SUCCESS],
+        triage_categories=["no_failure"],
+        repair_sequences=[],
+    )
+    generation_rtl = tmp_path / "generation_demo.v"
+
+    report = VerificationOrchestrator(config=VerificationConfig(max_repair_rounds=1), stages=stages).verify(
+        rtl=[generation_rtl],
+        task_id="demo",
+        task_description="demo fallback",
+        out_dir=tmp_path / "out",
+        simulation_config=SimulationConfig(),
+    )
+
+    assert report.final_verdict.verdict == VerdictKind.PASS
+    assert stages["run"].rtl_history == [[generation_rtl]]
+    assert report.coverage_summary["validation_inputs"]["golden_rtl_fallback_used"] is True

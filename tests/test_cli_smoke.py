@@ -41,6 +41,8 @@ def test_subcommand_help() -> None:
         result = _run_cli(subcommand, "--help")
         assert result.returncode == 0
         assert "usage:" in result.stdout.lower()
+    verify_help = _run_cli("verify", "--help")
+    assert "--golden-rtl" in verify_help.stdout
 
 
 def test_stage_help_mentions_contract_inputs() -> None:
@@ -72,11 +74,22 @@ def test_verify_command_invokes_orchestrator(monkeypatch, tmp_path: Path) -> Non
 
     monkeypatch.setattr(cli, "VerificationOrchestrator", FakeOrchestrator)
 
-    rc = cli.main(["verify", "--rtl", str(tmp_path / "demo.v"), "--out-dir", str(tmp_path / "out")])
+    rc = cli.main(
+        [
+            "verify",
+            "--rtl",
+            str(tmp_path / "demo.v"),
+            "--golden-rtl",
+            str(tmp_path / "verified_demo.v"),
+            "--out-dir",
+            str(tmp_path / "out"),
+        ]
+    )
 
     assert rc == 0
     assert calls["kwargs"]["max_repair_rounds"] == 1
     assert calls["kwargs"]["out_dir"] == tmp_path / "out"
+    assert calls["kwargs"]["golden_rtl"] == [tmp_path / "verified_demo.v"]
 
 
 def test_repair_command_invokes_repair_stage(monkeypatch, tmp_path: Path) -> None:

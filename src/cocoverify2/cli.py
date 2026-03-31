@@ -38,10 +38,11 @@ def build_parser() -> argparse.ArgumentParser:
         description="Run the end-to-end verification pipeline.",
     )
     verify_parser.add_argument("--rtl", action="append", default=[], help="RTL source path. May be passed multiple times.")
+    verify_parser.add_argument("--golden-rtl", action="append", default=[], help="Golden validation RTL path. May be passed multiple times.")
     verify_parser.add_argument("--task-id", default="", help="Task identifier.")
     verify_parser.add_argument("--task-description", default="", help="Task description or prompt.")
     verify_parser.add_argument("--spec", type=Path, help="Optional specification file path.")
-    verify_parser.add_argument("--golden-tb", type=Path, help="Optional golden testbench path.")
+    verify_parser.add_argument("--golden-tb", type=Path, help="Compatibility-only alias; golden validation uses --golden-rtl.")
     verify_parser.add_argument("--out-dir", type=Path, required=False, help="Output directory for generated artifacts.")
     verify_parser.add_argument("--filelist", type=Path, help="Optional RTL filelist path for the run stage.")
     verify_parser.add_argument("--include-dir", action="append", default=[], help="Include directory. May be passed multiple times.")
@@ -166,11 +167,13 @@ def _handle_verify(args: argparse.Namespace) -> int:
         config=VerificationConfig(
             llm=llm_config,
             artifacts=ArtifactConfig(out_dir=out_dir),
+            golden_rtl_sources=[Path(path) for path in args.golden_rtl],
             max_repair_rounds=args.max_repair_rounds,
         )
     )
     report = orchestrator.verify(
         rtl=[Path(path) for path in args.rtl],
+        golden_rtl=[Path(path) for path in args.golden_rtl],
         task_id=args.task_id,
         task_description=args.task_description,
         spec=args.spec,

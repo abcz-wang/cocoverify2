@@ -1,0 +1,32 @@
+{
+  "based_on_render_metadata": "tmp/phase7_golden_slice_verify_tools/accu/render/metadata.json",
+  "based_on_runner_selection": "tmp/phase7_golden_slice_verify_tools/accu/run/runner_selection.json",
+  "based_on_simulation_result": "tmp/phase7_golden_slice_verify_tools/accu/run/simulation_result.json",
+  "based_on_triage": "tmp/phase7_golden_slice_verify_tools/accu/triage/triage.json",
+  "module_name": "accu",
+  "primary_category": "artifact_contract_error",
+  "repair_actions": [
+    {
+      "artifacts_to_keep": [
+        "contract",
+        "plan",
+        "oracle"
+      ],
+      "artifacts_to_regenerate": [
+        "render",
+        "run",
+        "triage"
+      ],
+      "inputs_to_refresh": [
+        "render_templates",
+        "render_metadata"
+      ],
+      "reason": "The run stage reports a render/run contract mismatch, so rerendering the package is the earliest conservative refresh point.",
+      "target_stage": "render"
+    }
+  ],
+  "secondary_categories": [
+    "execution_infrastructure_error"
+  ],
+  "suspected_layer": "render_run_contract"
+}

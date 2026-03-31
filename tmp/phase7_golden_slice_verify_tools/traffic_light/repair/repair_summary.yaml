@@ -1,0 +1,19 @@
+module_name: verified_traffic_light
+primary_category: artifact_contract_error
+secondary_categories:
+- execution_infrastructure_error
+suspected_layer: render_run_contract
+recommended_target_stage: render
+recommended_action_count: 1
+actions:
+- target_stage: render
+  reason: The run stage reports a render/run contract mismatch, so rerendering the
+    package is the earliest conservative refresh point.
+  artifacts_to_keep:
+  - contract
+  - plan
+  - oracle
+  artifacts_to_regenerate:
+  - render
+  - run
+  - triage

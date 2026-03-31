@@ -48,6 +48,7 @@ class VerificationConfig(BaseModel):
 
     llm: LLMConfig = Field(default_factory=LLMConfig)
     artifacts: ArtifactConfig = Field(default_factory=ArtifactConfig)
+    golden_rtl_sources: list[Path] = Field(default_factory=list)
     enabled_stages: list[StageName] = Field(
         default_factory=lambda: [
             StageName.CONTRACT,

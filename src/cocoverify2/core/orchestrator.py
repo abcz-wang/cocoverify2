@@ -83,6 +83,7 @@ class VerificationOrchestrator:
         self,
         *,
         rtl: list[Path] | None = None,
+        golden_rtl: list[Path] | None = None,
         task_id: str = "",
         task_description: str = "",
         spec: Path | None = None,
@@ -97,6 +98,9 @@ class VerificationOrchestrator:
         rtl_paths = list(rtl or [])
         if not rtl_paths:
             raise ConfigurationError("The verify command requires at least one RTL source.")
+        requested_golden_rtl_paths = list(golden_rtl or self.config.golden_rtl_sources)
+        golden_rtl_fallback_used = not requested_golden_rtl_paths
+        validation_rtl_paths = list(requested_golden_rtl_paths or rtl_paths)
 
         artifact_root = out_dir or self.config.artifacts.out_dir
         ensure_dir(artifact_root)
@@ -104,8 +108,7 @@ class VerificationOrchestrator:
         generation_mode = GenerationMode(generation_mode)
         stage_llm_config = llm_config or self.config.llm
         stage_simulation_config = (simulation_config or SimulationConfig()).model_copy(deep=True)
-        if not stage_simulation_config.rtl_sources:
-            stage_simulation_config.rtl_sources = rtl_paths
+        stage_simulation_config.rtl_sources = validation_rtl_paths
 
         repair_cap = self.config.max_repair_rounds if max_repair_rounds is None else max_repair_rounds
         artifacts = _PipelineArtifacts(artifact_paths=_default_artifact_paths(artifact_root))
@@ -133,6 +136,8 @@ class VerificationOrchestrator:
                     "executed_stages": executed_stages,
                     "simulation_status": artifacts.simulation.status if artifacts.simulation else "",
                     "triage_category": artifacts.triage.primary_category if artifacts.triage else "",
+                    "validation_rtl_sources": [str(path) for path in validation_rtl_paths],
+                    "golden_validation": True,
                 }
             )
             if artifacts.triage and artifacts.triage.primary_category == "no_failure":
@@ -172,11 +177,20 @@ class VerificationOrchestrator:
                 "repair_loop_used": bool(repair_actions_taken),
                 "repair_rounds_used": repair_rounds_used,
                 "max_repair_rounds": repair_cap,
+                "validation_inputs": {
+                    "generation_rtl_sources": [str(path) for path in rtl_paths],
+                    "golden_rtl_sources": [str(path) for path in validation_rtl_paths],
+                    "golden_rtl_fallback_used": golden_rtl_fallback_used,
+                    "golden_tb_ignored": golden_tb is not None,
+                },
+                "golden_validation_triage_category": artifacts.triage.primary_category if artifacts.triage else "",
+                "golden_validation_source_status": artifacts.triage.source_status if artifacts.triage else "",
                 "attempts": attempt_summaries,
             },
             unresolved_items=_build_unresolved_items(
                 triage=artifacts.triage,
                 golden_tb=golden_tb,
+                golden_rtl_fallback_used=golden_rtl_fallback_used,
                 repair_cap=repair_cap,
                 repair_rounds_used=repair_rounds_used,
             ),
@@ -299,12 +313,15 @@ def _build_unresolved_items(
     *,
     triage: TriageResult | None,
     golden_tb: Path | None,
+    golden_rtl_fallback_used: bool,
     repair_cap: int,
     repair_rounds_used: int,
 ) -> list[str]:
     unresolved: list[str] = []
     if golden_tb is not None:
-        unresolved.append("golden_tb was provided but is not consumed by the minimal Phase 7/8 loop yet.")
+        unresolved.append("golden_tb was provided, but golden validation is driven by golden_rtl rather than golden_tb.")
+    if golden_rtl_fallback_used:
+        unresolved.append("golden_rtl was not provided, so verification fell back to generation RTL for validation.")
     if triage is None:
         unresolved.append("No triage artifact was produced.")
         return unresolved
@@ -386,6 +403,8 @@ def _write_report_artifacts(*, out_dir: Path, report: VerificationReport) -> Non
             "final_triage_category": report.triage.primary_category if report.triage else "",
             "repair_loop_used": bool(report.repair_actions),
             "repair_action_count": len(report.repair_actions),
+            "validation_inputs": report.coverage_summary.get("validation_inputs", {}),
+            "golden_validation_triage_category": report.coverage_summary.get("golden_validation_triage_category", ""),
             "artifact_paths": {key: str(path) for key, path in report.artifact_paths.items()},
             "unresolved_items": report.unresolved_items,
         },

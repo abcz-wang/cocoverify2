@@ -1,0 +1,36 @@
+{
+  "based_on_render_metadata": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/serial2parallel/render/metadata.json",
+  "command": [
+    "/workspace/I/qimeng6/miniconda3/bin/python",
+    "-c",
+    "\nimport json\nimport sys\nfrom pathlib import Path\n\npayload = json.loads(sys.argv[1])\nfrom cocotb_tools.runner import get_runner\n\nrunner = get_runner(payload[\"simulator\"])\nrunner.build(\n    verilog_sources=payload[\"rtl_sources\"],\n    includes=payload[\"include_dirs\"],\n    defines=payload[\"defines\"],\n    parameters=payload[\"parameters\"],\n    hdl_toplevel=payload[\"top_module\"],\n    clean=payload[\"clean_build\"],\n    waves=payload[\"waves_enabled\"],\n    always=True,\n)\nrunner.test(\n    hdl_toplevel=payload[\"top_module\"],\n    test_module=payload[\"test_module\"],\n    waves=payload[\"waves_enabled\"],\n    plusargs=payload[\"plusargs\"],\n    extra_env=payload[\"extra_env\"],\n    results_xml=payload[\"junit_path\"],\n)\n",
+    "{\"simulator\": \"icarus\", \"rtl_sources\": [\"/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/serial2parallel/verified_serial2parallel.v\"], \"include_dirs\": [], \"defines\": {}, \"parameters\": {}, \"top_module\": \"verified_serial2parallel\", \"test_module\": \"cocotb_tests.test_verified_serial2parallel_basic\", \"waves_enabled\": false, \"extra_env\": {}, \"plusargs\": [], \"junit_path\": null, \"clean_build\": false}"
+  ],
+  "discovered_tests": [],
+  "duration_seconds": 0.627169,
+  "end_time": "2026-03-31T14:57:00.207919+00:00",
+  "executed_tests": [],
+  "execution_notes": [
+    "Simulation stage consumes render metadata and package artifacts without modifying rendered test semantics.",
+    "Selected backend 'cocotb_tools' for mode 'cocotb_tools'.",
+    "No explicit per-test results were found in logs; relying on return code and JUnit when available."
+  ],
+  "failed_tests": [],
+  "junit_path": null,
+  "log_paths": {
+    "build_log": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/serial2parallel/run/logs/build.log",
+    "stderr": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/serial2parallel/run/logs/stderr.txt",
+    "stdout": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/serial2parallel/run/logs/stdout.txt",
+    "test_log": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/serial2parallel/run/logs/test.log"
+  },
+  "module_name": "verified_serial2parallel",
+  "passed_tests": [],
+  "return_code": 0,
+  "runner_warnings": [],
+  "selected_mode": "cocotb_tools",
+  "selected_simulator": "icarus",
+  "skipped_tests": [],
+  "start_time": "2026-03-31T14:56:59.580750+00:00",
+  "status": "success",
+  "waveform_paths": []
+}

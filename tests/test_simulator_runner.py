@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cocoverify2.core.models import SimulationConfig
+from cocoverify2.execution.cocotb_runner import CocotbRunner
 from cocoverify2.execution.make_runner import MakeRunner
 from cocoverify2.execution.runner_base import RunnerContext
 from cocoverify2.stages.contract_extractor import ContractExtractor
@@ -266,6 +267,57 @@ def test_make_runner_clean_build_uses_run_local_sim_build_and_removes_stale_outp
     assert not stale_run_sim_build.exists()
     assert stale_render_sim_build.exists()
     assert captured["env"]["SIM_BUILD"] == str((tmp_path / "run_clean" / "sim_build").resolve())
+
+
+def test_cocotb_runner_injects_render_root_into_pythonpath_and_preserves_existing_entries(tmp_path: Path, monkeypatch) -> None:
+    render_path = _build_render_metadata(tmp_path, "simple_seq.v")
+    metadata = load_render_metadata_artifact(render_path)
+    config = SimulationConfig(
+        mode="cocotb_tools",
+        rtl_sources=[_RTL / "simple_seq.v"],
+        extra_env={"PYTHONPATH": f"/existing/one{os.pathsep}/existing/two", "USER_FLAG": "1"},
+    )
+    selection, _ = SimulatorRunnerStage()._select_runner(
+        metadata=metadata,
+        render_metadata_path=render_path,
+        config=config,
+    )
+    captured: dict[str, object] = {}
+
+    def fake_execute_command(command, *, cwd, extra_env, timeout_seconds):
+        captured["command"] = list(command)
+        captured["cwd"] = cwd
+        captured["env"] = dict(extra_env or {})
+        captured["timeout_seconds"] = timeout_seconds
+        return _fake_command_result(cwd=Path(cwd))
+
+    monkeypatch.setattr("cocoverify2.execution.cocotb_runner.execute_command", fake_execute_command)
+    runner = CocotbRunner()
+    result = runner.execute(
+        metadata=metadata,
+        config=config,
+        selection=selection,
+        context=RunnerContext(
+            render_metadata_path=render_path,
+            render_dir=render_path.parent,
+            package_dir=render_path.parent / "cocotb_tests",
+            run_dir=tmp_path / "run_ct",
+            logs_dir=tmp_path / "logs_ct",
+            junit_dir=tmp_path / "junit_ct",
+            waves_dir=tmp_path / "waves_ct",
+        ),
+    )
+
+    assert result.return_code == 0
+    env = captured["env"]
+    assert env["USER_FLAG"] == "1"
+    assert env["PYTHONPATH"].split(os.pathsep) == [
+        str(render_path.parent.resolve()),
+        "/existing/one",
+        "/existing/two",
+    ]
+    payload = json.loads(captured["command"][3])
+    assert payload["test_module"] == "cocotb_tests.test_simple_seq_basic"
 
 
 def test_make_runner_relative_junit_path_is_resolved_absolute(tmp_path: Path, monkeypatch) -> None:

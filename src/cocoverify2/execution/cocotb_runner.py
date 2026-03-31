@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from cocoverify2.core.models import RenderMetadata, RunnerSelection, SimulationConfig
+from cocoverify2.execution.pythonpath import merge_pythonpath
 from cocoverify2.execution.runner_base import RunnerBase, RunnerContext
 from cocoverify2.utils.subprocess import CommandExecutionResult, execute_command
 
@@ -82,11 +83,16 @@ class CocotbRunner(RunnerBase):
             "junit_path": str(junit_path) if junit_path else None,
             "clean_build": config.clean_build,
         }
+        extra_env = dict(config.extra_env)
+        extra_env["PYTHONPATH"] = merge_pythonpath(
+            str(context.render_dir.resolve()),
+            config.extra_env.get("PYTHONPATH"),
+        )
         command = [sys.executable, "-c", _RUNNER_SCRIPT, json.dumps(payload)]
         return execute_command(
             command,
             cwd=config.working_dir or context.render_dir,
-            extra_env=config.extra_env,
+            extra_env=extra_env,
             timeout_seconds=config.timeout_seconds,
         )
 

@@ -1,0 +1,165 @@
+{
+  "allowed_unknowns": [],
+  "ambiguities": [
+    "Spec/reset hint could not be mapped to a known reset port: The second always block handles the counting logic of the internal counter (cnt). The counter is decremented by 1 on every positive edge of the clock or negative edge of the reset signal. The counter values are adjusted based on various conditions:",
+    "Spec/reset hint could not be mapped to a known reset port: The final always block handles the output signals. It assigns the previous values (p_red, p_yellow, p_green) to the output signals (red, yellow, green) on the positive edge of the clock or negative edge of the reset signal."
+  ],
+  "assumptions": [
+    "If the pass_request signal is active and the green signal is active, the counter is set to 10.",
+    "If the green signal is inactive and the previous green signal (p_green) was active, the counter is set to 60.",
+    "If the yellow signal is inactive and the previous yellow signal (p_yellow) was active, the counter is set to 5.",
+    "If the red signal is inactive and the previous red signal (p_red) was active, the counter is set to 10."
+  ],
+  "clocks": [
+    {
+      "confidence": 0.95,
+      "name": "clk",
+      "period_ns_guess": null,
+      "source": "spec_hint"
+    }
+  ],
+  "contract_confidence": 0.7850000000000001,
+  "extraction_warnings": [],
+  "handshake_groups": [],
+  "handshake_signals": [],
+  "illegal_input_constraints": [],
+  "module_name": "verified_traffic_light",
+  "observable_outputs": [
+    "clock",
+    "red",
+    "yellow",
+    "green"
+  ],
+  "parameters": {},
+  "ports": [
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "rst_n",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "clk",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": null,
+      "direction": "input",
+      "name": "pass_request",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "wire",
+      "direction": "output",
+      "name": "clock",
+      "raw_range": "[7:0]",
+      "signed": false,
+      "source": "rtl_header",
+      "width": 8
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "red",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "yellow",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    },
+    {
+      "confidence": 1.0,
+      "data_type": "reg",
+      "direction": "output",
+      "name": "green",
+      "raw_range": null,
+      "signed": false,
+      "source": "rtl_header",
+      "width": 1
+    }
+  ],
+  "resets": [
+    {
+      "active_level": 0,
+      "confidence": 0.9,
+      "name": "rst_n",
+      "source": "spec_hint",
+      "stabilization_cycles": null,
+      "synchronous": null
+    }
+  ],
+  "rtl_sources": [
+    "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_inputs/traffic_light/generated_traffic_light.v"
+  ],
+  "source_map": {
+    "clocks.clk": [
+      "rtl_heuristic",
+      "spec_hint"
+    ],
+    "module_name": [
+      "rtl:generated_traffic_light.v"
+    ],
+    "ports.clk": [
+      "rtl:generated_traffic_light.v"
+    ],
+    "ports.clock": [
+      "rtl:generated_traffic_light.v"
+    ],
+    "ports.green": [
+      "rtl:generated_traffic_light.v"
+    ],
+    "ports.pass_request": [
+      "rtl:generated_traffic_light.v"
+    ],
+    "ports.red": [
+      "rtl:generated_traffic_light.v"
+    ],
+    "ports.rst_n": [
+      "rtl:generated_traffic_light.v"
+    ],
+    "ports.yellow": [
+      "rtl:generated_traffic_light.v"
+    ],
+    "resets.rst_n": [
+      "rtl_heuristic",
+      "spec_hint"
+    ],
+    "timing": [
+      "rtl_heuristic"
+    ]
+  },
+  "timing": {
+    "confidence": 0.9,
+    "fixed_latency_cycles": null,
+    "latency_model": "unknown",
+    "sampling_window_cycles": null,
+    "sequential_kind": "seq",
+    "source": "rtl_heuristic",
+    "variable_latency_range": null
+  }
+}

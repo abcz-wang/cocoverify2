@@ -1,0 +1,111 @@
+module_name: verified_radix2_div
+rtl_sources:
+- /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_inputs/radix2_div/generated_radix2_div.v
+parameters: {}
+port_count: 9
+ports:
+- name: clk
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: wire
+  source: rtl_header
+  confidence: 1.0
+- name: rst
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: wire
+  source: rtl_header
+  confidence: 1.0
+- name: dividend
+  direction: input
+  width: 8
+  raw_range: '[7:0]'
+  signed: false
+  data_type: wire
+  source: rtl_header
+  confidence: 1.0
+- name: divisor
+  direction: input
+  width: 8
+  raw_range: '[7:0]'
+  signed: false
+  data_type: wire
+  source: rtl_header
+  confidence: 1.0
+- name: sign
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: wire
+  source: rtl_header
+  confidence: 1.0
+- name: opn_valid
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: wire
+  source: rtl_header
+  confidence: 1.0
+- name: res_valid
+  direction: output
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: reg
+  source: rtl_header
+  confidence: 1.0
+- name: res_ready
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: wire
+  source: rtl_header
+  confidence: 1.0
+- name: result
+  direction: output
+  width: 16
+  raw_range: '[15:0]'
+  signed: false
+  data_type: wire
+  source: rtl_header
+  confidence: 1.0
+clock_names:
+- clk
+reset_names:
+- rst
+handshake_groups:
+- pattern: valid_ready
+  group_name: res
+  signals:
+    valid: res_valid
+    ready: res_ready
+  source: rtl_heuristic
+  confidence: 0.9
+handshake_signals:
+- res_valid
+- res_ready
+timing:
+  sequential_kind: seq
+  latency_model: unknown
+  fixed_latency_cycles: null
+  variable_latency_range: null
+  sampling_window_cycles: null
+  source: rtl_heuristic
+  confidence: 0.9
+observable_outputs:
+- res_valid
+- result
+ambiguities:
+- Detected valid_ready-like signal(s) ['opn_valid'] without matching role(s) ['ready']
+  in group 'opn'.
+- 'Spec/reset hint could not be mapped to a known reset port: res_valid is managed
+  based on the reset signal, the counter, and whether the result has been consumed.'
+extraction_warnings: []
+contract_confidence: 0.7850000000000001

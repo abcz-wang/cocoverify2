@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import os
 import shutil
 from pathlib import Path
 
 from cocoverify2.cocotbgen.makefile import MAKEFILE_CONTRACT_MARKER
 from cocoverify2.core.models import RenderMetadata, RunnerSelection, SimulationConfig
+from cocoverify2.execution.pythonpath import merge_pythonpath
 from cocoverify2.execution.runner_base import RunnerBase, RunnerContext
 from cocoverify2.utils.subprocess import CommandExecutionResult, execute_command
 
@@ -68,7 +68,7 @@ class MakeRunner(RunnerBase):
             "PLUSARGS": " ".join(config.plusargs),
             **config.extra_env,
         }
-        env["PYTHONPATH"] = _merge_pythonpath(str(context.render_dir.resolve()), config.extra_env.get("PYTHONPATH"))
+        env["PYTHONPATH"] = merge_pythonpath(str(context.render_dir.resolve()), config.extra_env.get("PYTHONPATH"))
         if config.junit_enabled:
             env["COCOTB_RESULTS_FILE"] = str((context.junit_dir / "results.xml").resolve())
         if config.waves_enabled or config.waves:
@@ -108,13 +108,6 @@ def _makefile_has_execution_contract(path: Path) -> bool:
         and "COCOTB_MAKEFILES_DIR ?=" in text
         and "include $(COCOTB_MAKEFILES_DIR)/Makefile.sim" in text
     )
-
-
-def _merge_pythonpath(required_entry: str, existing: str | None) -> str:
-    entries = [required_entry]
-    if existing:
-        entries.extend(item for item in existing.split(os.pathsep) if item and item != required_entry)
-    return os.pathsep.join(entries)
 
 
 def _resolve_cocotb_makefiles_dir(

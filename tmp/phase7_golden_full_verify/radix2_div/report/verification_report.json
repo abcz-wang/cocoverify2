@@ -1,0 +1,1535 @@
+{
+  "artifact_paths": {
+    "contract": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/contract/contract.json",
+    "oracle": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/oracle/oracle.json",
+    "plan": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/plan/test_plan.json",
+    "render": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/render/metadata.json",
+    "repair": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/repair/repair_actions.json",
+    "report": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/report/verification_report.json",
+    "run": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/run/simulation_result.json",
+    "runner_selection": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/run/runner_selection.json",
+    "triage": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/triage/triage.json"
+  },
+  "contract": {
+    "allowed_unknowns": [],
+    "ambiguities": [
+      "Detected valid_ready-like signal(s) ['opn_valid'] without matching role(s) ['ready'] in group 'opn'.",
+      "Spec/reset hint could not be mapped to a known reset port: res_valid is managed based on the reset signal, the counter, and whether the result has been consumed."
+    ],
+    "assumptions": [
+      "result: 16-bit the output containing the remainder in the upper 8 bits and the quotient in the lower 8 bits.",
+      "handshake_signals is a flattened compatibility view derived from handshake_groups."
+    ],
+    "clocks": [
+      {
+        "confidence": 0.95,
+        "name": "clk",
+        "period_ns_guess": null,
+        "source": "spec_hint"
+      }
+    ],
+    "contract_confidence": 0.7850000000000001,
+    "extraction_warnings": [],
+    "handshake_groups": [
+      {
+        "confidence": 0.9,
+        "group_name": "res",
+        "pattern": "valid_ready",
+        "signals": {
+          "ready": "res_ready",
+          "valid": "res_valid"
+        },
+        "source": "rtl_heuristic"
+      }
+    ],
+    "handshake_signals": [
+      "res_valid",
+      "res_ready"
+    ],
+    "illegal_input_constraints": [],
+    "module_name": "verified_radix2_div",
+    "observable_outputs": [
+      "res_valid",
+      "result"
+    ],
+    "parameters": {},
+    "ports": [
+      {
+        "confidence": 1.0,
+        "data_type": "wire",
+        "direction": "input",
+        "name": "clk",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "wire",
+        "direction": "input",
+        "name": "rst",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "wire",
+        "direction": "input",
+        "name": "dividend",
+        "raw_range": "[7:0]",
+        "signed": false,
+        "source": "rtl_header",
+        "width": 8
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "wire",
+        "direction": "input",
+        "name": "divisor",
+        "raw_range": "[7:0]",
+        "signed": false,
+        "source": "rtl_header",
+        "width": 8
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "wire",
+        "direction": "input",
+        "name": "sign",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "wire",
+        "direction": "input",
+        "name": "opn_valid",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "reg",
+        "direction": "output",
+        "name": "res_valid",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "wire",
+        "direction": "input",
+        "name": "res_ready",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "wire",
+        "direction": "output",
+        "name": "result",
+        "raw_range": "[15:0]",
+        "signed": false,
+        "source": "rtl_header",
+        "width": 16
+      }
+    ],
+    "resets": [
+      {
+        "active_level": 1,
+        "confidence": 0.9,
+        "name": "rst",
+        "source": "spec_hint",
+        "stabilization_cycles": null,
+        "synchronous": null
+      }
+    ],
+    "rtl_sources": [
+      "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_inputs/radix2_div/generated_radix2_div.v"
+    ],
+    "source_map": {
+      "clocks.clk": [
+        "rtl_heuristic",
+        "spec_hint"
+      ],
+      "handshake_groups.valid_ready.res": [
+        "rtl_heuristic"
+      ],
+      "handshake_signals.res_ready": [
+        "flattened_from_handshake_groups"
+      ],
+      "handshake_signals.res_valid": [
+        "flattened_from_handshake_groups"
+      ],
+      "module_name": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "ports.clk": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "ports.dividend": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "ports.divisor": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "ports.opn_valid": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "ports.res_ready": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "ports.res_valid": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "ports.result": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "ports.rst": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "ports.sign": [
+        "rtl:generated_radix2_div.v"
+      ],
+      "resets.rst": [
+        "rtl_heuristic",
+        "spec_hint"
+      ],
+      "timing": [
+        "rtl_heuristic"
+      ]
+    },
+    "timing": {
+      "confidence": 0.9,
+      "fixed_latency_cycles": null,
+      "latency_model": "unknown",
+      "sampling_window_cycles": null,
+      "sequential_kind": "seq",
+      "source": "rtl_heuristic",
+      "variable_latency_range": null
+    }
+  },
+  "coverage_summary": {
+    "attempts": [
+      {
+        "attempt_index": 0,
+        "executed_stages": [
+          "contract",
+          "plan",
+          "oracle",
+          "render",
+          "run",
+          "triage"
+        ],
+        "golden_validation": true,
+        "simulation_status": "success",
+        "start_stage": "contract",
+        "triage_category": "no_failure",
+        "validation_rtl_sources": [
+          "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/radix2_div/verified_radix2_div.v"
+        ]
+      }
+    ],
+    "golden_validation_source_status": "success",
+    "golden_validation_triage_category": "no_failure",
+    "max_repair_rounds": 1,
+    "repair_loop_used": false,
+    "repair_rounds_used": 0,
+    "task_id": "radix2_div",
+    "validation_inputs": {
+      "generation_rtl_sources": [
+        "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_inputs/radix2_div/generated_radix2_div.v"
+      ],
+      "golden_rtl_fallback_used": false,
+      "golden_rtl_sources": [
+        "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/radix2_div/verified_radix2_div.v"
+      ],
+      "golden_tb_ignored": false
+    }
+  },
+  "final_verdict": {
+    "confidence": 0.82,
+    "false_negative_risk": 0.18,
+    "false_positive_risk": 0.22,
+    "rationale": [
+      "Verification completed without needing a repair round."
+    ],
+    "verdict": "pass"
+  },
+  "oracle_summary": {
+    "assumptions": [
+      "result: 16-bit the output containing the remainder in the upper 8 bits and the quotient in the lower 8 bits.",
+      "handshake_signals is a flattened compatibility view derived from handshake_groups.",
+      "Spec text was provided and only used where it did not contradict the contract.",
+      "LLM hybrid fallback activated for plan stage: LLM request failed after 1 attempt(s): Connection error.",
+      "Spec text was provided and only used where it reinforced already-known contract or plan constraints.",
+      "LLM hybrid fallback activated for oracle stage: LLM request failed after 1 attempt(s): Connection error."
+    ],
+    "based_on_contract": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/contract/contract.json",
+    "based_on_plan": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/plan/test_plan.json",
+    "functional_oracles": [],
+    "module_name": "verified_radix2_div",
+    "oracle_confidence": {
+      "functional_confidence": 0.0,
+      "overall_confidence": 0.44628571428571445,
+      "property_confidence": 0.7335714285714287,
+      "protocol_confidence": 0.7190000000000001
+    },
+    "oracle_strategy": "hybrid_rule_based_plus_llm",
+    "property_oracles": [
+      {
+        "assumptions": [],
+        "case_id": "property_reset_001",
+        "category": "reset",
+        "checks": [
+          {
+            "check_id": "reset_001_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.7750000000000001,
+            "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+            "expected_transition": "",
+            "notes": [
+              "Clock/reset remain anchors and are not emitted as business outputs."
+            ],
+            "observed_signals": [
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "reset_release",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "While reset is asserted or being released."
+          }
+        ],
+        "confidence": 0.7750000000000001,
+        "linked_plan_case_id": "reset_001",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'reset_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      },
+      {
+        "assumptions": [],
+        "case_id": "property_basic_001",
+        "category": "basic",
+        "checks": [
+          {
+            "check_id": "basic_001_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.7750000000000001,
+            "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+            "expected_transition": "",
+            "notes": [
+              "Default property oracle protects against over-specific later render behavior."
+            ],
+            "observed_signals": [
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "operation_applied",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+          }
+        ],
+        "confidence": 0.7750000000000001,
+        "linked_plan_case_id": "basic_001",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      },
+      {
+        "assumptions": [],
+        "case_id": "property_edge_001",
+        "category": "edge",
+        "checks": [
+          {
+            "check_id": "edge_001_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.7250000000000001,
+            "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+            "expected_transition": "",
+            "notes": [
+              "Default property oracle protects against over-specific later render behavior."
+            ],
+            "observed_signals": [
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "operation_applied",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+          }
+        ],
+        "confidence": 0.7250000000000001,
+        "linked_plan_case_id": "edge_001",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'edge_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      },
+      {
+        "assumptions": [],
+        "case_id": "property_protocol_001",
+        "category": "protocol",
+        "checks": [
+          {
+            "check_id": "protocol_001_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.7950000000000002,
+            "description": "Guardrail: acceptance requires legal valid/ready overlap.",
+            "expected_transition": "",
+            "notes": [
+              "Prevents false positives from incorrectly inferring transaction acceptance."
+            ],
+            "observed_signals": [
+              "res_ready",
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "Acceptance is only credited on legal handshake overlap and is never inferred from a later output alone.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_ready": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "protocol_event",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "Whenever the case tries to interpret a transfer as accepted."
+          }
+        ],
+        "confidence": 0.7950000000000002,
+        "linked_plan_case_id": "protocol_001",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'protocol_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      },
+      {
+        "assumptions": [],
+        "case_id": "property_protocol_002",
+        "category": "protocol",
+        "checks": [
+          {
+            "check_id": "protocol_002_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.7150000000000001,
+            "description": "Guardrail: do not declare acceptance or completion while backpressure is active.",
+            "expected_transition": "",
+            "notes": [
+              "Property oracle is ambiguity-aware and avoids overcommitting to stall behavior."
+            ],
+            "observed_signals": [
+              "res_ready",
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "The design is only required to avoid premature acceptance/completion claims; it is not required to make progress under backpressure.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_ready": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "protocol_event",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "When ready is low during an attempted transfer."
+          }
+        ],
+        "confidence": 0.7150000000000001,
+        "linked_plan_case_id": "protocol_002",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'protocol_002' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      },
+      {
+        "assumptions": [],
+        "case_id": "property_protocol_003",
+        "category": "protocol",
+        "checks": [
+          {
+            "check_id": "protocol_003_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.6750000000000002,
+            "description": "Guardrail: do not declare completion before a legal acceptance event becomes visible.",
+            "expected_transition": "",
+            "notes": [
+              "Safety-style property used because persistence semantics are not fully proven."
+            ],
+            "observed_signals": [
+              "res_ready",
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "Completion or success is not credited before a later legal acceptance or progress event is externally visible.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_ready": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "protocol_event",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "While a source is waiting for the protocol to permit acceptance."
+          }
+        ],
+        "confidence": 0.6750000000000002,
+        "linked_plan_case_id": "protocol_003",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'protocol_003' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      },
+      {
+        "assumptions": [],
+        "case_id": "property_back_to_back_001",
+        "category": "back_to_back",
+        "checks": [
+          {
+            "check_id": "back_to_back_001_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.6750000000000002,
+            "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+            "expected_transition": "",
+            "notes": [
+              "Stability-style property used instead of throughput-specific claims."
+            ],
+            "observed_signals": [
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "repeated_operations",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "unbounded_safe"
+            },
+            "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+          }
+        ],
+        "confidence": 0.6750000000000002,
+        "linked_plan_case_id": "back_to_back_001",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'back_to_back_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      }
+    ],
+    "protocol_oracles": [
+      {
+        "assumptions": [
+          "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+        ],
+        "case_id": "protocol_reset_001",
+        "category": "reset",
+        "checks": [
+          {
+            "check_id": "reset_001_protocol_001",
+            "check_type": "protocol",
+            "comparison_operands": [],
+            "confidence": 0.7650000000000001,
+            "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+            "expected_transition": "",
+            "notes": [
+              "Reset is used as an anchor only; it is not treated as a business output."
+            ],
+            "observed_signals": [
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "conservative",
+            "temporal_window": {
+              "anchor": "reset_release",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "When reset 'rst' is asserted and later released according to the inferred polarity."
+          }
+        ],
+        "confidence": 0.7650000000000001,
+        "linked_plan_case_id": "reset_001",
+        "notes": [
+          "Reset oracle focuses on control-safe behavior instead of value-specific output claims.",
+          "Protocol oracle strictness is downgraded because the contract or plan is weak."
+        ],
+        "source": "rule_based",
+        "unresolved_items": []
+      },
+      {
+        "assumptions": [
+          "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+        ],
+        "case_id": "protocol_protocol_001",
+        "category": "protocol",
+        "checks": [
+          {
+            "check_id": "protocol_001_protocol_001",
+            "check_type": "protocol",
+            "comparison_operands": [],
+            "confidence": 0.8150000000000002,
+            "description": "Recognize acceptance only when valid and ready are simultaneously asserted.",
+            "expected_transition": "",
+            "notes": [
+              "Acceptance-safe oracle; not a completion oracle."
+            ],
+            "observed_signals": [
+              "res_ready",
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "A transaction may be considered accepted only on valid/ready overlap; downstream completion is not required in the same observation point or any predetermined later observation point.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_ready": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "primary_data_output_case_ambiguity",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "conservative",
+            "temporal_window": {
+              "anchor": "protocol_event",
+              "max_cycles": null,
+              "min_cycles": 0,
+              "mode": "bounded_range"
+            },
+            "trigger_condition": "When 'res_valid' and 'res_ready' overlap in the observation window."
+          }
+        ],
+        "confidence": 0.8150000000000002,
+        "linked_plan_case_id": "protocol_001",
+        "notes": [
+          "Protocol oracle strictness is downgraded because the contract or plan is weak."
+        ],
+        "source": "rule_based",
+        "unresolved_items": []
+      },
+      {
+        "assumptions": [
+          "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+        ],
+        "case_id": "protocol_protocol_002",
+        "category": "protocol",
+        "checks": [
+          {
+            "check_id": "protocol_002_protocol_001",
+            "check_type": "protocol",
+            "comparison_operands": [],
+            "confidence": 0.7050000000000001,
+            "description": "Guard against claiming acceptance or completion while ready is low.",
+            "expected_transition": "",
+            "notes": [
+              "Backpressure-safe oracle avoids fixed-throughput assumptions."
+            ],
+            "observed_signals": [
+              "res_ready",
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "Progress may stall or be deferred; the oracle does not require completion or acceptance until a later legal handshake is observed.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_ready": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "protocol_event",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "When 'res_valid' is asserted while 'res_ready' remains low or unavailable for acceptance."
+          }
+        ],
+        "confidence": 0.7050000000000001,
+        "linked_plan_case_id": "protocol_002",
+        "notes": [
+          "Protocol oracle strictness is downgraded because the contract or plan is weak."
+        ],
+        "source": "rule_based",
+        "unresolved_items": []
+      },
+      {
+        "assumptions": [
+          "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+        ],
+        "case_id": "protocol_protocol_003",
+        "category": "protocol",
+        "checks": [
+          {
+            "check_id": "protocol_003_protocol_001",
+            "check_type": "protocol",
+            "comparison_operands": [],
+            "confidence": 0.6550000000000001,
+            "description": "Observe source-side persistence or other safe waiting behavior before acceptance.",
+            "expected_transition": "",
+            "notes": [
+              "Persistence semantics remain heuristic and are intentionally checked in a safety-style form."
+            ],
+            "observed_signals": [
+              "res_ready",
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "The interface remains externally consistent while waiting; completion is not claimed before a legal acceptance event is visible.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_ready": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "protocol_event",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "When 'res_valid' stays asserted across multiple conservative observation opportunities before 'res_ready' allows acceptance."
+          }
+        ],
+        "confidence": 0.6550000000000001,
+        "linked_plan_case_id": "protocol_003",
+        "notes": [
+          "Protocol oracle strictness is downgraded because the contract or plan is weak."
+        ],
+        "source": "rule_based",
+        "unresolved_items": []
+      },
+      {
+        "assumptions": [
+          "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+        ],
+        "case_id": "protocol_back_to_back_001",
+        "category": "back_to_back",
+        "checks": [
+          {
+            "check_id": "back_to_back_001_protocol_001",
+            "check_type": "protocol",
+            "comparison_operands": [],
+            "confidence": 0.6550000000000001,
+            "description": "Require repeated operations to be distinguished by separate protocol-visible acceptance or completion events.",
+            "expected_transition": "",
+            "notes": [
+              "Repeated-operation oracle avoids throughput and queue-depth assumptions."
+            ],
+            "observed_signals": [
+              "res_valid",
+              "result"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "A second operation is not treated as accepted or complete unless a distinct later protocol-visible event is observed.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "res_valid": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "protocol_visible_signal",
+                "strength": "guarded"
+              },
+              "result": {
+                "allow_high_impedance": false,
+                "allow_unknown": false,
+                "definedness_mode": "not_required",
+                "rationale": "primary_data_output_guarded_definedness",
+                "strength": "guarded"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "protocol_event",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "When the linked plan applies repeated or back-to-back operations with minimal spacing."
+          }
+        ],
+        "confidence": 0.6550000000000001,
+        "linked_plan_case_id": "back_to_back_001",
+        "notes": [
+          "Protocol oracle strictness is downgraded because the contract or plan is weak."
+        ],
+        "source": "rule_based",
+        "unresolved_items": []
+      }
+    ],
+    "unresolved_items": [
+      "Detected valid_ready-like signal(s) ['opn_valid'] without matching role(s) ['ready'] in group 'opn'.",
+      "Spec/reset hint could not be mapped to a known reset port: res_valid is managed based on the reset signal, the counter, and whether the result has been consumed.",
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+      "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+      "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks."
+    ]
+  },
+  "repair_actions": [],
+  "simulation_summary": {
+    "based_on_render_metadata": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/render/metadata.json",
+    "command": [
+      "/workspace/I/qimeng6/miniconda3/bin/python",
+      "-c",
+      "\nimport json\nimport sys\nfrom pathlib import Path\n\npayload = json.loads(sys.argv[1])\nfrom cocotb_tools.runner import get_runner\n\nrunner = get_runner(payload[\"simulator\"])\nrunner.build(\n    verilog_sources=payload[\"rtl_sources\"],\n    includes=payload[\"include_dirs\"],\n    defines=payload[\"defines\"],\n    parameters=payload[\"parameters\"],\n    hdl_toplevel=payload[\"top_module\"],\n    clean=payload[\"clean_build\"],\n    waves=payload[\"waves_enabled\"],\n    always=True,\n)\nrunner.test(\n    hdl_toplevel=payload[\"top_module\"],\n    test_module=payload[\"test_module\"],\n    waves=payload[\"waves_enabled\"],\n    plusargs=payload[\"plusargs\"],\n    extra_env=payload[\"extra_env\"],\n    results_xml=payload[\"junit_path\"],\n)\n",
+      "{\"simulator\": \"icarus\", \"rtl_sources\": [\"/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/radix2_div/verified_radix2_div.v\"], \"include_dirs\": [], \"defines\": {}, \"parameters\": {}, \"top_module\": \"verified_radix2_div\", \"test_module\": \"cocotb_tests.test_verified_radix2_div_basic\", \"waves_enabled\": false, \"extra_env\": {}, \"plusargs\": [], \"junit_path\": null, \"clean_build\": false}"
+    ],
+    "discovered_tests": [],
+    "duration_seconds": 0.603621,
+    "end_time": "2026-03-31T14:56:52.475828+00:00",
+    "executed_tests": [],
+    "execution_notes": [
+      "Simulation stage consumes render metadata and package artifacts without modifying rendered test semantics.",
+      "Selected backend 'cocotb_tools' for mode 'cocotb_tools'.",
+      "No explicit per-test results were found in logs; relying on return code and JUnit when available."
+    ],
+    "failed_tests": [],
+    "junit_path": null,
+    "log_paths": {
+      "build_log": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/run/logs/build.log",
+      "stderr": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/run/logs/stderr.txt",
+      "stdout": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/run/logs/stdout.txt",
+      "test_log": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/run/logs/test.log"
+    },
+    "module_name": "verified_radix2_div",
+    "passed_tests": [],
+    "return_code": 0,
+    "runner_warnings": [],
+    "selected_mode": "cocotb_tools",
+    "selected_simulator": "icarus",
+    "skipped_tests": [],
+    "start_time": "2026-03-31T14:56:51.872207+00:00",
+    "status": "success",
+    "waveform_paths": []
+  },
+  "test_plan_summary": {
+    "assumptions": [
+      "result: 16-bit the output containing the remainder in the upper 8 bits and the quotient in the lower 8 bits.",
+      "handshake_signals is a flattened compatibility view derived from handshake_groups.",
+      "Spec text was provided and only used where it did not contradict the contract.",
+      "LLM hybrid fallback activated for plan stage: LLM request failed after 1 attempt(s): Connection error."
+    ],
+    "based_on_contract": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/contract/contract.json",
+    "cases": [
+      {
+        "case_id": "reset_001",
+        "category": "reset",
+        "comparison_operands": [],
+        "confidence": 0.8350000000000002,
+        "coverage_tags": [
+          "reset",
+          "initialization",
+          "stability"
+        ],
+        "defer_reason": "",
+        "dependencies": [],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+          "No fixed-cycle completion is assumed during reset recovery."
+        ],
+        "expected_transition": "",
+        "goal": "Establish a stable post-reset baseline before functional checking.",
+        "notes": [
+          "Reset polarity may still be heuristic if the contract marks it ambiguous."
+        ],
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "preconditions": [
+          "Reset signal is available in the contract."
+        ],
+        "priority": 1,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Assert the detected reset using the inferred polarity.",
+          "Release reset conservatively and observe interface stabilization."
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "rst"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      {
+        "case_id": "basic_001",
+        "category": "basic",
+        "comparison_operands": [],
+        "confidence": 0.7850000000000001,
+        "coverage_tags": [
+          "basic",
+          "sanity",
+          "seq"
+        ],
+        "defer_reason": "",
+        "dependencies": [
+          "reset_001"
+        ],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "A legal operation causes an observable state or output change after conservative observation.",
+          "The plan does not assume a completion event before it is externally visible."
+        ],
+        "expected_transition": "",
+        "goal": "Apply one legal operation and observe stable post-operation behavior.",
+        "notes": [
+          "Case intent is conservative when the contract is weak or timing is unresolved."
+        ],
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "preconditions": [
+          "Use only ports and observable signals present in the contract."
+        ],
+        "priority": 1,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Drive a representative legal input pattern across known non-control inputs: ['dividend', 'divisor', 'sign', 'opn_valid', 'res_ready']"
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "dividend",
+          "divisor",
+          "sign",
+          "opn_valid",
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      {
+        "case_id": "edge_001",
+        "category": "edge",
+        "comparison_operands": [],
+        "confidence": 0.7350000000000001,
+        "coverage_tags": [
+          "edge",
+          "boundary"
+        ],
+        "defer_reason": "",
+        "dependencies": [
+          "basic_001"
+        ],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+          "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+        ],
+        "expected_transition": "",
+        "goal": "Exercise boundary-value and width-sensitive input patterns.",
+        "notes": [
+          "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+        ],
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "preconditions": [
+          "At least one input or symbolic-width input is available."
+        ],
+        "priority": 2,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Use zero-like, one-like, and boundary patterns on ['dividend', 'divisor', 'opn_valid', 'res_ready']"
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "dividend",
+          "divisor",
+          "opn_valid",
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      {
+        "case_id": "protocol_001",
+        "category": "protocol",
+        "comparison_operands": [],
+        "confidence": 0.8350000000000002,
+        "coverage_tags": [
+          "protocol",
+          "valid_ready",
+          "acceptance",
+          "res"
+        ],
+        "defer_reason": "",
+        "dependencies": [
+          "reset_001"
+        ],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "When valid and ready overlap, observe externally visible acceptance or progress.",
+          "Do not assume a fixed completion cycle after acceptance."
+        ],
+        "expected_transition": "",
+        "goal": "Observe basic res valid/ready handshake acceptance.",
+        "notes": [
+          "Protocol case is intentionally acceptance-oriented, not latency-committing."
+        ],
+        "observed_signals": [
+          "res_ready",
+          "res_valid",
+          "result"
+        ],
+        "preconditions": [
+          "Both valid and ready signals are present in the contract."
+        ],
+        "priority": 1,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Drive res_valid with a legal transaction while allowing res_ready to indicate acceptance."
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible.",
+          "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+        ]
+      },
+      {
+        "case_id": "protocol_002",
+        "category": "protocol",
+        "comparison_operands": [],
+        "confidence": 0.7350000000000001,
+        "coverage_tags": [
+          "protocol",
+          "valid_ready",
+          "backpressure",
+          "res"
+        ],
+        "defer_reason": "",
+        "dependencies": [
+          "basic_001"
+        ],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "Progress is deferred, stalled, or otherwise safely withheld while ready is low.",
+          "The plan does not assume a single exact stall policy beyond safe non-acceptance observation."
+        ],
+        "expected_transition": "",
+        "goal": "Observe res backpressure behavior when ready is low.",
+        "notes": [
+          "Backpressure case is protocol-safe and avoids precise throughput claims."
+        ],
+        "observed_signals": [
+          "res_ready",
+          "res_valid",
+          "result"
+        ],
+        "preconditions": [
+          "res_ready can be held low or observed low."
+        ],
+        "priority": 2,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Attempt a transaction while res_ready remains low or unavailable for acceptance."
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible.",
+          "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+        ]
+      },
+      {
+        "case_id": "protocol_003",
+        "category": "protocol",
+        "comparison_operands": [],
+        "confidence": 0.7050000000000002,
+        "coverage_tags": [
+          "protocol",
+          "valid_ready",
+          "persistence",
+          "res"
+        ],
+        "defer_reason": "",
+        "dependencies": [
+          "protocol_001"
+        ],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "Source-side behavior remains safe and externally consistent until acceptance is observed.",
+          "No exact persistence policy is assumed beyond safe observation."
+        ],
+        "expected_transition": "",
+        "goal": "Observe safe valid persistence or safe-source behavior for res traffic.",
+        "notes": [
+          "This case is intentionally unresolved-safe when the contract does not define source obligations exactly."
+        ],
+        "observed_signals": [
+          "res_ready",
+          "res_valid",
+          "result"
+        ],
+        "preconditions": [
+          "res_valid is visible in the contract."
+        ],
+        "priority": 3,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Maintain or re-assert res_valid across conservative observation windows until acceptance is visible."
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "res_ready"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible.",
+          "Avoid fixed-cycle acceptance or completion checks unless the contract explicitly provides them."
+        ]
+      },
+      {
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "comparison_operands": [],
+        "confidence": 0.7050000000000002,
+        "coverage_tags": [
+          "back_to_back",
+          "repeated_operation"
+        ],
+        "defer_reason": "",
+        "dependencies": [
+          "basic_001"
+        ],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "Repeated operations do not rely on hidden fixed-latency assumptions.",
+          "The second operation is observed only through externally visible acceptance, completion, or output change."
+        ],
+        "expected_transition": "",
+        "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+        "notes": [
+          "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+        ],
+        "observed_signals": [
+          "res_valid",
+          "result"
+        ],
+        "preconditions": [
+          "At least one legal operation is already defined by the basic case."
+        ],
+        "priority": 3,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "dividend",
+          "divisor",
+          "sign"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      }
+    ],
+    "module_name": "verified_radix2_div",
+    "plan_confidence": 0.8550000000000002,
+    "plan_strategy": "hybrid_rule_based_plus_llm",
+    "unresolved_items": [
+      "Detected valid_ready-like signal(s) ['opn_valid'] without matching role(s) ['ready'] in group 'opn'.",
+      "Spec/reset hint could not be mapped to a known reset port: res_valid is managed based on the reset signal, the counter, and whether the result has been consumed.",
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage."
+    ]
+  },
+  "triage": {
+    "based_on_render_metadata": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/render/metadata.json",
+    "based_on_runner_selection": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/run/runner_selection.json",
+    "based_on_simulation_result": "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/radix2_div/run/simulation_result.json",
+    "confidence": 0.92,
+    "evidence": [
+      "simulation_status=success",
+      "module_name=verified_radix2_div",
+      "failed_tests_count=0",
+      "passed_tests_count=0",
+      "discovered_tests_count=0",
+      "return_code=0",
+      "runner_backend=cocotb_tools",
+      "runner_selected_mode=cocotb_tools",
+      "runner_warning_count=0",
+      "render_warning_count=9",
+      "render_confidence=0.52"
+    ],
+    "matched_log_fragments": [
+      "    45.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_radix2_div_basic.test_reset_001 passed",
+      "   100.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_radix2_div_basic.test_basic_001 passed",
+      "   145.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_radix2_div_basic.test_back_to_back_001 passed"
+    ],
+    "matched_signals": [],
+    "module_name": "verified_radix2_div",
+    "primary_category": "no_failure",
+    "secondary_categories": [],
+    "source_status": "success",
+    "suspected_layer": "none"
+  },
+  "unresolved_items": []
+}

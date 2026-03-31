@@ -1,0 +1,939 @@
+{
+  "artifact_paths": {
+    "contract": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/contract/contract.json",
+    "oracle": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/oracle/oracle.json",
+    "plan": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/plan/test_plan.json",
+    "render": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/render/metadata.json",
+    "repair": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/repair/repair_actions.json",
+    "report": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/report/verification_report.json",
+    "run": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/run/simulation_result.json",
+    "runner_selection": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/run/runner_selection.json",
+    "triage": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/triage/triage.json"
+  },
+  "contract": {
+    "allowed_unknowns": [],
+    "ambiguities": [
+      "Spec/reset hint could not be mapped to a known reset port: The second always block handles the counting logic of the internal counter (cnt). The counter is decremented by 1 on every positive edge of the clock or negative edge of the reset signal. The counter values are adjusted based on various conditions:",
+      "Spec/reset hint could not be mapped to a known reset port: The final always block handles the output signals. It assigns the previous values (p_red, p_yellow, p_green) to the output signals (red, yellow, green) on the positive edge of the clock or negative edge of the reset signal."
+    ],
+    "assumptions": [
+      "If the pass_request signal is active and the green signal is active, the counter is set to 10.",
+      "If the green signal is inactive and the previous green signal (p_green) was active, the counter is set to 60.",
+      "If the yellow signal is inactive and the previous yellow signal (p_yellow) was active, the counter is set to 5.",
+      "If the red signal is inactive and the previous red signal (p_red) was active, the counter is set to 10."
+    ],
+    "clocks": [
+      {
+        "confidence": 0.95,
+        "name": "clk",
+        "period_ns_guess": null,
+        "source": "spec_hint"
+      }
+    ],
+    "contract_confidence": 0.7850000000000001,
+    "extraction_warnings": [],
+    "handshake_groups": [],
+    "handshake_signals": [],
+    "illegal_input_constraints": [],
+    "module_name": "verified_traffic_light",
+    "observable_outputs": [
+      "clock",
+      "red",
+      "yellow",
+      "green"
+    ],
+    "parameters": {},
+    "ports": [
+      {
+        "confidence": 1.0,
+        "data_type": null,
+        "direction": "input",
+        "name": "rst_n",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": null,
+        "direction": "input",
+        "name": "clk",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": null,
+        "direction": "input",
+        "name": "pass_request",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "wire",
+        "direction": "output",
+        "name": "clock",
+        "raw_range": "[7:0]",
+        "signed": false,
+        "source": "rtl_header",
+        "width": 8
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "reg",
+        "direction": "output",
+        "name": "red",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "reg",
+        "direction": "output",
+        "name": "yellow",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      },
+      {
+        "confidence": 1.0,
+        "data_type": "reg",
+        "direction": "output",
+        "name": "green",
+        "raw_range": null,
+        "signed": false,
+        "source": "rtl_header",
+        "width": 1
+      }
+    ],
+    "resets": [
+      {
+        "active_level": 0,
+        "confidence": 0.9,
+        "name": "rst_n",
+        "source": "spec_hint",
+        "stabilization_cycles": null,
+        "synchronous": null
+      }
+    ],
+    "rtl_sources": [
+      "tmp/phase7_golden_slice_inputs_tools/traffic_light/generated_traffic_light.v"
+    ],
+    "source_map": {
+      "clocks.clk": [
+        "rtl_heuristic",
+        "spec_hint"
+      ],
+      "module_name": [
+        "rtl:generated_traffic_light.v"
+      ],
+      "ports.clk": [
+        "rtl:generated_traffic_light.v"
+      ],
+      "ports.clock": [
+        "rtl:generated_traffic_light.v"
+      ],
+      "ports.green": [
+        "rtl:generated_traffic_light.v"
+      ],
+      "ports.pass_request": [
+        "rtl:generated_traffic_light.v"
+      ],
+      "ports.red": [
+        "rtl:generated_traffic_light.v"
+      ],
+      "ports.rst_n": [
+        "rtl:generated_traffic_light.v"
+      ],
+      "ports.yellow": [
+        "rtl:generated_traffic_light.v"
+      ],
+      "resets.rst_n": [
+        "rtl_heuristic",
+        "spec_hint"
+      ],
+      "timing": [
+        "rtl_heuristic"
+      ]
+    },
+    "timing": {
+      "confidence": 0.9,
+      "fixed_latency_cycles": null,
+      "latency_model": "unknown",
+      "sampling_window_cycles": null,
+      "sequential_kind": "seq",
+      "source": "rtl_heuristic",
+      "variable_latency_range": null
+    }
+  },
+  "coverage_summary": {
+    "attempts": [
+      {
+        "attempt_index": 0,
+        "executed_stages": [
+          "contract",
+          "plan",
+          "oracle",
+          "render",
+          "run",
+          "triage"
+        ],
+        "golden_validation": true,
+        "simulation_status": "success",
+        "start_stage": "contract",
+        "triage_category": "no_failure",
+        "validation_rtl_sources": [
+          "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/traffic_light/verified_traffic_light.v"
+        ]
+      }
+    ],
+    "golden_validation_source_status": "success",
+    "golden_validation_triage_category": "no_failure",
+    "max_repair_rounds": 1,
+    "repair_loop_used": false,
+    "repair_rounds_used": 0,
+    "task_id": "traffic_light",
+    "validation_inputs": {
+      "generation_rtl_sources": [
+        "tmp/phase7_golden_slice_inputs_tools/traffic_light/generated_traffic_light.v"
+      ],
+      "golden_rtl_fallback_used": false,
+      "golden_rtl_sources": [
+        "/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/traffic_light/verified_traffic_light.v"
+      ],
+      "golden_tb_ignored": false
+    }
+  },
+  "final_verdict": {
+    "confidence": 0.82,
+    "false_negative_risk": 0.18,
+    "false_positive_risk": 0.22,
+    "rationale": [
+      "Verification completed without needing a repair round."
+    ],
+    "verdict": "pass"
+  },
+  "oracle_summary": {
+    "assumptions": [
+      "If the pass_request signal is active and the green signal is active, the counter is set to 10.",
+      "If the green signal is inactive and the previous green signal (p_green) was active, the counter is set to 60.",
+      "If the yellow signal is inactive and the previous yellow signal (p_yellow) was active, the counter is set to 5.",
+      "If the red signal is inactive and the previous red signal (p_red) was active, the counter is set to 10.",
+      "Spec text was provided and only used where it did not contradict the contract.",
+      "LLM hybrid fallback activated for plan stage: LLM request failed after 1 attempt(s): Connection error.",
+      "Spec text was provided and only used where it reinforced already-known contract or plan constraints.",
+      "LLM hybrid fallback activated for oracle stage: LLM request failed after 1 attempt(s): Connection error."
+    ],
+    "based_on_contract": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/contract/contract.json",
+    "based_on_plan": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/plan/test_plan.json",
+    "functional_oracles": [],
+    "module_name": "verified_traffic_light",
+    "oracle_confidence": {
+      "functional_confidence": 0.0,
+      "overall_confidence": 0.4712500000000002,
+      "property_confidence": 0.7375000000000002,
+      "protocol_confidence": 0.7650000000000001
+    },
+    "oracle_strategy": "hybrid_rule_based_plus_llm",
+    "property_oracles": [
+      {
+        "assumptions": [],
+        "case_id": "property_reset_001",
+        "category": "reset",
+        "checks": [
+          {
+            "check_id": "reset_001_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.7750000000000001,
+            "description": "Do not infer business-level completion or acceptance solely from reset activity.",
+            "expected_transition": "",
+            "notes": [
+              "Clock/reset remain anchors and are not emitted as business outputs."
+            ],
+            "observed_signals": [
+              "clock",
+              "red",
+              "yellow",
+              "green"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "No safety property is violated by treating reset as control-only; later functional claims require separate post-reset evidence.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "clock": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              },
+              "green": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "red": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "yellow": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "reset_release",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "While reset is asserted or being released."
+          }
+        ],
+        "confidence": 0.7750000000000001,
+        "linked_plan_case_id": "reset_001",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'reset_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      },
+      {
+        "assumptions": [],
+        "case_id": "property_basic_001",
+        "category": "basic",
+        "checks": [
+          {
+            "check_id": "basic_001_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.7750000000000001,
+            "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+            "expected_transition": "",
+            "notes": [
+              "Default property oracle protects against over-specific later render behavior."
+            ],
+            "observed_signals": [
+              "clock",
+              "red",
+              "yellow",
+              "green"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "clock": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              },
+              "green": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "red": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "yellow": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "operation_applied",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+          }
+        ],
+        "confidence": 0.7750000000000001,
+        "linked_plan_case_id": "basic_001",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'basic_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      },
+      {
+        "assumptions": [],
+        "case_id": "property_edge_001",
+        "category": "edge",
+        "checks": [
+          {
+            "check_id": "edge_001_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.7250000000000001,
+            "description": "Guardrail: avoid fixed-cycle expectations unless the contract later proves them.",
+            "expected_transition": "",
+            "notes": [
+              "Default property oracle protects against over-specific later render behavior."
+            ],
+            "observed_signals": [
+              "clock",
+              "red",
+              "yellow",
+              "green"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "The oracle only requires conservative, externally visible progress or stability and forbids hidden exact-cycle assumptions.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "clock": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              },
+              "green": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "red": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "yellow": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "operation_applied",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "Whenever the linked case evaluates externally visible progress."
+          }
+        ],
+        "confidence": 0.7250000000000001,
+        "linked_plan_case_id": "edge_001",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'edge_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      },
+      {
+        "assumptions": [],
+        "case_id": "property_back_to_back_001",
+        "category": "back_to_back",
+        "checks": [
+          {
+            "check_id": "back_to_back_001_property_001",
+            "check_type": "property",
+            "comparison_operands": [],
+            "confidence": 0.6750000000000002,
+            "description": "Guardrail: repeated operations must not collapse into a single ambiguous completion claim.",
+            "expected_transition": "",
+            "notes": [
+              "Stability-style property used instead of throughput-specific claims."
+            ],
+            "observed_signals": [
+              "clock",
+              "red",
+              "yellow",
+              "green"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "Observed progress remains order-aware and non-contradictory even when exact queueing semantics are unresolved.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "clock": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "property_guardrail_preserves_value_ambiguity",
+                "strength": "unresolved"
+              },
+              "green": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "red": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "yellow": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "guarded",
+            "temporal_window": {
+              "anchor": "repeated_operations",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "unbounded_safe"
+            },
+            "trigger_condition": "When the linked case applies repeated or back-to-back operations."
+          }
+        ],
+        "confidence": 0.6750000000000002,
+        "linked_plan_case_id": "back_to_back_001",
+        "notes": [],
+        "source": "rule_based",
+        "unresolved_items": [
+          "Property oracle for case 'back_to_back_001' is acting as a guardrail because stronger functional semantics are not yet justified."
+        ]
+      }
+    ],
+    "protocol_oracles": [
+      {
+        "assumptions": [
+          "Handshake groups are treated as heuristic anchors, not fully proven protocol specifications."
+        ],
+        "case_id": "protocol_reset_001",
+        "category": "reset",
+        "checks": [
+          {
+            "check_id": "reset_001_protocol_001",
+            "check_type": "protocol",
+            "comparison_operands": [],
+            "confidence": 0.7650000000000001,
+            "description": "Treat reset assertion/release as a control event and require reset-safe interface behavior.",
+            "expected_transition": "",
+            "notes": [
+              "Reset is used as an anchor only; it is not treated as a business output."
+            ],
+            "observed_signals": [
+              "clock",
+              "red",
+              "yellow",
+              "green"
+            ],
+            "oracle_pattern": "",
+            "pass_condition": "No acceptance, completion, or externally visible functional progress is claimed solely during reset; post-release observation waits for stable, externally visible behavior.",
+            "reference_domain": "",
+            "relation_kind": "",
+            "semantic_tags": [],
+            "signal_policies": {
+              "clock": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "green": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "red": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              },
+              "yellow": {
+                "allow_high_impedance": true,
+                "allow_unknown": true,
+                "definedness_mode": "not_required",
+                "rationale": "insufficient_structured_evidence",
+                "strength": "unresolved"
+              }
+            },
+            "source": "rule_based",
+            "strictness": "conservative",
+            "temporal_window": {
+              "anchor": "reset_release",
+              "max_cycles": null,
+              "min_cycles": null,
+              "mode": "event_based"
+            },
+            "trigger_condition": "When reset 'rst_n' is asserted and later released according to the inferred polarity."
+          }
+        ],
+        "confidence": 0.7650000000000001,
+        "linked_plan_case_id": "reset_001",
+        "notes": [
+          "Reset oracle focuses on control-safe behavior instead of value-specific output claims.",
+          "Protocol oracle strictness is downgraded because the contract or plan is weak."
+        ],
+        "source": "rule_based",
+        "unresolved_items": []
+      }
+    ],
+    "unresolved_items": [
+      "Spec/reset hint could not be mapped to a known reset port: The second always block handles the counting logic of the internal counter (cnt). The counter is decremented by 1 on every positive edge of the clock or negative edge of the reset signal. The counter values are adjusted based on various conditions:",
+      "Spec/reset hint could not be mapped to a known reset port: The final always block handles the output signals. It assigns the previous values (p_red, p_yellow, p_green) to the output signals (red, yellow, green) on the positive edge of the clock or negative edge of the reset signal.",
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage.",
+      "Contract or plan confidence is limited; oracle generation is intentionally conservative and may omit value-level functional checks.",
+      "Hybrid LLM oracle augmentation failed; retained baseline rule-based oracle checks."
+    ]
+  },
+  "repair_actions": [],
+  "simulation_summary": {
+    "based_on_render_metadata": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/render/metadata.json",
+    "command": [
+      "/workspace/I/qimeng6/miniconda3/bin/python",
+      "-c",
+      "\nimport json\nimport sys\nfrom pathlib import Path\n\npayload = json.loads(sys.argv[1])\nfrom cocotb_tools.runner import get_runner\n\nrunner = get_runner(payload[\"simulator\"])\nrunner.build(\n    verilog_sources=payload[\"rtl_sources\"],\n    includes=payload[\"include_dirs\"],\n    defines=payload[\"defines\"],\n    parameters=payload[\"parameters\"],\n    hdl_toplevel=payload[\"top_module\"],\n    clean=payload[\"clean_build\"],\n    waves=payload[\"waves_enabled\"],\n    always=True,\n)\nrunner.test(\n    hdl_toplevel=payload[\"top_module\"],\n    test_module=payload[\"test_module\"],\n    waves=payload[\"waves_enabled\"],\n    plusargs=payload[\"plusargs\"],\n    extra_env=payload[\"extra_env\"],\n    results_xml=payload[\"junit_path\"],\n)\n",
+      "{\"simulator\": \"icarus\", \"rtl_sources\": [\"/workspace/I/qimeng6/wangchuanhao/QiMeng-Agent/VerilogBenchmark/Benchmarks/RTLLM_for_ivl/traffic_light/verified_traffic_light.v\"], \"include_dirs\": [], \"defines\": {}, \"parameters\": {}, \"top_module\": \"verified_traffic_light\", \"test_module\": \"cocotb_tests.test_verified_traffic_light_basic\", \"waves_enabled\": false, \"extra_env\": {}, \"plusargs\": [], \"junit_path\": null, \"clean_build\": false}"
+    ],
+    "discovered_tests": [],
+    "duration_seconds": 0.61144,
+    "end_time": "2026-03-31T14:53:58.143810+00:00",
+    "executed_tests": [],
+    "execution_notes": [
+      "Simulation stage consumes render metadata and package artifacts without modifying rendered test semantics.",
+      "Selected backend 'cocotb_tools' for mode 'cocotb_tools'.",
+      "No explicit per-test results were found in logs; relying on return code and JUnit when available."
+    ],
+    "failed_tests": [],
+    "junit_path": null,
+    "log_paths": {
+      "build_log": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/run/logs/build.log",
+      "stderr": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/run/logs/stderr.txt",
+      "stdout": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/run/logs/stdout.txt",
+      "test_log": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/run/logs/test.log"
+    },
+    "module_name": "verified_traffic_light",
+    "passed_tests": [],
+    "return_code": 0,
+    "runner_warnings": [],
+    "selected_mode": "cocotb_tools",
+    "selected_simulator": "icarus",
+    "skipped_tests": [],
+    "start_time": "2026-03-31T14:53:57.532370+00:00",
+    "status": "success",
+    "waveform_paths": []
+  },
+  "test_plan_summary": {
+    "assumptions": [
+      "If the pass_request signal is active and the green signal is active, the counter is set to 10.",
+      "If the green signal is inactive and the previous green signal (p_green) was active, the counter is set to 60.",
+      "If the yellow signal is inactive and the previous yellow signal (p_yellow) was active, the counter is set to 5.",
+      "If the red signal is inactive and the previous red signal (p_red) was active, the counter is set to 10.",
+      "Spec text was provided and only used where it did not contradict the contract.",
+      "LLM hybrid fallback activated for plan stage: LLM request failed after 1 attempt(s): Connection error."
+    ],
+    "based_on_contract": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/contract/contract.json",
+    "cases": [
+      {
+        "case_id": "reset_001",
+        "category": "reset",
+        "comparison_operands": [],
+        "confidence": 0.8350000000000002,
+        "coverage_tags": [
+          "reset",
+          "initialization",
+          "stability"
+        ],
+        "defer_reason": "",
+        "dependencies": [],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "Observed outputs or protocol-visible signals settle to a stable, non-X post-reset state.",
+          "No fixed-cycle completion is assumed during reset recovery."
+        ],
+        "expected_transition": "",
+        "goal": "Establish a stable post-reset baseline before functional checking.",
+        "notes": [
+          "Reset polarity may still be heuristic if the contract marks it ambiguous."
+        ],
+        "observed_signals": [
+          "clock",
+          "red",
+          "yellow",
+          "green"
+        ],
+        "preconditions": [
+          "Reset signal is available in the contract."
+        ],
+        "priority": 1,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Assert the detected reset using the inferred polarity.",
+          "Release reset conservatively and observe interface stabilization."
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "rst_n"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      {
+        "case_id": "basic_001",
+        "category": "basic",
+        "comparison_operands": [],
+        "confidence": 0.7850000000000001,
+        "coverage_tags": [
+          "basic",
+          "sanity",
+          "seq"
+        ],
+        "defer_reason": "",
+        "dependencies": [
+          "reset_001"
+        ],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "A legal operation causes an observable state or output change after conservative observation.",
+          "The plan does not assume a completion event before it is externally visible."
+        ],
+        "expected_transition": "",
+        "goal": "Apply one legal operation and observe stable post-operation behavior.",
+        "notes": [
+          "Case intent is conservative when the contract is weak or timing is unresolved."
+        ],
+        "observed_signals": [
+          "clock",
+          "red",
+          "yellow",
+          "green"
+        ],
+        "preconditions": [
+          "Use only ports and observable signals present in the contract."
+        ],
+        "priority": 1,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "ambiguity_preserving"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Drive a representative legal input pattern across known non-control inputs: ['pass_request']"
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "pass_request"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      {
+        "case_id": "edge_001",
+        "category": "edge",
+        "comparison_operands": [],
+        "confidence": 0.7350000000000001,
+        "coverage_tags": [
+          "edge",
+          "boundary"
+        ],
+        "defer_reason": "",
+        "dependencies": [
+          "basic_001"
+        ],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "Boundary-value stimulation does not rely on hidden state or undocumented latency.",
+          "When width expressions are symbolic, only conservative min/max-style exploration is planned."
+        ],
+        "expected_transition": "",
+        "goal": "Exercise boundary-value and width-sensitive input patterns.",
+        "notes": [
+          "Edge coverage remains value-oriented and avoids fixed-latency assumptions."
+        ],
+        "observed_signals": [
+          "clock",
+          "red",
+          "yellow",
+          "green"
+        ],
+        "preconditions": [
+          "At least one input or symbolic-width input is available."
+        ],
+        "priority": 2,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "width_sensitive"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Use zero-like, one-like, and boundary patterns on ['pass_request']"
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "pass_request"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      },
+      {
+        "case_id": "back_to_back_001",
+        "category": "back_to_back",
+        "comparison_operands": [],
+        "confidence": 0.7050000000000002,
+        "coverage_tags": [
+          "back_to_back",
+          "repeated_operation"
+        ],
+        "defer_reason": "",
+        "dependencies": [
+          "basic_001"
+        ],
+        "execution_policy": "deterministic",
+        "expected_properties": [
+          "Repeated operations do not rely on hidden fixed-latency assumptions.",
+          "The second operation is observed only through externally visible acceptance, completion, or output change."
+        ],
+        "expected_transition": "",
+        "goal": "Observe repeated or back-to-back legal operations under conservative timing assumptions.",
+        "notes": [
+          "When timing is unresolved, this case stays unresolved-safe and does not require deterministic overlap behavior."
+        ],
+        "observed_signals": [
+          "clock",
+          "red",
+          "yellow",
+          "green"
+        ],
+        "preconditions": [
+          "At least one legal operation is already defined by the basic case."
+        ],
+        "priority": 3,
+        "reference_domain": "",
+        "relation_kind": "",
+        "scenario_kind": "",
+        "semantic_tags": [
+          "operation_specific"
+        ],
+        "settle_requirement": "",
+        "source": "rule_based",
+        "stimulus_intent": [
+          "Apply two legal operations with minimal idle spacing that remains safe for the current contract strength."
+        ],
+        "stimulus_program": [],
+        "stimulus_signals": [
+          "pass_request"
+        ],
+        "timing_assumptions": [
+          "Advance through conservative clocked observations.",
+          "Do not assume completion before it becomes externally visible."
+        ]
+      }
+    ],
+    "module_name": "verified_traffic_light",
+    "plan_confidence": 0.8050000000000002,
+    "plan_strategy": "hybrid_rule_based_plus_llm",
+    "unresolved_items": [
+      "Spec/reset hint could not be mapped to a known reset port: The second always block handles the counting logic of the internal counter (cnt). The counter is decremented by 1 on every positive edge of the clock or negative edge of the reset signal. The counter values are adjusted based on various conditions:",
+      "Spec/reset hint could not be mapped to a known reset port: The final always block handles the output signals. It assigns the previous values (p_red, p_yellow, p_green) to the output signals (red, yellow, green) on the positive edge of the clock or negative edge of the reset signal.",
+      "Hybrid LLM plan augmentation failed; retained baseline rule-based coverage."
+    ]
+  },
+  "triage": {
+    "based_on_render_metadata": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/render/metadata.json",
+    "based_on_runner_selection": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/run/runner_selection.json",
+    "based_on_simulation_result": "tmp/phase7_golden_slice_verify_tools_fix/traffic_light/run/simulation_result.json",
+    "confidence": 0.92,
+    "evidence": [
+      "simulation_status=success",
+      "module_name=verified_traffic_light",
+      "failed_tests_count=0",
+      "passed_tests_count=0",
+      "discovered_tests_count=0",
+      "return_code=0",
+      "runner_backend=cocotb_tools",
+      "runner_selected_mode=cocotb_tools",
+      "runner_warning_count=0",
+      "render_warning_count=9",
+      "render_confidence=0.51"
+    ],
+    "matched_log_fragments": [
+      "    45.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_traffic_light_basic.test_reset_001 passed",
+      "   201.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_traffic_light_basic.test_basic_001 passed",
+      "   337.00ns INFO     cocotb.regression                  cocotb_tests.test_verified_traffic_light_basic.test_back_to_back_001 passed"
+    ],
+    "matched_signals": [],
+    "module_name": "verified_traffic_light",
+    "primary_category": "no_failure",
+    "secondary_categories": [],
+    "source_status": "success",
+    "suspected_layer": "none"
+  },
+  "unresolved_items": []
+}

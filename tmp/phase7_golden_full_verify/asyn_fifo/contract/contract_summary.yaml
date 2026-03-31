@@ -1,0 +1,106 @@
+module_name: dual_port_RAM
+rtl_sources:
+- /workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_inputs/asyn_fifo/generated_asyn_fifo.v
+parameters:
+  DEPTH: '16'
+  WIDTH: '8'
+port_count: 8
+ports:
+- name: wclk
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: wenc
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: waddr
+  direction: input
+  width: $clog2(DEPTH)-1:0
+  raw_range: '[$clog2(DEPTH)-1:0]'
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: wdata
+  direction: input
+  width: WIDTH-1:0
+  raw_range: '[WIDTH-1:0]'
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: rclk
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: renc
+  direction: input
+  width: 1
+  raw_range: null
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: raddr
+  direction: input
+  width: $clog2(DEPTH)-1:0
+  raw_range: '[$clog2(DEPTH)-1:0]'
+  signed: false
+  data_type: null
+  source: rtl_header
+  confidence: 1.0
+- name: rdata
+  direction: output
+  width: WIDTH-1:0
+  raw_range: '[WIDTH-1:0]'
+  signed: false
+  data_type: reg
+  source: rtl_header
+  confidence: 1.0
+clock_names:
+- wclk
+- rclk
+reset_names: []
+handshake_groups: []
+handshake_signals: []
+timing:
+  sequential_kind: seq
+  latency_model: unknown
+  fixed_latency_cycles: null
+  variable_latency_range: null
+  sampling_window_cycles: null
+  source: rtl_heuristic
+  confidence: 0.9
+observable_outputs:
+- rdata
+ambiguities:
+- 'Spec/reset hint could not be mapped to a known reset port: wrstn: Write reset signal.
+  Defined as 0 for reset and 1 for reset signal inactive.'
+- 'Spec/reset hint could not be mapped to a known reset port: rrstn: Read reset signal.
+  Defined as 0 for reset and 1 for reset signal inactive.'
+- 'Spec/reset hint could not be mapped to a known reset port: The write pointer is
+  incremented on the positive edge of the write clock (posedge wclk) and reset to
+  0 on write reset (~wrstn).'
+- 'Spec/reset hint could not be mapped to a known reset port: The read pointer is
+  incremented on the positive edge of the read clock (posedge rclk) and reset to 0
+  on read reset (~rrstn).'
+- 'Spec/reset hint could not be mapped to a known reset port: The buffer registers
+  are updated on the positive edge of the respective clocks and reset to 0 on the
+  respective resets (~wrstn and ~rrstn).'
+extraction_warnings:
+- Multiple module headers were found in generated_asyn_fifo.v; using the first module
+  'dual_port_RAM'.
+contract_confidence: 0.5350000000000001

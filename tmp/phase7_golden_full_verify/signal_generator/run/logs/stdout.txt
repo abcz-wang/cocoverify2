@@ -1,0 +1,45 @@
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.0rc1 interpreter at /workspace/I/qimeng6/miniconda3/bin/python
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 10.2 (stable)
+     0.00ns WARNING  gpi                                vpi_iterate returned NULL for type vpiInstance for object NULL
+     0.00ns INFO     cocotb                             Seeding Python random module with 1774969021
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_signal_generator_basic.test_reset_001 (1/2)
+                                                            Establish a stable post-reset baseline before functional checking. Note: Reset polarity may still be heuristic if the contract marks it ambiguous.
+     0.00ns WARNING  ..st test_reset_001.test_reset_001 Bad `period`: Unable to accurately represent 10.0(ns) with the simulator precision of 1e0
+                                                        Traceback (most recent call last):
+                                                          File "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/signal_generator/render/cocotb_tests/test_verified_signal_generator_basic.py", line 30, in test_reset_001
+                                                            await env.initialize()
+                                                          File "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/signal_generator/render/cocotb_tests/verified_signal_generator_env.py", line 104, in initialize
+                                                            await self._start_background_clocks()
+                                                          File "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/signal_generator/render/cocotb_tests/verified_signal_generator_env.py", line 119, in _start_background_clocks
+                                                            self._clock_tasks.append(cocotb.start_soon(Clock(signal, period_ns, unit="ns").start(start_high=False)))
+                                                                                                       ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                          File "/workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb/clock.py", line 185, in __init__
+                                                            raise ValueError(f"Bad `period`: {e}") from None
+                                                        ValueError: Bad `period`: Unable to accurately represent 10.0(ns) with the simulator precision of 1e0
+     0.00ns WARNING  cocotb.regression                  cocotb_tests.test_verified_signal_generator_basic.test_reset_001 failed
+     0.00ns INFO     cocotb.regression                  running cocotb_tests.test_verified_signal_generator_basic.test_basic_001 (2/2)
+                                                            Observe clock-driven state progress after reset or conservative initialization. Note: Case intent is conservative when the contract is weak or timing is unresolved. Note: Case relies on deterministic clock-driven observation because no non-control inputs were resolved.
+1000000000.00ns WARNING  ..st test_basic_001.test_basic_001 Bad `period`: Unable to accurately represent 10.0(ns) with the simulator precision of 1e0
+                                                            Traceback (most recent call last):
+                                                              File "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/signal_generator/render/cocotb_tests/test_verified_signal_generator_basic.py", line 60, in test_basic_001
+                                                                await env.initialize()
+                                                              File "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/signal_generator/render/cocotb_tests/verified_signal_generator_env.py", line 104, in initialize
+                                                                await self._start_background_clocks()
+                                                              File "/workspace/I/qimeng6/wangchuanhao/cocoverify2/tmp/phase7_golden_full_verify/signal_generator/render/cocotb_tests/verified_signal_generator_env.py", line 119, in _start_background_clocks
+                                                                self._clock_tasks.append(cocotb.start_soon(Clock(signal, period_ns, unit="ns").start(start_high=False)))
+                                                                                                           ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                              File "/workspace/I/qimeng6/miniconda3/lib/python3.13/site-packages/cocotb/clock.py", line 185, in __init__
+                                                                raise ValueError(f"Bad `period`: {e}") from None
+                                                            ValueError: Bad `period`: Unable to accurately represent 10.0(ns) with the simulator precision of 1e0
+1000000000.00ns WARNING  cocotb.regression                  cocotb_tests.test_verified_signal_generator_basic.test_basic_001 failed
+1000000000.00ns INFO     cocotb.regression                  **************************************************************************************************************************
+                                                            ** TEST                                                              STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                            **************************************************************************************************************************
+                                                            ** cocotb_tests.test_verified_signal_generator_basic.test_reset_001   FAIL           0.00           0.00          0.00  **
+                                                            ** cocotb_tests.test_verified_signal_generator_basic.test_basic_001   FAIL           0.00           0.00          0.00  **
+                                                            **************************************************************************************************************************
+                                                            ** TESTS=2 PASS=0 FAIL=2 SKIP=0                                              1000000000.00           0.01   92281885987.11  **
+                                                            **************************************************************************************************************************
